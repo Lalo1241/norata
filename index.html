@@ -1142,8 +1142,10 @@
                que lengua y la otra en que forma. Lo dibuja `renderGenero`
                (js/09-inicio.js). -->
           <div class="panel">
+            <!-- Sin nota (0.7.169): Eduardo pidió menos palabras en Mi perfil
+                 —«mares de palabras que nadie lee»—, y dos botones que dicen
+                 Español y English no necesitan que nadie los explique. -->
             <h3>Idioma</h3>
-            <p class="settings-note">En qué idioma te habla Norata. Cambiarlo no toca nada de lo que has escrito tú: tus habilidades, misiones y talentos se quedan como los nombraste.</p>
             <div id="idioma-opciones"></div>
           </div>
 
@@ -1154,18 +1156,17 @@
                Plegado siempre al entrar: nada de recordar si se abrió. -->
           <details class="aj-mas" id="aj-mas">
             <summary>
-              <span class="aj-mas-tx"><b>Más preferencias</b><span>Cómo te hablo, moneda, tu tiempo, dónde se te cae y exigencia</span></span>
+              <span class="aj-mas-tx"><b>Más preferencias</b><span>Cómo te hablo, moneda y ritmo</span></span>
               <span class="aj-chev" aria-hidden="true">›</span>
             </summary>
             <div class="aj-mas-cuerpo">
             <div class="panel" id="panel-genero">
-              <h3>Como te hablo</h3>
-              <p class="settings-note">El español pone género en muchas palabras. Esto decide cuál uso contigo: los avisos, los saludos y los correos. Se pregunta al armar tu tablero, y aquí se cambia cuando quieras. Los rangos de tu expedición no cambian: los cinco valen igual para todo el mundo.</p>
+              <h3>Cómo te hablo</h3>
               <div id="genero-opciones"></div>
             </div>
             <div class="panel">
               <h3>Moneda</h3>
-              <p class="settings-note">Con la que se escribe lo que te cuesta un talento y lo que llevas invertido. Al cambiarla te pregunto el tipo de cambio y convierto tus importes —guardando antes una copia—.</p>
+              <p class="settings-note">Al cambiarla convierto tus importes y guardo antes una copia.</p>
               <div id="moneda-opciones"></div>
               <div id="moneda-cambio"></div>
             </div>
@@ -1177,18 +1178,17 @@
                  bienvenida. Las dibuja `renderTiempo` y `renderFlaqueza`
                  (js/09-inicio.js). -->
             <div class="panel">
-              <h3>Cuanto tiempo tienes al dia</h3>
-              <p class="settings-note">Lo que contestaste al armar tu tablero. Decide cuantas habilidades trae un area nueva, si su mision es diaria o de tres dias, y cuanto tiempo se le da a cada meta. Cambiarlo no toca nada de lo que ya tienes: manda sobre lo que se cree a partir de ahora.</p>
+              <h3>Cuánto tiempo tienes al día</h3>
+              <p class="settings-note">Vale para lo que crees a partir de ahora.</p>
               <div id="tiempo-opciones"></div>
             </div>
             <div class="panel">
-              <h3>Donde se te suele caer</h3>
-              <p class="settings-note">Con esto decido que NO ponerte: menos plazos si te cuesta arrancar, menos metas largas si te cuesta sostener, y ramas mas cortas si lo que te cuesta es cerrar.</p>
+              <h3>Dónde se te suele caer</h3>
               <div id="flaqueza-opciones"></div>
             </div>
             <div class="panel">
               <h3>Qué tan exigente lo quieres</h3>
-              <p class="settings-note">Cuánto aguanta una habilidad sin que la practiques antes de empezar a bajar, y a qué ritmo baja. Es lo que eliges al armar tu tablero, y aquí se cambia cuando quieras.</p>
+              <p class="settings-note">Cuánto aguanta una habilidad sin práctica antes de bajar.</p>
               <div id="ritmo-opciones"></div>
               <div id="ritmo-aplicar"></div>
             </div>

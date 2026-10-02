@@ -8770,6 +8770,34 @@
   }
   .op-tx { min-width: 0; }
 
+  /* ---- Las mismas opciones, dentro de Ajustes: en fila (0.7.169) ----
+     En la bienvenida van una debajo de otra porque cada pantalla es UNA
+     pregunta y sobra sitio. En Mi perfil son seis preguntas seguidas, y
+     apiladas hacían una columna larguísima de botones a todo lo ancho con dos
+     palabras dentro. Aquí caben lado a lado: tantas por fila como quepan con
+     su ancho mínimo, que es corto donde la opción es un nombre (idioma,
+     género, moneda) y más largo donde lleva una frase. */
+  /* Todas en una fila o una por fila, nunca «dos y una suelta»: con
+     `auto-fit` a secas, tres opciones en una columna mediana quedaban dos
+     arriba y una huérfana abajo. El `clamp` es un interruptor: por debajo de
+     `--op-corte` el ancho mínimo de cada opción vale el 100% (una por fila), y
+     por encima vale una parte de `--op-n` (todas juntas). */
+  #ajustes-cuerpo .ob-pace {
+    display: grid; gap: 8px; margin-top: 4px;
+    grid-template-columns: repeat(auto-fit, minmax(
+      clamp(calc((100% - 8px * (var(--op-n, 3) - 1)) / var(--op-n, 3)), calc((var(--op-corte, 600px) - 100%) * 999), 100%), 1fr));
+  }
+  /* Dos opciones cortas caben lado a lado hasta en el teléfono. */
+  #ajustes-cuerpo :is(#idioma-opciones, #genero-opciones) .ob-pace { --op-n: 2; --op-corte: 270px; }
+  /* Cuatro: de dos en dos. */
+  #ajustes-cuerpo #flaqueza-opciones .ob-pace { --op-n: 2; --op-corte: 480px; }
+  #ajustes-cuerpo #moneda-opciones .ob-pace { --op-corte: 520px; }
+  #ajustes-cuerpo .ob-pace-opt { padding: 10px 11px; gap: 9px; border-radius: var(--r-caja); }
+  #ajustes-cuerpo .ob-pace-opt .op-ic { width: 32px; height: 32px; }
+  #ajustes-cuerpo .ob-pace-opt b { font-size: 14px; margin-bottom: 1px; }
+  #ajustes-cuerpo .ob-pace-opt span { font-size: 12px; }
+  #ajustes-cuerpo .ajuste-bloque[data-sec="cuenta"] .panel > h3 + .settings-note { margin-top: -2px; }
+
   /* La etiqueta «beta» del inglés. Pegada al nombre y no en su propia línea:
      lo que califica es el idioma, no la opción entera. En luciérnaga y sin
      relleno macizo — avisa, no alarma, y una pastilla sólida al lado del

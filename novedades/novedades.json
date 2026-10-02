@@ -679,6 +679,27 @@
       }
     },
     {
+      "version": "0.7.169",
+      "fecha": "2026-10-02",
+      "estado": "borrador",
+      "clase": "mejora",
+      "titulo": "Mi perfil, con menos palabras",
+      "resumen": "Las preferencias de tu perfil dicen lo justo y sus opciones van lado a lado.",
+      "puntos": [
+        "Idioma y «Cómo te hablo» ya no traen explicación: se entienden solos.",
+        "Las opciones van en fila, así que hay menos que desplazar."
+      ],
+      "retoques": [],
+      "en": {
+        "titulo": "My profile, with fewer words",
+        "resumen": "Your profile preferences say just enough, and their options sit side by side.",
+        "puntos": [
+          "Language no longer comes with an explanation: it explains itself.",
+          "Options sit in a row, so there's less to scroll."
+        ]
+      }
+    },
+    {
       "version": "0.7.168",
       "fecha": "2026-10-02",
       "estado": "borrador",

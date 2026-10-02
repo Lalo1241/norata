@@ -311,6 +311,31 @@ esto, en el orden en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.169 · 2 oct 2026
+
+**Mi perfil con menos palabras, y sus opciones en fila.** Eduardo: «siento que
+hay mares y mares de palabras que nadie lee o habla de más explicando cosas
+que deben ser intuitivas de entender», sobre todo en Idioma y Más preferencias.
+
+- **Idioma se queda sin nota**: dos botones que dicen Español y English.
+- **Más preferencias**: «Cómo te hablo» y «Dónde se te suele caer» pierden su
+  párrafo; Moneda, tiempo y exigencia se quedan con UNA línea, la que avisa de
+  una consecuencia (convierte importes; vale desde ahora; qué mide).
+- **Cómo te hablo**: sin elegir, una frase corta; con una elegida, solo el
+  botón de «Prefiero no decirlo». Antes, un párrafo con ejemplo en cada caso.
+- **La exigencia no habla si no hay nada que decidir.** Salía un párrafo
+  confirmando que todo iba bien. Ahora solo aparece cuando hay habilidades con
+  otros números, con una línea y su botón.
+- **Los tres títulos sin acentos, corregidos** («Como te hablo», «Cuanto
+  tiempo tienes al dia», «Donde se te suele caer»). No tenían traducción: en
+  inglés salían en español. Ya la tienen.
+- **Las opciones van en fila dentro de Ajustes** (`#ajustes-cuerpo .ob-pace`):
+  todas juntas o una por fila, nunca dos y una suelta. La bienvenida no cambia:
+  usa las mismas opciones y allí siguen apiladas.
+- Medido: Mi perfil con todo desplegado, sin «Tus datos», pasa de 1.932 a
+  1.707 px de alto en el teléfono (400) y queda en 1.213 en la computadora.
+  Nada desborda ni se corta.
+
 ### 0.7.168 · 2 oct 2026
 
 **El sonido sale del menú plegable, y en Ajustes pasa a una línea con

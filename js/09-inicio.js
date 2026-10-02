@@ -2006,15 +2006,14 @@ function renderGenero() {
      Solo sale cuando hay algo que deshacer. */
   const elegido = generoActual();
   const puesto = elegido === "f" || elegido === "m";
+  /* Una línea o un botón, nunca los dos (0.7.169). Había un párrafo en cada
+     caso explicando el neutro con su ejemplo, debajo de dos opciones que ya
+     traen el suyo escrito («Bienvenida de vuelta»). Sin elegir, una frase
+     corta dice qué pasa; con una elegida, el botón de volver se explica solo. */
   wrap.innerHTML = obOpciones(OB_GENEROS, elegido, "ponerGenero") +
-    `<p class="settings-note" style="margin-top:10px">${
-      puesto
-        ? tx("Sin elegir ninguna, cambio la frase para no marcar género: «Te damos la bienvenida» en vez de «Bienvenido».")
-        : tx("Ahora mismo no marco género: te digo «Te damos la bienvenida» en vez de «Bienvenido». Elige una si prefieres que hable de una forma concreta.")
-    }</p>` +
     (puesto
-      ? `<button class="btn btn-ghost btn-block" style="margin-top:8px" onclick="ponerGenero('x')">${tx("Prefiero no decirlo")}</button>`
-      : "");
+      ? `<button class="btn btn-ghost btn-block" style="margin-top:10px" onclick="ponerGenero('x')">${tx("Prefiero no decirlo")}</button>`
+      : `<p class="settings-note" style="margin-top:10px">${tx("Sin elegir, te hablo sin marcar género.")}</p>`);
 }
 
 function ponerGenero(g) {
@@ -2117,18 +2116,16 @@ function renderPanelRitmo() {
   const zona = document.getElementById("ritmo-aplicar");
   if (!zona) return;
 
-  if (!desalineadas.length) {
-    zona.innerHTML = `<p class="settings-note" style="margin-top:14px">${
-      tx("Las habilidades que crees a partir de ahora nacen así.")}${
-      state.skills.length ? tx(" Las que ya tienes también van con esta exigencia.") : ""}</p>`;
-    return;
-  }
+  /* Si todo va con la exigencia elegida no hay nada que decir, y no se dice
+     (0.7.169). Antes salía un párrafo confirmando que no pasaba nada. Solo
+     habla cuando hay algo que decidir: habilidades con otros números. */
+  if (!desalineadas.length) { zona.innerHTML = ""; return; }
 
   zona.innerHTML = `
-    <p class="settings-note" style="margin-top:14px">${tx("Esto es con lo que nacen las habilidades nuevas.")}
-      ${desalineadas.length === 1
-        ? tx("Una de las tuyas va con otros números, porque la creaste antes o la ajustaste a mano.")
-        : T`${desalineadas.length} de las tuyas van con otros números, porque las creaste antes o las ajustaste una por una.`}</p>
+    <p class="settings-note" style="margin-top:12px">${
+      desalineadas.length === 1
+        ? tx("Una de tus habilidades va con otros números.")
+        : T`${desalineadas.length} de tus habilidades van con otros números.`}</p>
     <button class="btn btn-aviso btn-block" onclick="aplicarExigenciaATodas()">
       ${desalineadas.length === 1 ? tx("Aplicarlo también a esa habilidad")
         : T`Aplicarlo también a esas ${desalineadas.length} habilidades`}
