@@ -311,6 +311,38 @@ esto, en el orden en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.168 · 2 oct 2026
+
+**El sonido sale del menú plegable, y en Ajustes pasa a una línea con
+perilla.** Lo pidió Eduardo con una captura de los dos sitios: «quita que desde
+el menú plegable podamos cambiar el sonido, y en el menú administra bien el
+espacio, ya que hay que agregar otro botón para activar o desactivar la música
+de fondo». Número propio: no pule la 0.7.167, que es Norata por dentro.
+
+- **El menú del engrane** (`abrirMenuAjustes`, `js/09-inicio.js`) se queda
+  solo con Aspecto al final. Con el sonido y su volumen dentro se alargaba, y
+  es un menú para llegar a un sitio.
+- **El bloque de Sonido de Ajustes**, rehecho (`js/01c-sonido.js`). El par
+  «Silencio | Con sonido» medía 206 px en una columna de 274: no cabía junto a
+  su rótulo (la 0.7.164.1 lo dejó en dos líneas) y un segundo interruptor con
+  esa forma habría llevado el bloque a cinco. Ahora cada cosa es una línea
+  —`sonidoLineaHTML`: rótulo, el estado en palabra y la perilla de Mis módulos
+  (`.mod-sw`)— y el bloque mide 85 px en vez de 119. Toda la línea es el botón.
+- **El estado sigue diciéndose con color**, que era de Eduardo desde la
+  0.7.140: «Silencio» va en coral. Antes era el botón entero; ahora es la
+  palabra, con la perilla en el acento.
+- **La música de fondo NO se añadió**: todavía no existe en la app (la lleva
+  la sesión de sonido, en boceto). Un interruptor sin nada detrás sería una
+  pieza sin camino. Queda el sitio: otra llamada a `sonidoLineaHTML` debajo
+  del volumen. Con una fila de muestra el bloque mide 126 px.
+- La perilla se desliza sola con el motor de la 0.7.164, a 2x. La tarjeta de
+  la bienvenida usa el mismo bloque y se ve igual.
+
+Medido en la computadora y en el teléfono, en inglés, de día y en los cinco
+mundos: nada se pisa ni desborda. Se quitaron dos reglas que quedaban sin
+nadie que las usara (`.son-sw .ts-op.on[data-son="off"]` y
+`.mm-tema.sonido-hueco .tema-fila`).
+
 ### 0.7.167 · 2 oct 2026
 
 **«Norata por dentro» deja de ser una lista dentro de Ajustes y pasa a ser una

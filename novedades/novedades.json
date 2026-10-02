@@ -679,6 +679,27 @@
       }
     },
     {
+      "version": "0.7.168",
+      "fecha": "2026-10-02",
+      "estado": "borrador",
+      "clase": "mejora",
+      "titulo": "El sonido, más ordenado en Ajustes",
+      "resumen": "El sonido se enciende y se apaga con un solo interruptor, y su bloque ocupa menos.",
+      "puntos": [
+        "Una línea: el rótulo, cómo está y su interruptor. El volumen sigue debajo.",
+        "El menú del engrane se queda con lo que te lleva a un sitio; el sonido se cambia en Ajustes."
+      ],
+      "retoques": [],
+      "en": {
+        "titulo": "Sound, tidier in Settings",
+        "resumen": "Sound now turns on and off with a single switch, and its block takes less room.",
+        "puntos": [
+          "One line: the label, its state and its switch. Volume stays right below.",
+          "The gear menu keeps what takes you somewhere; sound is changed in Settings."
+        ]
+      }
+    },
+    {
       "version": "0.7.166",
       "fecha": "2026-10-02",
       "estado": "borrador",

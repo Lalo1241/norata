@@ -751,24 +751,33 @@ function avisoPrimerSonido() {
 }
 
 /* ---------- Los controles ----------
-   El mismo par en tres sitios: la pantalla de Ajustes del teléfono, el menú
-   del engrane en la PC (los dos junto a Aspecto) y la tarjeta de la
-   bienvenida. Sale de aquí para que las tres copias no digan cosas distintas,
-   y con clases, no con ids, porque conviven. */
+   El mismo bloque en dos sitios: Ajustes (debajo de Aspecto) y la tarjeta de
+   la bienvenida. Sale de aquí para que las dos copias no digan cosas
+   distintas, y con clases, no con ids, porque conviven. Del menú plegable del
+   engrane se quitó (Eduardo): ahí se queda solo el Aspecto.
+
+   **Una línea por interruptor, y no dos botones lado a lado.** El par
+   «Silencio | Con sonido» medía 206 px y la columna de Ajustes 274: no cabía
+   junto a su rótulo, y viene un segundo interruptor —la música de fondo—
+   que con esa forma habría hecho el bloque de cinco líneas. Ahora cada cosa
+   es `sonidoLineaHTML`: rótulo, el estado dicho en palabra y una perilla. El
+   estado sigue diciéndose con COLOR, como pidió Eduardo: «Silencio» en coral.
+   La música, el día que exista, es otra llamada a esa misma función debajo
+   del volumen; no hay que tocar la maqueta. */
+function sonidoLineaHTML(nombre, estado, activo, accion, etiqueta) {
+  return `
+      <button type="button" class="son-linea" role="switch" aria-checked="${!!activo}"
+        aria-label="${escapeAttr(etiqueta)}" onclick="${accion}">
+        <span class="tema-tit">${nombre}</span>
+        <span class="son-estado">${estado}</span>
+        <span class="mod-sw"><i></i></span>
+      </button>`;
+}
 function sonidoControlesHTML() {
   const on = encendido(), v = volumen();
-  const op = (val, nombre, ico, activo) => `
-    <button type="button" class="ts-op${activo ? " on" : ""}" data-son="${val}" role="radio"
-      aria-checked="${activo}" onclick="sonidoPoner(${val === "on"})">
-      ${icon(ico, 15)}<span>${nombre}</span>
-    </button>`;
   return `
     <div class="tema-fila son-fila">
-      <span class="tema-tit">${tx("Sonido")}</span>
-      <div class="tema-sw son-sw" role="radiogroup" aria-label="${escapeAttr(tx("Sonido de Norata"))}">
-        ${op("off", tx("Silencio"), "silencio", !on)}
-        ${op("on", tx("Con sonido"), "sonido", on)}
-      </div>
+      ${sonidoLineaHTML(tx("Sonido"), on ? tx("Con sonido") : tx("Silencio"), on, `sonidoPoner(${!on})`, tx("Sonido de Norata"))}
       <div class="son-vol${on ? "" : " apagada"}">
         ${icon("sonido", 16)}
         <input type="range" min="0" max="100" step="1" value="${v}" style="--v:${v}%" ${on ? "" : "disabled"}

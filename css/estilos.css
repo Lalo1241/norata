@@ -4190,10 +4190,22 @@
      en coral y «Con sonido» en la menta de siempre (Eduardo). Sin transición
      en ningún color: sale de variables y se quedaría congelado (CLAUDE.md). */
   .son-fila { flex-wrap: wrap; row-gap: 8px; }
-  .son-sw .ts-op.on[data-son="off"] {
-    background: var(--coral-macizo);
-    color: var(--sobre-vivo);
+  /* Una línea por interruptor: rótulo, estado en palabra y perilla. Toda la
+     línea es el botón, para que el pulgar no tenga que acertarle a 40 px. La
+     perilla es la misma de Mis módulos (`.mod-sw`), así que se desliza sola
+     con el motor. Sin transición en ningún color (ver arriba). */
+  .son-linea {
+    flex: 1 0 100%;
+    display: flex; align-items: center; gap: 10px;
+    min-height: 33px;
+    padding: 0; border: 0; background: none;
+    font: inherit; color: inherit; text-align: left; cursor: pointer;
   }
+  .son-linea:focus-visible { outline: 2px solid var(--mint); outline-offset: 4px; border-radius: var(--r-chico); }
+  .son-estado { flex: none; font-size: 12px; font-weight: 650; color: var(--muted); }
+  .son-linea[aria-checked="false"] .son-estado { color: var(--coral); }
+  .son-linea[aria-checked="true"] .mod-sw { background: var(--mint-soft); }
+  .son-linea[aria-checked="true"] .mod-sw i { transform: translateX(17px); background: var(--mint); }
   .son-vol {
     flex-basis: 100%;
     display: flex;
@@ -4251,7 +4263,6 @@
   }
   .son-vol.apagada { opacity: .4; }
   .son-vol.apagada input { cursor: not-allowed; }
-  .mm-tema.sonido-hueco .tema-fila { border-top: none; margin-top: 0; padding-top: 4px; }
 
   /* La tarjeta de la bienvenida: la fila sin marco propio, porque el cuadro
      ya es la tarjeta, y el botón de volver a oír a lo ancho. */

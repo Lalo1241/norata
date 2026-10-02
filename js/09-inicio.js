@@ -2236,8 +2236,10 @@ function abrirMenuAjustes(btn) {
         <span class="mm-ic">${icon(sec.icon, 16)}</span>
         <span class="mm-tx"><b>${escapeHtml(sec.nombre)}</b><span>${escapeHtml(sec.sub)}</span></span>
       </button>`).join("")}
-    <div class="tema-hueco mm-tema">${temaSwitchHTML()}</div>
-    ${typeof sonidoControlesHTML === "function" ? `<div class="sonido-hueco mm-tema">${sonidoControlesHTML()}</div>` : ""}`;
+    <div class="tema-hueco mm-tema">${temaSwitchHTML()}</div>`;
+  /* El sonido estuvo aquí también, y se quitó (Eduardo): este menú es para
+     llegar a un sitio, y con el volumen dentro se alargaba hasta salirse en
+     una pantalla baja. El sonido se cambia en Ajustes. */
   m.classList.add("show");
   // Se coloca ya dibujado: antes de tener contenido no se sabe cuánto mide
   const r = btn.getBoundingClientRect();
