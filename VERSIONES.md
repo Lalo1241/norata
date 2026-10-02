@@ -391,6 +391,15 @@ y cerrar; y la foto de estilos contra los cinco mundos y Arcade, cero
 diferencias en 1 098 elementos. **La función y el SQL no se pudieron probar
 aquí** —no hay Deno ni Postgres—: se prueban al desplegarlos. El trabajo de
 GitHub se probó de verdad al subir esta misma versión.
+
+**Y lo que pasó en esa primera corrida:** preguntó por el grifo, Supabase
+contestó que la función no existe —el SQL no estaba pegado— y lo tomó por
+abierto; pasaron las cuatro primeras comprobaciones y la quinta la detuvo,
+porque el tramo traía `supabase/barrera.sql`. O sea: hizo lo que tenía que
+hacer, y por eso mismo `vivo` no nació ahí ni salió el paquete de Android de la
+0.7.173. Los dos salieron con el commit siguiente, que no toca SQL. La función
+`barrera` quedó desplegada ese mismo día: sin sesión contesta 401, con sesión
+que no administra 403.
 ### 0.7.172.1 · 2 oct 2026
 
 **El cierre de «Actualizar», medio segundo más corto.** Eduardo, ya con la
