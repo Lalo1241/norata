@@ -283,6 +283,42 @@ texto sin aprobar a la vista**: se pone en `false` —el panel vuelve a pedir
 
 ## La lista
 
+### 0.7.160.1 · 1 oct 2026
+
+**El mundo ya no se quita solo al arrancar.** Eduardo, en la PC: «se anima la
+salida, se vuelve a cargar, y se quita el tema». Creía que era la sincronía de
+temas de la 0.7.160; era otra cosa que entró en esa misma versión.
+
+- **La causa.** La cuenta administradora tiene de plan real «Gratuito»: el
+  Fundador se lo pone `PLAN_DE_CASA` por ser admin, y esa respuesta
+  (`revisarAdmin`) llega DESPUÉS de la del plan. En el hueco,
+  `refrescarApariencia` veía «plan confirmado: gratuito» y bajaba el mundo a
+  la casa; al llegar la segunda respuesta lo devolvía. Eso ya pasaba —es el
+  «muchas veces me sale la versión de base» de la 0.7.143.2—, pero era un
+  parpadeo. La 0.7.160 metió ese cambio detrás de una cortina con una guarda
+  que DESCARTABA las llamadas que llegaban mientras estaba puesta, y la que
+  se perdía era justo la que devolvía el mundo: se quedaba quitado.
+- **No se quita nada hasta saberlo de verdad.** `aparienciaSeSabe()` pide las
+  dos respuestas —`PLAN_CONFIRMADO` y el nuevo `adminConfirmado`
+  (`js/10e-panel.js`)—. Con una sola, un «no puedes» no es una respuesta. Con
+  esto desaparece también el parpadeo de antes.
+- **`revisarAdmin` enciende el plan ANTES de revisar la apariencia** cuando la
+  cuenta es admin: revisaba primero, con el Gratuito todavía puesto.
+- **Ninguna llamada se descarta.** La que llega con la cortina puesta se
+  apunta y se repite al retirarla, y lo que toca se vuelve a calcular en el
+  momento de cambiar, no se arrastra desde que se pidió.
+- **`aspectoPermitido`** (la conciliación) usa la misma pregunta.
+
+**Medido**, reproduciendo las tres secuencias a mano sobre un mundo de Pro:
+plan gratuito sin saber aún si es admin, el mundo se queda y la cortina ni
+sale; llega el admin, sigue puesto con plan Fundador. La carrera (la buena
+llega 100 ms después de decidir quitar) acaba con el mundo puesto. Y una
+cuenta que de verdad no lo tiene: cortina, cambio detrás a los 340 ms, y lo
+guardado sigue siendo lo elegido.
+
+**No se pudo probar con la sesión real de Eduardo**: las respuestas del
+servidor se simularon poniendo `esAdmin`, `adminConfirmado` y el plan a mano.
+
 ### 0.7.160 · 1 oct 2026
 
 **El tema viaja con la cuenta, por dispositivo, y la puerta lo lleva puesto.**

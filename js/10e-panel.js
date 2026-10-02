@@ -15,12 +15,21 @@
 /* Empieza en false y solo el servidor lo sube. El orden importa: si arrancara
    en true, habría un instante con el botón puesto para cualquiera. */
 let esAdmin = false;
+/* Si el servidor YA contestó quién es esta cuenta, diga lo que diga (0.7.160.1).
+   No es lo mismo «no eres admin» que «todavía no lo sé», y confundirlos le
+   quitaba el mundo a la cuenta administradora en cada arranque: su plan real
+   es Gratuito —el Fundador se lo pone `PLAN_DE_CASA` por ser admin— y esa
+   respuesta llega DESPUÉS de la del plan. En el hueco, `refrescarApariencia`
+   veía «plan confirmado: gratuito» y bajaba el mundo a la casa. Lo lee esa
+   función: mientras esto valga false, no quita nada. */
+let adminConfirmado = false;
 let metricasCache = null;
 
 /* Se pregunta una vez al arrancar, después de que la sesión esté lista. Si no
    hay sesión, ni se pregunta: la respuesta ya se sabe. */
 async function revisarAdmin() {
   esAdmin = await sbSoyAdmin();
+  adminConfirmado = true;
 
   /* Antes de nada, la puerta de atrás del modo de pruebas. El plan simulado
      vive en `sessionStorage`, así que aguanta una recarga a propósito —si no,
@@ -47,14 +56,17 @@ async function revisarAdmin() {
      poder cambiar de cuenta en el mismo dispositivo sí bajan de golpe: se
      entraba con una cuenta Fundador, se cambiaba a una que no lo es, y el
      mundo de Fundador seguía puesto hasta elegir otro a mano. */
-  if (typeof refrescarApariencia === "function") refrescarApariencia();
+  /* …y para la cuenta administradora, PRIMERO el plan (0.7.160.1). Tiene
+     Fundador puesto (ver `PLAN_DE_CASA`), y `planRefrescar` es lo que lo
+     enciende: `planCargar` ya corrió antes de que el servidor contestara quién
+     es, así que decidió sin saberlo. Revisando la apariencia ANTES de eso,
+     como se hacía, se preguntaba con el plan Gratuito todavía puesto: el
+     mundo se quitaba y se volvía a poner una línea más abajo. `planRefrescar`
+     ya revisa la apariencia por su cuenta, con el plan bueno. */
+  if (esAdmin && typeof planRefrescar === "function") planRefrescar();
+  else if (typeof refrescarApariencia === "function") refrescarApariencia();
 
   if (!esAdmin) return;
-
-  /* La cuenta administradora tiene Fundador puesto (ver `PLAN_DE_CASA`), y
-     esto es lo que lo enciende: `planCargar` ya corrió antes de que el
-     servidor contestara quién es, así que decidió sin saberlo. */
-  if (typeof planRefrescar === "function") planRefrescar();
 
   if (typeof renderAjustes === "function") renderAjustes();
   /* Y el rótulo de pruebas, que también cuelga de esto. Sin esta línea no

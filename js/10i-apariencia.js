@@ -964,16 +964,25 @@ function refrescarApariencia() {
      contestado el plan, «no puedes» no es una respuesta: es el «libre» de
      partida. Quitar el mundo en ese instante es lo que dejaba la app en la
      casa; se quita solo cuando el «no» es de verdad. */
-  if (!puedo && typeof PLAN_CONFIRMADO !== "undefined" && !PLAN_CONFIRMADO) return;
+  if (!puedo && !aparienciaSeSabe()) return;
   const ahora = raiz.getAttribute("data-apariencia") || "casa";
   const debe = puedo ? puesta : "casa";
   if (ahora === debe) return;
 
+  /* Lo que toca se vuelve a calcular EN EL MOMENTO de cambiar, no se arrastra
+     desde que se pidió (0.7.160.1): entre una cosa y otra pasan 320 ms de
+     cortina, y en ese rato puede llegar la respuesta que lo cambia todo. */
   const cambiar = () => {
-    if (debe !== "casa" && esMundo(debe)) pedirLosMundos();
+    const g = aparienciaGuardada();
+    const ok = g === "casa" || aparienciaDisponible(g) === true;
+    if (!ok && !aparienciaSeSabe()) return;
+    const toca = ok ? g : "casa";
+    if ((raiz.getAttribute("data-apariencia") || "casa") === toca) return;
+    if (toca !== "casa" && esMundo(toca)) pedirLosMundos();
     raiz.classList.add("cambiando-modo");
-    if (debe === "casa") raiz.removeAttribute("data-apariencia");
-    else raiz.setAttribute("data-apariencia", debe);
+    if (toca === "casa") raiz.removeAttribute("data-apariencia");
+    else raiz.setAttribute("data-apariencia", toca);
+    aplicarPaleta();
     getComputedStyle(raiz).backgroundColor;
     setTimeout(() => raiz.classList.remove("cambiando-modo"), 0);
     pintarColorDeBarra();
@@ -987,8 +996,12 @@ function refrescarApariencia() {
      ELIGIÓ, y el script de arriba volvería a ponerlo. */
   /* La guarda va PRIMERO: una segunda llamada mientras la cortina está
      entrando la vería «puesta» y cambiaría en ese instante, a media opacidad
-     —o sea, a la vista—. Medido al escribirlo. */
-  if (refrescarApariencia.enMarcha) return;
+     —o sea, a la vista—. Medido al escribirlo.
+     Pero NO se descarta (0.7.160.1): se apunta, y al retirarse la cortina se
+     vuelve a preguntar. La 0.7.160 la tiraba sin más, y la llamada que se
+     perdía era justo la que devolvía el mundo: a Eduardo se le quitaba en la
+     PC en cada arranque y ya no volvía. */
+  if (refrescarApariencia.enMarcha) { refrescarApariencia.otra = true; return; }
   const cortina = document.getElementById("carga");
   const tapado = typeof cargaVisible === "function" && cargaVisible();
   if (!cortina || tapado || typeof cargaMostrar !== "function" || typeof cargaCerrar !== "function") { cambiar(); return; }
@@ -999,8 +1012,25 @@ function refrescarApariencia() {
   cortina.classList.remove("fuera");
   setTimeout(() => {
     cambiar();
-    setTimeout(() => { refrescarApariencia.enMarcha = false; cargaCerrar(); }, 320);
+    setTimeout(() => {
+      refrescarApariencia.enMarcha = false;
+      cargaCerrar();
+      if (refrescarApariencia.otra) {
+        refrescarApariencia.otra = false;
+        setTimeout(refrescarApariencia, 360);
+      }
+    }, 320);
   }, 320);
+}
+
+/* ¿Ya se sabe de verdad qué puede llevar esta cuenta? Hacen falta las DOS
+   respuestas del servidor: el plan y quién es. Con una sola, un «no puedes»
+   no es una respuesta — es el hueco entre las dos, y quitar el mundo ahí es
+   quitárselo a quien sí lo tiene (ver `adminConfirmado`, js/10e-panel.js). */
+function aparienciaSeSabe() {
+  if (typeof PLAN_CONFIRMADO !== "undefined" && !PLAN_CONFIRMADO) return false;
+  if (typeof adminConfirmado !== "undefined" && !adminConfirmado) return false;
+  return true;
 }
 
 /* ================= El aspecto, apuntado en la cuenta (0.7.160) =================
@@ -1131,7 +1161,7 @@ function aspectoPermitido(t) {
     const puedo = aparienciaDisponible(t.a) === true;
     /* Ante la duda, lo que tenía: sin el plan confirmado un «no» no es una
        respuesta (ver `refrescarApariencia`). */
-    const dudoso = typeof PLAN_CONFIRMADO !== "undefined" && !PLAN_CONFIRMADO;
+    const dudoso = !aparienciaSeSabe();
     if (puedo || dudoso) o.a = t.a;
   }
   if (t.m === "arcade" && typeof arcadeEncontrado === "function" && arcadeEncontrado() && !esMundo(o.a)) o.m = "arcade";
