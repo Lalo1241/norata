@@ -607,6 +607,9 @@ async function norataActualizar(btn) {
   /* «si» y no un número cuando no se sabe cuál entra: un «1» pasaba por
      versión, no coincidía con la de verdad y el estreno se daba por fallido. */
   try { sessionStorage.setItem("norata-estreno", window.__versionQueEntra || "si"); } catch (e) {}
+  /* Y la versión de la que se VIENE (0.7.172): el letrero del estreno sale
+     con ella y da el tic a la nueva. */
+  try { sessionStorage.setItem("norata-estreno-de", VERSION); } catch (e) {}
   location.reload();
 }
 

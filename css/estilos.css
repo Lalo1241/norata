@@ -10624,9 +10624,17 @@
      así que la carga que llegó al otro lado de la recarga sigue sin pausa.
 
        0 – 1,9 s    el aro se llena
-       1,14 s       (el 60 % del aro) se va «Actualizando…» y sale el letrero
-       1,26 s       nace el resplandor, y desde 1,96 s respira
-       1,9 – 2,9 s  todo quieto, a la vista; después el telón (JavaScript)
+       0,95 s       (el 50 % del aro) se va «Actualizando…» y sale el letrero,
+                    con la versión que TENÍAS
+       1,07 s       nace el resplandor, y desde 1,77 s respira
+       1,44 – 2,0 s el tic: la tira sube una fila y entra la versión nueva;
+                    cruza mientras el aro se cierra y se asienta 0,1 s después
+       2,0 – 3,5 s  todo quieto, a la vista; después el telón (JavaScript)
+
+     Los tiempos los fue poniendo Eduardo en el boceto (0.7.172): el letrero
+     al 50 y no al 60 para que número nuevo y aro cerrado lleguen juntos, el
+     tic pasándose 0,1 s del cierre (con 0,3 «se demora demasiado»), y medio
+     segundo más de lectura al final.
 
      `carga-llega` es la otra mitad, ANTES de recargar: el mismo dibujo —el
      isotipo quieto y el anillo tenue— sin el aro. */
@@ -10643,19 +10651,60 @@
   }
 
   /* El letrero. Va FUERA del flujo, en el sitio del texto: dentro de la
-     columna, cambiar una línea por dos movería el logo, y eso es un salto.
-     La frase manda y el número acompaña (a 30 px el número gritaba). */
+     columna, cambiar una línea por tres movería el logo, y eso es un salto.
+     Siempre en `--sans`: es un número y una frase que hay que leer de un
+     vistazo, y en la letra de un mundo (Arcade, Averno) no se leen. */
   .carga-version {
     position: absolute; left: 0; right: 0; top: calc(50% + 44px);
     display: grid; gap: 2px; justify-items: center; text-align: center;
+    font-family: var(--sans);
     opacity: 0; pointer-events: none;
   }
-  .carga-version b { font-size: 13px; font-weight: 600; color: var(--mint); font-variant-numeric: tabular-nums; letter-spacing: 0.03em; }
-  .carga-version span { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.35; }
-  html.carga-estreno .carga-msg { animation: cargaMsgSeVa 0.2s ease-in 1.14s forwards; }
-  html.carga-estreno .carga-version { animation: cargaLetrero 0.46s cubic-bezier(0.22, 1, 0.36, 1) 1.26s forwards; }
+  .carga-version i { font-style: normal; font-size: 10.5px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+
+  /* LA RULETA (0.7.172, idea de Eduardo): el recurso de los anuncios de la
+     beta y la 1.0, en chico. Sale la versión que TENÍAS, apagada; mientras el
+     aro se cierra la tira da un tic hacia arriba y entra la nueva, encendida.
+     La ventana mide una fila y la máscara difumina sus dos cantos, así que el
+     número que se va y el que llega se cruzan sin corte.
+     A 20 px: creció de 13 porque ya no acompaña, es lo que pasa. A 30 gritaba.
+     El tic se pasa un 14 % y vuelve —eso lo hace «tic» y no «deslizar»—.
+     Solo con `con-tic`: si no se sabe qué versión había, o es la misma, hay
+     una sola fila y no se mueve nada. */
+  .cv-ruleta {
+    --fila: 30px;
+    display: block; height: var(--fila); overflow: hidden;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 26%, #000 74%, transparent 100%);
+            mask-image: linear-gradient(180deg, transparent 0%, #000 26%, #000 74%, transparent 100%);
+  }
+  .cv-tira { display: flex; flex-direction: column; will-change: transform; }
+  .cv-fila {
+    flex: none; height: var(--fila); display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 700; line-height: 1; letter-spacing: 0.01em; font-variant-numeric: tabular-nums;
+  }
+  .cv-fila.vieja { color: var(--muted); }
+  .cv-fila.nueva { color: var(--mint); }
+  /* «Lista para ti» llega con la versión nueva, no antes: se dice de ella. */
+  .cv-frase { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.35; opacity: 0; }
+
+  html.carga-estreno .carga-msg { animation: cargaMsgSeVa 0.2s ease-in 0.95s forwards; }
+  html.carga-estreno .carga-version { animation: cargaLetrero 0.4s cubic-bezier(0.22, 1, 0.36, 1) 1.01s forwards; }
+  html.carga-estreno .carga-version.con-tic .cv-tira { animation: cargaTic 0.56s 1.44s forwards; }
+  html.carga-estreno .carga-version.con-tic .cv-fila.nueva { animation: cargaTicNueva 0.56s 1.44s both; }
+  html.carga-estreno .cv-frase { animation: cargaFrase 0.34s cubic-bezier(0.22, 1, 0.36, 1) 1.7s forwards; }
   @keyframes cargaMsgSeVa { to { opacity: 0; transform: translateY(-6px); } }
   @keyframes cargaLetrero { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @keyframes cargaTic {
+    0%   { transform: translateY(0); animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1); }
+    45%  { transform: translateY(calc(var(--fila) * -1.14)); animation-timing-function: cubic-bezier(0.2, 0, 0.2, 1); }
+    100% { transform: translateY(calc(var(--fila) * -1)); }
+  }
+  @keyframes cargaTicNueva {
+    0%   { transform: scale(0.84); animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1); }
+    45%  { transform: scale(1.06); animation-timing-function: cubic-bezier(0.2, 0, 0.2, 1); }
+    100% { transform: scale(1); }
+  }
+  @keyframes cargaFrase { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
   /* El resplandor: apenas un aliento detrás del logo. La primera versión iba
      al doble de luz y Eduardo la paró («es mucha luz»). Va DETRÁS del isotipo
@@ -10672,8 +10721,8 @@
     opacity: 0; pointer-events: none;
   }
   html.carga-estreno .carga-halo {
-    animation: cargaHaloNace 0.7s cubic-bezier(0.22, 1, 0.36, 1) 1.26s forwards,
-               cargaHaloRespira 1.8s ease-in-out 1.96s infinite alternate;
+    animation: cargaHaloNace 0.7s cubic-bezier(0.22, 1, 0.36, 1) 1.07s forwards,
+               cargaHaloRespira 1.8s ease-in-out 1.77s infinite alternate;
   }
   @keyframes cargaHaloNace { from { opacity: 0; transform: scale(0.8); } to { opacity: 0.3; transform: scale(1); } }
   @keyframes cargaHaloRespira { from { opacity: 0.3; transform: scale(1); } to { opacity: 0.14; transform: scale(1.05); } }
@@ -10687,6 +10736,9 @@
     html.carga-estreno .carga-aro circle { animation: none; stroke-dashoffset: 0; opacity: 1; }
     html.carga-estreno .carga-msg { animation: none; opacity: 0; }
     html.carga-estreno .carga-version { animation: none; opacity: 1; }
+    html.carga-estreno .carga-version.con-tic .cv-tira { animation: none; transform: translateY(calc(var(--fila) * -1)); }
+    html.carga-estreno .carga-version.con-tic .cv-fila.nueva { animation: none; }
+    html.carga-estreno .cv-frase { animation: none; opacity: 1; }
     html.carga-estreno .carga-halo { animation: none; }
   }
   .carga.sale .carga-msg { position: relative; }

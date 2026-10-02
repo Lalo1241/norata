@@ -252,10 +252,19 @@ function cargaEntrar(modo) {
   }
   /* El letrero del estreno dice la versión QUE SE VE, no la que se anunció:
      si quien pulsó «Actualizar» no sabía cuál venía, aquí ya se sabe. Llega a
-     tiempo de sobra: el letrero no empieza a salir hasta el segundo 1,3. */
+     tiempo de sobra: el letrero no empieza a salir hasta el segundo 1.
+     Y si la de antes resulta ser la misma —se pulsó «Actualizar» y no entró
+     nada nuevo—, se quita el tic: una ruleta que gira de un número a ese
+     mismo número es un fallo a la vista. */
   if (cual === "estreno" && typeof VERSION !== "undefined") {
-    const num = document.querySelector("#carga-version b");
-    if (num) num.textContent = tx("Versión") + " " + VERSION;
+    const caja = document.getElementById("carga-version");
+    const num = caja && caja.querySelector(".cv-fila.nueva");
+    if (num) num.textContent = VERSION;
+    const vieja = caja && caja.querySelector(".cv-fila.vieja");
+    if (vieja && vieja.textContent === VERSION) {
+      vieja.remove();
+      caja.classList.remove("con-tic");
+    }
   }
   if (!el || el.classList.contains("oculta")) return Promise.resolve();
   const mio = ++cargaTurno;
@@ -270,9 +279,9 @@ function cargaEntrar(modo) {
      se abrió la página, como el de la entrada: a quien le tardó más el
      arranque no se le suma nada. */
   if (cual === "refresco") return tras(Math.max(0, CARGA_REFRESCO - performance.now()), () => cargaCorta(el, mio));
-  /* El aro tarda 1,9 s en llenarse y empezó con el primer cuadro, y después
-     el letrero se queda un segundo a la vista: se les deja terminar aunque la
-     app haya arrancado antes. */
+  /* El aro tarda 1,9 s en llenarse y empezó con el primer cuadro; el tic de
+     la versión acaba a los 2 s, y después el letrero se queda segundo y medio
+     a la vista: se les deja terminar aunque la app haya arrancado antes. */
   if (cual === "estreno") return tras(Math.max(0, CARGA_ARO - performance.now()), () => cargaEstreno(el, mio));
   /* Contado desde que se abrió la página y no desde aquí: el arranque ya tardó
      lo que tardó, y sumarle tres segundos enteros encima sería castigar a
@@ -286,7 +295,7 @@ function cargaEntrar(modo) {
    Devuelve cuánto tarda, como `cargaZoom`. */
 const CARGA_REFRESCO = 2000;  // lo mínimo que se ve la carga al refrescar
 const CARGA_CORTA = 400;
-const CARGA_ARO = 2900;       // 1,9 s de llenado + 1 s con el letrero a la vista
+const CARGA_ARO = 3500;       // el tic de la versión acaba a los 2 s + 1,5 s para leerla
 const CARGA_TELON = 560;
 const CARGA_INVERSO = 1.25;   // la llegada va algo más rápida que la entrada
 function cargaCorta(el, mio) {
@@ -325,9 +334,10 @@ function cargaCorta(el, mio) {
 
    DESPUÉS de recargar (todo por CSS desde el primer cuadro, con
    `html.carga-estreno`; ver css/estilos.css): el aro se llena en 1,9 s; al
-   60 % sale el letrero —«Versión X · Lista para ti»— y con él un resplandor
-   leve detrás del logo, que respira; cerrado el aro, todo se queda un
-   segundo. Y aquí, al final, la carga SUBE como un telón.
+   50 % sale el letrero con la versión que había y un resplandor leve detrás
+   del logo, que respira; mientras el aro se cierra el número da un tic hacia
+   arriba y entra la versión nueva, con «Lista para ti» (0.7.172); todo se
+   queda segundo y medio. Y aquí, al final, la carga SUBE como un telón.
 
    Lo que Eduardo fue quitando, para no volver a ponerlo:
      - el LATIDO del logo al cerrarse el aro: con el resplandor ya sobraba, y
@@ -426,7 +436,7 @@ function cargaZoom(el, mio, alReves) {
      propiedad se compone con ella en vez de pisarla. Sigue girando mientras
      se abre. */
   anim(anillo, [{ scale: "1", opacity: 1 }, { scale: "2.6", opacity: 0 }],
-    { duration: 900, delay: 120, easing: "cubic-bezier(.22,1,.36,1)" });
+    { duration: 900, delay: 120, easing: alReves ? "cubic-bezier(.45,0,.55,1)" : "cubic-bezier(.22,1,.36,1)" });
   /* Hasta dónde crece: lo que haga falta para que el hueco tape la pantalla
      entera con holgura, y nunca menos de 40. Con un 40 fijo, en un monitor de
      1920 el hueco se quedaba en 1060 px y se habría visto el borde del telón. */
@@ -434,7 +444,21 @@ function cargaZoom(el, mio, alReves) {
   const escalaFinal = Math.max(40, 1.3 * Math.max(W, H) / (2 * HUECO_MEDIO));
   const caja = marca ? marca.getBoundingClientRect() : { left: W / 2, top: H / 2, width: 0, height: 0 };
   const cx = caja.left + caja.width / 2, cy = caja.top + caja.height / 2;
-  anim(marca, [
+  /* AL REVÉS el recorrido es el mismo —misma curva, mismo tamaño— y solo
+     cambia el FINAL (0.7.172). La entrada toma impulso: la marca se encoge a
+     0,86 antes de dispararse. Corrido hacia atrás eso era frenar en seco en
+     0,86, quedarse un instante y volver a crecer de golpe: dos movimientos, y
+     Eduardo lo sintió tosco. Para llegar, baja apenas a 0,95 y vuelve a su
+     tamaño con una curva pareja, sin parada en medio; y el anillo (arriba) se
+     posa con esa misma curva en vez de acelerar hasta detenerse.
+     Una primera corrección cambió el recorrido entero por un solo trazo, y no
+     era eso: «solo la última parte». Medido contra el original, del tamaño
+     enorme hasta el doble coinciden casi exacto. */
+  anim(marca, alReves ? [
+    { transform: "scale(1)",    offset: 0,    easing: "cubic-bezier(.45,0,.55,1)" },
+    { transform: "scale(.95)",  offset: 0.22, easing: "cubic-bezier(.7,0,.84,0)" },
+    { transform: `scale(${escalaFinal.toFixed(2)})`, offset: 1 }
+  ] : [
     { transform: "scale(1)",    offset: 0,   easing: "cubic-bezier(.33,0,.2,1)" },
     { transform: "scale(.86)",  offset: 0.2, easing: "cubic-bezier(.7,0,.84,0)" },
     { transform: `scale(${escalaFinal.toFixed(2)})`, offset: 1 }

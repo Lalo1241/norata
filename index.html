@@ -344,6 +344,10 @@
     if (est) {
       sessionStorage.removeItem("norata-estreno");
       window.__estreno = est;
+      /* Y la versión que había ANTES de actualizar (0.7.172): la ruleta del
+         letrero sale con ella y da el tic a la nueva. */
+      window.__estrenoDe = sessionStorage.getItem("norata-estreno-de") || "";
+      sessionStorage.removeItem("norata-estreno-de");
       document.documentElement.classList.add("carga-estreno");
     }
     sessionStorage.setItem("norata-abierta", "1");
@@ -517,7 +521,7 @@
   </div>
   <p class="carga-msg" id="carga-msg">Abriendo Norata…</p>
   <!-- El letrero del estreno (0.7.161): solo se ve con `html.carga-estreno`. -->
-  <div class="carga-version" id="carga-version"><b></b><span></span></div>
+  <div class="carga-version" id="carga-version"><i></i><span class="cv-ruleta"><span class="cv-tira"><b class="cv-fila nueva"></b></span></span><span class="cv-frase"></span></div>
 </div>
 <script>
   /* El texto de la carga de estreno, antes del primer cuadro. La versión la
@@ -532,12 +536,24 @@
       /* El mismo texto con el que la carga llegó antes de recargar, para que
          el relevo entre las dos páginas no cambie ni una letra. */
       m.textContent = en ? "Updating…" : "Actualizando…";
-      /* Y el letrero que sale al 60 % del aro. Si no se supo qué versión
-         venía, `cargaEntrar` pone la de verdad en cuanto carga el JavaScript,
-         que es antes de que el letrero empiece a verse. */
+      /* Y el letrero que sale al 50 % del aro, con su ruleta (0.7.172): la
+         versión que había y, debajo, la que entra. Sin versión de antes, o
+         si es la misma, va una sola fila y no hay tic. Si no se supo qué
+         versión venía, `cargaEntrar` pone la de verdad en cuanto carga el
+         JavaScript, que es antes de que el letrero empiece a verse. */
       var caja = document.getElementById("carga-version");
-      caja.firstElementChild.textContent = num ? (en ? "Version " : "Versión ") + v : (en ? "New version" : "Versión nueva");
+      var nueva = caja.querySelector(".cv-fila.nueva");
+      var de = String(window.__estrenoDe || "");
+      caja.firstElementChild.textContent = en ? "Version" : "Versión";
+      nueva.textContent = num ? v : (en ? "New" : "Nueva");
       caja.lastElementChild.textContent = en ? "Ready for you" : "Lista para ti";
+      if (/^\d+\.[\d.]*$/.test(de) && de !== v) {
+        var vieja = document.createElement("b");
+        vieja.className = "cv-fila vieja";
+        vieja.textContent = de;
+        nueva.parentNode.insertBefore(vieja, nueva);
+        caja.classList.add("con-tic");
+      }
     } catch (e) {}
   })();
 </script>

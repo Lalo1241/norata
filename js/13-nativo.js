@@ -337,9 +337,11 @@
     /* La carga que viene es la del estreno, con su versión (0.7.158), y llega
        con el zoom al revés antes de cambiar de paquete (0.7.161). */
     try { sessionStorage.setItem("norata-estreno", lista.version || "si"); } catch (e) {}
+    /* Y la versión de la que se viene, para el tic del letrero (0.7.172). */
+    try { if (typeof VERSION !== "undefined") sessionStorage.setItem("norata-estreno-de", VERSION); } catch (e) {}
     const llegada = typeof cargaLlegar === "function" ? cargaLlegar(tx("Actualizando…")) : Promise.resolve();
     llegada.then(() => act.set({ id: lista.id })).catch(() => {
-      try { sessionStorage.removeItem("norata-estreno"); } catch (e) {}
+      try { sessionStorage.removeItem("norata-estreno"); sessionStorage.removeItem("norata-estreno-de"); } catch (e) {}
       if (typeof cargaCerrar === "function") cargaCerrar();
       if (typeof toast === "function") toast(tx("No pude estrenar la versión nueva. Se pondrá sola al cerrar la app."), "atencion");
     });

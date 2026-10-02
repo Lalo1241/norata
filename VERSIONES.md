@@ -315,6 +315,38 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.172 · 2 oct 2026
+
+**Actualizar enseña de qué versión vienes y a cuál llegas, con un tic.**
+Eduardo: «vamos a aprovechar un recurso que ya tenemos en las animaciones de
+Beta y 1.0, la ruleta que gira en número de versión». Lo fue ajustando en el
+boceto, paso a paso, y lo cerró con «súbelo». Número propio y no un 4º de la
+0.7.161: los números no retroceden.
+
+- **La ruleta del letrero** (`.cv-ruleta`, `css/estilos.css`): al 50 % del aro
+  sale la versión que tenías, apagada; mientras el aro se cierra la tira sube
+  una fila con un tic —se pasa un 14 % y vuelve— y entra la nueva, en el
+  acento y a 20 px (antes 13). «Lista para ti» llega con ella. La versión de
+  antes la apunta quien pulsa «Actualizar» (`norata-estreno-de`, en
+  `js/11-arranque.js` y `js/13-nativo.js`). Sin ella, o si es la misma, va
+  una sola fila y no hay tic.
+- **Los tiempos son de Eduardo**: letrero al 50 % y no al 60, para que número
+  nuevo y aro cerrado lleguen juntos; el tic se pasa 0,1 s del cierre (con 0,3
+  «se demora demasiado»); y segundo y medio de lectura en vez de uno. El
+  estreno entero pasa de 2,9 a 3,5 s tras recargar.
+- **La llegada del logo, más suave al final** (`cargaZoom`, `alReves`): era el
+  zoom de la entrada tal cual pero al revés, y su impulso —encogerse a 0,86
+  antes de dispararse— se veía al revés como frenar en seco, esperar y volver
+  a crecer. Ahora baja apenas a 0,95 y vuelve con una curva pareja; el anillo
+  se posa igual. **El recorrido no cambia**: una primera corrección lo cambió
+  entero y Eduardo la devolvió («solo la última parte»).
+- El letrero va siempre en `--sans`, como los hitos.
+
+**Cómo se midió:** las animaciones en pausa y con `currentTime` a mano, sobre
+la carga de estreno montada en local. La tabla de lo medido va en la respuesta
+de esta sesión; lo que NO se pudo es verla correr de verdad, porque el estreno
+solo ocurre al entrar una versión nueva y el panel no avanza animaciones.
+
 ### 0.7.171 · 2 oct 2026
 
 **«Norata por dentro» pasa a llamarse Puesto de mando, se ve siempre en Norata
