@@ -264,7 +264,42 @@
         if (mb) mb.setAttribute("content", fondo);
       }
       var velo = document.createElement("style");
-      velo.textContent = "html{background:" + fondo + " !important}body{visibility:hidden !important}";
+      /* LA COSTURA DE LA RECARGA (0.7.176). «Actualizar» y «Cambiar de
+         cuenta» cruzan una recarga con la carga puesta: la página anterior se
+         va con el logo en su círculo y esta tiene que seguir EXACTAMENTE ahí.
+         Pero el velo de arriba esconde todo el `body` hasta que cargan la
+         hoja y las letras, y la carga vive dentro: durante ese rato el logo y
+         su anillo desaparecían y volvían. Eduardo lo vio como «ligeros
+         parpadeos, por microsegundos», más en el teléfono, que carga más
+         despacio.
+
+         Así que, viniendo de una carga, la MARCA se pinta desde el primer
+         cuadro con estas pocas reglas, sin esperar a ninguna hoja: el mismo
+         sitio, el mismo tamaño y los tonos que traía (los deja apuntados
+         `cargaDespedir`, js/10c-portada.js). Solo la marca: el texto NO
+         cruza —necesita su letra, y una letra de respaldo sería justo el
+         cuadro ajeno que el velo existe para impedir—, así que la página
+         anterior lo apaga antes de irse y aquí no vuelve.
+         Las medidas son las de `.carga` en css/estilos.css; si aquellas
+         cambian, estas también. */
+      var critico = "";
+      try {
+        var sigue = sessionStorage.getItem("norata-estreno") || sessionStorage.getItem("norata-cuenta");
+        var tc = (ct && ct.tonos) || JSON.parse(sessionStorage.getItem("norata-carga-tonos") || "null");
+        var esColor = /^(#[0-9a-f]{3,8}|(rgba?|color)\([\w\s.,%\/-]+\))$/i;
+        if (sigue && tc && esColor.test(String(tc.fondo || "")) && esColor.test(String(tc.logo || "")) && esColor.test(String(tc.suave || ""))) {
+          critico = "#carga{visibility:visible !important;position:fixed;inset:0;display:flex;flex-direction:column;" +
+              "align-items:center;justify-content:center;gap:22px;padding:26px 20px;box-sizing:border-box;margin:0;background:" + tc.fondo + "}" +
+            "#carga>*{visibility:hidden;margin:0;box-sizing:border-box}" +
+            "#carga>.carga-marca{visibility:visible;position:relative;width:96px;height:96px;display:grid;place-items:center}" +
+            "#carga .carga-anillo{position:absolute;inset:0;box-sizing:border-box;border-radius:50%;border:2px solid " + tc.suave + "}" +
+            "#carga .carga-marca svg{position:relative;width:42px;height:42px;fill:" + tc.logo + "}" +
+            "#carga .carga-marca svg.carga-aro,#carga .carga-halo{display:none}" +
+            "#carga .carga-msg{font-size:14px;line-height:1.55;max-width:300px}" +
+            "#carga .carga-version{position:absolute}";
+        }
+      } catch (e) { critico = ""; }
+      velo.textContent = "html{background:" + fondo + " !important}body{visibility:hidden !important}" + critico;
       document.head.appendChild(velo);
       var suelto = false;
       function soltar() {
@@ -286,7 +321,7 @@
             /* Con un cambio de cuenta el liso se queda en el tono de antes
                (ver arriba); el de verdad solo se apunta para la próxima. */
             if (!deCuenta) {
-              velo.textContent = "html{background:" + real + " !important}body{visibility:hidden !important}";
+              velo.textContent = "html{background:" + real + " !important}body{visibility:hidden !important}" + critico;
               var mr = document.querySelector('meta[name="theme-color"]');
               if (mr) mr.setAttribute("content", real);
             }
@@ -362,6 +397,8 @@
          letrero sale con ella y da el tic a la nueva. */
       window.__estrenoDe = sessionStorage.getItem("norata-estreno-de") || "";
       sessionStorage.removeItem("norata-estreno-de");
+      /* Los tonos de la carga anterior ya los leyó el velo de arriba. */
+      sessionStorage.removeItem("norata-carga-tonos");
       document.documentElement.classList.add("carga-estreno");
     }
     /* Y venir de OTRA CUENTA tiene su propia carga (0.7.174): la deja

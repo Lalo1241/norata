@@ -437,6 +437,28 @@ function cargaCuenta(el, mio) {
   return t;
 }
 
+/* LO ÚLTIMO ANTES DE RECARGAR con la carga puesta (0.7.176). Dos cosas, y las
+   dos son para que la costura no se note (ver el velo de arriba de
+   index.html):
+     - apunta los tonos de la marca, para que la página que viene la pinte
+       igual desde su primer cuadro, sin esperar a su hoja de estilos;
+     - apaga el texto, con un fundido corto. El texto no puede cruzar: al otro
+       lado no hay letra cargada todavía, y saldría un instante después que
+       el logo o con una letra que no es la del tema.
+   Devuelve una promesa: se recarga cuando se cumple. */
+function cargaDespedir() {
+  try {
+    const t = cargaTonos();
+    if (t) sessionStorage.setItem("norata-carga-tonos", JSON.stringify(t));
+  } catch (e) { /* sin esto la marca parpadea al cruzar, nada más */ }
+  const msg = document.getElementById("carga-msg");
+  if (!msg || !cargaVisible() || typeof msg.animate !== "function") return Promise.resolve();
+  cargaAnims.push(msg.animate(
+    [{ opacity: getComputedStyle(msg).opacity, transform: "translateY(0)" }, { opacity: 0, transform: "translateY(-6px)" }],
+    { duration: 200, easing: "ease-in", fill: "forwards" }));
+  return new Promise(listo => setTimeout(listo, 230));
+}
+
 /* Los tonos con los que está pintada la carga AHORA, para que la página que
    viene pueda nacer con ellos y fundirlos a los suyos. Se leen con una sonda
    y no de los elementos: durante la llegada la carga va transparente y lo que
@@ -1785,6 +1807,7 @@ async function entrarConCuentaGuardada(uid) {
   } catch (e) { /* sin esto solo se pierde el saludo, no el cambio */ }
   /* `replace` y no `assign`: el botón de atrás no puede devolver a la pantalla
      de una cuenta en la que ya no se está. */
+  await cargaDespedir();
   location.replace(enLaPuerta() ? "../" : location.pathname);
 }
 

@@ -679,6 +679,21 @@
       }
     },
     {
+      "version": "0.7.176",
+      "fecha": "2026-10-02",
+      "estado": "borrador",
+      "clase": "arreglo",
+      "titulo": "Sin parpadeo al actualizar ni al cambiar de cuenta",
+      "resumen": "El logo se queda quieto en su sitio de principio a fin: ya no desaparece un instante a media carga.",
+      "puntos": [],
+      "retoques": [],
+      "en": {
+        "titulo": "No flicker when updating or switching accounts",
+        "resumen": "The logo stays put from start to finish: it no longer vanishes for an instant mid-load.",
+        "puntos": []
+      }
+    },
+    {
       "version": "0.7.175",
       "fecha": "2026-10-02",
       "estado": "borrador",

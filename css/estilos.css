@@ -10640,8 +10640,8 @@
      así que la carga que llegó al otro lado de la recarga sigue sin pausa.
 
        0 – 1,9 s    el aro se llena
-       0,95 s       (el 50 % del aro) se va «Actualizando…» y sale el letrero,
-                    con la versión que TENÍAS
+       0,95 s       (el 50 % del aro) sale el letrero, con la versión que
+                    TENÍAS («Actualizando…» se apagó antes de recargar)
        1,07 s       nace el resplandor, y desde 1,77 s respira
        1,44 – 2,0 s el tic: la tira sube una fila y entra la versión nueva;
                     cruza mientras el aro se cierra y se asienta 0,1 s después
@@ -10703,12 +10703,15 @@
   /* «Lista para ti» llega con la versión nueva, no antes: se dice de ella. */
   .cv-frase { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.35; opacity: 0; }
 
-  html.carga-estreno .carga-msg { animation: cargaMsgSeVa 0.2s ease-in 0.95s forwards; }
+  /* El texto NO cruza la recarga (0.7.176): la página anterior lo apaga antes
+     de irse (`cargaDespedir`) y aquí nace apagado. Antes volvía a salir y se
+     iba a los 0,95 s, y en el cruce parpadeaba: aparecía en cuanto cargaba la
+     hoja, o sea un instante después que el logo. */
+  html.carga-estreno .carga-msg { opacity: 0; }
   html.carga-estreno .carga-version { animation: cargaLetrero 0.4s cubic-bezier(0.22, 1, 0.36, 1) 1.01s forwards; }
   html.carga-estreno .carga-version.con-tic .cv-tira { animation: cargaTic 0.56s 1.44s forwards; }
   html.carga-estreno .carga-version.con-tic .cv-fila.nueva { animation: cargaTicNueva 0.56s 1.44s both; }
   html.carga-estreno .cv-frase { animation: cargaFrase 0.34s cubic-bezier(0.22, 1, 0.36, 1) 1.7s forwards; }
-  @keyframes cargaMsgSeVa { to { opacity: 0; transform: translateY(-6px); } }
   @keyframes cargaLetrero { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
   @keyframes cargaTic {
     0%   { transform: translateY(0); animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1); }
@@ -10762,7 +10765,8 @@
 
        0 – 2,6 s    el aro se llena
        0,39 – 1,82 s  el color se funde (del 15 al 70 % del aro)
-       1,3 s        se va «Cambiando de cuenta…» y sale la cuenta que se deja
+       1,3 s        sale la cuenta que se deja («Cambiando de cuenta…» se
+                    apagó antes de recargar)
        1,42 s       nace el resplandor, y desde 2,12 s respira
        desde 2,14 s el tic y la cuenta nueva, cuando el progreso ya bajó
                     (lo da `cargaCuenta` con la clase `tic`) */
@@ -10791,7 +10795,7 @@
   html.carga-cuenta .carga-marca svg.carga-aro { display: block; }
   html.carga-cuenta .carga-aro circle { stroke: var(--cg-logo); animation: cargaAro 2.6s cubic-bezier(0.65, 0, 0.35, 1) forwards; }
   html.carga-cuenta .carga-anillo { animation: none; border-color: var(--cg-suave); }
-  html.carga-cuenta .carga-msg { color: var(--cg-apagado); animation: cargaMsgSeVa 0.2s ease-in 1.3s forwards; }
+  html.carga-cuenta .carga-msg { opacity: 0; }
   html.carga-cuenta .carga-version { animation: cargaLetrero 0.4s cubic-bezier(0.22, 1, 0.36, 1) 1.36s forwards; }
   html.carga-cuenta .carga-version i,
   html.carga-cuenta .cv-fila.vieja { color: var(--cg-apagado); }

@@ -604,6 +604,9 @@ async function norataActualizar(btn) {
      se apunta qué versión entra para que lo diga desde el primer cuadro. Si
      no se sabe cuál es, se dice sin número. */
   await llegada;
+  /* El texto se apaga y la marca deja sus tonos apuntados: la carga de
+     estreno, al otro lado, sigue sin parpadeo (0.7.176). */
+  if (typeof cargaDespedir === "function") await cargaDespedir();
   /* «si» y no un número cuando no se sabe cuál entra: un «1» pasaba por
      versión, no coincidía con la de verdad y el estreno se daba por fallido. */
   try { sessionStorage.setItem("norata-estreno", window.__versionQueEntra || "si"); } catch (e) {}

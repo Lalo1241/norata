@@ -324,6 +324,35 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.176 · 2 oct 2026
+
+**El logo ya no parpadea al cruzar la recarga de «Actualizar» y «Cambiar de
+cuenta».** Eduardo: «hay unos ligeros parpadeos, muy pequeños, donde por
+microsegundos desaparece el texto y el anillo con el logo. En el APK de móvil
+es más frecuente».
+
+**La causa.** Las dos cargas cruzan una recarga con la marca puesta. La página
+que entra esconde el `body` entero hasta que cargan la hoja y las letras del
+mundo (el velo de «Ni un cuadro con otro mundo»), y la carga vive dentro: en
+ese rato solo había color liso, y la marca desaparecía y volvía. En el
+teléfono ese rato es más largo, y por eso se nota más.
+
+- **La marca se pinta desde el primer cuadro** con unas pocas reglas dentro
+  del propio velo (script de arriba de `index.html`): mismo sitio, mismo
+  tamaño y los tonos que traía la carga anterior, que deja apuntados
+  `cargaDespedir` (`norata-carga-tonos`). No espera a ninguna hoja.
+- **El texto ya no cruza.** Necesita su letra, y pintarlo antes con una de
+  respaldo sería un cuadro con una letra ajena. La página anterior lo apaga
+  con un fundido de 0,2 s antes de recargar y al otro lado nace apagado: el
+  letrero entra a su hora, como siempre. Se fue `cargaMsgSeVa`, que ya no usa
+  nadie.
+
+**Medido:** la marca con solo las reglas del velo cae en el mismo sitio que
+con la hoja entera. **Lo que no arregla:** en el APK, entre un paquete y el
+siguiente el sistema puede enseñar un instante el fondo nativo; eso es del
+APK, y sigue al tema solo con el APK nuevo (0.7.166). Y la PRIMERA
+actualización a esta versión todavía cruza con el código viejo.
+
 ### 0.7.175 · 2 oct 2026
 
 **El changelog del sitio sale de las mismas fichas que la app, con su tarjeta,

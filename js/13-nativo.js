@@ -340,7 +340,8 @@
     /* Y la versión de la que se viene, para el tic del letrero (0.7.172). */
     try { if (typeof VERSION !== "undefined") sessionStorage.setItem("norata-estreno-de", VERSION); } catch (e) {}
     const llegada = typeof cargaLlegar === "function" ? cargaLlegar(tx("Actualizando…")) : Promise.resolve();
-    llegada.then(() => act.set({ id: lista.id })).catch(() => {
+    llegada.then(() => (typeof cargaDespedir === "function" ? cargaDespedir() : null))
+      .then(() => act.set({ id: lista.id })).catch(() => {
       try { sessionStorage.removeItem("norata-estreno"); sessionStorage.removeItem("norata-estreno-de"); } catch (e) {}
       if (typeof cargaCerrar === "function") cargaCerrar();
       if (typeof toast === "function") toast(tx("No pude estrenar la versión nueva. Se pondrá sola al cerrar la app."), "atencion");
