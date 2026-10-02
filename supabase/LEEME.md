@@ -41,6 +41,55 @@ es bajo; el día que haya gente fuera, no.
 
 **Dónde**: panel de Supabase → SQL Editor → pegar → Run.
 
+### 2. Fundador de cortesía para la cuenta administradora — 1 oct 2026
+
+**Qué**: tres cosas, en un solo pegado (están juntas abajo):
+
+1. `lugares_fundador()` deja de contar las cortesías (`planes.sql`).
+2. Se le pone Fundador, con estado `cortesia`, a quien esté en
+   `administradores` (`administracion.sql`, «El Fundador de cortesía»).
+3. Una consulta para ver que quedó.
+
+```sql
+create or replace function public.lugares_fundador()
+returns integer
+language sql
+security definer
+stable
+set search_path = public
+as $fn$
+  select greatest(
+    0,
+    (select valor from public.ajustes_negocio where clave = 'cupo_fundador')
+    - (select count(*)::integer from public.suscripciones
+        where plan = 'fundador' and estado <> 'cortesia')
+  );
+$fn$;
+
+grant execute on function public.lugares_fundador() to anon, authenticated;
+
+insert into public.suscripciones (user_id, plan, estado, vence_el, renueva)
+select user_id, 'fundador', 'cortesia', null, false
+  from public.administradores
+on conflict (user_id) do update
+  set plan = 'fundador', estado = 'cortesia', vence_el = null,
+      renueva = false, actualizado = now();
+
+select u.email, s.plan, s.estado
+  from public.suscripciones s
+  join auth.users u on u.id = s.user_id
+ where s.estado = 'cortesia';
+```
+
+**Por qué**: el plan real de la cuenta administradora era «libre» y la app le
+ponía Fundador al saber que era admin, una respuesta después. En ese hueco le
+quitaba el mundo que llevara puesto (0.7.160.1 lo tapa desde la app; esto lo
+quita de raíz). Se puede pegar dos veces sin consecuencias.
+
+**Cómo se sabe que quedó**: la última consulta devuelve una fila con tu correo,
+`fundador` y `cortesia`. Y en la app, Ajustes → Mi plan sigue diciendo «Cuenta
+administradora».
+
 ---
 
 ## Borrar la cuenta (`borrar-cuenta.sql`)

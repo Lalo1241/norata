@@ -423,6 +423,14 @@ function planConSimulacion(real) {
      mirar nunca la app como la ve todo el mundo. */
   if (!cual) {
     if (typeof esAdmin !== "undefined" && esAdmin && !real.pro) return PLAN_DE_CASA;
+    /* El Fundador de CORTESÍA (0.7.160.2): desde el 1 oct 2026 la cuenta
+       administradora lo tiene puesto de verdad en el servidor, con ese estado
+       (supabase/administracion.sql), para que el plan llegue bien a la
+       primera y no haya un hueco en el que la app la crea gratuita. Es el
+       mismo caso que `PLAN_DE_CASA` —no lo pagó— y se cuenta igual: «Cuenta
+       administradora», sin precio ni recibo. Sin esta línea, Mi plan diría
+       que pagó $890. */
+    if (real && real.estado === "cortesia") return Object.assign({}, real, { deCasa: true });
     return real;
   }
   const en = (dias) => new Date(Date.now() + dias * 864e5).toISOString();

@@ -283,6 +283,27 @@ texto sin aprobar a la vista**: se pone en `false` —el panel vuelve a pedir
 
 ## La lista
 
+### 0.7.160.2 · 1 oct 2026
+
+**El Fundador de la cuenta administradora, de verdad y no deducido.** Eduardo,
+tras la 0.7.160.1: «¿no habría forma de asignarle un plan fundador gratis? Es
+una cuenta de testeo, lo lógico es que tenga todo desbloqueado y no pase eso».
+
+- **En el servidor** (`supabase/`, pendiente de pegar: fila 2 de su LEEME): la
+  cuenta administradora recibe una fila en `suscripciones` con plan `fundador`
+  y un estado nuevo, **`cortesia`**. Así `mi_plan()` contesta Fundador a la
+  primera y deja de existir el hueco en el que la app la veía gratuita. La
+  0.7.160.1 lo tapaba desde la app; esto lo quita de raíz.
+- **Una cortesía no es una venta**: `lugares_fundador()` no la cuenta —no gasta
+  uno de los 200—, y las métricas tampoco, porque «pagando» y el MRR ya solo
+  miran `estado = 'activa'`. `cobro` no la toca: ya respetaba a un fundador.
+- **En la app**, `planConSimulacion` trata `estado: "cortesia"` como plan de
+  casa (`deCasa`): Mi plan sigue diciendo «Cuenta administradora… no hay
+  ningún cobro asociado» en vez de «$890, una sola vez». Medido con el plan
+  puesto a mano: `deCasa` verdadero, Averno y Reliquia disponibles.
+- `PLAN_DE_CASA` se queda: es el respaldo mientras el SQL no esté pegado, y
+  para una base nueva donde el admin aún no tenga su fila.
+
 ### 0.7.160.1 · 1 oct 2026
 
 **El mundo ya no se quita solo al arrancar.** Eduardo, en la PC: «se anima la
