@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- El aviso PLEGADO (0.7.163): como llega. Icono, dos renglones y UNA cosa a la
+     derecha (la cifra o un botón). Todo en dp y no en sp: el alto lo pone Android
+     (64 dp, o menos en algunos teléfonos) y con letra del sistema agrandada esto
+     se saldría por abajo. Lo de dentro va centrado, así cabe aunque le den 48.
+     Los colores los pone el código: ver AvisosVista.java. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:minHeight="48dp">
+
+    <ImageView android:id="@+id/av_borde" android:layout_width="match_parent" android:layout_height="match_parent"
+        android:scaleType="fitXY" android:src="@drawable/aviso_marco" android:importantForAccessibility="no" />
+    <ImageView android:id="@+id/av_fondo" android:layout_width="match_parent" android:layout_height="match_parent"
+        android:layout_margin="1.5dp" android:scaleType="fitXY" android:src="@drawable/aviso_marco_dentro"
+        android:importantForAccessibility="no" />
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
+        android:orientation="horizontal" android:gravity="center_vertical"
+        android:paddingStart="11dp" android:paddingEnd="10dp">
+
+        <ImageView android:id="@+id/av_icono" android:layout_width="40dp" android:layout_height="40dp"
+            android:scaleType="fitCenter" android:importantForAccessibility="no" />
+
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:layout_marginStart="12dp" android:orientation="vertical">
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:baselineAligned="true">
+                <Chronometer android:id="@+id/av_c_crono" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:visibility="gone" android:textSize="18dp" android:fontFamily="@font/outfit_semibold"
+                    android:fontFeatureSettings="tnum" android:includeFontPadding="false" />
+                <TextView android:id="@+id/av_c_r1" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="16dp" android:fontFamily="@font/outfit_semibold" android:fontFeatureSettings="tnum"
+                    android:maxLines="1" android:ellipsize="end" android:includeFontPadding="false" />
+                <TextView android:id="@+id/av_c_r1b" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp" android:textSize="12dp" android:fontFamily="@font/outfit_semibold"
+                    android:maxLines="1" android:includeFontPadding="false" />
+            </LinearLayout>
+
+            <TextView android:id="@+id/av_c_r2" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="4dp" android:textSize="13dp" android:fontFamily="@font/outfit_medium"
+                android:maxLines="1" android:ellipsize="end" android:includeFontPadding="false" />
+        </LinearLayout>
+
+        <TextView android:id="@+id/av_c_num" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginStart="8dp" android:visibility="gone" android:textSize="18dp"
+            android:fontFamily="@font/outfit_semibold" android:fontFeatureSettings="tnum" android:maxLines="1" />
+
+        <!-- El botón de la derecha: con texto (Iniciar) o solo icono (Pausa). -->
+        <FrameLayout android:id="@+id/av_c_b" android:layout_width="wrap_content" android:layout_height="40dp"
+            android:layout_marginStart="8dp" android:minWidth="40dp" android:visibility="gone">
+            <ImageView android:id="@+id/av_c_b_borde" android:layout_width="match_parent" android:layout_height="match_parent"
+                android:scaleType="fitXY" android:src="@drawable/aviso_boton" android:importantForAccessibility="no" />
+            <ImageView android:id="@+id/av_c_b_fondo" android:layout_width="match_parent" android:layout_height="match_parent"
+                android:layout_margin="1.5dp" android:scaleType="fitXY" android:src="@drawable/aviso_boton_dentro"
+                android:importantForAccessibility="no" />
+            <LinearLayout android:layout_width="wrap_content" android:layout_height="match_parent"
+                android:layout_gravity="center" android:gravity="center" android:orientation="horizontal"
+                android:paddingStart="12dp" android:paddingEnd="12dp">
+                <ImageView android:id="@+id/av_c_b_ic" android:layout_width="15dp" android:layout_height="15dp"
+                    android:importantForAccessibility="no" />
+                <TextView android:id="@+id/av_c_b_tx" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginStart="7dp" android:textSize="14dp" android:fontFamily="@font/outfit_bold"
+                    android:maxLines="1" />
+            </LinearLayout>
+        </FrameLayout>
+    </LinearLayout>
+</FrameLayout>

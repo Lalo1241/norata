@@ -283,14 +283,15 @@ texto sin aprobar a la vista**: se pone en `false` —el panel vuelve a pedir
 
 ## La lista
 
-### 0.7.163 · 2 oct 2026
+### 0.7.164 · 2 oct 2026
 
 **Los interruptores se deslizan con una sola pastilla que rebota, y el
 Hiperfoco tiene un color por modo.** Eduardo mandó una captura del interruptor
 de Sonido en Averno con las DOS opciones encendidas a la vez y pidió
 animaciones «fluidas, con rebote, sin bugs» y el motor actualizado. Todo lo
 demás salió de probarlo él en un boceto con la app dentro, control por control.
-Número propio: no pule la 0.7.162, que es la carga al refrescar.
+Número propio: no pule la 0.7.163, que son los avisos de Android. Se
+escribió como 0.7.163 y se renumeró al fusionar: esa sesión publicó antes.
 
 **Lo que fallaba.** El motor de la 0.7.154 no movía nada: destapaba la opción
 nueva con un recorte y retiraba una copia de la vieja. A media animación eso
@@ -361,6 +362,98 @@ la medida siguiente; hay que hacer `finish()` antes.
 
 **Apuntado y sin hacer:** en la casa, a 1024 px, el rótulo «Sonido» de
 Ajustes queda pisado por su interruptor. Ya pasaba antes y no es del motor.
+
+### 0.7.163 · 2 oct 2026
+
+**Los avisos del Pomodoro en la app de Android: el reloj en la cortina, el
+final de cada fase con la app cerrada y una alarma al empezar cada actividad.**
+Lo pidió Eduardo: avisos con diseño en el APK, que el Pomodoro se pueda iniciar
+y pausar desde el aviso, y que sirva de alarma para el inicio de cada
+actividad. Se escribió como 0.7.161 y se renumeró al fusionar: otra sesión
+ya había publicado la 0.7.161 y la 0.7.162.
+
+- **Por qué no salía nada:** el Pomodoro avisaba con la API `Notification` del
+  navegador (`jAvisar`), y el WebView de Android no la trae; en el APK tampoco
+  hay service worker. Con la app de fondo los avisos se quedaban en
+  `jPendientes` y se decían al volver. Y una página dormida no puede sonar a
+  una hora: eso lo hace `AlarmManager`.
+- **Lo nativo, en `nativo/avisos/`**: el complemento `AvisosNorata` (tres
+  archivos Java), el isotipo blanco de la barra y `instalar-avisos.js`, que lo
+  mete en «Norata App Android» de un comando, como el de los iconos. **Pide
+  reinstalar el APK una vez**; sin eso no cambia nada. Pasos en su `LEEME.md`.
+- **La página decide y lo nativo pinta.** `js/13b-avisos.js` es el puente:
+  manda los textos en el idioma de la app, convierte los iconos de la app en
+  PNG sobre su color y pone en fila lo que se manda. El Pomodoro calcula cada
+  aviso (`jEstadoAviso`, `jEntradasAgenda`) y lo manda solo cuando cambia
+  (`jSincronizarAvisos`, en `jPaso`).
+- **Lo que se toca con la app cerrada** se hace en el acto sobre el aviso y se
+  apunta en una cola con su hora; la página lo aplica al abrir
+  (`jAplicarAvisos`), y no cierra una fase hasta haberla repasado: una pausa
+  de hace diez minutos cambia si el tramo ya acabó. Una pausa de una fase que
+  ya no corre no se aplica.
+- **Cada aviso se dice una vez:** la alarma del final y la página usan la
+  misma clave (`fid|fase`). Para eso `jFinFase` saca sus textos de
+  `jMensajeFin`, que el aviso fijo guarda por adelantado. `jIniciar` acepta la
+  hora, el `fid` y el bloque de un tramo iniciado desde la cortina.
+- **La agenda** son las alarmas de la semana: el inicio de cada bloque de
+  enfoque (`cfg.alarmas`, interruptor nuevo que solo sale en el APK) y media
+  hora antes de dormir. Cada una se vuelve a programar sola al sonar y tras un
+  reinicio del teléfono. Van en la zona del perfil (`userTZ`), la misma de la
+  rueda.
+- **Sin servicio en primer plano:** la cuenta atrás la dibuja el sistema
+  (`setUsesChronometer`). Las alarmas son exactas si se permite
+  `SCHEDULE_EXACT_ALARM` (desde Android 14 nace apagado; se ofrece un botón).
+- **Siguen al mundo puesto** (Eduardo: «tienen que venir de la mano del
+  diseño del mundo seleccionado»). Lo que Android deja tocar en su plantilla:
+  el tono del círculo del isotipo y de los botones es el acento macizo del
+  mundo —la misma regla que la marca en el menú: un mundo recolorea, la casa,
+  un ambiente y Arcade se quedan en menta— y el icono grande lleva las
+  esquinas del mundo (`--r-factor`). **Salvo un acento rojo** (Catedral,
+  Averno): Android pinta con ese tono también los botones, y un «Iniciar» rojo
+  se lee como peligro; ahí se queda la menta (`esRojo`, por matiz y no por
+  lista de mundos). Una vista propia con el fondo, la letra y
+  la cuenta del mundo queda como propuesta: pide meter las letras en el APK y
+  un molde por mundo. Las dos, en la lámina «Avisos de Norata».
+
+- **Con el diseño de Norata: dos moldes por aviso.** Eduardo lo trabajó sobre
+  la lámina «Avisos de Norata» (un artefacto con cada aviso plegado y abierto,
+  a tamaño real, en cada mundo y modo) y lo aprobó así:
+  - **Un solo marco para todos los mundos**: relleno liso del fondo del mundo,
+    borde de 1,5 en su acento y esquinas de 16. Nada de texturas ni formas
+    raras: en la cortina se ven mal y en cada teléfono distinto.
+  - **La letra de la Norata clásica, Outfit**, en todos los mundos: las letras
+    de mundo cambiaban de medida y desbordaban. Va en el APK en tres pesos
+    (`nativo/avisos/fuentes.py`) y trae cifras de ancho fijo: la cuenta no baila.
+  - **Los botones hablan como Norata en todos los mundos**: primario menta,
+    Pausa en el amarillo de «en curso», Seguir menta suave, mirar de línea,
+    posponer neutro. Ninguno coral. **Y con un acento rojo ningún texto va en
+    rojo**: se leía como algo malo aunque dijera «En foco».
+  - **El plegado tiene aire** (64 dp, dos renglones y una sola cosa a la
+    derecha) y el abierto lleva la cifra con su rótulo ENCIMA, los tramos con
+    su texto al lado («Tramo 1 de 4») y el ritmo escrito entero.
+  - **Con horas la cifra baja de 36 a 28** y ocupa casi lo mismo.
+  - **Un renglón con un solo texto va centrado**.
+  Las piezas: `AvisosVista.java` y los moldes `res/layout/aviso_corto.xml` y
+  `aviso_largo.xml`; la página escribe cada vista (`jVistaCorre`,
+  `jVistaListo`, `jVistaCierre`, `jVistaFin` y la agenda) y los tonos
+  (`coloresDeAviso`, js/13b-avisos.js). Sin moldes (Android 6, o un APK a
+  medias) sale la plantilla de Android, como antes.
+
+**Comprobado:** el Java nuevo compila igual que el resto; un script cruza cada
+id y cada dibujo que pide contra los moldes y no falta ninguno; el instalador
+copia los 16 archivos de `res/` (las letras, idénticas byte a byte) y
+`--deshacer` los quita. En la página, cada aviso lleva sus dos vistas sin un
+texto roto, y en Averno el borde sale rojo y los rótulos y botones en menta.
+**De la primera parte:** el Java compila contra Android 16 (`android-all` de
+Robolectric) y Capacitor 8.5 sin advertencias propias; el instalador, contra
+un proyecto de mentira con saltos CRLF (instala, la segunda vez se salta todo,
+`--deshacer` lo devuelve); el cálculo de la próxima alarma, con cinco casos y
+el cruce de semana. La página, servida en local con un complemento de mentira:
+el reloj sale con su fin exacto, la pausa y un «Seguir» de hace 2 s se
+aplican, una pausa vieja no, el final con la app de fondo va al sistema con su
+clave, el de dormir se calla, iniciar desde la alarma arranca el tramo a la
+hora del toque y abre el Pomodoro, y los iconos llegan en PNG. Sin errores en
+la consola. **Falta verlo en un teléfono de verdad.**
 
 ### 0.7.162 · 2 oct 2026
 

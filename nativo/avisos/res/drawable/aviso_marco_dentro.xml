@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- El marco por dentro: 1,5 dp menos, que es lo que deja ver el borde. Blanco: el color lo pone el código (setColorFilter), porque cambia con el
+     mundo y un molde de aviso no deja leer variables. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#FFFFFFFF" />
+    <corners android:radius="14.5dp" />
+</shape>

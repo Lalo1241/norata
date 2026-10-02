@@ -80,6 +80,19 @@ que abre sin red y sin pasar por Chrome. Lo que eso cambia aquí:
   no esté ahí, hay que añadirlo a mano a su lista de `cp`.
 - **El APK solo se reinstala si cambia lo nativo** (el icono, un permiso, un
   complemento nuevo). Los pasos están en `LEEME.md` de esa carpeta.
+- **Los avisos del sistema son nativos (0.7.163).** El WebView no trae la API
+  `Notification` del navegador, así que en el APK avisa el complemento
+  `AvisosNorata` (`nativo/avisos/`, con su instalador y su `LEEME.md`): el
+  reloj del Pomodoro en la cortina, el final de fase con la app cerrada y una
+  alarma al empezar cada actividad. **La página decide y lo nativo pinta**:
+  textos, iconos y lo que pasa después salen de `js/09d-jornada.js`; lo que se
+  toca con la app cerrada se apunta con su hora y la página lo aplica al abrir
+  (`jAplicarAvisos`). Un aviso nuevo se añade en la página, no en el Java.
+  **Cada aviso tiene dos moldes, plegado y abierto**, con UN marco y Outfit en
+  todos los mundos; del mundo solo vienen los tonos, los botones van en la
+  menta de Norata (Pausa en amarillo) y con un acento rojo ningún texto es
+  rojo. La referencia es la lámina «Avisos de Norata»; las reglas, en el
+  `LEEME.md` de `nativo/avisos/`.
 - **El icono de la pantalla de inicio sigue al mundo (0.7.145), y solo en el
   APK.** Elegir un mundo o Arcade tapa con la carga (2,5 s mínimo), recarga
   ya con el mundo puesto, avisa (`avisarRenacer`: sin saltarse, cuenta de
