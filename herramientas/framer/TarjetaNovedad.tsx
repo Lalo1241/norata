@@ -71,6 +71,12 @@ const CSS = `
 .nv-fig.nv-grafico img { object-fit: contain; object-position: center; }
 .nv-fig img:hover { transform: scale(1.02); }
 .nv-fig img:focus-visible { outline: 3px solid #00915A; outline-offset: -3px; }
+/* Un tramo son unas imágenes y, debajo, el punto que las explica: el pie va
+   pegado a ellas y el tramo se separa de lo de arriba y de lo de abajo, para
+   que se lea a qué imágenes corresponde cada texto. */
+.nv-tramo { display: grid; gap: 10px; min-width: 0; }
+.nv-tramo .nv-medios { margin: 0; }
+.nv-html > * + .nv-tramo, .nv-tramo + * { margin-top: 14px; }
 .nv-rotulo { margin: 8px 0 -4px; padding-top: 18px; border-top: 1px solid #CCD1E4; font-size: 11px; line-height: 1.4; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #636A7C; }
 .nv-retoques { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .nv-retoques li { display: grid; grid-template-columns: 82px minmax(0, 1fr); gap: 12px; align-items: start; font-size: 14.5px; line-height: 1.5; color: #3D4052; }

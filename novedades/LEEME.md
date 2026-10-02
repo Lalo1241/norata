@@ -176,7 +176,7 @@ que solo mira el exportador; la app no los lee.
 | --- | --- |
 | `banner.foco` | Adónde mirar dentro de la `imagen` para el banner, que es 4:1 y una captura es 16:9. Se escribe como un `object-position` («70% 21%»: 70 % a lo ancho, 21 % a lo alto). Sin él se queda la franja del centro |
 | `banner.src` | Un arte hecho para el banner, en vez de recortar la `imagen`. Con su `alt` |
-| `tras` | Después de cuántos `puntos` cae esa imagen: `0` es antes del primero. Sin `tras`, después del último |
+| `tras` | A qué punto acompaña esa imagen: `1` es el primero. Sin `tras`, al último. `0` la pone antes de todos, sin pie |
 | `imagenes` | Más imágenes de acompañamiento, cada una con su `src`, su `alt` y su `tras` |
 
 - **Una expansión sin `banner` ni `imagen` sale sin banner**, y el exportador
@@ -223,6 +223,9 @@ exportador:
   dibujo cambia, cambia de dirección solo, y nadie se queda viendo el viejo.
 - La app sigue dibujando su gráfico con sus propias reglas
   (`novedadBloqueHTML`): estos tres campos todavía no los enseña.
+- **Las imágenes van ARRIBA y su punto debajo, de pie de foto**, con aire
+  entre un tramo y el siguiente (Eduardo, 2 oct 2026: con el texto encima no
+  se entendía a qué imágenes correspondía). Vale para toda ficha.
 - **Las imágenes que caen en el mismo sitio salen en una fila**, y los
   bloques del gráfico llevan su `tras` igual que una imagen: los que
   comparten `tras` van en la misma lámina. **Todas las de una tarjeta miden lo mismo**

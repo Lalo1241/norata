@@ -361,10 +361,13 @@ def cuerpo(e, en=False):
     no deja darle a ese texto ni el rótulo de «Retoques» ni imágenes del mismo
     tamaño que se abran al tocarlas, y Eduardo pidió las tres cosas.
 
-    Dónde cae cada imagen lo dice su `tras`: después de cuántos puntos va (0 es
-    antes del primero). Sin `tras`, después del último. Los bloques del gráfico
-    llevan su `tras` igual. Las que caen en el mismo sitio salen en una fila, y TODAS
-    las de una tarjeta miden lo mismo: de eso se encarga el componente."""
+    A qué punto acompaña cada imagen lo dice su `tras`: el número del punto (1
+    es el primero; sin `tras`, el último; 0 es antes de todos y sin pie). Los
+    bloques del gráfico llevan su `tras` igual. **Las imágenes van ARRIBA y su
+    punto debajo, de pie de foto** (Eduardo, 2 oct 2026: con el texto encima
+    no se entendía a qué imágenes correspondía). Las de un mismo punto salen
+    en una fila, y TODAS las de una tarjeta miden lo mismo: de eso se encarga
+    el componente."""
     puntos = campo(e, "puntos", en) or []
     medios = {}
 
@@ -392,12 +395,16 @@ def cuerpo(e, en=False):
             trozos.append('<ul class="nv-puntos">' + "".join(lista) + "</ul>")
             lista.clear()
 
-    for i in range(len(puntos) + 1):
+    if 0 in medios:
+        trozos.append('<div class="nv-medios">' + "".join(medios[0]) + "</div>")
+    for i, punto in enumerate(puntos, 1):
         if i in medios:
+            # Un tramo: sus imágenes y, debajo, el punto que las explica.
             cerrar()
-            trozos.append('<div class="nv-medios">' + "".join(medios[i]) + "</div>")
-        if i < len(puntos):
-            lista.append(f"<li>{esc(puntos[i])}</li>")
+            trozos.append('<div class="nv-tramo"><div class="nv-medios">' + "".join(medios[i]) + "</div>"
+                          f'<ul class="nv-puntos"><li>{esc(punto)}</li></ul></div>')
+        else:
+            lista.append(f"<li>{esc(punto)}</li>")
     cerrar()
     ret = e.get("retoques") or []
     if ret:
