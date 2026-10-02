@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.169";
+const VERSION = "0.7.170";
 const VERSION_FECHA = "2 oct 2026";
 
 /* ---- La web de fuera, en UN solo sitio ----
@@ -660,7 +660,7 @@ function alternarTema() {
    desde `js/12-login.js`: este archivo lo cargan las dos páginas y ahí nada
    puede ejecutarse al cargar. */
 const DESLIZA_GRUPOS = '[role="radiogroup"], [role="tablist"], .seg, .tema-sw, .vista-seg, .rejilla-sel, ' +
-  '.jor-seg, .jor-animo, .jor-dias-fila, .jor-hf-modos, .pn-planes, .puerta-idioma, [data-desliza]';
+  '.jor-seg, .jor-animo, .jor-dias-fila, .jor-hf-modos, .puerta-idioma, [data-desliza]';
 const DESLIZA_OPCION = 'button, [role="radio"], [role="tab"]';
 const DESLIZA_PUESTO = '.on, .active, [aria-checked="true"], [aria-selected="true"], [aria-pressed="true"]';
 const DESLIZA_PERILLA = '.mod-sw i, [data-perilla]';

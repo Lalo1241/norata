@@ -1016,7 +1016,6 @@
      dan suciedad. De día se apagan. */
   html.claro .orb { opacity: 0.45; }
 
-
   /* El instante en que se cambia de modo, con todo quieto. Hay media docena
      de reglas con `transition: 0.2s` a secas —o sea, TODAS las propiedades—
      y una transición sobre un color que sale de una variable se congela: el
@@ -1909,20 +1908,6 @@
     .scel.show .scel-sub, .scel.show .scel-unit, .scel.show #scel-btn,
     .scel.show .scel-sparks i { animation: none; }
     .scel-sparks { display: none; }
-  }
-
-  /* Los botones del escaparate de celebraciones: dos renglones cada uno —qué
-     es y cómo se comporta—, porque la diferencia entre las dos ventanas de
-     nivel no está en cómo se ven sino en si se cierran solas. */
-  .pn-fiestas { display: flex; flex-direction: column; gap: 8px; }
-  .pn-fiestas .btn {
-    display: block; text-align: left; height: auto;
-    padding: 10px 14px; line-height: 1.35;
-  }
-  .pn-fiestas .btn b { display: block; font-size: 13.5px; font-weight: 700; }
-  .pn-fiestas .btn span {
-    display: block; font-size: 11.5px; color: var(--muted);
-    font-weight: 500; margin-top: 2px; white-space: normal;
   }
 
   /* ---------- La ficha de un mundo ----------
@@ -7731,6 +7716,26 @@
     margin-bottom: 18px;
   }
 
+  /* Los cuatro tipos (0.7.170), en dos filas de dos. Sin `transition`: el motor
+     de `instalarDesliza` es quien mueve la pastilla (es un `radiogroup`). */
+  .modal-card.reporte .rep-tipos {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;
+    margin-bottom: 16px;
+  }
+  .modal-card.reporte .rep-tipos button {
+    background: var(--sup-panel);
+    border: var(--borde-fino) solid var(--line);
+    border-radius: var(--r-chico);
+    padding: 10px 8px;
+    color: var(--muted);
+    font: inherit; font-size: 13.5px; font-weight: 650;
+    cursor: pointer;
+  }
+  .modal-card.reporte .rep-tipos button.on {
+    border-color: var(--fire); background: var(--fire-soft); color: var(--fire);
+  }
+  .modal-card.reporte .rep-campo[hidden] { display: none; }
+
   .modal-card.reporte .rep-campo {
     display: block;
     text-align: left;
@@ -9333,37 +9338,6 @@
   .fa-ef.pierde span { color: var(--estado-fallo-tinta); background: var(--estado-fallo-soft); }
   #hoja-crear .tipo-seg button:disabled { opacity: .4; cursor: default; }
 
-  /* ---------- Los planes que se pueden fingir ----------
-     Ocho botones no caben en una fila de `.seg`, que no dobla a propósito —un
-     segmentado que se parte en dos renglones deja de leerse como un grupo de
-     opciones excluyentes—. Aquí sí son excluyentes y sí son ocho, así que
-     doblan en rejilla y el elegido se marca igual que en el segmentado.
-
-     En luciérnaga y no en menta: todo lo que se enciende en esta sección es de
-     la trastienda, y el marco de pruebas de arriba ya es amarillo. Que el
-     botón y el rótulo de la pantalla digan lo mismo con el mismo color es lo
-     que evita olvidarse de que está puesto. */
-  .pn-planes {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
-    gap: 7px;
-  }
-  .pn-planes button {
-    font-family: inherit;
-    font-size: 12.5px; font-weight: 650;
-    padding: 9px 10px;
-    border-radius: 11px;
-    border: var(--borde-fino) solid var(--line);
-    background: var(--sup-tarjeta2);
-    color: var(--muted);
-    cursor: pointer;
-    text-align: center;
-  }
-  .pn-planes button.on {
-    border-color: var(--fire);
-    background: var(--fire-soft);
-    color: var(--fire);
-  }
   .daypick { display: flex; gap: 6px; margin-top: 8px; }
   .daypick button {
     flex: 1;
@@ -10355,7 +10329,6 @@
     .puerta-idioma button span { display: none; }
   }
 
-
   /* ---- El teléfono ----
      Dos cosas cambian, y las dos las pidió Eduardo mirándolo:
 
@@ -10395,7 +10368,6 @@
      naranja con sus tres enlaces, el piso `--piso-rotulo-puerta` que solo él
      usaba, y el `html.puerta-dos` que llevaba cada selector de aquí. Lo demás
      se quedó tal cual estaba el día que se aprobó. */
-
 
   /* La ficha de Ajustes: quién eres, arriba del todo del panel de la cuenta */
   .perfil-ficha {
@@ -11019,7 +10991,6 @@
     html.informes-demo #rotulo-informes { bottom: calc(env(safe-area-inset-bottom) + 14px); }
   }
 
-
   /* ==================== La pantalla de informes (0.7.21) ====================
      Cinco informes cortos —Todo, y uno por módulo— con tope de seis gráficas
      cada uno. La regla que manda aquí es la de Eduardo: el tamaño de la
@@ -11194,8 +11165,6 @@
   }
   .inf-abre li svg { width: 16px; height: 16px; flex: none; margin-top: 2px; color: var(--mint); }
   .inf-antesala .btn svg { width: 17px; height: 17px; margin-right: 7px; vertical-align: -3px; }
-
-
 
   /* ---- Las lecturas (0.7.27) ----
      Van al final de cada rama y se leen como frases, no como datos: por eso
@@ -12818,354 +12787,8 @@
     .celebrate { display: none !important; }
   }
 
-/* ============ EL PANEL DE NÚMEROS (Ajustes → Los números) ============
-   Solo lo ve quien el servidor reconoce como administrador, pero el estilo
-   viaja con la app como todo lo demás. Ver `js/10e-panel.js`.
-
-   Dos decisiones de color que siguen la regla de la paleta:
-   - Las barras RELLENAN superficie, así que van en `-macizo`. Con el tono de
-     escribir se veían apagadas de día.
-   - El riel de cada barra es `--carril` y no `--line`: un borde tiene que
-     apenas notarse, pero un carril tiene que dejar ver por dónde va lo lleno.
-   Y ninguna transición sobre estas propiedades: su valor sale de una
-   variable, y Chrome deja el color congelado en el inicial para siempre.
-
-   ---- Y LA REGLA DEL COLOR, que manda sobre todo lo de abajo ----
-   El color aparece cuando hay un JUICIO; un dato que solo cuenta va en tinta.
-   `bien` es menta, `ojo` luciérnaga y `mal` coral, y son las mismas tres
-   clases en las cifras, en los avisos, en el embudo y en las barras. La
-   explicación larga —y por qué la línea de la gráfica y los planes del cobro
-   se quedan de color— está en `js/10e-panel.js`, junto a `panelTono`. */
-
-.pn-kpis {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
-  gap: 10px;
-}
-
-.pn-kpi {
-  background: var(--sup-tarjeta2);
-  border: var(--borde-fino) solid var(--line);
-  border-radius: var(--r-caja);
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.pn-kpi b {
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1.1;
-  /* Tinta y no menta: seis cifras verdes seguidas no dicen que seis cosas
-     vayan bien, dicen que hay seis cifras. Ver la regla del color arriba. */
-  color: var(--text);
-  font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
-}
-
-/* Las tres únicas del panel que se comparan contra algo. El borde izquierdo
-   además de la cifra, porque en una rejilla de seis la diferencia de color de
-   un número se pierde entre los rótulos. */
-.pn-kpi.bien b { color: var(--mint); }
-.pn-kpi.ojo  b { color: var(--fire); }
-.pn-kpi.mal  b { color: var(--coral); }
-/* Sin `-macizo`: tres píxeles son una LÍNEA y no una superficie, y de día el
-   tono de rellenar no llega a 3 sobre 1 contra la tarjeta (la menta maciza da
-   1,9). De noche las dos variables valen lo mismo, así que esto no cambia
-   nada ahí. Es la misma variable que ya usaba el borde de `.pn-aviso`. */
-.pn-kpi.bien { border-left: 3px solid var(--mint); }
-.pn-kpi.ojo  { border-left: 3px solid var(--fire); }
-.pn-kpi.mal  { border-left: 3px solid var(--coral); }
-
-.pn-kpi span { font-size: .82rem; color: var(--text); }
-.pn-kpi i { font-size: .72rem; color: var(--muted); font-style: normal; }
-
-/* ---- La constelación de los últimos catorce días ----
-   Un punto por día y un hilo que los une. El lienzo escala proporcionalmente
-   (nada de `preserveAspectRatio="none"`, que achataba los números del eje) y
-   los colores viven AQUÍ y no en atributos del SVG: un `fill="var(--loquesea)"`
-   que no resuelve no avisa de nada, simplemente pinta negro. */
-.pn-cielo { width: 100%; height: auto; display: block; }
-
-.pn-reja {
-  stroke: var(--carril);
-  stroke-width: 1;
-  stroke-dasharray: 2 5;
-  opacity: .55;
-  vector-effect: non-scaling-stroke;
-}
-
-.pn-hilo {
-  fill: none;
-  stroke: var(--mint);
-  stroke-width: 1.6;
-  stroke-linejoin: round;
-  stroke-linecap: round;
-  opacity: .5;
-  vector-effect: non-scaling-stroke;
-}
-
-.pn-estrella { fill: var(--mint); }
-
-/* El día sin nadie se apaga en vez de desaparecer: un hueco se lee como
-   «falta el dato», y un punto tenue como «ese día no vino nadie». */
-.pn-estrella.vacia { fill: var(--carril); }
-
-/* El máximo lleva un aro del color de la tarjeta, que lo despega del hilo sin
-   necesidad de resplandor — de día una copia borrosa se ve como una mancha. */
-.pn-estrella.cima { stroke: var(--card); stroke-width: 2; }
-
-/* ---------- La escala del eje vertical ----------
-   El número al lado de cada renglón, que es lo que la gráfica no decía. El del
-   máximo va en el color del texto y con más peso: es la referencia contra la
-   que se lee todo, y en el gris de los otros dos se perdía entre ellos. */
-.pn-eje-y {
-  fill: var(--faint);
-  font-size: 9.5px;
-  font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
-}
-.pn-eje-y.cima { fill: var(--muted); font-weight: 700; }
-.pn-reja.cima { opacity: .9; stroke-dasharray: none; }
-
-/* ---------- Las cifras de encima de la gráfica ----------
-   La respuesta corta, antes del dibujo. Una serie de catorce puntos enseña la
-   forma y esconde todo lo demás: cuánto suma, cuánto es un día normal y si
-   esta semana fue mejor que la anterior. */
-.pn-graf-cifras {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 18px;
-  align-items: flex-end;
-  /* Debajo del dibujo, con una raya que las separa: sin ella se leían como si
-     fueran parte del eje de abajo. */
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1px solid var(--line);
-}
-.pn-gc { display: flex; flex-direction: column; gap: 1px; }
-.pn-gc b {
-  font-size: 22px; font-weight: 800; line-height: 1;
-  /* En tinta: la media, el mejor día y el total son descripciones de la serie,
-     no un veredicto. El único juicio de esta caja es la tendencia, que ya
-     tenía su color. */
-  color: var(--text); font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
-}
-.pn-gc span { font-size: 11px; color: var(--muted); }
-/* La tendencia se aparta del resto y se va al final: no es una cifra del
-   periodo, es una comparación con otro. */
-.pn-gc.tend { margin-left: auto; align-items: flex-end; text-align: right; }
-.pn-tend { font-size: 15px; font-weight: 800; font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
-/* Verde y coral, no por bonito: aquí el color ES el dato. Subir es bueno y
-   bajar es malo, y esta es la única gráfica de la app donde eso es cierto sin
-   matices — en las demás un número que baja puede ser una buena noticia. */
-/* El mismo signo que en los banners: verde si sube, rojo si baja, y en
-   todos los mundos. Con el acento del mundo, esta flecha salía azul en
-   Blueprint y naranja en Averno. */
-.pn-tend.sube { color: var(--var-sube); }
-.pn-tend.baja { color: var(--var-baja); }
-.pn-tend-pie { display: block; font-size: 10.5px; color: var(--faint); }
-
-/* ---------- Cabecera de una caja con su cuenta a la derecha ----------
-   El título a la izquierda y cuántos hay a la derecha, que es donde el ojo
-   busca un total. Lo pidió Eduardo para los reportes y sirve igual para los
-   errores automáticos. */
-.pn-cab {
-  display: flex; align-items: baseline; justify-content: space-between;
-  gap: 10px; margin-bottom: 6px;
-}
-.pn-cab h3 { margin: 0; }
-.pn-cuenta {
-  flex: none;
-  font-size: 12px; font-weight: 700;
-  color: var(--muted);
-  font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
-}
-/* Con algo sin ver, la cuenta se enciende: es la diferencia entre «hay cosas»
-   y «hay cosas que no has mirado». */
-.pn-cuenta.nuevo { color: var(--fire); }
-
-/* ---------- Los reportes, agrupados por dónde pasó ----------
-   Cada grupo es una fila que se abre. Cerrada dice el lugar y cuántos hay;
-   abierta, la lista de lo que escribió cada quien, entero y sin resumir —
-   sumar dos mensajes distintos en un «2×» borra justo lo que los hace
-   útiles. */
-.pn-grupos { display: grid; gap: 8px; }
-.pn-grupo {
-  border: var(--borde-fino) solid var(--line);
-  border-left: 3px solid var(--fire);
-  border-radius: 0 9px 9px 0;
-  background: var(--sup-tarjeta2);
-  overflow: hidden;
-}
-.pn-grupo-cab {
-  width: 100%;
-  display: flex; align-items: center; gap: 9px;
-  padding: 10px 12px;
-  background: none; border: none;
-  font: inherit; color: var(--text);
-  cursor: pointer;
-  text-align: left;
-}
-.pn-grupo-cab:hover { background: var(--sup-panel); }
-.pn-grupo-ic { display: flex; color: var(--fire); flex: none; }
-.pn-grupo-nom { font-weight: 700; font-size: 13.5px; flex: 1; min-width: 0; }
-.pn-grupo-n {
-  flex: none; font-size: 12.5px; font-weight: 700;
-  color: var(--muted); font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
-}
-.pn-grupo-flecha { flex: none; color: var(--faint); font-size: 11px; }
-
-.pn-grupo-lista {
-  display: grid; gap: 1px;
-  background: var(--line);
-  border-top: 1px solid var(--line);
-}
-.pn-dicho { background: var(--sup-tarjeta2); padding: 10px 12px 10px 36px; }
-/* Lo ya visto se apaga en vez de esconderse, igual que en los errores: un
-   reporte que vuelve a aparecer después de darlo por visto dice algo. */
-.pn-dicho.visto { opacity: .55; }
-.pn-dicho p {
-  margin: 0 0 4px;
-  font-size: 13px; line-height: 1.5; color: var(--text);
-  /* Los saltos que escribió la persona se respetan: si separó en párrafos, es
-     porque son dos cosas. */
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-.pn-dicho span { font-size: 11px; color: var(--faint); font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; }
-
-/* ---- La palomita de atender un reporte ----
-   Va en la misma fila que la fecha y a la derecha del todo, que es donde no
-   estorba a la lectura: lo que se viene a leer aquí es lo que escribió la
-   persona, y el botón es lo que se hace DESPUÉS de leerlo.
-
-   Es un interruptor y no una acción de un solo sentido: se puede volver a
-   dejar abierto. Por eso lleva `aria-pressed` y cambia de palabra, en vez de
-   desaparecer al pulsarlo — un botón que se va no dice en qué estado quedó.
-
-   Sin transición sobre el color, como todo este panel. */
-.pn-dicho { position: relative; }
-.pn-palomita {
-  position: absolute;
-  right: 10px;
-  bottom: 8px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-family: inherit;
-  font-size: 11.5px;
-  font-weight: 600;
-  color: var(--faint);
-  background: transparent;
-  border: var(--borde-fino) solid var(--line);
-  border-radius: var(--r-pastilla);
-  padding: 3px 9px 3px 7px;
-  cursor: pointer;
-}
-.pn-palomita:hover, .pn-palomita:focus-visible { color: var(--text); border-color: var(--carril); }
-
-/* Atendido: menta, y esta es la única menta de la caja. Sigue la regla del
-   color del panel — aquí sí hay un juicio, y el juicio es «esto ya está». */
-.pn-palomita.on { color: var(--mint); border-color: var(--mint); }
-.pn-palomita.on:hover, .pn-palomita.on:focus-visible { color: var(--mint); border-color: var(--mint); }
-
 /* El texto se va en pantallas estrechas y se queda la palomita sola: en un
    teléfono, dos palabras al lado de la fecha parten el renglón. */
-@media (max-width: 420px) {
-  .pn-palomita span { display: none; }
-  .pn-palomita { padding: 4px 7px; }
-}
-
-/* Los tonos de las barras de una lista, cuando la lista los pide. */
-.pn-riel i.t-lila { background: var(--lila-macizo); }
-.pn-riel i.t-menta { background: var(--mint-macizo); }
-.pn-val.t-lila { color: var(--lila); }
-.pn-val.t-menta { color: var(--mint); }
-
-/* Las tres de la nomenclatura, con los mismos nombres que en todo el panel. */
-.pn-riel i.t-bien { background: var(--mint-macizo); }
-.pn-riel i.t-ojo  { background: var(--fire-macizo); }
-.pn-riel i.t-mal  { background: var(--coral-macizo); }
-.pn-val.t-bien { color: var(--mint); }
-.pn-val.t-ojo  { color: var(--fire); }
-.pn-val.t-mal  { color: var(--coral); }
-
-
-.pn-eje {
-  fill: var(--muted);
-  font-size: 10px;
-  text-anchor: middle;
-  font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
-}
-
-.pn-lista { display: flex; flex-direction: column; gap: 7px; }
-
-.pn-fila {
-  display: grid;
-  grid-template-columns: minmax(70px, 1fr) 2fr auto;
-  gap: 10px;
-  align-items: center;
-  font-size: .85rem;
-}
-
-.pn-nom { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-.pn-riel {
-  height: 8px;
-  border-radius: var(--r-barra);
-  background: var(--carril);
-  overflow: hidden;
-}
-
-/* Neutras por defecto: una lista de versiones o de tramos de antigüedad es un
-   reparto, y ninguno de sus renglones es mejor que otro. El color se pide
-   desde la llamada (`tono`) y solo donde significa algo. */
-.pn-riel i { display: block; height: 100%; background: var(--muted); border-radius: var(--r-barra); }
-
-.pn-val { color: var(--muted); font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; min-width: 2ch; text-align: right; }
-
-.pn-globo {
-  display: inline-block;
-  min-width: 20px;
-  padding: 1px 7px;
-  border-radius: var(--r-pastilla);
-  background: var(--coral-macizo);
-  color: var(--sobre-vivo);
-  font-size: .72rem;
-  font-weight: 700;
-  text-align: center;
-  vertical-align: middle;
-}
-
-.pn-errores { display: flex; flex-direction: column; gap: 8px; }
-
-.pn-error {
-  border: var(--borde-fino) solid var(--line);
-  border-left: 3px solid var(--coral);
-  border-radius: 0 9px 9px 0;
-  padding: 9px 12px;
-  background: var(--sup-tarjeta2);
-}
-
-/* Lo ya visto se apaga en vez de desaparecer: un error que vuelve después de
-   darlo por visto es información, y esconderlo la perdería. */
-.pn-error.visto { border-left-color: var(--carril); opacity: .55; }
-
-/* Lo que escribió una persona, con la raya en oro y no en coral. El coral dice
-   «esto se rompió»; un reporte no se rompió solo, alguien se paró a contarlo, y
-   eso vale más que un volcado de JavaScript: trae el contexto de lo que estaba
-   intentando hacer. La raya de color es lo que deja verlos de un vistazo en una
-   lista larga, sin tener que leer el pie de cada fila.
-   Y el bicho del título hereda ese oro, para que las dos señales digan lo
-   mismo en vez de repartirse el mensaje. */
-.pn-error.dicho { border-left-color: var(--fire); }
-.pn-error.dicho .pn-error-tit .ic { color: var(--fire); vertical-align: -2px; }
-.pn-error.dicho.visto { border-left-color: var(--carril); }
-
-.pn-error-tit { display: flex; gap: 10px; align-items: baseline; justify-content: space-between; }
-.pn-error-tit b { font-size: .84rem; font-weight: 600; color: var(--text); word-break: break-word; }
-.pn-error-tit span { font-size: .76rem; color: var(--muted); font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; flex: none; }
-.pn-error-pie { font-size: .72rem; color: var(--muted); margin-top: 3px; }
 
 /* ================= Mi plan =================
    Todo sale de las variables de :root, así que el modo claro no necesita ni
@@ -13651,231 +13274,6 @@ html.claro .plan-linea { stroke-opacity: .85; }
 .vs-piedra { display: block; margin-bottom: 3px; }
 .vs-piedra .ic { display: inline-flex; }
 .plan-vs tbody td { text-align: left; }
-
-/* ---- Piezas nuevas del panel (0.7.18) ----
-   Todos los colores salen de variables comprobadas contra este mismo archivo
-   antes de escribirlas. Ver la nota de arriba: un `fill` que no resuelve no
-   avisa de nada, pinta negro, y eso ya costó una versión. */
-
-/* La tira de avisos: solo se dibuja si hay algo que mirar */
-.pn-avisos {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 10px;
-}
-
-.pn-aviso {
-  background: var(--sup-tarjeta2);
-  border: var(--borde-fino) solid var(--line);
-  border-left: 3px solid var(--fire);
-  border-radius: 0 12px 12px 0;
-  padding: 11px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.pn-aviso b {
-  font-size: 1.35rem;
-  font-weight: 700;
-  line-height: 1.1;
-  color: var(--fire);
-  font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
-}
-
-.pn-aviso span { font-size: .82rem; color: var(--text); }
-.pn-aviso i { font-size: .72rem; color: var(--muted); font-style: normal; }
-
-/* Oro lo que se puede recuperar, coral lo que ya se va. Los tres salían del
-   mismo oro y «pidieron borrar su cuenta» no es del mismo color que «no han
-   confirmado el correo». */
-.pn-aviso.mal { border-left-color: var(--coral); }
-.pn-aviso.mal b { color: var(--coral); }
-
-/* ---- El embudo ---- */
-.pn-embudo { display: flex; flex-direction: column; gap: 14px; }
-
-.pn-paso { display: flex; flex-direction: column; gap: 5px; }
-
-.pn-paso-tit {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  font-size: .88rem;
-  color: var(--text);
-}
-
-.pn-paso-tit b { font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; color: var(--text); }
-
-.pn-paso-riel {
-  height: 10px;
-  border-radius: var(--r-barra);
-  background: var(--carril);
-  overflow: hidden;
-}
-
-/* Los escalones, en un gris que no opina. Todos eran menta, y con eso el
-   embudo prometía en su propio texto que el peor escalón es el que hay que
-   arreglar y luego pintaba los cuatro igual de bien. */
-.pn-paso-riel i { display: block; height: 100%; background: var(--muted); border-radius: var(--r-barra); }
-
-/* Uno solo se marca. Con dos vuelve a no haber ninguno. */
-.pn-paso.peor .pn-paso-riel i { background: var(--coral-macizo); }
-.pn-paso.peor .pn-paso-tit b { color: var(--coral); }
-/* Y el escalón que CRECE es oro y no coral: no es que se pierda gente, es que
-   ese paso no se está contando como un trozo del anterior. */
-.pn-paso.crece .pn-paso-riel i { background: var(--fire-macizo); }
-.pn-paso.crece .pn-paso-tit b { color: var(--fire); }
-
-/* El amarillo sobre el carril claro es la trampa que ya está escrita en
-   CLAUDE.md: de día `--fire-macizo` contra `--carril` da 1,21 y lo lleno de la
-   barra deja de verse. Solo lo pisa el amarillo —la menta da 1,63 y el coral
-   2,2, que se separan por matiz—, así que la excepción es de dos selectores y
-   no un cambio de la regla: de día las barras siguen siendo macizas. */
-html.claro .pn-paso.crece .pn-paso-riel i,
-html.claro .pn-riel i.t-ojo { background: var(--fire); }
-
-.pn-caida { font-size: .74rem; color: var(--coral); }
-.pn-caida.ok { color: var(--muted); }
-.pn-caida.ojo { color: var(--fire); }
-
-/* ---- Las donas ---- */
-.pn-donas {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 22px;
-}
-
-.pn-sub {
-  margin: 0 0 10px;
-  font-size: .78rem;
-  font-weight: 600;
-  letter-spacing: .09em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.pn-dona-caja { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-
-.pn-dona { width: 108px; height: 108px; flex: none; }
-
-.pn-dona-riel { fill: none; stroke: var(--carril); }
-
-/* Sin transición en el trazo: su color sale de una variable, y una transición
-   sobre eso se queda congelada en el valor inicial para siempre. */
-.pn-gajo { fill: none; }
-.pn-gajo-1 { stroke: var(--mint-macizo); }
-.pn-gajo-2 { stroke: var(--celeste); }
-/* Ni oro ni coral aquí: en un reparto de dispositivos no hay un lado malo, y con
-   la nomenclatura puesta un gajo coral se leería como una alarma. Identidad,
-   no juicio — por eso lila y gris, que no significan nada en este panel. */
-.pn-gajo-3 { stroke: var(--lila-macizo); }
-.pn-gajo-4 { stroke: var(--muted); }
-
-.pn-dona-num {
-  fill: var(--text);
-  font-size: 20px;
-  font-weight: 700;
-  text-anchor: middle;
-  font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums;
-}
-
-.pn-dona-pie { fill: var(--muted); font-size: 8px; text-anchor: middle; }
-
-.pn-leyenda { display: flex; flex-direction: column; gap: 7px; min-width: 110px; }
-
-.pn-ley {
-  display: grid;
-  grid-template-columns: 10px 1fr auto;
-  gap: 8px;
-  align-items: center;
-  font-size: .82rem;
-  color: var(--text);
-}
-
-.pn-ley i { width: 10px; height: 10px; border-radius: 3px; }
-.pn-ley b { color: var(--muted); font-family: var(--tipo-cifra); font-variant-numeric: tabular-nums; font-weight: 600; }
-
-.pn-ley i.pn-gajo-1 { background: var(--mint-macizo); }
-.pn-ley i.pn-gajo-2 { background: var(--celeste); }
-.pn-ley i.pn-gajo-3 { background: var(--lila-macizo); }
-.pn-ley i.pn-gajo-4 { background: var(--muted); }
-
-/* ---- La clave de los colores, al pie de todo ----
-   Tres puntos y tres palabras. Es la nomenclatura escrita: sin ella el color
-   solo funciona para quien lo programó, y este panel lo mira alguien que entra
-   una vez cada varios días. */
-.pn-clave {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 16px;
-  align-items: center;
-  margin: 0 0 8px;
-  font-size: .78rem;
-  color: var(--text);
-}
-
-.pn-clave span { display: inline-flex; align-items: center; gap: 6px; }
-.pn-clave i { width: 9px; height: 9px; border-radius: var(--r-redondo); flex: none; }
-/* Sin `-macizo` por lo mismo que los bordes: son puntos de 9 px sobre una
-   tarjeta clara, y el amarillo macizo ahí da 1,4 — la clave de los colores no
-   puede ser lo único que no se ve. De noche valen igual. */
-.pn-clave i.bien { background: var(--mint); }
-.pn-clave i.ojo  { background: var(--fire); }
-.pn-clave i.mal  { background: var(--coral); }
-
-/* ---- Añadidos a la constelación ---- */
-
-/* La marca de cada lunes, para poder comparar una semana con la anterior.
-   La de hoy va entera y las demás punteadas: el último día casi siempre está
-   a medias y conviene que se note antes de sacar conclusiones. */
-.pn-guia {
-  stroke: var(--line);
-  stroke-width: 1;
-  stroke-dasharray: 2 4;
-  vector-effect: non-scaling-stroke;
-}
-
-.pn-guia.hoy { stroke: var(--carril); stroke-dasharray: none; }
-
-/* Las cuentas nuevas del día, al fondo y en su propia escala */
-/* ---- La segunda serie: las cuentas nuevas ----
-   Era una barra al fondo con su propia escala, y desde el 3 de septiembre es
-   una línea sobre la MISMA escala que la principal. Se separa de ella por tres
-   cosas a la vez y no por una: el color, el trazo discontinuo y el grosor. El
-   discontinuo no es adorno — es lo que deja distinguirlas a quien no separa
-   bien el verde del azul.
-
-   Sin transición ninguna, como el resto de este panel: el color sale de una
-   variable y una transición sobre eso se queda congelada para siempre. */
-.pn-hilo-altas {
-  fill: none;
-  stroke: var(--celeste);
-  stroke-width: 1.3;
-  stroke-dasharray: 3 3;
-  stroke-linejoin: round;
-  stroke-linecap: round;
-  opacity: .75;
-}
-
-.pn-punto-alta { fill: var(--celeste); opacity: .85; }
-
-.pn-pie-graf {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  margin-top: 8px;
-  font-size: .76rem;
-  color: var(--muted);
-}
-
-.pn-pie-graf span { display: inline-flex; align-items: center; gap: 6px; }
-/* Las dos muestras de la leyenda son ahora dos LÍNEAS, porque eso es lo que
-   hay en el dibujo. La de antes pintaba una barra vertical al lado de la
-   palabra «cuentas nuevas» y ya no existe ninguna barra. */
-.pn-mu-linea { width: 14px; height: 0; border-top: 2px solid var(--mint); border-radius: 2px; }
-.pn-mu-linea.altas { border-top-style: dashed; border-top-color: var(--celeste); }
 
   /* El rótulo de una apariencia de prueba. Es parte de la receta de subir algo
      apagado detrás de un parámetro: sin él es fácil olvidar que la pestaña

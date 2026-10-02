@@ -186,7 +186,7 @@
 .dn-etq.c-expansion { color: var(--dn-menta); background: var(--dn-menta-s); }
 .dn-etq.c-mejora { color: var(--dn-celeste); background: var(--dn-celeste-s); }
 .dn-etq.c-arreglo { color: var(--muted); background: var(--carril); }
-.dn-etq.c-hito { color: var(--dn-sobre); background: var(--dn-oro-m); }
+.dn-etq.c-hito { color: var(--dn-lila); background: var(--dn-lila-s); }
 /* Los estados: esquina recta, borde e icono, para no confundirlos con ellas. */
 .dn-estado { display: inline-flex; align-items: center; gap: 4px; border-radius: 7px; padding: 1px 8px 1px 5px; font-size: 11.5px; font-weight: 600; border: 1.5px solid currentColor; white-space: nowrap; }
 .dn-estado svg.dn-ic { width: 12px; height: 12px; stroke-width: 2.2; }

@@ -2356,7 +2356,54 @@ function lugaresDeFallo() {
    El bicho va ARRIBA DEL TÍTULO y no dentro del cuerpo: es el mismo sitio
    donde el resto de la app pone el icono de un cuadro (ver `askBase`), y
    además ata visualmente el cuadro con la bolita que se acaba de pulsar. */
+/* ---- Los cuatro tipos (0.7.170) ----
+   Hasta aquí el formulario solo sabía de fallos, y una idea o una duda no
+   tenían por dónde entrar: quien quería sugerir algo lo mandaba como fallo o no
+   lo mandaba. Lo pidió Eduardo al rehacer el panel: «más tipos de reporte, como
+   buzón de sugerencias».
+
+   El tipo viaja DENTRO del mensaje, pegado al lugar —`[Misiones|idea] …`—, y no
+   en `donde`: así no hay que tocar el servidor, y `donde` se queda en «reporte»,
+   que es lo que le da a lo que escribe una persona su cupo aparte del de los
+   avisos automáticos (ver `apuntar_tropiezo`). Un fallo no lleva tipo, para que
+   siga leyéndose igual que los de siempre. El panel los separa en `dnTipo`
+   (`js/10e-panel.js`): **un tipo nuevo es una fila aquí y otra en `DN_TIPOS`.**
+
+   «¿Qué hacías justo antes?» solo sale en un fallo: es lo que permite
+   reproducirlo, y a quien trae una idea no le pregunta nada. */
+const REP_TIPOS = [
+  { id: "fallo", rotulo: "Algo falló", donde: "¿Dónde pasó?", pregunta: "¿Qué salió mal?",
+    ejemplo: "La pantalla se quedó en blanco y no volvió.", falta: "No mandé nada: falta contar qué salió mal." },
+  { id: "idea", rotulo: "Tengo una idea", donde: "¿Sobre qué parte?", pregunta: "¿Qué te gustaría que hiciera?",
+    ejemplo: "Poder repetir una misión cada quince días.", falta: "No mandé nada: falta contar tu idea." },
+  { id: "duda", rotulo: "Tengo una duda", donde: "¿Sobre qué parte?", pregunta: "¿Qué no quedó claro?",
+    ejemplo: "No entiendo por qué bajó el nivel de una habilidad.", falta: "No mandé nada: falta escribir tu duda." },
+  { id: "gusto", rotulo: "Me gustó algo", donde: "¿Sobre qué parte?", pregunta: "¿Qué te gustó?",
+    ejemplo: "El sonido al subir de nivel.", falta: "No mandé nada: falta contar qué te gustó." }
+];
+let repTipo = "fallo";
+
+/* Cambiar de tipo sin redibujar la ventana: lo ya escrito se queda donde está.
+   Solo cambian los rótulos, el ejemplo y si se pregunta por el «justo antes». */
+function repElegir(id) {
+  const t = REP_TIPOS.find(x => x.id === id) || REP_TIPOS[0];
+  repTipo = t.id;
+  document.querySelectorAll("#rep-tipos button").forEach(b => {
+    const on = b.dataset.tipo === t.id;
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-checked", on ? "true" : "false");
+  });
+  const pon = (sel, txt) => { const el = document.getElementById(sel); if (el) el.textContent = txt; };
+  pon("rep-rot-donde", tx(t.donde));
+  pon("rep-rot-que", tx(t.pregunta));
+  const ta = document.getElementById("rep-que");
+  if (ta) ta.placeholder = tx(t.ejemplo);
+  const antes = document.getElementById("rep-campo-antes");
+  if (antes) antes.hidden = t.id !== "fallo";
+}
+
 async function reportarFallo() {
+  repTipo = "fallo";
   const aqui = (typeof activeMainView !== "undefined" && activeMainView) ? activeMainView : "otro";
   const lugares = lugaresDeFallo();
   /* La pantalla en la que está ahora viene marcada de partida: nueve de cada
@@ -2370,21 +2417,26 @@ async function reportarFallo() {
      va a escribir —que alguien lo lee y lo arregla— y que no hace falta saber
      nada técnico. Dos frases: la tercera ya no se lee. */
   const cuerpo =
-    '<span class="rep-intro">' + tx("Cuéntame qué pasó y lo reviso. No necesitas saber nada técnico: con lo que recuerdes me basta para encontrarlo.") + '</span>' +
+    '<span class="rep-intro">' + tx("Lo leo yo. No necesitas saber nada técnico: con lo que recuerdes me basta.") + '</span>' +
+    '<div class="rep-tipos" id="rep-tipos" role="radiogroup" aria-label="' + escapeAttr(tx("De qué se trata")) + '">' +
+      REP_TIPOS.map(t =>
+        '<button type="button" role="radio" data-tipo="' + t.id + '" aria-checked="' + (t.id === "fallo" ? "true" : "false") + '"' +
+        (t.id === "fallo" ? ' class="on"' : "") + ' onclick="repElegir(\'' + t.id + '\')">' + escapeHtml(tx(t.rotulo)) + '</button>').join("") +
+    '</div>' +
     '<label class="rep-campo">' +
-      '<span class="rep-rot">' + tx("¿Dónde pasó?") + '</span>' +
+      '<span class="rep-rot" id="rep-rot-donde">' + tx("¿Dónde pasó?") + '</span>' +
       '<select id="rep-donde">' +
         lugares.map(([id, txt]) =>
           '<option value="' + escapeAttr(id) + '"' + (id === porDefecto ? " selected" : "") + '>' +
           escapeHtml(txt) + '</option>').join("") +
       '</select>' +
     '</label>' +
-    '<label class="rep-campo">' +
+    '<label class="rep-campo" id="rep-campo-antes">' +
       '<span class="rep-rot">' + tx("¿Qué hacías justo antes? <i>Opcional</i>") + '</span>' +
       '<input type="text" id="rep-antes" maxlength="80" placeholder="' + escapeAttr(tx("Ej. Abrí un talento desde el mapa")) + '">' +
     '</label>' +
     '<label class="rep-campo">' +
-      '<span class="rep-rot">' + tx("¿Qué salió mal?") + '</span>' +
+      '<span class="rep-rot" id="rep-rot-que">' + tx("¿Qué salió mal?") + '</span>' +
       '<textarea id="rep-que" rows="3" maxlength="' + MOTIVO_MAX + '" placeholder="' + escapeAttr(tx("La pantalla se quedó en blanco y no volvió.")) + '"></textarea>' +
       '<span class="modal-cuenta" id="modal-cuenta">0 / ' + MOTIVO_MAX + '</span>' +
     '</label>';
@@ -2402,7 +2454,7 @@ async function reportarFallo() {
      venido a esto. Mandar un reporte es un favor, no la acción de la
      pantalla. */
   const p = askBase(cuerpo, true, tx("Enviar"), false, false, tx("Cancelar"),
-                    { icono: "bicho", titulo: tx("¿Qué salió mal?"), tono: "oro",
+                    { icono: "bicho", titulo: tx("Cuéntame"), tono: "oro",
                       clase: "reporte", okClase: "btn-linea" });
 
   /* `setTimeout` y no `requestAnimationFrame`, igual que en `askText`: el
@@ -2431,11 +2483,12 @@ async function reportarFallo() {
   if (!ok) return;
 
   const que = elQue ? limpiarLibre(elQue.value) : "";
-  if (!que) { toast(tx("No mandé nada: falta contar qué salió mal."), "atencion"); return; }
+  const tipo = REP_TIPOS.find(x => x.id === repTipo) || REP_TIPOS[0];
+  if (!que) { toast(tx(tipo.falta), "atencion"); return; }
 
   const idDonde = selDonde ? selDonde.value : "otro";
   const nombreDonde = (lugares.find(([id]) => id === idDonde) || [null, idDonde])[1];
-  const antes = elAntes ? limpiarLibre(elAntes.value) : "";
+  const antes = (elAntes && tipo.id === "fallo") ? limpiarLibre(elAntes.value) : "";
 
   /* Un solo renglón por campo y con etiqueta delante: esto acaba en una lista
      del panel donde cada fila se lee de un vistazo, y un párrafo corrido
@@ -2444,7 +2497,7 @@ async function reportarFallo() {
      El servidor recorta a 300 (ver `apuntar_tropiezo`), así que lo primero que
      se escribe es lo que más ahorra al buscar —el dónde—, y lo que se pierde
      si el mensaje es largo es la cola, no la cabecera. */
-  const mensaje = "[" + nombreDonde + "] " + que + (antes ? " · antes: " + antes : "");
+  const mensaje = "[" + nombreDonde + (tipo.id === "fallo" ? "" : "|" + tipo.id) + "] " + que + (antes ? " · antes: " + antes : "");
 
   const enviado = await sbTropiezo("reporte", mensaje);
   if (enviado) {
@@ -2459,9 +2512,11 @@ async function reportarFallo() {
        susto. Sin cancelar, porque no hay nada que cancelar, y sin `fijo`:
        quien ya leyó las dos líneas puede cerrar tocando fuera. */
     await askBase(
-      tx("Ya me llegó y lo voy a revisar. Cosas como ésta son las que hacen que Norata deje de fallar donde falla."),
+      tipo.id === "fallo"
+        ? tx("Ya me llegó y lo voy a revisar. Cosas como ésta son las que hacen que Norata deje de fallar donde falla.")
+        : tx("Ya me llegó y lo voy a leer con calma."),
       false, tx("De nada"), false, false, null,
-      { icono: "bicho", titulo: tx("Gracias por avisarme"), tono: "oro", soloOk: true });
+      { icono: "bicho", titulo: tipo.id === "fallo" ? tx("Gracias por avisarme") : tx("Gracias por contármelo"), tono: "oro", soloOk: true });
   } else {
     /* Ni «error» ni una disculpa larga: se dice qué pasó y qué se puede
        hacer. Lo escrito se ha perdido, y eso también se dice — dejar creer

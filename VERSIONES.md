@@ -283,14 +283,11 @@ texto sin aprobar a la vista**: se pone en `false` —el panel vuelve a pedir
 
 ### «Norata por dentro»: lo que el boceto tenía y todavía no existe
 
-La 0.7.167 conecta lo que el servidor ya da. Lo demás se diseñó con Eduardo
-sobre el boceto (`https://claude.ai/artifact/A7bwfCvJSRdFhTGbKBDHoi`) y espera
-esto, en el orden en que conviene hacerlo:
+La 0.7.167 conecta lo que el servidor ya da, y la 0.7.170 trajo el formulario
+con cuatro tipos. Lo demás se diseñó con Eduardo sobre el boceto
+(`https://claude.ai/artifact/A7bwfCvJSRdFhTGbKBDHoi`) y espera esto, en el orden
+en que conviene hacerlo:
 
-- **El formulario con cuatro tipos** (fallo, sugerencia, duda, «me gustó»). Es
-  solo JavaScript —el tipo viaja en el mensaje, ver la entrada de la 0.7.167—,
-  pero cambia lo que ve todo el mundo al reportar, así que va detrás de un
-  enlace de prueba y con sus frases en inglés.
 - **Estados, nota privada y «salió en la versión»** en el buzón: columnas nuevas
   en `tropiezos` y `metricas()` devolviéndolas. Hoy solo existe `visto`.
 - **La respuesta de vuelta** («Lo que me contaste», en Ajustes): hay que atar el
@@ -309,7 +306,61 @@ esto, en el orden en que conviene hacerlo:
   `paquete-app.yml`, `herramientas/comprobar-publicado.py` y lo que este
   documento y CLAUDE.md dicen de `main`.
 
+  **Y cada sesión tiene que saber en qué estado está, y decírselo** (Eduardo,
+  2 oct 2026): con la barrera puesta, que lo que suba va al panel de aprobación
+  y no al vivo; con el grifo abierto, que sube solo, para que nadie le pida una
+  aprobación que no hace falta. Eso pide que el estado se pueda LEER desde
+  fuera de la app —un comando, igual que el de la hora— y que CLAUDE.md mande
+  correrlo antes de decir «ya está subido». Una frase escrita aquí no sirve:
+  el grifo cambia y la frase no.
+
 ## La lista
+
+### 0.7.170 · 2 oct 2026
+
+**El formulario de reportar tiene cuatro tipos, y se va el código del panel
+viejo.** Es el primer paso de lo que quedó apuntado al subir «Norata por dentro»
+(0.7.167): el buzón ya sabía leer sugerencias, dudas y «me gustó», y nadie podía
+mandarlas. Eduardo pidió subirlo directo, sin enlace de prueba. Número propio:
+cambia lo que ve todo el mundo al reportar, no pule el panel.
+
+**El formulario.** Arriba, cuatro botones en dos filas —«Algo falló», «Tengo
+una idea», «Tengo una duda», «Me gustó algo»—; debajo, lo de siempre. Al
+cambiar de tipo no se redibuja la ventana, así que lo ya escrito se queda:
+solo cambian los rótulos, el ejemplo y si se pregunta por el «justo antes», que
+es cosa de un fallo. El título pasa de «¿Qué salió mal?» a «Cuéntame», y los dos
+botones que lo abren, de «Reportar un fallo» a «Reportar o sugerir». El acuse
+de recibo también cambia: a quien manda una idea no se le dan las gracias «por
+avisar de un fallo».
+
+**El tipo viaja dentro del mensaje**, pegado al lugar: `[Misiones|idea] …`. Sin
+tocar el servidor, y `donde` se queda en «reporte», que es lo que le da su cupo
+aparte. Un fallo no lleva tipo, así que los de siempre se siguen leyendo igual.
+**Un tipo nuevo son dos filas**: una en `REP_TIPOS` (`js/09-inicio.js`) y otra
+en `DN_TIPOS` (`js/10e-panel.js`).
+
+**Lo que se borró**, y cómo se comprobó que no se llevó nada más:
+
+- Las 143 reglas `.pn-*` de `css/estilos.css` (622 líneas) y `.pn-planes` de
+  `DESLIZA_GRUPOS`. Con un guion y no a mano, que es justo donde ya se cortaron
+  cuatro bloques ajenos una vez («Antes de tocar lo que se ve», en CLAUDE.md).
+  La comprobación no es un diff de texto: se cargaron la hoja de antes y la de
+  después en el navegador, se aplanaron sus reglas tal como él las entiende, y
+  quitando las `.pn-` de la primera las dos listas son **idénticas, regla por
+  regla y en el mismo orden: 3 225 de 3 225**. La primera pasada del guion
+  además le quitaba la sangría a algunas líneas al limpiar renglones en blanco;
+  se cazó leyendo el diff y se rehízo.
+- 75 frases del panel viejo en `js/00b-textos-en.js`: las que estaban en aquel
+  archivo y ya no escribe nadie en `js/`, `index.html` ni `login/index.html`.
+
+**«Nueva etapa» va en lila en el panel**, no en oro: lo decidió Eduardo para el
+changelog y aquí chocaba con el oro de «hay que mirarlo».
+
+**Cómo se probó.** El formulario entero con el envío imitado: cada tipo cambia
+sus rótulos, el «justo antes» se esconde fuera de un fallo, un `<i>` escrito a
+mano no llega al mensaje, vacío no se manda y avisa con la frase de su tipo, y
+al reabrir vuelve a «Algo falló». Lo enviado se le dio al panel tal cual y cayó
+en su pestaña: la idea en Sugerencias, el fallo en Fallos.
 
 ### 0.7.169 · 2 oct 2026
 

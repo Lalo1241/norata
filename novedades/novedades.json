@@ -679,6 +679,27 @@
       }
     },
     {
+      "version": "0.7.170",
+      "fecha": "2026-10-02",
+      "estado": "borrador",
+      "clase": "mejora",
+      "titulo": "Ya puedes mandar ideas, dudas y lo que te gustó",
+      "resumen": "El botón de reportar ahora sirve para cuatro cosas: algo que falló, una idea, una duda o algo que te gustó.",
+      "puntos": [
+        "Eliges de qué se trata con un toque y escribes lo demás.",
+        "Está donde siempre: junto al número de versión."
+      ],
+      "retoques": [],
+      "en": {
+        "titulo": "Now you can send ideas, questions and what you liked",
+        "resumen": "The report button now covers four things: something that broke, an idea, a question, or something you liked.",
+        "puntos": [
+          "Pick what it's about with one tap and write the rest.",
+          "It's where it always was: next to the version number."
+        ]
+      }
+    },
+    {
       "version": "0.7.169",
       "fecha": "2026-10-02",
       "estado": "borrador",

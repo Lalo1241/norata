@@ -361,7 +361,6 @@ const TEXTOS_EN = {
   "Cerrar barra lateral": "Collapse sidebar",
   "Salir de pantalla completa": "Leave full screen",
   "Acomodar tablero": "Rearrange board",
-  "Reportar un fallo": "Report a bug",
   "Versión de la app": "App version",
   "Abriendo Norata…": "Opening Norata…",
   "Actualizar a la version nueva": "Update to the new version",
@@ -1244,113 +1243,45 @@ const TEXTOS_EN = {
   "Pasar a Plan Pro": "Move to the Pro plan",
   "Un solo pago": "A single payment",
   "Pasar a Plan Fundador": "Move to the Founder plan",
-  "Todavía no hay ni un día con actividad. Aparecerá en cuanto alguien abra la app con su cuenta.":
-    "There isn't a single day with activity yet. It will show up as soon as someone opens the app with their account.",
   "personas que abrieron": "people who opened it",
-  "personas al día": "people per day",
-  "aperturas con cuenta": "openings with an account",
-  "Todavía no hay nadie registrado, así que no hay embudo que mirar.":
-    "Nobody has signed up yet, so there's no funnel to look at.",
-  "sube en vez de bajar: este paso no se cuenta como un trozo del anterior":
-    "it goes up instead of down: this step isn't counted as a slice of the previous one",
-  "no se pierde nadie": "nobody is lost",
-  "Lo que la gente reporta": "What people report",
-  "Agrupados por dónde dicen que pasó, no por el texto: dos personas contando dos cosas distintas de la misma pantalla son dos historias, y sumarlas borraría lo que las hace útiles. Toca un grupo para leerlos.":
-    "Grouped by where they say it happened, not by the text: two people describing two different things about the same screen are two stories, and adding them up would erase what makes them useful. Tap a group to read them.",
   "Modo de pruebas": "Test mode",
-  "Solo lo ves tú, y solo mientras esta cuenta sea administradora. No cambia nada en el servidor: lo que hay aquí decide qué se DIBUJA, no lo que la base de datos cree.":
-    "Only you see this, and only while this account is an administrator. It changes nothing on the server: what's here decides what gets DRAWN, not what the database believes.",
   "Esta cuenta": "This account",
   "De pruebas": "Test",
   "Ver la app como si tuviera": "See the app as if it had",
-  "Ver una celebración": "See a celebration",
-  "Se disparan aquí porque algunas pasan una vez en la vida de una cuenta y no hay forma de revisarlas esperándolas. No tocan tus datos ni tu nivel: solo dibujan.":
-    "They're triggered here because some happen once in an account's lifetime and there's no way to review them by waiting. They don't touch your data or your level: they only draw.",
   "Los números": "The numbers",
-  "Se piden al servidor cuando abres esta sección.":
-    "They're requested from the server when you open this section.",
-  "Cargar los números": "Load the numbers",
   "Para mirar": "To look at",
   "El embudo": "The funnel",
-  "Cada paso es un trozo del anterior. El escalón donde más gente se cae es el que hay que arreglar primero — y casi nunca es el que uno cree.":
-    "Each step is a slice of the previous one. The step where most people drop off is the one to fix first — and it's almost never the one you'd guess.",
   "La gente": "People",
-  "Los últimos 14 días": "The last 14 days",
-  "Dos líneas sobre la misma escala: la de arriba son las personas que abrieron la app, la punteada las cuentas nuevas de ese día. Que la segunda vaya casi siempre por abajo es el dato, no un problema de la gráfica. Las líneas verticales marcan cada lunes, para comparar una semana con otra.":
-    "Two lines on the same scale: the top one is the people who opened the app, the dotted one the new accounts that day. That the second almost always runs below is the data, not a problem with the chart. The vertical lines mark each Monday, so you can compare one week with another.",
   "Cómo la usan": "How they use it",
   "Desde qué dispositivo": "From which device",
-  "Sale del ancho de la ventana, no de fichar el dispositivo: dos teléfonos distintos cuentan como uno.":
-    "It comes from the window width, not from fingerprinting the device: two different phones count as one.",
   "Instalada o en el navegador": "Installed or in the browser",
-  "Instalada se abre sola; en una pestaña se olvida. Señal buena: 30 de cada 100.":
-    "Installed, it opens on its own; in a tab, it gets forgotten. A good sign: 30 out of every 100.",
   "Cuánto llevan con cuenta": "How long they've had an account",
   "El cobro": "Billing",
-  "El cobro todavía no está puesto en el servidor, así que aquí no hay nada que contar. Cuando corras":
-    "Billing isn't set up on the server yet, so there's nothing to count here. Once you run",
-  "y despliegues Stripe, esta caja se llena sola — los pasos están en":
-    "and deploy Stripe, this box fills itself — the steps are in",
-  "Con qué versión se quedó cada quien": "Which version each person ended up on",
-  "Una fila por persona:": "One row per person:",
-  "la última versión que vio": "the last version they saw",
-  ", no todas las que ha usado nunca. Si aquí aparece una que ya no existe, hay alguien pegado a una copia vieja — casi siempre porque no se subió el número de":
-    ", not every one they've ever used. If one shows up here that no longer exists, someone is stuck on an old copy — almost always because the number wasn't bumped in",
   "en": "in",
-  "Lo que se rompe solo": "What breaks on its own",
-  "Ni un error en los últimos treinta días.": "Not a single error in the last thirty days.",
   "llega a la vara": "meets the bar",
   "hay que mirarlo": "worth a look",
   "se pierde gente": "people are being lost",
-  "Lo demás va en tinta normal a propósito: es un dato, no un juicio. Un número sin una vara contra la que compararse no puede estar bien ni mal.":
-    "Everything else is in plain ink on purpose: it's a figure, not a verdict. A number with no bar to measure against can't be good or bad.",
   "Volver a pedirlos": "Ask for them again",
   "Pidiendo los números…": "Asking for the numbers…",
   "No pude traer los números": "I couldn't fetch the numbers",
-  "Reparto: {0}": "Split: {0}",
-  "(sin dato)": "(no data)",
   "reporte": "report",
   "reportes": "reports",
-  " · lo dijeron {0} veces": " · {0} people said it",
   "Volver a dejarlo abierto": "Leave it open again",
   "Atendido": "Handled",
   "Atender": "Handle",
   "Pagando ahora": "Paying now",
   "Al mes": "Per month",
-  "Lugares de fundador": "Founder seats",
-  "Plan mensual": "Monthly plan",
-  "Plan anual": "Annual plan",
   "cuenta nueva": "new account",
   "nuevo": "new",
-  "{0} contra {1} los 7 días de antes": "{0} against {1} the previous 7 days",
-  "cuenta distinta": "distinct account",
-  "cuentas distintas": "distinct accounts",
   " · {0} de {1} días con actividad": " · {0} of {1} days with activity",
-  "el mejor día": "the best day",
   "aperturas": "opens",
-  " · {0} por cuenta al día": " · {0} per account per day",
-  "Dos líneas sobre la misma escala durante los últimos catorce días: cuentas que abrieron la app cada día{0}, con un máximo de {1} en un día y actividad en {2} de {3} días{4}.":
-    "Two lines on the same scale over the last fourteen days: accounts that opened the app each day{0}, with a peak of {1} in a single day and activity on {2} of {3} days{4}.",
-  ", con una media de {0}": ", averaging {0}",
-  ", {0} distintas en total": ", {0} distinct in total",
-  ", y cuentas nuevas creadas cada día": ", and new accounts created each day",
-  "aquí se pierde más gente que en ningún otro paso: {0} {1}, el {2}% del anterior":
-    "this is where the most people are lost: {0} {1}, {2}% of the previous step",
   "persona": "person",
   "personas": "people",
-  "se pierde el {0}% del paso anterior": "{0}% of the previous step is lost",
   "sin confirmar el correo": "haven't confirmed their email",
-  "se registraron y nunca pulsaron el enlace": "they signed up and never clicked the link",
   "nunca abrieron la app": "never opened the app",
-  "tienen cuenta y jamás entraron": "they have an account and never came in",
-  "pidieron borrar su cuenta": "asked to delete their account",
-  "en el plazo de 30 días para arrepentirse": "within the 30 days to change their mind",
   "Cuentas creadas": "Accounts created",
   "error": "error",
   "errores": "errors",
-  "Los que caza la app por su cuenta. Cada fila es un error distinto de un día, con las veces que pasó: se agrupan a propósito, porque un fallo dentro de un bucle escribiría miles de filas iguales. Lo que escribe una persona va arriba, en su propia caja.":
-    "The ones the app catches on its own. Each row is a different error from one day, with the number of times it happened: they're grouped on purpose, because a failure inside a loop would write thousands of identical rows. What a person writes goes above, in its own box.",
-  "Dar por vistos los {0} nuevos": "Mark the {0} new ones as seen",
   "Números tomados {0}.": "Numbers taken {0}.",
   "a las": "at",
   "récord": "record",
@@ -1735,6 +1666,27 @@ const TEXTOS_EN = {
   "Otra parte": "Somewhere else",
   "Cuéntame qué pasó y lo reviso. No necesitas saber nada técnico: con lo que recuerdes me basta para encontrarlo.":
     "Tell me what happened and I'll look into it. You don't need to know anything technical: whatever you remember is enough for me to find it.",
+  "Reportar o sugerir": "Report or suggest",
+  "Cuéntame": "Tell me",
+  "De qué se trata": "What it's about",
+  "Lo leo yo. No necesitas saber nada técnico: con lo que recuerdes me basta.":
+    "I read it myself. You don't need to know anything technical: whatever you remember is enough.",
+  "Algo falló": "Something broke",
+  "Tengo una idea": "I have an idea",
+  "Tengo una duda": "I have a question",
+  "Me gustó algo": "I liked something",
+  "¿Sobre qué parte?": "Which part is it about?",
+  "¿Qué te gustaría que hiciera?": "What would you like it to do?",
+  "¿Qué no quedó claro?": "What wasn't clear?",
+  "¿Qué te gustó?": "What did you like?",
+  "Poder repetir una misión cada quince días.": "Being able to repeat a mission every two weeks.",
+  "No entiendo por qué bajó el nivel de una habilidad.": "I don't get why a skill's level went down.",
+  "El sonido al subir de nivel.": "The sound when I level up.",
+  "No mandé nada: falta contar tu idea.": "I didn't send anything: you still need to tell me your idea.",
+  "No mandé nada: falta escribir tu duda.": "I didn't send anything: you still need to write your question.",
+  "No mandé nada: falta contar qué te gustó.": "I didn't send anything: you still need to say what you liked.",
+  "Ya me llegó y lo voy a leer con calma.": "It reached me and I'll read it properly.",
+  "Gracias por contármelo": "Thanks for telling me",
   "¿Dónde pasó?": "Where did it happen?",
   "¿Qué hacías justo antes? <i>Opcional</i>":
     "What were you doing just before? <i>Optional</i>",
@@ -1936,7 +1888,6 @@ const TEXTOS_EN = {
   "Se borrará ahora mismo, sin esperar. Esto ya no se puede deshacer.":
     "It will be deleted right now, without waiting. This can't be undone.",
   "Guardando solo en este dispositivo": "Saving only on this device",
-  "Errores dados por vistos": "Errors marked as seen",
   "Sin cuenta: no hay nada que traer": "No account: there's nothing to fetch",
 
   /* ---- Las pantallas del plan ----
@@ -2495,44 +2446,21 @@ const TEXTOS_EN = {
     "Today first: missions, streak and what's urgent",
   "La racha arriba, y debajo lo que la alimenta": "The streak on top, and below what feeds it",
   "Lo que construyo": "What I'm building",
-  "todavía sin datos": "no data yet",
   "Sin ubicar": "Unplaced",
   "Verás un marco punteado amarillo mientras la uses, y borrar todo no pedirá confirmación extra.":
     "You'll see a yellow dotted frame while you use it, and deleting everything won't ask for extra confirmation.",
   "Borrar todo te pedirá escribir tu correo. Es a propósito: obliga a mirar en qué cuenta estás.":
     "Deleting everything will ask you to type your email. That's on purpose: it forces you to look at which account you're in.",
-  "Los topes, las pantallas y los avisos de cada plan, sin tener que comprarlos. Vive en la pestaña: aguanta una recarga y muere al cerrarla.":
-    "Each plan's caps, screens and notices, without buying them. It lives in the tab: it survives a reload and dies when you close it.",
   "Guitarra sube de nivel": "Guitar levels up",
   "Un ambiente nuevo": "A new ambience",
-  "Activos esta semana": "Active this week",
-  "abrieron en 7 días": "opened it in 7 days",
   "Siguen tras 30 días": "Still here after 30 days",
   "Volvieron otro día": "Came back another day",
   "Días de uso por persona": "Days of use per person",
-  "cuántos días distintos abre cada quien": "how many different days each person opens it",
-  "Aperturas esta semana": "Opens this week",
-  "veces que se abrió, en total": "times it was opened, in total",
-  "Nadie ha abierto la app todavía.": "Nobody has opened the app yet.",
-  "Todavía no hay ninguna cuenta.": "There are no accounts yet.",
-  "sin contar fundador": "not counting founder",
   "de 200": "of 200",
-  "Todavía no hay ninguna suscripción.": "There are no subscriptions yet.",
-  "Nadie ha abierto la app en los últimos treinta días.":
-    "Nobody has opened the app in the last thirty days.",
-  "La que pasa: se va sola a los ocho segundos y se corta tocando fuera.":
-    "The passing one: it leaves by itself after eight seconds and is cut short by tapping outside.",
   "Nivel con rango": "Level with a rank",
-  "Cuando el nivel además te cambia el nombre del camino.":
-    "When the level also changes what your path is called.",
   "Nivel con premio": "Level with a reward",
-  "La ventana que NO se cierra tocando fuera ni sola. Lleva a lo que abriste.":
-    "The window that doesn't close by tapping outside or on its own. It takes you to what you unlocked.",
   "Hito de racha": "Streak milestone",
-  "La de los días seguidos, en amarillo.": "The one for days in a row, in yellow.",
   "La chica": "The small one",
-  "El destello de subir una habilidad o cumplir un talento.":
-    "The flash of a skill leveling up or a talent being completed.",
   "Celebración nueva": "New celebration",
   "Ver Mi expedición": "See My journey",
   "Un año entero sin soltarlo. Esto ya no es fuerza de voluntad, es quién eres.":
@@ -2721,9 +2649,6 @@ const TEXTOS_EN = {
   "· viendo como {0}": "· viewing as {0}",
   ", hasta el {0}": ", until {0}",
   "· señal buena: {0}%": "· a good sign: {0}%",
-  "· lo dijeron {0} veces": "· said {0} times",
-  "Estás viendo la app como <b>{0}</b>. Se cae sola al cerrar la pestaña, y no toca lo que pagaste.":
-    "You're viewing the app as <b>{0}</b>. It drops by itself when you close the tab, and it doesn't touch what you paid for.",
   "Misión cumplida: {0}": "Mission completed: {0}",
   "Misión · {0}": "Mission · {0}",
   "{0} de cada 10": "{0} out of 10",
@@ -2920,10 +2845,7 @@ const TEXTOS_EN = {
  "Ensayo · nada de lo que toques aquí se guarda": "Rehearsal · nothing you touch here is saved",
  "Cerrar el ensayo": "Close the rehearsal",
  "Era un ensayo: tu idioma, tu moneda y tus datos siguen como estaban.": "That was a rehearsal: your language, your currency and your data are as they were.",
- "Ver una pantalla de la primera vez": "See a first-time screen",
- "Un perfil las ve una sola vez, así que revisarlas costaba vaciar la app. Se abren en ensayo: lo que toques dentro se deshace al cerrar, y tus datos no se tocan.": "A profile sees them only once, so checking them meant emptying the app. They open as a rehearsal: whatever you touch inside is undone on closing, and your data is left alone.",
  "Idioma y moneda": "Language and currency",
- "La primera de todas: sale antes del tablero y antes del tutorial.": "The first of them all: it comes before the board and before the tutorial.",
  "Nivel a secas": "Level, plain",
  /* La sección de la cuenta y la etiqueta «beta» del inglés. Las anclas
     sugeridas de una misión estaban también aquí, en infinitivo, y desde
@@ -3144,7 +3066,6 @@ const TEXTOS_EN = {
   "Abriendo la entrada…": "Opening the sign-in…",
   "Sin cerrar la de ahora": "Without closing the current one",
   "Diez caminos ya armados": "Ten ready-made paths",
-  "cuentas al día": "accounts per day",
   "Darlo por atendido": "Mark as handled",
   "Empiezas por": "You start with",
   "Trayendo los caminos…": "Fetching the paths…",
@@ -4115,7 +4036,6 @@ const TEXTOS_EN = {
   "El módulo de {0} se desbloquea en el nivel {1} de": "The {0} module unlocks at level {1} of",
 
   "· {0} de {1} días con actividad": "· {0} of {1} days with activity",
-  "· {0} por cuenta al día": "· {0} per account per day",
 
   /* El sonido de toda la app (0.7.140). */
   "Sonido de Norata": "Norata sound",

@@ -571,8 +571,9 @@ puso Eduardo sobre el boceto y valen para cualquier cosa que se añada:
   coral lo que se pierde, menta lo que llega a la vara. Lo demás, tinta normal.
 
 Al añadir una prueba con enlace a la app, **su fila va en `DN_PRUEBAS`**, con
-cómo saber si está encendida. Y un tipo de reporte nuevo es una línea en
-`DN_TIPOS`: el tipo viaja dentro del mensaje (`[Lugar|tipo] …`).
+cómo saber si está encendida. Y un tipo de reporte nuevo son DOS filas: una en
+`REP_TIPOS` (`js/09-inicio.js`), que es el formulario, y otra en `DN_TIPOS`,
+que es el buzón. El tipo viaja dentro del mensaje (`[Lugar|tipo] …`).
 
 **Sin sesión de administrador no hay números**, así que se prueba imitando la
 respuesta de `metricas()` en la consola: `esAdmin = true`, `metricasCache =
