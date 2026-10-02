@@ -10,6 +10,15 @@ comprobar="$(git rev-parse --show-toplevel)/.githooks/marcas-de-conflicto.sh"
 cero=0000000000000000000000000000000000000000
 fallo=0
 while read -r _local sha _remota _rsha; do
+  # `vivo` es lo publicado, y solo la mueve la barrera
+  # (.github/workflows/barrera.yml) cuando Eduardo aprueba. Subir ahí a mano
+  # se salta la aprobación entera. Para una emergencia de verdad:
+  # NORATA_VIVO_A_MANO=1 git push …, y decírselo a Eduardo.
+  if [ "$_remota" = "refs/heads/vivo" ] && [ "${NORATA_VIVO_A_MANO:-}" != "1" ]; then
+    echo "No se sube a 'vivo' a mano: es lo publicado y lo mueve la barrera." >&2
+    echo "Sube a 'main' y corre: sh herramientas/barrera.sh" >&2
+    exit 1
+  fi
   [ "$sha" = "$cero" ] && continue   # borrar una rama no sube nada
   sh "$comprobar" "$sha" || fallo=1
 done

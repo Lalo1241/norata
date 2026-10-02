@@ -498,6 +498,23 @@ async function sbTropiezoEstado(id, estado, nota, arreglado) {
   return r.body;
 }
 
+/* La barrera de subidas (0.7.173): el panel no habla con GitHub, habla con la
+   función `barrera`, que es quien tiene la llave y comprueba quién pregunta.
+   El error lleva en `falta` qué pieza no está puesta todavía —la función, su
+   llave o el SQL—, para que el panel lo diga en vez de enseñar un fallo. */
+async function sbBarrera(accion, datos) {
+  const t = await sbToken();
+  const res = await fetch(SB_URL + "/functions/v1/barrera", {
+    method: "POST",
+    headers: { "Authorization": "Bearer " + t, "apikey": SB_KEY, "Content-Type": "application/json" },
+    body: JSON.stringify(Object.assign({ accion: accion }, datos || {}))
+  });
+  const b = await res.json().catch(function () { return {}; });
+  if (res.status === 404) { const e = new Error("La función de la barrera no está desplegada."); e.falta = "funcion"; throw e; }
+  if (!res.ok) { const e = new Error(b.error || ("El servidor respondió " + res.status)); e.falta = b.falta || ""; throw e; }
+  return b;
+}
+
 /* Apuntar que algo se rompió.
 
    Va por `sbFetch` y no por `sbDatos` a propósito: `sbDatos` exige un token, y

@@ -297,13 +297,22 @@ en que conviene hacerlo:
   hay que volver a desplegar.
 - **Beta testers**: una tabla con el rol, la invitación por enlace y un botón
   en su menú. Hoy una prueba solo se enciende con su enlace, en la pestaña.
-- **La barrera de subidas**: `main` como cola, una rama `vivo` protegida que es
-  la única que se publica, y un trabajo de GitHub que la mueve cuando el panel
-  aprueba. Con ella llegan los paquetes semanales, el grifo con su llave y el
-  regreso a una versión sana. **Tiene que ser automática** —es regla de Eduardo:
-  no puede depender de que una sesión se acuerde— y arrastra cambiar
-  `paquete-app.yml`, `herramientas/comprobar-publicado.py` y lo que este
-  documento y CLAUDE.md dicen de `main`.
+- **Lo que le falta a la barrera** (existe desde la 0.7.173, ver su entrada):
+  - **El corte**: que GitHub Pages publique `vivo` en vez de `main`. Lo hace
+    Eduardo en Settings → Pages. Hasta entonces la barrera no frena nada, y el
+    panel lo dice.
+  - **Proteger `vivo`** con una regla de GitHub y una llave de despliegue
+    (`LLAVE_VIVO`): hoy la guarda el `pre-push` local, que una copia sin los
+    hooks puede saltarse. La llave hace falta además para subir un tramo que
+    toque `.github/workflows/`.
+  - **El regreso a una versión sana**, que es lo que hacía el «cierre de
+    emergencia» del boceto: republicar el contenido de una versión anterior con
+    número nuevo, y negarse si cambió el formato de los datos.
+  - **Que los mundos pintan igual que antes**, como comprobación: pide un
+    navegador dentro del trabajo de GitHub.
+  - **Aprobar una novedad desde el panel**, en el mismo paso que su subida.
+  - `herramientas/comprobar-publicado.py` sigue leyendo `sw.js` del árbol de
+    trabajo: después del corte tiene que compararse con `vivo`.
 
   **Y cada sesión tiene que saber en qué estado está, y decírselo** (Eduardo,
   2 oct 2026): con la barrera puesta, que lo que suba va al panel de aprobación
@@ -315,6 +324,73 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.173 · 2 oct 2026
+
+**La barrera de subidas existe de verdad, y la sala de Subidas ya manda.** La
+0.7.167 subió una sala que solo ENSEÑABA cosas, y Eduardo lo dijo al abrirla:
+«no entiendo cómo validar una subida en el panel a como me lo pusiste en live».
+Tenía razón: aprobar, la cola y el grifo eran del boceto, y para que fueran de
+verdad faltaba la pieza de fuera de la app. Esta es esa pieza. Número propio:
+cambia cómo se publica Norata, no pule el panel.
+
+**Cómo funciona.** `main` pasa a ser la cola y una rama nueva, `vivo`, lo
+publicado. Lo único que mueve `vivo` es `.github/workflows/barrera.yml`, y solo
+hacia delante:
+
+- al subir a `main` pregunta por el grifo: abierto, sube solo —como se trabajó
+  siempre—; cerrado, se queda en la cola;
+- cuando Eduardo aprueba en el panel, sube hasta el commit que diga, esté el
+  grifo como esté.
+
+Antes de subir corre cinco comprobaciones: `VERSION` y `CACHE` coinciden, no hay
+marcas de conflicto, el JavaScript se puede leer, todo lo que lista `sw.js`
+existe y `novedades.json` es válido, y no trae SQL sin pegar. **Un tramo que
+toca un `.sql` no sube solo ni con el grifo abierto**: se queda en la cola hasta
+que se sube a propósito diciendo que ya está pegado.
+
+**El grifo vive en Supabase** (`supabase/barrera.sql`), no en GitHub: lo tienen
+que leer el trabajo de GitHub, el panel y cualquier sesión, y es lo único a lo
+que los tres llegan sin llave. Solo una respuesta que diga «cerrado» cierra; si
+la función no existe todavía se trabaja como siempre, y cualquier otro fallo NO
+publica —un servidor caído no abre el grifo por su cuenta—.
+
+**El panel no habla con GitHub.** La CSP de la app solo deja hablar con
+Supabase, y una llave de GitHub en el navegador sería pública. Habla con la
+función `barrera`, que comprueba con `soy_admin()` quién pregunta y es quien
+tiene la llave: un token que solo puede correr trabajos y leer, no subir código.
+
+**La sala de Subidas.** El grifo con su llave —el seguro solo se quita
+arrastrándola a la cerradura, y vuelve solo a los quince segundos—, la cola en
+el orden en que se aprueba, con «Subir hasta aquí» en cada cambio y «Subir todo
+al vivo», el aviso de lo que lleva cinco días o más esperando, lo que trae SQL
+marcado aparte, y las últimas veces que algo pasó por la barrera. Mientras
+falte una pieza, dice CUÁL falta en vez de dibujar un grifo que no mueve nada. Y
+mientras GitHub Pages siga publicando `main`, lo avisa arriba: la barrera existe
+pero todavía no frena.
+
+**Se aprueba en orden**, y está decidido así: `vivo` solo se adelanta a un
+commit que la contenga. Sacar un cambio de en medio es revertirlo en `main`.
+
+**Para que una sesión no le diga a Eduardo algo que no es**
+(`herramientas/barrera.sh`): con el grifo cerrado, «ya está subido» significa
+«está en la cola»; con el grifo abierto, pedirle una aprobación que no hace
+falta también es mentirle. Se corre antes de decir nada. Y el `pre-push` local
+se niega a subir a `vivo` a mano.
+
+**El paquete de Android sale de `vivo`**, no de la cola: `paquete-app.yml` ya no
+se dispara al subir a `main`, lo llama la barrera cuando algo llega a vivo.
+
+**Lo que NO trae, a sabiendas:** el regreso a una versión sana (el «cierre de
+emergencia» del boceto; hoy cerrar el grifo es solo cerrar), la comprobación de
+que los mundos pintan igual —pide un navegador dentro del trabajo—, y los
+paquetes con fecha: la cola no tiene calendario, sube cuando se aprueba.
+
+**Cómo se probó, y hasta dónde.** La sala entera con la función imitada: sin
+desplegar, conectada, con cola, subir un tramo con SQL y sin él, la llave, abrir
+y cerrar; y la foto de estilos contra los cinco mundos y Arcade, cero
+diferencias en 1 098 elementos. **La función y el SQL no se pudieron probar
+aquí** —no hay Deno ni Postgres—: se prueban al desplegarlos. El trabajo de
+GitHub se probó de verdad al subir esta misma versión.
 ### 0.7.172.1 · 2 oct 2026
 
 **El cierre de «Actualizar», medio segundo más corto.** Eduardo, ya con la

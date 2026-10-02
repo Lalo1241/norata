@@ -180,6 +180,44 @@ número de versión (0.7.122) estará cogido y habrá que renumerar, y su
 `publicar.sh` y este `_config.yml` hacen lo mismo por dos caminos — se queda
 uno, no los dos.
 
+## La barrera de subidas
+
+**Subir a `main` ya no es, por sí solo, publicar** (0.7.173). `main` es la cola
+y `vivo` lo publicado; lo único que mueve `vivo` es
+`.github/workflows/barrera.yml`. Es regla de Eduardo y la más dura de todas:
+**tiene que ser automática**, no puede depender de que una sesión se acuerde.
+Por eso vive en GitHub y no aquí escrita.
+
+**Antes de decirle a Eduardo que algo está subido, se pregunta cómo está el
+grifo.** Cuesta un comando y no se da por sabido, porque cambia:
+
+```sh
+sh herramientas/barrera.sh
+```
+
+| Lo que contesta | Qué le dices |
+| --- | --- |
+| Grifo ABIERTO | «Subido: llega solo al vivo en uno o dos minutos». No le pidas aprobación: no hace falta |
+| Grifo CERRADO | «Está en la cola, esperando tu aprobación en el Puesto de mando → Subidas». **No digas que ya está en vivo** |
+| No está instalada | Se trabaja como siempre: `main` se publica solo |
+
+Y cuatro cosas que muerden:
+
+- **Mientras GitHub Pages siga publicando `main`, la barrera no frena nada.** El
+  corte lo hace Eduardo (Settings → Pages → rama `vivo`), y el panel avisa
+  arriba mientras no esté hecho. `sh herramientas/barrera.sh` habla del grifo,
+  no de eso: si hay duda de qué rama se publica, se le pregunta a él.
+- **Nunca se sube a `vivo` a mano.** El `pre-push` se niega. Es lo publicado.
+- **Un tramo que toca `supabase/*.sql` no sube solo**, ni con el grifo abierto:
+  espera a que Eduardo lo suba diciendo que ya lo pegó. Al tocar un `.sql`,
+  díselo, además de apuntarlo en «Pendiente de pegar».
+- **Se aprueba en orden.** `vivo` solo va hacia delante: un cambio de en medio
+  no se salta, se revierte en `main`.
+
+El grifo vive en Supabase (`supabase/barrera.sql`) y el panel lo mueve a través
+de la función `barrera`. El paquete de Android sale de `vivo`: lo llama la
+barrera, ya no se dispara al subir a `main`.
+
 ## Versiones
 
 El número se ve debajo de Ajustes y **las reglas están en `VERSIONES.md`** —

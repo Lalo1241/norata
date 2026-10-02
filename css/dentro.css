@@ -272,7 +272,85 @@ html.claro #dentro {
 #dentro .dn-botonera button { text-align: left; background: var(--bg2); border: 2px solid var(--line); border-radius: 18px 18px 18px 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; }
 #dentro .dn-botonera b { font-size: 14.5px; font-weight: 700; } #dentro .dn-botonera span { font-size: 12.5px; color: var(--muted); }
 
+/* ---- La barrera: el grifo, su llave y la ventana de confirmar ---- */
+#dentro .dn-grifo { position: relative; flex: none; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px 18px; align-items: center; border-radius: var(--dn-burbuja); padding: 20px; border: 2px solid var(--line); background: var(--card); }
+#dentro .dn-grifo > * { position: relative; z-index: 1; }
+#dentro .dn-grifo.suelto { border-color: var(--dn-oro); border-style: dashed; }
+#dentro .dn-grifo.abierto { border-color: var(--dn-oro-m); }
+/* Las franjas, solo hacia la derecha y tenues: debajo del botón de cerrar, sin
+   tocar el texto. En una capa aparte, que no se lleve el alto del panel. */
+#dentro .dn-grifo.abierto::before { content: ""; position: absolute; inset: 0; z-index: 0; border-radius: inherit; opacity: .1; background-image: linear-gradient(135deg, var(--dn-oro-m) 25%, transparent 25%, transparent 50%, var(--dn-oro-m) 50%, var(--dn-oro-m) 75%, transparent 75%); background-size: 40px 40px; -webkit-mask-image: linear-gradient(90deg, transparent 58%, #000 100%); mask-image: linear-gradient(90deg, transparent 58%, #000 100%); }
+#dentro .dn-grifo h3 { font-size: 19px; font-weight: 800; letter-spacing: -0.2px; }
+#dentro .dn-grifo p { font-size: 13.5px; color: var(--muted); }
+#dentro .dn-grifo small { color: var(--muted); font-size: 12.5px; }
+#dentro .dn-grifo .acc { grid-column: 1 / -1; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+#dentro .dn-grifo.abierto .acc { justify-content: flex-end; }
+#dentro .dn-interruptor { width: 80px; height: 44px; border-radius: 999px; background: var(--carril); box-shadow: inset 0 0 0 1.5px var(--line); position: relative; flex: none; }
+#dentro .dn-interruptor i { position: absolute; top: 4px; left: 4px; width: 36px; height: 36px; border-radius: 50%; background: var(--card2); box-shadow: 0 0 0 1.5px var(--line); display: grid; place-items: center; color: var(--muted); }
+#dentro .dn-grifo.abierto .dn-interruptor { background: var(--dn-oro-m); box-shadow: none; }
+#dentro .dn-grifo.abierto .dn-interruptor i { left: 40px; background: var(--dn-sobre); color: #f5d76e; box-shadow: none; }
+#dentro .dn-cerrojo { display: flex; align-items: center; gap: 8px; }
+#dentro .dn-llave { width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--dn-oro); background: var(--dn-oro-s); color: var(--dn-oro); display: grid; place-items: center; cursor: grab; touch-action: none; position: relative; z-index: 3; flex: none; }
+#dentro .dn-llave.arrastra { cursor: grabbing; background: var(--dn-oro-m); color: var(--dn-sobre); }
+#dentro .dn-riel { width: 76px; height: 3px; border-radius: 3px; flex: none; background: repeating-linear-gradient(90deg, var(--faint) 0 7px, transparent 7px 14px); -webkit-mask-image: linear-gradient(90deg, transparent 40%, #000 60%); mask-image: linear-gradient(90deg, transparent 40%, #000 60%); -webkit-mask-size: 300% 100%; mask-size: 300% 100%; -webkit-mask-position: 100% 0; mask-position: 100% 0; }
+#dentro .dn-cerrojo.en-mano .dn-riel { -webkit-mask-position: 0 0; mask-position: 0 0; }
+#dentro .dn-cerradura { width: 48px; height: 48px; border-radius: 50%; border: 2px dashed var(--muted); color: var(--muted); display: grid; place-items: center; flex: none; }
+#dentro .dn-cerradura.cerca { border-style: solid; border-color: var(--dn-oro); color: var(--dn-oro); background: var(--dn-oro-s); transform: scale(1.18); }
+#dentro .dn-sin-seguro { font-size: 13px; font-weight: 600; color: var(--dn-oro); }
+#dentro .dn-sin-seguro b { display: inline-block; min-width: 2ch; text-align: center; font-variant-numeric: tabular-nums; }
+#dentro .dn-btn.b-oro { background: var(--dn-oro-s); color: var(--dn-oro); border-color: var(--dn-oro); }
+#dentro a.dn-btn { text-decoration: none; }
+#dentro .dn-estado.e-sql { color: var(--dn-celeste); border-style: dashed; }
+#dentro .dn-interno { font-family: var(--dn-mono); font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+#dentro .dn-aviso.dn-ojo { background: var(--dn-oro-s); color: var(--text); }
+#dentro .dn-aviso.dn-ojo b { color: var(--dn-oro); }
+#dentro .dn-velo { position: absolute; inset: 0; z-index: 5; background: rgba(6, 9, 14, 0.72); backdrop-filter: blur(5px); display: flex; align-items: flex-end; justify-content: center; }
+html.claro #dentro .dn-velo { background: rgba(16, 24, 34, 0.42); }
+#dentro .dn-modal { background: var(--card); width: 100%; border-radius: 30px 30px 0 0; padding: 26px 20px; display: flex; flex-direction: column; gap: 14px; max-height: 92%; overflow-y: auto; }
+#dentro .dn-modal h3 { font-size: 20px; font-weight: 700; }
+#dentro .dn-modal p { color: var(--muted); font-size: 14px; }
+#dentro .dn-macc { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+#dentro .dn-lista-m { display: flex; flex-direction: column; gap: 8px; padding: 0; list-style: none; font-size: 14px; }
+#dentro .dn-lista-m li { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+#dentro .dn-lista-m svg { color: var(--dn-menta); width: 16px; height: 16px; }
+/* El movimiento del grifo. La regla de arriba apaga toda animación dentro de
+   la capa —es lo que impide que un mundo meta las suyas—, así que estas se
+   vuelven a encender una por una. De día, el botón no lleva halo. */
+@media (prefers-reduced-motion: no-preference) {
+  #dentro .dn-llave { animation: dn-menea 2.2s ease-in-out infinite; }
+  #dentro .dn-llave.arrastra, #dentro .dn-llave.vuelve { animation: none; }
+  #dentro .dn-llave.vuelve { transition: transform .25s ease-out; }
+  #dentro .dn-riel { animation: dn-corre .6s linear infinite; }
+  #dentro .dn-cerrojo.en-mano .dn-riel { animation: dn-corre .6s linear infinite, dn-disipa .45s ease-out both; }
+  #dentro .dn-cerradura { animation: dn-llama 1.6s ease-in-out infinite; }
+  #dentro .dn-cerradura.cerca { animation: none; }
+  html:not(.claro) #dentro .dn-late { animation: dn-halo 1.2s ease-out infinite; }
+  #dentro .dn-grifo.cambia.suelto .dn-interruptor { animation: dn-tiembla .5s ease-in-out 2; }
+  #dentro .dn-grifo.cambia .acc > * { animation: dn-entra .4s ease-out both; }
+  #dentro .dn-grifo.gira > div:not(.acc) { animation: dn-entra .4s ease-out both; }
+  #dentro .dn-grifo.gira.abierto .dn-interruptor i { animation: dn-abre .4s cubic-bezier(.3, 1.3, .5, 1) both; }
+  #dentro .dn-grifo.gira:not(.abierto) .dn-interruptor i { animation: dn-cierra .4s cubic-bezier(.3, 1.3, .5, 1) both; }
+  #dentro .dn-grifo.abierto::before { animation: dn-fluye 1.6s linear infinite; }
+  #dentro .dn-grifo.gira.abierto::before { animation: dn-fluye 1.6s linear infinite, dn-aparece .9s ease-out both; }
+}
+@keyframes dn-menea { 0%, 60%, 100% { transform: rotate(0); } 70% { transform: rotate(-16deg); } 80% { transform: rotate(13deg); } 90% { transform: rotate(-7deg); } }
+@keyframes dn-corre { to { background-position: 14px 0; } }
+@keyframes dn-disipa { from { -webkit-mask-position: 100% 0; mask-position: 100% 0; } to { -webkit-mask-position: 0 0; mask-position: 0 0; } }
+@keyframes dn-llama { 50% { transform: scale(1.09); } }
+@keyframes dn-halo { from { box-shadow: 0 0 0 0 rgba(245, 215, 110, .55); } to { box-shadow: 0 0 0 14px rgba(245, 215, 110, 0); } }
+@keyframes dn-tiembla { 20% { transform: translateX(-5px) rotate(-4deg); } 40% { transform: translateX(5px) rotate(4deg); } 60% { transform: translateX(-3px); } 80% { transform: translateX(3px); } }
+@keyframes dn-entra { from { opacity: 0; transform: translateY(10px); } }
+@keyframes dn-abre { from { left: 4px; } }
+@keyframes dn-cierra { from { left: 40px; } }
+@keyframes dn-aparece { from { opacity: 0; } }
+@keyframes dn-fluye { to { background-position: 40px 0; } }
+
 @media (min-width: 900px) {
+  #dentro .dn-grifo { grid-template-columns: auto minmax(0, 1fr) auto; }
+  #dentro .dn-grifo .acc { grid-column: auto; flex-direction: column; align-items: flex-end; justify-content: center; width: 212px; min-height: 76px; gap: 6px; flex-wrap: nowrap; }
+  #dentro .dn-grifo.abierto .acc { justify-content: center; }
+  #dentro .dn-velo { align-items: center; }
+  #dentro .dn-modal { width: 480px; border-radius: 26px; padding: 28px 26px; }
   #dentro .dn-caja { grid-template-columns: 252px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
   #dentro .dn-cima, #dentro .dn-tabs { display: none; }
   #dentro .dn-lateral { display: flex; flex-direction: column; gap: 6px; padding: 22px 14px 16px; background: var(--bg2); border-right: 1px solid var(--line); min-height: 0; }

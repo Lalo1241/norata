@@ -25,12 +25,19 @@
 
 name: Paquete de la app
 
+# Desde la 0.7.172 ya no se dispara al subir a `main`: lo llama la barrera
+# (`barrera.yml`) cuando algo llega a `vivo`. Un paquete fabricado con lo que
+# todavía está en la cola le llevaría a la app de Android código sin aprobar,
+# que es justo lo que la barrera existe para impedir. A mano sigue pudiéndose,
+# y entonces sale de `vivo`.
 on:
-  push:
-    branches: [main]
-    paths:
-      - js/01-base.js
-      - .github/workflows/paquete-app.yml
+  workflow_call:
+    inputs:
+      ref:
+        description: "El commit de vivo del que sale el paquete"
+        type: string
+        required: false
+        default: vivo
   workflow_dispatch:
 
 permissions:
@@ -48,6 +55,8 @@ jobs:
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || 'vivo' }}
 
       - name: Leer la versión
         id: v
@@ -105,7 +114,7 @@ jobs:
           gh release create "app-$V" "norata-$V.zip" ultima.json \
             --title "Norata $V (app)" \
             --notes "Paquete de la app de Android para la versión $V. Lo fabrica .github/workflows/paquete-app.yml; la app lo baja sola." \
-            --target "${{ github.sha }}" --latest
+            --target "$(git rev-parse HEAD)" --latest
 
       # Se guardan los últimos quince: de sobra para volver atrás, y sin
       # dejar crecer la lista para siempre.

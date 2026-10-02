@@ -2,3 +2,5 @@
 # final de la línea: en el árbol CRLF de Windows fallarían con «$'\r':
 # command not found». Solo ellos; el resto sigue como estaba.
 .githooks/* text eol=lf
+# Lo mismo para los guiones de consola de `herramientas/`.
+herramientas/*.sh text eol=lf

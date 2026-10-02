@@ -1,0 +1,229 @@
+# La barrera de subidas: lo único que mueve la rama `vivo`, que es la que se
+# publica.
+#
+# Hasta la 0.7.172, subir algo a `main` ERA publicarlo: GitHub Pages servía esa
+# rama y no había nada en medio. Eduardo lo pidió después de que una subida le
+# rompiera los mundos: «para profesionalizar las subidas sí se necesita
+# estandarizar una barrera», y con una condición que manda sobre todo lo demás:
+# **tiene que ser automática**. No puede depender de que una sesión se acuerde
+# de una regla escrita, así que la regla vive aquí, donde nadie se la salta por
+# descuido: una sesión puede subir lo que quiera a `main` y lo más lejos que
+# llega es a la cola.
+#
+#   main   la cola. Se sube como siempre.
+#   vivo   lo publicado. Solo la adelanta este trabajo, y solo hacia delante.
+#
+# Dos formas de entrar:
+#
+#   al subir a main   pregunta por el GRIFO. Abierto, sube solo —es como se
+#                     trabajaba hasta hoy—; cerrado, se queda en la cola.
+#   a mano            es la aprobación de Eduardo desde el Puesto de mando (la
+#                     función `barrera` de Supabase dispara este trabajo). Sube
+#                     hasta el commit que diga, esté el grifo como esté.
+#
+# El grifo no vive aquí: vive en Supabase (`barrera_estado()`), que es de donde
+# lo pueden leer también el panel y cualquier sesión (`herramientas/barrera.sh`).
+#
+# **Se aprueba en orden.** `vivo` solo se adelanta a un commit que la contenga:
+# no se escoge un cambio suelto de en medio. Lo aceptó Eduardo sabiendo el
+# coste; sacar uno es revertirlo en `main`.
+
+name: Barrera de subidas
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      hasta:
+        description: "Commit de main hasta el que sube (vacío: el último)"
+        required: false
+        default: ""
+      sql_pegado:
+        description: "El SQL que traiga ya está pegado en Supabase"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pages: write
+
+# De una en una y sin cancelar: dos subidas seguidas se hacen las dos, en orden.
+concurrency:
+  group: barrera
+  cancel-in-progress: false
+
+env:
+  SB_URL: https://wifffghnyrqfuwqlatci.supabase.co
+  # La llave PÚBLICA de Supabase, la misma que viaja en `js/10b-supabase.js`.
+  SB_KEY: sb_publishable_aFW_LWvcSENT2XOQ0PVXyA_UsFvraIU
+
+jobs:
+  subir:
+    runs-on: ubuntu-latest
+    outputs:
+      subio: ${{ steps.subir.outputs.subio }}
+      sha: ${{ steps.que.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Qué se va a subir
+        id: que
+        env:
+          HASTA: ${{ inputs.hasta }}
+          EVENTO: ${{ github.event_name }}
+          EMPUJADO: ${{ github.sha }}
+        run: |
+          git fetch -q origin '+refs/heads/vivo:refs/remotes/origin/vivo' 2>/dev/null || true
+          if [ "$EVENTO" = "push" ]; then SHA="$EMPUJADO"; else SHA="$HASTA"; fi
+          [ -n "$SHA" ] || SHA=$(git rev-parse origin/main)
+          SHA=$(git rev-parse -q --verify "$SHA^{commit}") || { echo "::error::Ese commit no existe."; exit 1; }
+          git merge-base --is-ancestor "$SHA" origin/main || { echo "::error::Ese commit no está en main."; exit 1; }
+
+          VIVO=""
+          if git rev-parse -q --verify origin/vivo >/dev/null; then
+            VIVO=$(git rev-parse origin/vivo)
+            if git merge-base --is-ancestor "$SHA" "$VIVO"; then
+              echo "Ya está en vivo: nada que subir."
+              echo "nada=1" >> "$GITHUB_OUTPUT"
+            elif ! git merge-base --is-ancestor "$VIVO" "$SHA"; then
+              # `vivo` tiene algo que `main` no: solo pasa si alguien la tocó a
+              # mano. No se fuerza nada: se para y se mira.
+              echo "::error::vivo no es un antepasado de ese commit; no se puede adelantar sin forzar."
+              exit 1
+            fi
+          fi
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          echo "vivo=$VIVO" >> "$GITHUB_OUTPUT"
+          echo "Sube hasta: $(git log -1 --format='%h %s' "$SHA")"
+
+      - name: Cómo está el grifo
+        id: grifo
+        if: steps.que.outputs.nada != '1' && github.event_name == 'push'
+        run: |
+          # Solo una respuesta que diga «cerrado» cierra. Si la función no
+          # existe (404) es que la barrera todavía no se instaló en Supabase, y
+          # se trabaja como siempre. Cualquier otro fallo NO publica: un
+          # servidor caído no puede abrir el grifo por su cuenta.
+          COD=000
+          for i in 1 2 3; do
+            COD=$(curl -s -o r.json -w '%{http_code}' --max-time 20 -X POST \
+                    "$SB_URL/rest/v1/rpc/barrera_estado" \
+                    -H "apikey: $SB_KEY" -H "Content-Type: application/json" -d '{}') || COD=000
+            [ "$COD" = "200" ] || [ "$COD" = "404" ] && break
+            sleep 5
+          done
+          if [ "$COD" = "404" ]; then
+            G=abierto; echo "La barrera no está instalada en Supabase: se sube como siempre."
+          elif [ "$COD" = "200" ]; then
+            G=$(python3 -c "import json; print(json.load(open('r.json')).get('grifo', 'cerrado'))")
+          else
+            echo "::error::No pude preguntar por el grifo (respuesta $COD). No se sube nada."; exit 1
+          fi
+          echo "Grifo: $G"
+          echo "grifo=$G" >> "$GITHUB_OUTPUT"
+          if [ "$G" != "abierto" ]; then
+            echo "### En cola" >> "$GITHUB_STEP_SUMMARY"
+            echo "El grifo está cerrado: este cambio espera aprobación en el Puesto de mando." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Comprobaciones
+        id: comp
+        if: steps.que.outputs.nada != '1' && (github.event_name != 'push' || steps.grifo.outputs.grifo == 'abierto')
+        env:
+          SHA: ${{ steps.que.outputs.sha }}
+          VIVO: ${{ steps.que.outputs.vivo }}
+          SQL_PEGADO: ${{ inputs.sql_pegado }}
+          EVENTO: ${{ github.event_name }}
+        run: |
+          git checkout -q "$SHA"
+
+          # 1. Los dos números. Si no coinciden, esa versión no se instala en
+          #    ningún dispositivo.
+          V=$(sed -n 's/^const VERSION = "\(.*\)";.*/\1/p' js/01-base.js)
+          C=$(sed -n 's/^const CACHE = "norata-\(.*\)";.*/\1/p' sw.js)
+          if [ -z "$V" ] || [ "$V" != "$C" ]; then echo "::error::VERSION ($V) y CACHE ($C) no coinciden."; exit 1; fi
+          echo "1. VERSION y CACHE coinciden: $V"
+
+          # 2. Marcas de conflicto.
+          sh .githooks/marcas-de-conflicto.sh HEAD || { echo "::error::Hay marcas de conflicto sin resolver."; exit 1; }
+          echo "2. Sin marcas de conflicto."
+
+          # 3. Que el JavaScript al menos se pueda leer. Un archivo que no
+          #    compila deja la app en blanco, y es el fallo más barato de cazar.
+          for f in sw.js js/*.js; do node --check "$f" || { echo "::error file=$f::No se puede leer."; exit 1; }; done
+          echo "3. El JavaScript se lee."
+
+          # 4. Todo lo que la app instala existe. Uno que falte tumba la
+          #    instalación entera: es todo o nada.
+          falta=0
+          for u in $(grep -o '"\./[^"]*"' sw.js | tr -d '"' | sed 's#^\./##'); do
+            [ -z "$u" ] && continue
+            case "$u" in */) u="${u}index.html";; esac
+            [ -f "$u" ] || { echo "::error::sw.js lista un archivo que no existe: $u"; falta=1; }
+          done
+          [ "$falta" = 0 ] || exit 1
+          python3 -c "import json; json.load(open('novedades/novedades.json', encoding='utf-8'))" || { echo "::error::novedades.json no es un JSON válido."; exit 1; }
+          echo "4. Lo que la app instala está entero."
+
+          # 5. El SQL. Una versión llega sola a los dispositivos y un `.sql` no:
+          #    si este tramo toca alguno, no sube hasta que Eduardo diga que ya
+          #    lo pegó. Con el grifo abierto se queda en la cola en vez de fallar.
+          BASE="$VIVO"; [ -n "$BASE" ] || BASE="$SHA~1"
+          N=$(git diff --name-only "$BASE" "$SHA" -- 'supabase/*.sql' | wc -l)
+          if [ "$N" -gt 0 ] && [ "$SQL_PEGADO" != "true" ]; then
+            echo "Trae SQL:"; git diff --name-only "$BASE" "$SHA" -- 'supabase/*.sql'
+            if [ "$EVENTO" = "push" ]; then
+              echo "### Detenido: trae SQL" >> "$GITHUB_STEP_SUMMARY"
+              echo "Este tramo toca un \`.sql\`. Se queda en la cola hasta que se suba desde el Puesto de mando diciendo que ya está pegado." >> "$GITHUB_STEP_SUMMARY"
+              echo "detenido=1" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "::error::Este tramo trae SQL y no se marcó como pegado."; exit 1
+          fi
+          echo "5. Sin SQL pendiente."
+
+      - name: Subir al vivo
+        id: subir
+        if: steps.comp.outcome == 'success' && steps.comp.outputs.detenido != '1'
+        env:
+          SHA: ${{ steps.que.outputs.sha }}
+          LLAVE: ${{ secrets.LLAVE_VIVO }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          # Nunca con `--force`: `vivo` solo va hacia delante.
+          if [ -n "$LLAVE" ]; then
+            # Con la llave de despliegue. Hace falta para un tramo que toque
+            # `.github/workflows/`: el permiso de serie de un trabajo no puede
+            # subir cambios de trabajos.
+            mkdir -p ~/.ssh
+            printf '%s\n' "$LLAVE" > ~/.ssh/llave_vivo
+            chmod 600 ~/.ssh/llave_vivo
+            ssh-keyscan -t ed25519,rsa github.com >> ~/.ssh/known_hosts 2>/dev/null
+            GIT_SSH_COMMAND="ssh -i ~/.ssh/llave_vivo -o IdentitiesOnly=yes" \
+              git push "git@github.com:$REPO.git" "$SHA:refs/heads/vivo"
+            rm -f ~/.ssh/llave_vivo
+          else
+            git push origin "$SHA:refs/heads/vivo"
+          fi
+          # Por si la subida no despierta a GitHub Pages por sí sola.
+          gh api -X POST "repos/$REPO/pages/builds" >/dev/null 2>&1 || true
+          echo "subio=1" >> "$GITHUB_OUTPUT"
+          echo "### En vivo" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`vivo\` está ahora en $(git log -1 --format='%h %s' "$SHA")." >> "$GITHUB_STEP_SUMMARY"
+
+  # El paquete de la app de Android sale de lo que está en vivo, no de la cola:
+  # un APK que se actualizara con lo que todavía no se aprobó se saltaría la
+  # barrera entera.
+  paquete:
+    needs: subir
+    if: needs.subir.outputs.subio == '1'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/paquete-app.yml
+    with:
+      ref: ${{ needs.subir.outputs.sha }}

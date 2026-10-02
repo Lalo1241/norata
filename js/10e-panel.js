@@ -166,7 +166,10 @@ const DN_IC = {
   flecha: "M9 5l7 7-7 7", atras: "M15 5l-7 7 7 7", salir: "M10 6l-6 6 6 6 M4 12h16",
   candado: "M6 11h12v9H6z M8.5 11V8a3.5 3.5 0 0 1 7 0v3",
   check: "M5 12l5 5 9-10", x: "M6 6l12 12 M18 6L6 18",
-  reloj: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z M12 7v5l3 2"
+  reloj: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z M12 7v5l3 2",
+  db: "M5 6c0-1.7 3.1-3 7-3s7 1.3 7 3-3.1 3-7 3-7-1.3-7-3z M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6 M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3",
+  llave: "M8 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8z M11 11l9 9 M16 16l2-2 M19 19l2-2",
+  cerradura: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z M12 9a2 2 0 0 0-1 3.7V16h2v-3.3A2 2 0 0 0 12 9z"
 };
 const dnIc = n => `<svg class="dn-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="${DN_IC[n] || ""}"/></svg>`;
 const dnE = s => escapeHtml(String(s == null ? "" : s));
@@ -257,7 +260,9 @@ function dnTexto(t) {
 
 /* El estado de la capa. En memoria y no en `state`: es dónde estabas mirando,
    no un dato de nadie. */
-const DN = { sala: "hoy", tipo: "todo", ver: "abiertos", q: "", sel: null, num: "gente", rango: 14, lab: "pruebas", cargando: false, error: "", nov: null };
+const DN = { sala: "hoy", tipo: "todo", ver: "abiertos", q: "", sel: null, num: "gente", rango: 14, lab: "pruebas", cargando: false, error: "", nov: null,
+  /* La barrera: lo que contestó la función, el seguro del grifo y la ventana abierta. */
+  bar: null, barError: null, seguro: true, cuenta: 15, ventana: null };
 
 const dnTropiezos = () => (metricasCache && metricasCache.tropiezos) || [];
 const dnClave = t => t.id != null ? "i" + t.id : [t.dia, t.version, t.donde, t.mensaje].join("|");
@@ -362,8 +367,13 @@ function abrirDentro() {
     capa.addEventListener("click", dnClic);
     capa.addEventListener("input", dnEscribe);
     capa.addEventListener("change", dnCambia);
+    capa.addEventListener("pointerdown", dnLlaveBaja);
+    document.addEventListener("pointermove", dnLlaveMueve);
+    document.addEventListener("pointerup", dnLlaveSuelta);
+    document.addEventListener("pointercancel", dnLlaveSuelta);
+    capa.addEventListener("keydown", ev => { if ((ev.key === "Enter" || ev.key === " ") && ev.target.id === "dn-llave") { ev.preventDefault(); dnQuitaSeguro(); } });
     window.addEventListener("resize", () => { if (dnAbierta()) { clearTimeout(dnDibuja.t); dnDibuja.t = setTimeout(dnDibuja, 120); } });
-    document.addEventListener("keydown", ev => { if (ev.key === "Escape" && dnAbierta() && !document.querySelector("#modal.show")) cerrarDentro(); });
+    document.addEventListener("keydown", ev => { if (ev.key === "Escape" && dnAbierta() && !document.querySelector("#modal.show")) { if (DN.ventana) { dnCierraVentana(); dnPinta(); } else cerrarDentro(); } });
   }
   capa.classList.add("show");
   dnPinta();
@@ -371,6 +381,7 @@ function abrirDentro() {
      detrás de un botón, porque esto vivía en Ajustes y no tenía sentido pagar
      la llamada cada vez que alguien entraba a cambiar la zona horaria. */
   if (!metricasCache && !DN.cargando) cargarMetricas();
+  dnCargaBarrera();
   if (!DN.nov && typeof cargarNovedades === "function") {
     cargarNovedades().then(es => { DN.nov = es || []; if (dnAbierta()) dnPinta(); }).catch(() => { DN.nov = []; });
   }
@@ -412,7 +423,11 @@ function dnSalaHoy() {
   const enVivo = autos.filter(t => t.version === VERSION).length;
   const bor = dnBorradores(), viejo = Math.max(0, ...bor.map(e => dnHace(e.fecha) || 0));
   const enc = dnEncendidas();
+  const cola = (DN.bar && DN.bar.cola) || [], cerrado = DN.bar && DN.bar.grifo && DN.bar.grifo.grifo === "cerrado";
+  const colaVieja = Math.max(0, ...cola.map(c => dnHace(c.fecha) || 0));
   const filas = [
+    cola.length ? [colaVieja >= 5 ? "ojo" : cerrado ? "ojo" : "dato", cola.length, cola.length === 1 ? "cambio espera en la cola" : "cambios esperan en la cola",
+      colaVieja >= 5 ? "El más viejo lleva " + colaVieja + " días sin subir" : cerrado ? "El grifo está cerrado: suben cuando los apruebes" : "Detenidos: traen SQL o no pasaron las comprobaciones", "ir:subidas"] : null,
     gente ? ["ojo", gente, gente === 1 ? "reporte nuevo en el buzón" : "reportes nuevos en el buzón", "Lo que alguien se sentó a escribir", "ir:buzon"] : null,
     autos.length ? [enVivo ? "mal" : "ojo", autos.length, autos.length === 1 ? "error automático nuevo" : "errores automáticos nuevos",
       enVivo ? enVivo + (enVivo === 1 ? " se vio" : " se vieron") + " en la " + VERSION + ", la publicada" : "Ninguno en la " + VERSION + ", la publicada", "auto"] : null,
@@ -527,19 +542,176 @@ function dnDetalleHTML(t) {
     </div>`;
 }
 
+/* ---- La barrera de subidas (0.7.173) ----
+   Lo que hace y por qué existe está en `.github/workflows/barrera.yml`. Aquí
+   se ve y se manda: la cola, el grifo y cómo fueron las últimas subidas.
+
+   Todo sale de la función `barrera` de Supabase, y hasta que esa función, su
+   llave y su SQL estén puestos, la sala dice QUÉ falta en vez de dibujar un
+   grifo que no mueve nada. */
+function dnCargaBarrera() {
+  if (typeof sbBarrera !== "function") return Promise.resolve();
+  return sbBarrera("estado").then(b => { DN.bar = b; DN.barError = null; })
+    .catch(e => { DN.bar = null; DN.barError = { texto: e.message || String(e), falta: e.falta || "" }; })
+    .then(() => { if (dnAbierta()) dnPinta(); });
+}
+/* Después de mandar algo, GitHub tarda en enterarse y el trabajo en correr:
+   se vuelve a preguntar un par de veces en vez de dejar la sala con lo viejo. */
+function dnRepreguntaBarrera() {
+  [4000, 20000, 60000, 120000].forEach(ms => setTimeout(() => { if (dnAbierta()) dnCargaBarrera(); }, ms));
+}
+const dnGrifoAbierto = () => !!(DN.bar && DN.bar.grifo && DN.bar.grifo.grifo === "abierto");
+
+function dnGrifoHTML() {
+  const abierto = dnGrifoAbierto();
+  const acc = abierto ? `<button class="dn-btn b-coral" data-a="grifo:cerrar">Cerrar el grifo</button>`
+    : DN.seguro ? `<div class="dn-cerrojo"><button class="dn-llave" id="dn-llave" aria-label="Llave. Arrástrala hasta la cerradura para quitar el seguro">${dnIc("llave")}</button><span class="dn-riel"></span><span class="dn-cerradura" id="dn-cerradura">${dnIc("cerradura")}</span></div><small>Arrastra la llave a la cerradura</small>`
+    : `<span class="dn-sin-seguro">Sin seguro por <b id="dn-cuenta">${DN.cuenta}</b> segundos</span><button class="dn-btn b-oro dn-late" data-a="grifo:abrir">Abrir el grifo</button>`;
+  const ahora = abierto ? "abierto" : DN.seguro ? "cerrado" : "suelto", antes = DN.grifoVisto || ahora;
+  DN.grifoVisto = ahora;
+  return `<div class="dn-grifo ${abierto ? "abierto" : DN.seguro ? "" : "suelto"} ${ahora !== antes ? "cambia" : ""} ${(ahora === "abierto") !== (antes === "abierto") ? "gira" : ""}">
+    <button class="dn-interruptor" role="switch" aria-checked="${abierto}" aria-label="Grifo de subidas" data-a="grifo:${abierto ? "cerrar" : "abrir"}"><i>${dnIc(abierto ? "subidas" : DN.seguro ? "candado" : "flecha")}</i></button>
+    <div><h3>${abierto ? "Grifo abierto" : "Grifo cerrado"}</h3><p>${abierto ? "Lo que se sube a main llega solo al vivo, como hasta hoy. Lo que traiga SQL se queda en la cola." : "Nada llega al vivo sin tu aprobación: lo que se sube a main espera aquí."}</p></div>
+    <div class="acc">${acc}</div></div>`;
+}
+
+/* Lo que falta para que la barrera funcione, dicho pieza por pieza. */
+function dnBarreraFaltaHTML() {
+  const e = DN.barError || {};
+  const que = e.falta === "funcion" ? "La función <code>barrera</code> todavía no está desplegada en Supabase."
+    : e.falta === "llave" ? "La función está puesta, pero le falta la llave de GitHub (<code>GITHUB_BARRERA</code>)."
+    : e.falta === "sql" ? "Falta pegar <code>supabase/barrera.sql</code> en Supabase."
+    : dnE(e.texto || "No pude preguntar por la barrera.");
+  return `<div class="dn-panel"><h3>La barrera todavía no está conectada</h3>
+      <p class="dn-nota">${que} Hasta entonces, lo que se sube a <code>main</code> sigue llegando directo al vivo.</p>
+      <div class="dn-acciones"><button class="dn-btn b-linea mini" data-a="barrera">Volver a preguntar</button></div></div>`;
+}
+
+function dnColaHTML() {
+  const b = DN.bar, cola = b.cola || [], abierto = dnGrifoAbierto();
+  const conSql = cola.filter(c => (c.sql || []).length).length;
+  const clase = v => { const e = (DN.nov || []).find(x => String(x.version) === String(v)); return e ? (typeof novedadClase === "function" ? novedadClase(e) : e.clase) : ""; };
+  return `<div class="dn-panel"><div class="dn-pcab"><h3>${abierto ? "Detenido en la cola" : "En la cola"}</h3><span class="dn-chip">${cola.length}</span>
+        ${cola.length ? `<div class="dn-der"><button class="dn-btn b-primary mini" data-a="subir:">${dnIc("subidas")}Subir todo al vivo</button></div>` : ""}</div>
+      ${cola.length ? `<p class="dn-nota">Se aprueba en orden: «Subir hasta aquí» lleva al vivo ese cambio y todos los de arriba.${conSql ? " Lo que trae SQL pide que lo hayas pegado antes." : ""}</p>` : ""}
+      ${!cola.length ? `<div class="dn-vacio">${abierto ? "Nada detenido. Lo que se sube a main está llegando solo." : "No hay nada esperando. Lo que se suba a main aparecerá aquí."}</div>` : cola.map(c => {
+        const h = dnHace(String(c.fecha).slice(0, 10)), sql = (c.sql || []).length;
+        return `<div class="dn-prueba"><div>
+            <div class="dn-sobre-t">${dnEtq(clase(c.version))}<span class="dn-estado ${h !== null && h >= 5 ? "e-espera" : "e-no"}">${dnIc("reloj")}${h !== null && h >= 5 ? "Lleva " + h + " días sin subir" : "En cola, " + dnHaceTx(h)}</span>${sql ? `<span class="dn-estado e-sql">${dnIc("db")}Trae SQL</span>` : ""}</div>
+            <h4>${dnE(c.titulo || "Sin título")}${c.version ? `<span class="dn-chip">${dnE(c.version)}</span>` : ""}</h4>
+            ${sql ? `<p class="dn-interno">Interno · ${dnE((c.sql || []).join(", "))} · no sale en el changelog</p>` : ""}</div>
+          <div class="dn-acciones"><button class="dn-btn b-soft mini" data-a="subir:${dnE(c.sha)}">Subir hasta aquí</button></div></div>`;
+      }).join("")}</div>`;
+}
+
+function dnCorridasHTML() {
+  const cs = (DN.bar.corridas || []).slice(0, 6);
+  if (!cs.length) return "";
+  const que = c => c.estado !== "completed" ? ["e-espera", "reloj", "En marcha"] : c.resultado === "success" ? ["e-ok", "check", "Terminó bien"] : ["e-yo", "x", "Falló"];
+  return `<div class="dn-panel"><h3>Las últimas veces que pasó algo por la barrera</h3>
+      ${cs.map(c => { const q = que(c), h = dnHace(String(c.creado).slice(0, 10)); return `<div class="dn-prueba"><div>
+          <div class="dn-sobre-t"><span class="dn-estado ${q[0]}">${dnIc(q[1])}${q[2]}</span><span class="dn-chip">${c.evento === "push" ? "al subir a main" : "aprobada a mano"}</span><span class="dn-chip">${dnHaceTx(h)}</span></div>
+          <h4>${dnE(dnPartirTitulo(c.titulo))}</h4></div>
+        <div class="dn-acciones"><a class="dn-btn b-ghost mini" href="${escapeAttr(c.url)}" target="_blank" rel="noopener">Ver en GitHub</a></div></div>`; }).join("")}</div>`;
+}
+const dnPartirTitulo = t => String(t || "").split("\n")[0];
+
+function dnVentanaHTML() {
+  const v = DN.ventana;
+  if (!v) return "";
+  const cola = (DN.bar && DN.bar.cola) || [];
+  if (v.tipo === "abrir") {
+    const van = cola.filter(c => !(c.sql || []).length), no = cola.length - van.length;
+    return `<div class="dn-velo" data-a="ventana:cerrar"><div class="dn-modal" role="dialog" aria-label="Abrir el grifo" data-quieto="1">
+      <h3>¿Abrir el grifo?</h3>
+      <p>${van.length ? (van.length === 1 ? "Sube de golpe 1 cambio que estaba esperando." : "Suben de golpe " + van.length + " cambios que estaban esperando.") : "No hay nada esperando ahora."} Desde este momento, todo lo que se suba a main llega solo al vivo hasta que lo cierres.</p>
+      ${no ? `<div class="dn-aviso"><b>${no === 1 ? "1 se queda en la cola" : no + " se quedan en la cola"}:</b> traen SQL, y eso se sube aparte, cuando ya esté pegado.</div>` : ""}
+      <div class="dn-macc"><button class="dn-btn b-ghost" data-a="ventana:cerrar!">Cancelar</button><button class="dn-btn b-oro" data-a="grifo:abrirya">Abrir el grifo</button></div></div></div>`;
+  }
+  /* Subir: hasta dónde, y si en ese tramo hay SQL. */
+  const i = v.hasta ? cola.findIndex(c => c.sha === v.hasta) : cola.length - 1;
+  const tramo = cola.slice(0, i + 1), sql = tramo.filter(c => (c.sql || []).length);
+  return `<div class="dn-velo" data-a="ventana:cerrar"><div class="dn-modal" role="dialog" aria-label="Subir al vivo" data-quieto="1">
+      <h3>${tramo.length === 1 ? "¿Subir 1 cambio al vivo?" : "¿Subir " + tramo.length + " cambios al vivo?"}</h3>
+      <ul class="dn-lista-m">${tramo.map(c => `<li>${dnIc("subidas")}${dnE(c.titulo)}${c.version ? ` <span class="dn-chip">${dnE(c.version)}</span>` : ""}</li>`).join("")}</ul>
+      ${sql.length ? `<div class="dn-aviso"><b>${sql.length === 1 ? "Uno de ellos trae SQL" : sql.length + " de ellos traen SQL"}.</b> Un <code>.sql</code> no llega solo a Supabase: si lo subes sin haberlo pegado, la app pedirá algo que el servidor todavía no tiene.</div>` : ""}
+      <div class="dn-macc"><button class="dn-btn b-ghost" data-a="ventana:cerrar!">Cancelar</button><button class="dn-btn b-primary" data-a="subirya">${sql.length ? "Ya lo pegué: subir" : "Subir al vivo"}</button></div></div></div>`;
+}
+function dnCierraVentana() {
+  if (DN.ventana && DN.ventana.tipo === "abrir") { DN.seguro = true; clearInterval(DN.reloj); }
+  DN.ventana = null;
+}
+
+/* El seguro del grifo solo se quita llevando la llave a la cerradura —un toque
+   suelto no abre nada—, y vuelve solo a los quince segundos. Lo pidió Eduardo
+   tal cual: que abrir sea un gesto a propósito y no un dedo que se resbala. */
+function dnQuitaSeguro() {
+  DN.seguro = false; DN.cuenta = 15; clearInterval(DN.reloj);
+  DN.reloj = setInterval(() => {
+    if (DN.ventana) return;
+    DN.cuenta--;
+    if (DN.cuenta <= 0) { clearInterval(DN.reloj); DN.seguro = true; if (dnAbierta()) dnPinta(); return; }
+    const c = document.getElementById("dn-cuenta");
+    if (c) c.textContent = DN.cuenta;
+  }, 1000);
+  dnPinta();
+}
+let dnArr = null;
+const dnSobre = (k, c) => { const a = k.getBoundingClientRect(), b = c.getBoundingClientRect(); return Math.hypot(a.left + a.width / 2 - b.left - b.width / 2, a.top + a.height / 2 - b.top - b.height / 2) < 30; };
+function dnLlaveBaja(ev) {
+  const k = ev.target.closest && ev.target.closest(".dn-llave");
+  if (!k) return;
+  ev.preventDefault();
+  dnArr = { k: k, x: ev.clientX, y: ev.clientY };
+  k.classList.remove("vuelve"); k.classList.add("arrastra"); k.parentElement.classList.add("en-mano");
+  try { k.setPointerCapture(ev.pointerId); } catch (e) { /* un dedo sin captura sigue valiendo */ }
+}
+function dnLlaveMueve(ev) {
+  if (!dnArr) return;
+  dnArr.k.style.transform = "translate(" + (ev.clientX - dnArr.x) + "px, " + (ev.clientY - dnArr.y) + "px)";
+  const c = document.getElementById("dn-cerradura");
+  if (c) c.classList.toggle("cerca", dnSobre(dnArr.k, c));
+}
+function dnLlaveSuelta() {
+  if (!dnArr) return;
+  const k = dnArr.k, c = document.getElementById("dn-cerradura");
+  dnArr = null;
+  if (c && dnSobre(k, c)) { dnQuitaSeguro(); return; }
+  k.classList.remove("arrastra"); k.classList.add("vuelve"); k.style.transform = ""; k.parentElement.classList.remove("en-mano");
+  if (c) c.classList.remove("cerca");
+}
+
+async function dnMandaBarrera(accion, datos, dicho) {
+  try {
+    await sbBarrera(accion, datos);
+    toast(dicho, "hecho");
+    await dnCargaBarrera();
+    dnRepreguntaBarrera();
+  } catch (e) {
+    toast(e.message || String(e), "atencion");
+    dnPinta();
+  }
+}
+
 function dnSalaSubidas() {
-  const m = metricasCache, vs = (m && m.versiones) || [], total = dnSuma(vs.map(v => (Number(v.personas) || 0) - (Number(v.dormidas) || 0)));
+  const m = metricasCache, vs = (m && m.versiones) || [];
   const activas = v => (Number(v.personas) || 0) - (Number(v.dormidas) || 0);
-  const conLa = dnSuma(vs.filter(v => v.version === VERSION).map(activas));
-  const bor = dnBorradores().slice().sort((a, b) => String(b.fecha || "").localeCompare(String(a.fecha || "")));
+  const total = dnSuma(vs.map(activas));
+  const b = DN.bar, enVivo = (b && b.vivo && b.vivo.version) || VERSION;
+  const conLa = dnSuma(vs.filter(v => v.version === enVivo).map(activas));
+  const bor = dnBorradores().slice().sort((a, x) => String(x.fecha || "").localeCompare(String(a.fecha || "")));
+  const cola = (b && b.cola) || [];
   return `
     <div class="dn-cab"><h2>Subidas</h2></div>
     <div class="dn-kpis tres">
-      ${dnKpi("Versión publicada", "V" + dnE(VERSION), "", `<span class="dn-ver">${dnEtapa() ? `<span class="etapa">${dnEtapa()}</span>` : ""}<span>· ${dnE(typeof VERSION_FECHA !== "undefined" ? VERSION_FECHA : "")}</span></span>`)}
+      ${dnKpi("En vivo", "V" + dnE(enVivo), "", `<span class="dn-ver">${dnEtapa() ? `<span class="etapa">${dnEtapa()}</span>` : ""}<span>${b && b.vivo && b.vivo.fecha ? "· " + dnE(dnDia(String(b.vivo.fecha).slice(0, 10))) : "· " + dnE(typeof VERSION_FECHA !== "undefined" ? VERSION_FECHA : "")}</span></span>`)}
       ${total ? dnKpi("Ya la tienen", conLa, " de " + total, "personas que abrieron en 14 días") : dnKpi("Ya la tienen", "—", "", "Nadie abrió en 14 días")}
-      ${dnKpi("Novedades por aprobar", DN.nov ? bor.length : "…", "", "en borrador")}
+      ${b ? dnKpi("En la cola", cola.length, "", cola.length ? "esperan para subir" : "nada espera") : dnKpi("Novedades por aprobar", DN.nov ? bor.length : "…", "", "en borrador")}
     </div>
-    <div class="dn-panel"><div class="dn-pcab"><h3>Novedades por aprobar</h3><div class="dn-der"><button class="dn-btn b-linea mini" data-a="novedades">Leerlas en Novedades</button></div></div>
+    ${b && b.pagina && b.pagina !== "vivo" ? `<div class="dn-aviso dn-ojo"><b>La barrera todavía no frena nada.</b> El sitio se sigue publicando desde <code>${dnE(b.pagina)}</code>: lo que se sube ahí llega al vivo sin pasar por aquí. Falta cambiar la rama en GitHub → Settings → Pages → <code>vivo</code>.</div>` : ""}
+    ${!b ? (DN.barError ? dnBarreraFaltaHTML() : `<div class="dn-panel"><div class="dn-vacio">Preguntando por la barrera…</div></div>`)
+      : (b.grifo ? dnGrifoHTML() : `<div class="dn-panel"><h3>Falta el grifo</h3><p class="dn-nota">Pega <code>supabase/barrera.sql</code> en Supabase y vuelve a preguntar.</p><div class="dn-acciones"><button class="dn-btn b-linea mini" data-a="barrera">Volver a preguntar</button></div></div>`) + dnColaHTML() + dnCorridasHTML()}
+    <div class="dn-panel"><div class="dn-pcab"><h3>Novedades por aprobar</h3><span class="dn-chip">${DN.nov ? bor.length : "…"}</span><div class="dn-der"><button class="dn-btn b-linea mini" data-a="novedades">Leerlas en Novedades</button></div></div>
       <p class="dn-nota">Ninguna sale en la ventana de la app hasta que su estado pase a «publicado» en <code>novedades/novedades.json</code>.</p>
       ${!DN.nov ? `<div class="dn-vacio">Leyendo las novedades…</div>` : !bor.length ? `<div class="dn-vacio">No hay ninguna en borrador.</div>` : bor.map(e => {
         const h = dnHace(e.fecha), clase = typeof novedadClase === "function" ? novedadClase(e) : (e.clase || "mejora");
@@ -548,9 +720,6 @@ function dnSalaSubidas() {
             <h4>${dnE(e.titulo || "Sin título")}<span class="dn-chip">${dnE(e.version || "")}</span></h4>
             <p>${dnE(e.resumen || "")}</p></div></div>`;
       }).join("")}
-    </div>
-    <div class="dn-panel"><h3>La barrera todavía no está puesta</h3>
-      <p class="dn-nota">Hoy cada subida a <code>main</code> llega directo al vivo. Los paquetes semanales, el grifo con su llave y el regreso a una versión sana se conectan cuando exista la rama <code>vivo</code> en GitHub; hasta entonces aquí no hay nada que apruebe o frene una subida.</p>
     </div>`;
 }
 
@@ -670,8 +839,8 @@ function dnPinta() {
   const capa = document.getElementById("dentro");
   if (!capa || !dnAbierta()) return;
   if (!esAdmin) { cerrarDentro(); capa.innerHTML = ""; return; }
-  const nuevos = dnTropiezos().filter(t => dnEstado(t) === "nuevo").length, bor = dnBorradores().length;
-  const nav = () => DN_NAV.map(v => `<button class="${DN.sala === v[0] ? "on" : ""}" data-a="ir:${v[0]}" ${DN.sala === v[0] ? 'aria-current="page"' : ""}>${dnIc(v[0])}<span>${v[1]}</span>${v[0] === "buzon" && nuevos ? `<span class="dn-globo">${nuevos}</span>` : ""}${v[0] === "subidas" && bor ? `<span class="dn-globo">${bor}</span>` : ""}</button>`).join("");
+  const nuevos = dnTropiezos().filter(t => dnEstado(t) === "nuevo").length, bor = dnBorradores().length, enCola = ((DN.bar && DN.bar.cola) || []).length;
+  const nav = () => DN_NAV.map(v => `<button class="${DN.sala === v[0] ? "on" : ""}" data-a="ir:${v[0]}" ${DN.sala === v[0] ? 'aria-current="page"' : ""}>${dnIc(v[0])}<span>${v[1]}</span>${v[0] === "buzon" && nuevos ? `<span class="dn-globo">${nuevos}</span>` : ""}${v[0] === "subidas" && (enCola || bor) ? `<span class="dn-globo">${enCola || bor}</span>` : ""}</button>`).join("");
   const marca = `<div class="dn-marca"><span class="dn-rombo">${dnIc("rombo")}</span><span><b>Puesto de mando</b><small>Solo administración</small></span></div>`;
   let sala;
   if (DN_CON_NUMEROS[DN.sala] && !metricasCache) {
@@ -690,7 +859,7 @@ function dnPinta() {
       <div class="pie"><span class="dn-chip">${dnIc("candado")}Solo tú lo ves</span>${dnVersionHTML()}
         <button class="dn-btn b-ghost mini" data-a="cerrar">${dnIc("salir")}Volver a Norata</button></div></aside>
     <main class="dn-sala">${sala}</main>
-    <nav class="dn-tabs" aria-label="Salas">${nav()}</nav></div>`;
+    <nav class="dn-tabs" aria-label="Salas">${nav()}</nav></div>${dnVentanaHTML()}`;
   capa.dataset.sala = DN.sala;
   if (salaVieja === DN.sala) capa.querySelector(".dn-sala").scrollTop = arriba;
   dnDibuja();
@@ -884,7 +1053,9 @@ function dnCambia(ev) {
 function dnClic(ev) {
   const el = ev.target.closest("[data-a]");
   if (!el) return;
-  const partes = el.dataset.a.split(":"), a = partes[0], v = partes[1], w = partes[2];
+  /* Un toque DENTRO de la ventana no la cierra: solo el velo de detrás. */
+  if (el.dataset.a === "ventana:cerrar" && ev.target.closest("[data-quieto]")) return;
+  const partes = el.dataset.a.replace("!", "").split(":"), a = partes[0], v = partes[1], w = partes[2];
   const primero = () => { const f = dnFiltrados()[0]; return f && isDesktop() ? dnClave(f) : null; };
   const sel = dnTropiezos().find(t => dnClave(t) === DN.sel);
   switch (a) {
@@ -900,6 +1071,21 @@ function dnClic(ev) {
     case "rango": DN.rango = Number(v) || 14; break;
     case "vistos": marcarTropiezosVistos(); return;
     case "repedir": metricasCache = null; cargarMetricas(); return;
+    case "barrera": DN.barError = null; dnPinta(); dnCargaBarrera(); return;
+    case "ventana": dnCierraVentana(); break;
+    case "subir": DN.ventana = { tipo: "subir", hasta: v || "" }; break;
+    case "subirya": {
+      const cola = (DN.bar && DN.bar.cola) || [], h = DN.ventana ? DN.ventana.hasta : "";
+      const i = h ? cola.findIndex(c => c.sha === h) : cola.length - 1;
+      const sql = cola.slice(0, i + 1).some(c => (c.sql || []).length);
+      DN.ventana = null; dnPinta();
+      dnMandaBarrera("subir", { hasta: h, sql_pegado: sql }, "Subida en marcha: tarda uno o dos minutos");
+      return; }
+    case "grifo":
+      if (v === "cerrar") { DN.seguro = true; clearInterval(DN.reloj); dnMandaBarrera("grifo", { abierto: false }, "Grifo cerrado: lo nuevo espera tu aprobación"); return; }
+      if (v === "abrirya") { clearInterval(DN.reloj); DN.seguro = true; DN.ventana = null; dnPinta(); dnMandaBarrera("grifo", { abierto: true }, "Grifo abierto"); return; }
+      if (DN.seguro) { toast("Tiene seguro. Arrastra la llave a la cerradura.", "atencion"); return; }
+      DN.ventana = { tipo: "abrir" }; break;
     case "num": DN.num = v; break;
     case "lab": DN.lab = v; break;
     case "novedades": cerrarDentro(); if (typeof mostrarAjuste === "function") mostrarAjuste("novedades"); return;

@@ -43,6 +43,32 @@ es bajo; el día que haya gente fuera, no.
 
 ---
 
+### 2. La barrera de subidas — 2 oct 2026
+
+Tres pasos, en este orden. Hasta que estén los tres, el Puesto de mando dice
+cuál falta y todo se publica como siempre.
+
+1. **Pegar `barrera.sql` entero** en SQL Editor. Crea el grifo, que nace
+   ABIERTO: pegarlo no cambia nada hasta que alguien lo cierre.
+2. **La llave de GitHub.** Un token «fine-grained», solo para el repositorio de
+   Norata, con Actions (leer y escribir), Contents (leer), Pages (leer) y
+   Metadata (leer). Se guarda así, y no se escribe en ningún archivo:
+
+   ```sh
+   supabase secrets set GITHUB_BARRERA=github_pat_xxxxxxxx --project-ref wifffghnyrqfuwqlatci
+   ```
+
+3. **Desplegar la función:**
+
+   ```sh
+   supabase functions deploy barrera --project-ref wifffghnyrqfuwqlatci
+   ```
+
+**No se probó contra una base de verdad ni la función contra GitHub**: aquí no
+hay Postgres ni Deno. Si algo falla, copiar el mensaje tal cual.
+
+---
+
 ## Borrar la cuenta (`borrar-cuenta.sql`)
 
 **Sin esto, el botón «Borrar mi cuenta» de Ajustes no funciona**: avisa de que
