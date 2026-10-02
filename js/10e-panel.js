@@ -205,12 +205,34 @@ const dnHaceTx = n => n === null ? "" : n === 0 ? "hoy" : n === 1 ? "ayer" : "ha
    le da su cupo aparte (ver `apuntar_tropiezo`). Lo que no traiga tipo es un
    fallo, que es lo que eran todos hasta hoy. */
 const DN_TIPOS = {
-  fallo: { n: "Fallo", pl: "Fallos", tono: "coral" },
-  idea:  { n: "Sugerencia", pl: "Sugerencias", tono: "celeste" },
-  duda:  { n: "Duda", pl: "Dudas", tono: "lila" },
-  gusto: { n: "Me gustó", pl: "Me gustó", tono: "menta" },
-  auto:  { n: "Error automático", pl: "Automáticos", tono: "acero" }
+  fallo: { n: "Fallo", pl: "Fallos", tono: "coral", est: { nuevo: "Nuevo", curso: "En curso", hecho: "Resuelto", no: "Descartado" } },
+  idea:  { n: "Sugerencia", pl: "Sugerencias", tono: "celeste", est: { nuevo: "Nueva", curso: "Planeada", hecho: "Hecha", no: "Descartada" } },
+  duda:  { n: "Duda", pl: "Dudas", tono: "lila", est: { nuevo: "Nueva", curso: "En curso", hecho: "Contestada", no: "Descartada" } },
+  /* Un «me gustó» no se planea ni se descarta: se lee. */
+  gusto: { n: "Me gustó", pl: "Me gustó", tono: "menta", est: { nuevo: "Nuevo", curso: "En curso", hecho: "Leído", no: "Descartado" }, solo: ["nuevo", "hecho"] },
+  auto:  { n: "Error automático", pl: "Automáticos", tono: "acero", est: { nuevo: "Nuevo", curso: "En curso", hecho: "Resuelto", no: "Descartado" } }
 };
+
+/* ---- El estado de un reporte (0.7.171) ----
+   Cuatro —nuevo, en curso, hecho, descartado—, y cada tipo los nombra a su
+   manera: una idea no se «resuelve», se hace. Viven en la columna `estado` de
+   `tropiezos`, junto a una nota privada y la versión en que salió.
+
+   **El panel funciona igual sin esas columnas.** El SQL no llega solo: hay que
+   pegarlo a mano en Supabase, y entre que sube esta versión y se pega pueden
+   pasar días. Mientras `estado` no venga en la respuesta, se deduce de `visto`
+   —que es lo único que había— y en vez de los cuatro estados se ofrece lo de
+   antes: darlo por atendido. Ver `supabase/LEEME.md`, «Pendiente de pegar». */
+const dnEstado = t => t.estado || (t.visto ? "hecho" : "nuevo");
+const dnAbierto = t => { const e = dnEstado(t); return e === "nuevo" || e === "curso"; };
+const dnPastilla = t => { const e = dnEstado(t); return `<span class="dn-est ${e}">${dnE(DN_TIPOS[dnTipo(t)].est[e] || e)}</span>`; };
+
+/* La etapa sale del número, igual que en el pie de la app (`pintarVersion`). */
+const dnEtapa = () => versionMasNueva(VERSION, "0.9.9999") ? "" : versionMasNueva(VERSION, "0.7.9999") ? "Beta" : "Alpha";
+function dnVersionHTML() {
+  const et = dnEtapa();
+  return `<span class="dn-ver">${et ? `<span class="etapa">${et}</span>` : ""}<span class="num">V${dnE(VERSION)}</span>${typeof VERSION_FECHA !== "undefined" ? `<span>· ${dnE(VERSION_FECHA)}</span>` : ""}</span>`;
+}
 const DN_DONDE_AUTO = { error: "Error de la app", promesa: "Promesa sin atender", puerta: "Error en la puerta", "puerta-promesa": "Promesa en la puerta", tope: "Cupo del día lleno" };
 const DN_PREFIJO = /^\s*\[([^\]|]{1,40})(?:\|([a-z]{3,8}))?\]\s*/;
 
@@ -235,7 +257,7 @@ function dnTexto(t) {
 
 /* El estado de la capa. En memoria y no en `state`: es dónde estabas mirando,
    no un dato de nadie. */
-const DN = { sala: "hoy", tipo: "todo", ver: "abiertos", q: "", sel: null, num: "gente", lab: "pruebas", cargando: false, error: "", nov: null };
+const DN = { sala: "hoy", tipo: "todo", ver: "abiertos", q: "", sel: null, num: "gente", rango: 14, lab: "pruebas", cargando: false, error: "", nov: null };
 
 const dnTropiezos = () => (metricasCache && metricasCache.tropiezos) || [];
 const dnClave = t => t.id != null ? "i" + t.id : [t.dia, t.version, t.donde, t.mensaje].join("|");
@@ -243,7 +265,7 @@ function dnFiltrados() {
   const q = DN.q.trim().toLowerCase();
   return dnTropiezos().filter(t =>
     (DN.tipo === "todo" || dnTipo(t) === DN.tipo) &&
-    (DN.ver === "todos" || (DN.ver === "abiertos" ? !t.visto : !!t.visto)) &&
+    (DN.ver === "todos" || (DN.ver === "abiertos" ? dnAbierto(t) : !dnAbierto(t))) &&
     (!q || (t.mensaje + " " + t.version + " " + dnLugar(t)).toLowerCase().includes(q)));
 }
 
@@ -335,10 +357,11 @@ function abrirDentro() {
     capa.id = "dentro";
     capa.className = "dn";
     capa.setAttribute("role", "dialog");
-    capa.setAttribute("aria-label", "Norata por dentro");
+    capa.setAttribute("aria-label", "Puesto de mando");
     document.body.appendChild(capa);
     capa.addEventListener("click", dnClic);
     capa.addEventListener("input", dnEscribe);
+    capa.addEventListener("change", dnCambia);
     window.addEventListener("resize", () => { if (dnAbierta()) { clearTimeout(dnDibuja.t); dnDibuja.t = setTimeout(dnDibuja, 120); } });
     document.addEventListener("keydown", ev => { if (ev.key === "Escape" && dnAbierta() && !document.querySelector("#modal.show")) cerrarDentro(); });
   }
@@ -384,8 +407,8 @@ function dnBorradores() {
 
 function dnSalaHoy() {
   const m = metricasCache, r = m.resumen || {}, c = m.cobro || {}, dias = m.dias || [];
-  const tr = dnTropiezos(), gente = tr.filter(t => t.donde === "reporte" && !t.visto).length;
-  const autos = tr.filter(t => t.donde !== "reporte" && !t.visto);
+  const tr = dnTropiezos(), gente = tr.filter(t => t.donde === "reporte" && dnEstado(t) === "nuevo").length;
+  const autos = tr.filter(t => t.donde !== "reporte" && dnEstado(t) === "nuevo");
   const enVivo = autos.filter(t => t.version === VERSION).length;
   const bor = dnBorradores(), viejo = Math.max(0, ...bor.map(e => dnHace(e.fecha) || 0));
   const enc = dnEncendidas();
@@ -401,14 +424,14 @@ function dnSalaHoy() {
   ].filter(Boolean);
   const sig = dnDeCada(r.siguen30 || 0, r.maduros || 0, 20);
   const altas7 = dnSuma(dias.slice(-7).map(d => d.altas));
-  const pers = dias.map(d => Number(d.personas) || 0);
+  const pers = dias.slice(-14).map(d => Number(d.personas) || 0);
   const s7 = pers.slice(-7), p7 = pers.slice(-14, -7);
   return `
-    <div class="dn-cab"><h2>Hoy</h2><div class="dn-der"><button class="btn btn-ghost dn-mini" data-a="repedir">Volver a pedirlos</button></div>
-      <p>Números tomados ${dnE(dnMomento(m.al_momento))} · versión publicada ${dnE(VERSION)}</p></div>
+    <div class="dn-cab"><h2>Hoy</h2><div class="dn-der"><button class="dn-btn b-ghost mini" data-a="repedir">Volver a pedirlos</button></div>
+      <p>Números tomados ${dnE(dnMomento(m.al_momento))} · publicada la ${dnE(VERSION)}</p></div>
     <div class="dn-kpis">
       ${dnKpi("Personas activas esta semana", r.activos7 || 0, "", (r.activos30 || 0) + " en 30 días", pers)}
-      ${dnKpi("Cuentas creadas", r.cuentas || 0, "", "+" + altas7 + " esta semana", dias.map(d => Number(d.altas) || 0))}
+      ${dnKpi("Cuentas creadas", r.cuentas || 0, "", "+" + altas7 + " esta semana", dias.slice(-14).map(d => Number(d.altas) || 0))}
       ${dnKpi("Siguen tras 30 días", sig.val, sig.uni, sig.pie)}
       ${c.desplegado === false ? dnKpi("Pagando ahora", "—", "", "El cobro no está desplegado") : dnKpi("Pagando ahora", c.pagando || 0, "", "$" + (c.mrr || 0) + " MXN al mes")}
     </div>
@@ -426,41 +449,52 @@ function dnSalaHoy() {
 
 function dnSalaBuzon() {
   const tr = dnTropiezos();
-  const abiertos = t => tr.filter(x => (t === "todo" || dnTipo(x) === t) && !x.visto).length;
+  const abiertos = t => tr.filter(x => (t === "todo" || dnTipo(x) === t) && dnAbierto(x)).length;
   /* Fallos y automáticos, siempre; los demás, cuando haya al menos uno. */
   const tipos = Object.keys(DN_TIPOS).filter(t => t === "fallo" || t === "auto" || tr.some(x => dnTipo(x) === t));
   const sel = tr.find(t => dnClave(t) === DN.sel);
-  const sinVer = tr.filter(t => !t.visto).length;
+  const nuevos = tr.filter(t => dnEstado(t) === "nuevo").length;
+  const sinEstados = tr.length && tr.every(t => t.estado === undefined);
   return `
-    <div class="dn-cab"><h2>Buzón</h2>${sinVer ? `<div class="dn-der"><button class="btn btn-soft dn-mini" data-a="vistos">Dar por atendidos los ${sinVer}</button></div>` : ""}</div>
+    <div class="dn-cab"><h2>Buzón</h2>${nuevos ? `<div class="dn-der"><button class="dn-btn b-soft mini" data-a="vistos">Dar por atendidos los ${nuevos} nuevos</button></div>` : ""}</div>
     <div class="dn-tipos">
       <button class="${DN.tipo === "todo" ? "on" : ""}" data-a="tipo:todo">Todo <em>${abiertos("todo")}</em></button>
       ${tipos.map(t => `<button class="c-${DN_TIPOS[t].tono} ${DN.tipo === t ? "on" : ""}" data-a="tipo:${t}">${dnIc(t)}${DN_TIPOS[t].pl} <em>${abiertos(t)}</em></button>`).join("")}
     </div>
     <div class="dn-filtros">
-      <div class="dn-seg" role="radiogroup" aria-label="Qué se ve">${[["abiertos", "Nuevos"], ["cerrados", "Atendidos"], ["todos", "Todos"]].map(o => `<button class="${DN.ver === o[0] ? "on" : ""}" data-a="ver:${o[0]}">${o[1]}</button>`).join("")}</div>
+      <div class="dn-seg" role="radiogroup" aria-label="Qué se ve">${[["abiertos", "Abiertos"], ["cerrados", "Cerrados"], ["todos", "Todos"]].map(o => `<button class="${DN.ver === o[0] ? "on" : ""}" data-a="ver:${o[0]}">${o[1]}</button>`).join("")}</div>
       <label class="dn-buscar">${dnIc("buscar")}<input id="dn-q" type="search" placeholder="Buscar por texto, lugar o versión" value="${escapeAttr(DN.q)}" aria-label="Buscar en el buzón"></label>
     </div>
     <div class="dn-bz" data-abierto="${sel ? 1 : 0}">
       <div class="dn-lista" id="dn-lista">${dnListaHTML()}</div>
       <div class="dn-det">${sel ? dnDetalleHTML(sel) : `<div class="dn-vacio">Elige uno de la lista para leerlo entero.</div>`}</div>
     </div>
-    <p class="dn-nota">Llegan los de los últimos treinta días, cuarenta como mucho.</p>`;
+    <p class="dn-nota">Llegan los de los últimos treinta días.${sinEstados ? " Los estados, la nota y «salió en la versión» se encienden al pegar en Supabase el SQL pendiente." : ""}</p>`;
 }
 function dnListaHTML() {
   const f = dnFiltrados();
-  if (!f.length) return `<div class="dn-vacio">${DN.q ? "Nada coincide con esa búsqueda." : DN.ver === "abiertos" ? "No queda nada nuevo aquí." : "Todavía no hay nada en esta lista."}</div>`;
+  if (!f.length) return `<div class="dn-vacio">${DN.q ? "Nada coincide con esa búsqueda." : DN.ver === "abiertos" ? "No queda nada abierto aquí." : "Todavía no hay nada en esta lista."}</div>`;
   return f.map(t => {
     const tipo = dnTipo(t), k = dnClave(t);
-    return `<button class="dn-it ${t.visto ? "" : "nuevo"} ${k === DN.sel ? "sel" : ""}" data-a="sel" data-k="${escapeAttr(k)}">
+    return `<button class="dn-it ${dnEstado(t) === "nuevo" ? "nuevo" : ""} ${k === DN.sel ? "sel" : ""}" data-a="sel" data-k="${escapeAttr(k)}">
       <span class="dn-tic t-${DN_TIPOS[tipo].tono}">${dnIc(tipo)}</span>
       <span><span class="tx">${dnE(dnTexto(t).que)}</span>
-        <span class="meta"><span class="dn-est ${t.visto ? "hecho" : "nuevo"}">${t.visto ? "Atendido" : "Nuevo"}</span><span>${dnE(dnLugar(t))}</span><span>· v${dnE(t.version || "?")}</span><span>· ${dnE(dnDia(t.dia))}</span>${(Number(t.cuantos) || 1) > 1 ? `<span class="dn-chip">${Number(t.cuantos)}×</span>` : ""}</span></span>
+        <span class="meta">${dnPastilla(t)}<span>${dnE(dnLugar(t))}</span><span>· v${dnE(t.version || "?")}</span><span>· ${dnE(dnDia(t.dia))}</span>${(Number(t.cuantos) || 1) > 1 ? `<span class="dn-chip">${Number(t.cuantos)}×</span>` : ""}</span></span>
     </button>`;
   }).join("");
 }
+/* Las versiones que se ofrecen en «salió en la versión»: la publicada y las
+   últimas del changelog. La que ya tenga apuntada el reporte entra siempre. */
+function dnVersiones(extra) {
+  const u = [];
+  [VERSION].concat((DN.nov || []).map(e => String(e.version || ""))).forEach(v => { if (/^\d+\.\d+\.\d+/.test(v) && u.indexOf(v) < 0) u.push(v); });
+  const corta = u.slice(0, 8);
+  if (extra && corta.indexOf(extra) < 0) corta.push(extra);
+  return corta;
+}
 function dnDetalleHTML(t) {
-  const tipo = dnTipo(t), T = DN_TIPOS[tipo], maq = tipo === "auto", tx2 = dnTexto(t), n = Number(t.cuantos) || 1, hace = dnHace(t.dia);
+  const tipo = dnTipo(t), T = DN_TIPOS[tipo], maq = tipo === "auto", tx2 = dnTexto(t), n = Number(t.cuantos) || 1, hace = dnHace(t.dia), est = dnEstado(t);
+  const conEstados = t.estado !== undefined && t.id != null;
   let auto = "";
   if (maq && t.donde !== "tope") {
     const repite = t.version !== VERSION && dnTropiezos().some(x => x !== t && x.mensaje === t.mensaje && x.version === VERSION);
@@ -468,35 +502,44 @@ function dnDetalleHTML(t) {
       : repite ? `<b>Sigue activo.</b> El mismo error aparece también en la ${dnE(VERSION)}.`
       : `<b>Callado.</b> No se ha repetido en la ${dnE(VERSION)}; la última vez fue ${dnE(dnHaceTx(hace))}.`}</div>`;
   }
+  const gestion = conEstados ? `
+    <div class="dn-campo"><span>Estado</span>
+      <div class="dn-seg" role="radiogroup" aria-label="Estado">${(T.solo || ["nuevo", "curso", "hecho", "no"]).map(k => `<button class="${est === k ? "on" : ""}" data-a="estado:${k}">${T.est[k]}</button>`).join("")}</div></div>
+    ${est === "hecho" && tipo !== "gusto" && tipo !== "duda" ? `<label class="dn-campo"><span>Salió en la versión</span>
+      <select id="dn-arreglado"><option value="">Sin apuntar</option>${dnVersiones(t.arreglado).map(v => `<option value="${escapeAttr(v)}" ${t.arreglado === v ? "selected" : ""}>${dnE(v)}</option>`).join("")}</select></label>` : ""}
+    <label class="dn-campo"><span>Nota para ti · nadie más la ve</span>
+      <textarea id="dn-nota" rows="2" maxlength="500" placeholder="Qué sospechas, dónde mirar">${dnE(t.nota || "")}</textarea></label>` : "";
   return `
-    <button class="btn btn-ghost dn-mini dn-volver" data-a="volver">${dnIc("atras")}Buzón</button>
-    <div class="dn-dcab"><span class="dn-tic t-${T.tono}">${dnIc(tipo)}</span><h3>${T.n}</h3><span class="dn-est ${t.visto ? "hecho" : "nuevo"}">${t.visto ? "Atendido" : "Nuevo"}</span></div>
+    <button class="dn-btn b-ghost mini dn-volver" data-a="volver">${dnIc("atras")}Buzón</button>
+    <div class="dn-dcab"><span class="dn-tic t-${T.tono}">${dnIc(tipo)}</span><h3>${T.n}</h3>${dnPastilla(t)}</div>
     <p class="dn-dicho ${maq ? "maq" : ""}">${dnE(tx2.que)}</p>
     <dl class="dn-ficha">
       <dt>${maq ? "Origen" : "Dónde"}</dt><dd>${dnE(dnLugar(t))}</dd>
       ${tx2.antes ? `<dt>Justo antes</dt><dd>${dnE(tx2.antes)}</dd>` : ""}
       <dt>Versión</dt><dd>${dnE(t.version || "?")}${t.version === VERSION ? " · la publicada" : ""}</dd>
       <dt>Llegó</dt><dd>${dnE(dnDia(t.dia))}${hace ? " · " + dnHaceTx(hace) : ""}${n > 1 ? (maq ? ` · pasó ${n} veces ese día` : ` · lo escribieron ${n} veces`) : ""}</dd>
+      ${t.arreglado && est === "hecho" ? `<dt>Salió en</dt><dd>${dnE(t.arreglado)}</dd>` : ""}
     </dl>
-    ${auto}
+    ${auto}${gestion}
     <div class="dn-acciones">
-      ${t.id == null ? "" : `<button class="btn ${t.visto ? "btn-ghost" : "btn-soft"} dn-mini" data-a="atender">${dnIc(t.visto ? "atras" : "check")}${t.visto ? "Volver a dejarlo abierto" : "Darlo por atendido"}</button>`}
-      <button class="btn btn-linea dn-mini" data-a="copiar:reporte">${dnIc("copiar")}Copiar para Claude</button>
+      ${conEstados || t.id == null ? "" : `<button class="dn-btn ${t.visto ? "b-ghost" : "b-soft"} mini" data-a="atender">${dnIc(t.visto ? "atras" : "check")}${t.visto ? "Volver a dejarlo abierto" : "Darlo por atendido"}</button>`}
+      <button class="dn-btn b-linea mini" data-a="copiar:reporte">${dnIc("copiar")}Copiar para Claude</button>
     </div>`;
 }
 
 function dnSalaSubidas() {
-  const m = metricasCache, vs = (m && m.versiones) || [], total = dnSuma(vs.map(v => v.personas));
-  const conLa = dnSuma(vs.filter(v => v.version === VERSION).map(v => v.personas));
+  const m = metricasCache, vs = (m && m.versiones) || [], total = dnSuma(vs.map(v => (Number(v.personas) || 0) - (Number(v.dormidas) || 0)));
+  const activas = v => (Number(v.personas) || 0) - (Number(v.dormidas) || 0);
+  const conLa = dnSuma(vs.filter(v => v.version === VERSION).map(activas));
   const bor = dnBorradores().slice().sort((a, b) => String(b.fecha || "").localeCompare(String(a.fecha || "")));
   return `
     <div class="dn-cab"><h2>Subidas</h2></div>
     <div class="dn-kpis tres">
-      ${dnKpi("Versión publicada", dnE(VERSION), "", dnE(typeof VERSION_FECHA !== "undefined" ? VERSION_FECHA : ""))}
+      ${dnKpi("Versión publicada", "V" + dnE(VERSION), "", `<span class="dn-ver">${dnEtapa() ? `<span class="etapa">${dnEtapa()}</span>` : ""}<span>· ${dnE(typeof VERSION_FECHA !== "undefined" ? VERSION_FECHA : "")}</span></span>`)}
       ${total ? dnKpi("Ya la tienen", conLa, " de " + total, "personas que abrieron en 14 días") : dnKpi("Ya la tienen", "—", "", "Nadie abrió en 14 días")}
       ${dnKpi("Novedades por aprobar", DN.nov ? bor.length : "…", "", "en borrador")}
     </div>
-    <div class="dn-panel"><div class="dn-pcab"><h3>Novedades por aprobar</h3><div class="dn-der"><button class="btn btn-linea dn-mini" data-a="novedades">Leerlas en Novedades</button></div></div>
+    <div class="dn-panel"><div class="dn-pcab"><h3>Novedades por aprobar</h3><div class="dn-der"><button class="dn-btn b-linea mini" data-a="novedades">Leerlas en Novedades</button></div></div>
       <p class="dn-nota">Ninguna sale en la ventana de la app hasta que su estado pase a «publicado» en <code>novedades/novedades.json</code>.</p>
       ${!DN.nov ? `<div class="dn-vacio">Leyendo las novedades…</div>` : !bor.length ? `<div class="dn-vacio">No hay ninguna en borrador.</div>` : bor.map(e => {
         const h = dnHace(e.fecha), clase = typeof novedadClase === "function" ? novedadClase(e) : (e.clase || "mejora");
@@ -522,8 +565,13 @@ function dnPartes(tit, filas, claveNombre) {
 
 function dnSalaNumeros() {
   const m = metricasCache, r = m.resumen || {}, c = m.cobro || {};
+  /* El servidor da 14 días o 90, según tenga pegado el SQL nuevo o no: los
+     rangos que no caben en lo que llegó no se ofrecen. */
+  const dias = m.dias || [], rangos = [14, 30, 90].filter(n => n === 14 || dias.length >= n);
+  if (rangos.indexOf(DN.rango) < 0) DN.rango = 14;
   const cab = `<div class="dn-cab"><h2>Números</h2>
-      <div class="dn-seg" role="radiogroup" aria-label="Qué números">${[["gente", "Gente"], ["cobro", "Cobro"]].map(o => `<button class="${DN.num === o[0] ? "on" : ""}" data-a="num:${o[0]}">${o[1]}</button>`).join("")}</div></div>`;
+      <div class="dn-seg" role="radiogroup" aria-label="Qué números">${[["gente", "Gente"], ["cobro", "Cobro"]].map(o => `<button class="${DN.num === o[0] ? "on" : ""}" data-a="num:${o[0]}">${o[1]}</button>`).join("")}</div>
+      ${DN.num === "gente" && rangos.length > 1 ? `<div class="dn-der"><div class="dn-seg" role="radiogroup" aria-label="Rango">${rangos.map(n => `<button class="${DN.rango === n ? "on" : ""}" data-a="rango:${n}">${n} días</button>`).join("")}</div></div>` : ""}</div>`;
   if (DN.num === "cobro") {
     if (c.desplegado === false) return cab + `<div class="dn-panel"><h3>El cobro</h3><p class="dn-nota">Todavía no está puesto en el servidor. Cuando corras <code>planes.sql</code> y despliegues Stripe, esta sala se llena sola; los pasos están en <code>supabase/LEEME.md</code>.</p></div>`;
     const activos = (c.planes || []).filter(p => p.estado === "activa");
@@ -543,33 +591,37 @@ function dnSalaNumeros() {
         <p class="dn-nota">El servidor solo sabe cómo está cada suscripción ahora. Las ventas por fecha, Fundador contra suscripciones en el tiempo y las devoluciones necesitan que se empiece a apuntar cada pago; hasta entonces no hay histórico que dibujar.</p></div>`;
   }
   const vol = dnDeCada(r.volvieron || 0, r.abrieron || 0, 40), sig = dnDeCada(r.siguen30 || 0, r.maduros || 0, 20), ins = dnDeCada(r.instalaron || 0, r.abrieron || 0, 30);
-  const hayErr = (m.versiones || []).some(v => dnTropiezos().some(t => t.donde !== "reporte" && t.donde !== "tope" && t.version === v.version));
+  const vs = m.versiones || [];
+  const hayErr = vs.some(v => dnTropiezos().some(t => t.donde !== "reporte" && t.donde !== "tope" && t.version === v.version));
+  const conDormidas = vs.some(v => v.dormidas !== undefined);
+  const dist = r["distintas" + DN.rango];
+  const reten = (m.retencion || []).filter(x => Number(x.de) > 0);
+  const tramo = dias.slice(-DN.rango);
+  const embudo = `<div class="dn-panel"><div class="dn-pcab"><h3>El embudo</h3><span class="dn-chip dn-der">% que pasa al paso siguiente</span></div>
+        <div class="dn-graf" data-g="embudo"></div></div>`;
+  const versiones = `<div class="dn-panel"><div class="dn-pcab"><h3>En qué versión se quedó cada quien</h3><span class="dn-chip dn-der" id="dn-escala">un punto, una persona</span></div>
+        <div class="dn-ley"><span><i class="dn-punto" style="background:var(--dn-l1)"></i>Al día</span><span><i class="dn-punto" style="background:var(--dn-l3)"></i>Sin actualizar</span>${conDormidas ? `<span><i class="dn-punto" style="background:var(--dn-coral)"></i>Dejó de abrir ahí</span>` : ""}${hayErr ? `<span><i class="dn-punto" style="background:var(--dn-coral-s);outline:1px solid var(--dn-coral)"></i>Con errores automáticos</span>` : ""}</div>
+        <div class="dn-graf" data-g="versiones"></div>
+        <p class="dn-nota">${conDormidas ? "La última versión que vio cada persona en 60 días; en coral, quien lleva dos semanas sin abrir." : "La última versión que vio cada persona en 14 días."}</p></div>`;
+  const uso = `<div class="dn-panel"><h3>Cómo la usan</h3>
+        ${dnPartes("Desde qué dispositivo", m.aparatos || [], "grupo")}
+        ${dnPartes("Instalada o en el navegador", m.instalacion || [], "grupo")}
+        ${dnPartes("Cuánto llevan con cuenta", m.antiguedad || [], "tramo")}</div>`;
+  const retencion = `<div class="dn-panel"><div class="dn-pcab"><h3>Cuántas siguen con los días</h3><span class="dn-chip dn-der">de cada 100 que entraron</span></div>
+        <div class="dn-graf" data-g="reten"></div></div>`;
   return cab + `
     <div class="dn-panel"><div class="dn-pcab"><h3>La gente, día a día</h3>
         <div class="dn-ley dn-der"><span><i class="dn-raya" style="border-color:var(--dn-l1)"></i>Personas que abrieron</span><span><i class="dn-raya p" style="border-color:var(--dn-l2)"></i>Cuentas nuevas</span></div></div>
       <div class="dn-graf" data-g="gente"></div>
-      <p class="dn-nota">En 14 días abrieron ${r.distintas14 == null ? "—" : Number(r.distintas14)} personas distintas y se crearon ${dnSuma((m.dias || []).map(d => d.altas))} cuentas.</p></div>
+      <p class="dn-nota">En ${DN.rango} días ${dist == null ? "" : "abrieron " + Number(dist) + " personas distintas y "}se crearon ${dnSuma(tramo.map(d => d.altas))} cuentas.</p></div>
     <div class="dn-kpis">
       ${dnKpi("Volvieron otro día", vol.val, vol.uni, vol.pie)}
       ${dnKpi("Siguen tras 30 días", sig.val, sig.uni, sig.pie)}
       ${dnKpi("La instalaron", ins.val, ins.uni, ins.pie)}
       ${dnKpi("Días de uso por persona", r.dias_medios || 0, "", (r.aperturas7 || 0) + " aperturas esta semana")}
     </div>
-    <div class="dn-rejilla dos">
-      <div class="dn-panel"><div class="dn-pcab"><h3>El embudo</h3><span class="dn-chip dn-der">% que pasa al paso siguiente</span></div>
-        <div class="dn-graf" data-g="embudo"></div></div>
-      <div class="dn-panel"><div class="dn-pcab"><h3>En qué versión se quedó cada quien</h3><span class="dn-chip dn-der" id="dn-escala">un punto, una persona</span></div>
-        <div class="dn-ley"><span><i class="dn-punto" style="background:var(--dn-l1)"></i>Al día</span><span><i class="dn-punto" style="background:var(--dn-l3)"></i>Sin actualizar</span>${hayErr ? `<span><i class="dn-punto" style="background:var(--dn-coral-s);outline:1px solid var(--dn-coral)"></i>Versión con errores automáticos</span>` : ""}</div>
-        <div class="dn-graf" data-g="versiones"></div>
-        <p class="dn-nota">La última versión que vio cada persona en 14 días.</p></div>
-    </div>
-    <div class="dn-panel"><h3>Cómo la usan</h3>
-      <div class="dn-rejilla dos">
-        ${dnPartes("Desde qué dispositivo", m.aparatos || [], "grupo")}
-        ${dnPartes("Instalada o en el navegador", m.instalacion || [], "grupo")}
-      </div>
-      ${dnPartes("Cuánto llevan con cuenta", m.antiguedad || [], "tramo")}
-    </div>`;
+    <div class="dn-rejilla dos">${embudo}${reten.length > 1 ? retencion : versiones}</div>
+    ${reten.length > 1 ? `<div class="dn-rejilla dos">${versiones}${uso}</div>` : uso}`;
 }
 
 function dnSalaLab() {
@@ -586,10 +638,10 @@ function dnSalaLab() {
               <div class="dn-sobre-t">${p.tag ? dnEtq(p.tag) : `<span class="dn-chip">Herramienta</span>`}${p.off ? `<span class="dn-estado ${on ? "e-yo" : "e-no"}">${dnIc(on ? "check" : "x")}${on ? "Encendida aquí" : "Apagada aquí"}</span>` : ""}</div>
               <h4>${dnE(p.n)}</h4>
               <p>${dnE(p.q)}</p>${ojo ? `<span class="ojo">${dnE(ojo)}</span>` : ""}
-              <div class="pie"><code>${dnE(p.on)}</code><button class="btn btn-ghost dn-mini" data-a="copiar:${p.id}">${dnIc("copiar")}Copiar enlace</button></div></div>
-            <div class="dn-acciones">${!p.off ? `<button class="btn btn-linea dn-mini" data-a="prueba:${p.id}:on">Verlo</button>`
-              : on ? `<button class="btn btn-ghost dn-mini" data-a="prueba:${p.id}:off">Apagar aquí</button>`
-              : `<button class="btn dn-btn-coral dn-mini" data-a="prueba:${p.id}:on">Encender aquí</button>`}</div></div>`;
+              <div class="pie"><code>${dnE(p.on)}</code><button class="dn-btn b-ghost mini" data-a="copiar:${p.id}">${dnIc("copiar")}Copiar enlace</button></div></div>
+            <div class="dn-acciones">${!p.off ? `<button class="dn-btn b-linea mini" data-a="prueba:${p.id}:on">Verlo</button>`
+              : on ? `<button class="dn-btn b-ghost mini" data-a="prueba:${p.id}:off">Apagar aquí</button>`
+              : `<button class="dn-btn b-coral mini" data-a="prueba:${p.id}:on">Encender aquí</button>`}</div></div>`;
         }).join("")}
       </div>`;
   }
@@ -618,13 +670,13 @@ function dnPinta() {
   const capa = document.getElementById("dentro");
   if (!capa || !dnAbierta()) return;
   if (!esAdmin) { cerrarDentro(); capa.innerHTML = ""; return; }
-  const nuevos = dnTropiezos().filter(t => !t.visto).length, bor = dnBorradores().length;
+  const nuevos = dnTropiezos().filter(t => dnEstado(t) === "nuevo").length, bor = dnBorradores().length;
   const nav = () => DN_NAV.map(v => `<button class="${DN.sala === v[0] ? "on" : ""}" data-a="ir:${v[0]}" ${DN.sala === v[0] ? 'aria-current="page"' : ""}>${dnIc(v[0])}<span>${v[1]}</span>${v[0] === "buzon" && nuevos ? `<span class="dn-globo">${nuevos}</span>` : ""}${v[0] === "subidas" && bor ? `<span class="dn-globo">${bor}</span>` : ""}</button>`).join("");
-  const marca = `<div class="dn-marca"><span class="dn-rombo">${dnIc("rombo")}</span><span><b>Norata por dentro</b><small>Solo administración</small></span></div>`;
+  const marca = `<div class="dn-marca"><span class="dn-rombo">${dnIc("rombo")}</span><span><b>Puesto de mando</b><small>Solo administración</small></span></div>`;
   let sala;
   if (DN_CON_NUMEROS[DN.sala] && !metricasCache) {
     sala = `<div class="dn-cab"><h2>${DN_NAV.find(v => v[0] === DN.sala)[1]}</h2></div>` + (DN.error
-      ? `<div class="dn-panel"><h3>No pude traer los números</h3><p class="dn-nota">${dnE(DN.error)}</p><div class="dn-acciones"><button class="btn btn-linea dn-mini" data-a="repedir">Intentar otra vez</button></div></div>`
+      ? `<div class="dn-panel"><h3>No pude traer los números</h3><p class="dn-nota">${dnE(DN.error)}</p><div class="dn-acciones"><button class="dn-btn b-linea mini" data-a="repedir">Intentar otra vez</button></div></div>`
       : `<div class="dn-panel"><div class="dn-vacio">Pidiendo los números…</div></div>`);
   } else {
     sala = { hoy: dnSalaHoy, buzon: dnSalaBuzon, subidas: dnSalaSubidas, numeros: dnSalaNumeros, lab: dnSalaLab }[DN.sala]();
@@ -633,10 +685,10 @@ function dnPinta() {
      un reporte como atendido no puede devolverte al principio de la lista. */
   const vieja = capa.querySelector(".dn-sala"), salaVieja = capa.dataset.sala, arriba = vieja ? vieja.scrollTop : 0;
   capa.innerHTML = `<div class="dn-caja">
-    <header class="dn-cima">${marca}<button class="dn-cerrar" data-a="cerrar">${dnIc("x")}Cerrar</button></header>
+    <header class="dn-cima">${marca}<button class="dn-btn b-ghost mini dn-cerrar" data-a="cerrar">${dnIc("x")}Cerrar</button></header>
     <aside class="dn-lateral">${marca}<nav aria-label="Salas">${nav()}</nav>
-      <div class="pie"><span class="dn-chip">${dnIc("candado")}Solo tú lo ves</span><span>${dnE(VERSION)}</span>
-        <button class="dn-salir" data-a="cerrar">${dnIc("salir")}Volver a Norata</button></div></aside>
+      <div class="pie"><span class="dn-chip">${dnIc("candado")}Solo tú lo ves</span>${dnVersionHTML()}
+        <button class="dn-btn b-ghost mini" data-a="cerrar">${dnIc("salir")}Volver a Norata</button></div></aside>
     <main class="dn-sala">${sala}</main>
     <nav class="dn-tabs" aria-label="Salas">${nav()}</nav></div>`;
   capa.dataset.sala = DN.sala;
@@ -654,7 +706,7 @@ function dnGrafica(caja, cfg) {
   caja.innerHTML = "";
   const W = Math.max(240, caja.clientWidth || 560), H = Math.max(cfg.alto || 210, caja.clientHeight || 0), L = 30, R = 12, T = 10, B = 22, n = cfg.dias.length;
   if (!n) { caja.innerHTML = `<div class="dn-vacio">Todavía no hay datos.</div>`; return; }
-  let mx = Math.max(1, ...cfg.series.reduce((a, s) => a.concat(s.d), []));
+  let mx = Math.max(1, cfg.vara || 0, ...cfg.series.reduce((a, s) => a.concat(s.d), []));
   const b10 = Math.pow(10, Math.floor(Math.log10(mx / 4 || 1))), paso = Math.max(1, [1, 2, 5, 10].map(k => k * b10).find(q => mx / q <= 5) || 10 * b10);
   mx = Math.ceil(mx / paso) * paso;
   const x = i => L + (W - L - R) * (n > 1 ? i / (n - 1) : 0), y = v => T + (H - T - B) * (1 - v / mx);
@@ -662,6 +714,7 @@ function dnGrafica(caja, cfg) {
   for (let v = 0; v <= mx; v += paso) s += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1" ${v ? 'stroke-dasharray="2 4"' : ""}/><text x="${L - 6}" y="${y(v) + 3.5}" text-anchor="end" class="eje">${v}</text>`;
   const cada = Math.max(1, Math.ceil(n / (W < 420 ? 4 : 7)));
   cfg.dias.forEach((d, i) => { if ((n - 1 - i) % cada === 0) s += `<text x="${x(i)}" y="${H - 5}" text-anchor="${i === n - 1 ? "end" : i === 0 ? "start" : "middle"}" class="eje">${dnE(d)}</text>`; });
+  if (cfg.vara) s += `<line x1="${L}" x2="${W - R}" y1="${y(cfg.vara)}" y2="${y(cfg.vara)}" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="6 4"/><text x="${W - R}" y="${y(cfg.vara) - 5}" text-anchor="end" class="eje">vara: ${cfg.vara}</text>`;
   cfg.series.forEach((se, k) => {
     const p = se.d.map((v, i) => (i ? "L" : "M") + x(i).toFixed(1) + " " + y(v).toFixed(1)).join(" ");
     if (k === 0) s += `<path d="${p} L${x(n - 1)} ${y(0)} L${x(0)} ${y(0)}Z" fill="var(${se.c})" opacity=".1"/>`;
@@ -725,11 +778,11 @@ function dnEmbudo(caja, pasos) {
    eso una versión que tuvo errores automáticos va sombreada en coral. */
 function dnPuntos(caja, versiones) {
   caja.innerHTML = "";
-  let V = (versiones || []).map(v => ({ v: String(v.version || "?"), n: Number(v.personas) || 0 })).filter(v => v.n > 0)
+  let V = (versiones || []).map(v => ({ v: String(v.version || "?"), n: Number(v.personas) || 0, dor: Math.min(Number(v.dormidas) || 0, Number(v.personas) || 0) })).filter(v => v.n > 0)
     .sort((a, b) => versionMasNueva(a.v, b.v) ? 1 : versionMasNueva(b.v, a.v) ? -1 : 0);
   if (!V.length) { caja.innerHTML = `<div class="dn-vacio">Nadie abrió la app en 14 días.</div>`; return; }
   /* Más de ocho columnas no caben en un teléfono: las más viejas se juntan. */
-  if (V.length > 8) { const viejas = V.slice(0, V.length - 7); V = [{ v: "antes", n: dnSuma(viejas.map(x => x.n)), junta: viejas.length }].concat(V.slice(-7)); }
+  if (V.length > 8) { const viejas = V.slice(0, V.length - 7); V = [{ v: "antes", n: dnSuma(viejas.map(x => x.n)), dor: dnSuma(viejas.map(x => x.dor)), junta: viejas.length }].concat(V.slice(-7)); }
   const err = v => dnTropiezos().filter(t => t.donde !== "reporte" && t.donde !== "tope" && t.version === v).length;
   const libre = caja.clientHeight || 0, W = Math.max(240, caja.clientWidth || 400), n = V.length, col = W / n;
   /* Si hay mucha gente, cada punto vale por varias personas: sin esto la
@@ -745,9 +798,9 @@ function dnPuntos(caja, versiones) {
   const pref = V.every(v => v.v === "antes" || /^\d+\.\d+\./.test(v.v) && v.v.split(".").slice(0, 2).join(".") === V[n - 1].v.split(".").slice(0, 2).join(".")) ? V[n - 1].v.split(".").slice(0, 2).join(".") : "";
   let s = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Personas por versión">`;
   V.forEach((v, i) => {
-    const x0 = col * i + col / 2 - (por * paso - 2.5) / 2, hoy = v.v === VERSION, e = v.junta ? 0 : err(v.v), puntos = Math.ceil(v.n / vale);
+    const x0 = col * i + col / 2 - (por * paso - 2.5) / 2, hoy = v.v === VERSION, e = v.junta ? 0 : err(v.v), puntos = Math.ceil(v.n / vale), vivos = puntos - Math.ceil(v.dor / vale);
     if (e) s += `<rect x="${col * i + 2}" y="2" width="${col - 4}" height="${base - 2}" rx="6" fill="var(--dn-coral-s)"/>`;
-    for (let k = 0; k < puntos; k++) s += `<circle cx="${x0 + (k % por) * paso + d / 2}" cy="${base - 5 - Math.floor(k / por) * paso - d / 2}" r="${d / 2}" fill="var(${hoy ? "--dn-l1" : "--dn-l3"})"/>`;
+    for (let k = 0; k < puntos; k++) s += `<circle cx="${x0 + (k % por) * paso + d / 2}" cy="${base - 5 - Math.floor(k / por) * paso - d / 2}" r="${d / 2}" fill="var(${k >= vivos ? "--dn-coral" : hoy ? "--dn-l1" : "--dn-l3"})"/>`;
     s += `<text x="${col * i + col / 2}" y="${H - 6}" text-anchor="middle" class="eje ${e ? "mal" : ""}">${dnE(v.junta ? "antes" : pref && v.v.indexOf(pref + ".") === 0 ? v.v.slice(pref.length) : v.v)}</text>`;
   });
   s += `<line x1="0" x2="${W}" y1="${base}" y2="${base}" stroke="var(--line)" stroke-width="1"/>`;
@@ -756,7 +809,7 @@ function dnPuntos(caja, versiones) {
   const mueve = ev => {
     const b = svg.getBoundingClientRect(), i = Math.max(0, Math.min(n - 1, Math.floor((ev.clientX - b.left) / b.width * n))), v = V[i], e = v.junta ? 0 : err(v.v);
     tip.hidden = false;
-    tip.innerHTML = `<b>${dnE(v.junta ? v.junta + " versiones más viejas" : v.v)}</b><span>${v.v === VERSION ? "Al día" : "Sin actualizar"}<em>${v.n}</em></span>` + (e ? `<span>Errores automáticos<em>${e}</em></span>` : "");
+    tip.innerHTML = `<b>${dnE(v.junta ? v.junta + " versiones más viejas" : v.v)}</b><span>${v.v === VERSION ? "Al día" : "Sin actualizar"}<em>${v.n - v.dor}</em></span>` + (v.dor ? `<span>Dejaron de abrir<em>${v.dor}</em></span>` : "") + (e ? `<span>Errores automáticos<em>${e}</em></span>` : "");
     const izq = (i + .5) * b.width / n;
     tip.style.left = Math.max(0, Math.min(b.width - tip.offsetWidth, izq > b.width / 2 ? izq - tip.offsetWidth - 14 : izq + 14)) + "px";
   };
@@ -772,11 +825,13 @@ function dnDibuja() { dnDibujaUna(); dnDibujaUna(); }
 function dnDibujaUna() {
   const m = metricasCache;
   if (!m) return;
-  const dias = m.dias || [], rot = dias.map(d => dnDia(d.dia));
+  const todos = m.dias || [], dias = todos.slice(-14), rot = dias.map(d => dnDia(d.dia));
+  const tramo = todos.slice(-DN.rango), reten = (m.retencion || []).filter(x => Number(x.de) > 0);
   document.querySelectorAll("#dentro .dn-graf").forEach(c => {
     const g = c.dataset.g;
     if (g === "mini") dnGrafica(c, { titulo: "Personas que abrieron la app, 14 días", alto: 170, dias: rot, series: [{ n: "Personas", c: "--dn-l1", d: dias.map(d => Number(d.personas) || 0) }] });
-    if (g === "gente") dnGrafica(c, { titulo: "Personas que abrieron y cuentas nuevas", alto: 240, dias: rot, series: [{ n: "Personas que abrieron", c: "--dn-l1", d: dias.map(d => Number(d.personas) || 0) }, { n: "Cuentas nuevas", c: "--dn-l2", d: dias.map(d => Number(d.altas) || 0), p: 1 }] });
+    if (g === "gente") dnGrafica(c, { titulo: "Personas que abrieron y cuentas nuevas", alto: 240, dias: tramo.map(d => dnDia(d.dia)), series: [{ n: "Personas que abrieron", c: "--dn-l1", d: tramo.map(d => Number(d.personas) || 0) }, { n: "Cuentas nuevas", c: "--dn-l2", d: tramo.map(d => Number(d.altas) || 0), p: 1 }] });
+    if (g === "reten") dnGrafica(c, { titulo: "Cuántas siguen con los días", alto: 200, vara: 20, dias: reten.map(x => "Día " + x.dia), series: [{ n: "Siguen, de cada 100", c: "--dn-l1", d: reten.map(x => Math.round(Number(x.siguen) / Number(x.de) * 100)) }] });
     if (g === "embudo") dnEmbudo(c, m.embudo);
     if (g === "versiones") dnPuntos(c, m.versiones);
   });
@@ -805,6 +860,27 @@ async function archivarReporte(id, visto) {
   }
 }
 
+/* Cambiar el estado, la nota o la versión de UNO. Igual que al archivar: se
+   pinta con lo que contesta el servidor. */
+async function dnGuardar(t, cambios) {
+  try {
+    const quedo = await sbTropiezoEstado(t.id, cambios.estado === undefined ? null : cambios.estado,
+      cambios.nota === undefined ? null : cambios.nota, cambios.arreglado === undefined ? null : cambios.arreglado);
+    if (!quedo) { metricasCache = null; await cargarMetricas(); return; }
+    Object.assign(t, quedo);
+    dnPinta();
+  } catch (e) {
+    toast(e.message || String(e), "atencion");
+  }
+}
+/* La nota y la versión se guardan al salir del campo, no a cada letra. */
+function dnCambia(ev) {
+  const t = dnTropiezos().find(x => dnClave(x) === DN.sel);
+  if (!t || t.id == null) return;
+  if (ev.target.id === "dn-nota") dnGuardar(t, { nota: ev.target.value.slice(0, 500) });
+  if (ev.target.id === "dn-arreglado") dnGuardar(t, { arreglado: ev.target.value });
+}
+
 function dnClic(ev) {
   const el = ev.target.closest("[data-a]");
   if (!el) return;
@@ -820,6 +896,8 @@ function dnClic(ev) {
     case "sel": DN.sel = el.dataset.k; break;
     case "volver": DN.sel = null; break;
     case "atender": if (sel && sel.id != null) archivarReporte(sel.id, !sel.visto); return;
+    case "estado": if (sel && sel.id != null && dnEstado(sel) !== v) dnGuardar(sel, { estado: v }); return;
+    case "rango": DN.rango = Number(v) || 14; break;
     case "vistos": marcarTropiezosVistos(); return;
     case "repedir": metricasCache = null; cargarMetricas(); return;
     case "num": DN.num = v; break;
@@ -831,7 +909,7 @@ function dnClic(ev) {
     case "pantalla": verLaPantalla(v); return;
     case "prueba": { const p = DN_PRUEBAS.find(x => x.id === v); if (p) location.href = location.pathname + (w === "off" ? p.off : p.on); return; }
     case "copiar":
-      if (v === "reporte" && sel) { const tx2 = dnTexto(sel); dnCopia(DN_TIPOS[dnTipo(sel)].n + " · " + dnLugar(sel) + " · v" + (sel.version || "?") + " · " + dnDia(sel.dia) + ((Number(sel.cuantos) || 1) > 1 ? " · " + sel.cuantos + " veces" : "") + "\nQué pasó: " + tx2.que + (tx2.antes ? "\nJusto antes: " + tx2.antes : "")); }
+      if (v === "reporte" && sel) { const tx2 = dnTexto(sel); dnCopia(DN_TIPOS[dnTipo(sel)].n + " · " + dnLugar(sel) + " · v" + (sel.version || "?") + " · " + dnDia(sel.dia) + ((Number(sel.cuantos) || 1) > 1 ? " · " + sel.cuantos + " veces" : "") + "\nQué pasó: " + tx2.que + (tx2.antes ? "\nJusto antes: " + tx2.antes : "") + (sel.nota ? "\nMi nota: " + sel.nota : "")); }
       else { const p = DN_PRUEBAS.find(x => x.id === v); if (p) dnCopia(location.origin + location.pathname + p.on); }
       return;
     default: return;
@@ -850,17 +928,13 @@ function dnEscribe(ev) {
 /* ---- Lo que el resto de la app sigue llamando ----
 
    `renderPanelAdmin` es el nombre que usan Ajustes, el plan simulado y el modo
-   de pruebas para decir «repíntate». Sigue existiendo y hace dos cosas: deja en
-   el bloque de Ajustes una puerta —por si alguien llega a esa sección— y
-   repinta la capa si está abierta. */
+   de pruebas para decir «repíntate». Sigue existiendo y repinta la capa si está
+   abierta. El bloque de Ajustes se queda vacío: a esa sección ya no se llega,
+   porque `mostrarAjuste` y `abrirAjustes` abren la capa directamente
+   (0.7.171; antes había que pulsar un «Abrir» de más). */
 function renderPanelAdmin() {
   const caja = document.getElementById("panel-admin");
-  if (caja) {
-    caja.innerHTML = esAdmin ? `<div class="panel">
-        <h3>${tx("Norata por dentro")}</h3>
-        <button class="btn btn-linea btn-block" onclick="abrirDentro()">${tx("Abrir")}</button>
-      </div>` : "";
-  }
+  if (caja) caja.innerHTML = "";
   if (!esAdmin) { cerrarDentro(); return; }
   dnPinta();
 }

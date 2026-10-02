@@ -97,6 +97,31 @@ alter table public.tropiezos enable row level security;
 -- de abajo y se lee dentro de `metricas()`, que ya comprueba quién pregunta.
 revoke all on table public.tropiezos from anon, authenticated;
 
+-- ---- El estado, la nota y la versión en que salió (2 oct 2026) ----
+-- Hasta aquí un tropiezo solo sabía una cosa de sí mismo: si se había visto.
+-- Eduardo pidió «ver con más atención los reportes», y con un sí o no no se
+-- puede: un fallo que ya se está arreglando y uno que se descartó eran la
+-- misma palomita.
+--
+--   estado     'nuevo' | 'curso' | 'hecho' | 'no'. El panel le pone a cada uno
+--              el nombre que le toca según el tipo (una idea no se «resuelve»,
+--              se hace).
+--   nota       privada, de quien administra. No la ve nadie más.
+--   arreglado  la versión en que salió el arreglo, o vacío.
+--
+-- `visto` se queda y se mantiene al día (es «cerrado»: hecho o descartado): lo
+-- leen las versiones de la app anteriores a la 0.7.171, y borrarla las dejaría
+-- sin saber qué está atendido.
+--
+-- Con `add column if not exists` y no dentro del `create table` de arriba: ese
+-- no hace nada si la tabla ya existe, que es el caso de siempre.
+alter table public.tropiezos add column if not exists estado    text not null default 'nuevo';
+alter table public.tropiezos add column if not exists nota      text not null default '';
+alter table public.tropiezos add column if not exists arreglado text not null default '';
+
+-- Lo que ya se había dado por visto antes de que existiera el estado.
+update public.tropiezos set estado = 'hecho' where visto and estado = 'nuevo';
+
 
 -- Apuntar un tropiezo. La llama la red de seguridad de index.html.
 --
@@ -299,9 +324,12 @@ begin
   -- correcta: no «qué versión vio cada cuenta que existió alguna vez», sino
   -- «qué versión tiene la gente que está usando la app».
   ultima_v as (
-    select distinct on (user_id) user_id, version
+    select distinct on (user_id) user_id, coalesce(version, '?') as version, dia as ultimo
       from public.pulsos
-     where dia >= current_date - 13
+     -- 60 días y no 14 (2 oct 2026): con 14 solo salía quien seguía abriendo,
+     -- y lo que hay que ver es justo lo contrario —en qué versión se quedó
+     -- quien dejó de abrir—. `ultimo` es lo que los separa.
+     where dia >= current_date - 59
      order by user_id, dia desc
   ),
 
@@ -372,6 +400,10 @@ begin
       -- un rótulo de catorce es la clase de mentira pequeña que nadie revisa.
       'distintas14',    (select count(distinct user_id) from public.pulsos
                           where dia >= current_date - 13),
+      'distintas30',    (select count(distinct user_id) from public.pulsos
+                          where dia >= current_date - 29),
+      'distintas90',    (select count(distinct user_id) from public.pulsos
+                          where dia >= current_date - 89),
 
       'aperturas7',     (select coalesce(sum(aperturas), 0) from public.pulsos
                           where dia >= current_date - 7),
@@ -420,7 +452,7 @@ begin
                  coalesce(a.personas, 0)  as personas,
                  coalesce(a.aperturas, 0) as aperturas,
                  coalesce(n.altas, 0)     as altas
-            from generate_series(current_date - 13, current_date, interval '1 day') g(d)
+            from generate_series(current_date - 89, current_date, interval '1 day') g(d)
             left join (select dia, count(*) as personas, sum(aperturas) as aperturas
                          from public.pulsos group by dia) a on a.dia = g.d::date
             left join (select created_at::date as dia, count(*) as altas
@@ -445,13 +477,31 @@ begin
 
     'versiones', coalesce((
       select jsonb_agg(x order by x.personas desc)
-        from (select version, count(*) as personas from ultima_v group by version) x
+        from (select version,
+                     count(*) as personas,
+                     count(*) filter (where ultimo < current_date - 13) as dormidas
+                from ultima_v group by version) x
     ), '[]'::jsonb),
 
     -- Ya viene calculado de arriba, y trae `desplegado: false` si el cobro
     -- todavía no existe. El MRR de ahí no cuenta a los fundadores: es pago
     -- único, y meterlo inflaría el número que sirve para saber si esto se
     -- sostiene mes a mes.
+    -- Cuántas siguen con los días: de las cuentas que ya tienen N días, las
+    -- que abrieron la app el día N o después. Una cuenta de ayer no entra en
+    -- el día 7: todavía no ha podido llegar.
+    'retencion', coalesce((
+      select jsonb_agg(jsonb_build_object('dia', x.n, 'de', x.de, 'siguen', x.siguen) order by x.n)
+        from (
+          select n,
+                 (select count(*) from u where u.alta <= current_date - n) as de,
+                 (select count(*) from u join p on p.user_id = u.id
+                   where u.alta <= current_date - n
+                     and p.ultimo >= u.alta + n) as siguen
+            from unnest(array[1, 3, 7, 14, 30]) as t(n)
+        ) x
+    ), '[]'::jsonb),
+
     'cobro', cobro,
 
     -- El `id` viaja con cada fila desde el 3 de septiembre de 2026, y es lo
@@ -460,11 +510,12 @@ begin
     -- pantalla no tenía forma de nombrar una fila concreta.
     'tropiezos', coalesce((
       select jsonb_agg(x order by x.dia desc, x.cuantos desc)
-        from (select id, dia, version, donde, mensaje, cuantos, visto
+        from (select id, dia, version, donde, mensaje, cuantos, visto,
+                     estado, nota, arreglado
                 from public.tropiezos
                where dia >= current_date - 30
                order by dia desc, cuantos desc
-               limit 40) x
+               limit 120) x
     ), '[]'::jsonb),
 
     'al_momento', now()
@@ -491,7 +542,9 @@ begin
   if not public.soy_admin() then
     raise exception 'Sin permiso.' using errcode = '42501';
   end if;
-  update public.tropiezos set visto = true where not visto;
+  -- Solo lo NUEVO: lo que está en curso se queda como está. Dar por atendido lo
+  -- que todavía no se miró no puede cerrar de paso lo que se está arreglando.
+  update public.tropiezos set visto = true, estado = 'hecho' where estado = 'nuevo';
 end;
 $fn$;
 
@@ -529,8 +582,15 @@ begin
     raise exception 'Sin permiso.' using errcode = '42501';
   end if;
 
+  -- El estado acompaña a `visto`, para que una app vieja y el panel nuevo no
+  -- digan cosas distintas de la misma fila.
   update public.tropiezos
-     set visto = p_visto
+     set visto = p_visto,
+         estado = case
+                    when p_visto and estado not in ('hecho', 'no') then 'hecho'
+                    when not p_visto and estado in ('hecho', 'no') then 'nuevo'
+                    else estado
+                  end
    where id = p_id
   returning visto into quedo;
 
@@ -540,6 +600,55 @@ $fn$;
 
 revoke all on function public.tropiezo_visto(bigint, boolean) from public, anon;
 grant execute on function public.tropiezo_visto(bigint, boolean) to authenticated;
+
+
+-- El estado, la nota y la versión de UNO.
+--
+-- Lo que llegue en `null` no se toca, así que la misma función sirve para
+-- cambiar solo el estado, solo la nota o solo la versión. Una cadena vacía sí
+-- cuenta: es como se borra una nota.
+--
+-- Devuelve la fila como quedó, por lo mismo que `tropiezo_visto`: la pantalla
+-- pinta con lo que contesta el servidor y no con lo que suponía. `null` es
+-- «esa fila ya no está».
+create or replace function public.tropiezo_estado(
+  p_id bigint,
+  p_estado text default null,
+  p_nota text default null,
+  p_arreglado text default null
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, auth
+as $fn$
+declare
+  quedo jsonb;
+begin
+  if not public.soy_admin() then
+    raise exception 'Sin permiso.' using errcode = '42501';
+  end if;
+
+  if p_estado is not null and p_estado not in ('nuevo', 'curso', 'hecho', 'no') then
+    raise exception 'Estado desconocido.' using errcode = '22023';
+  end if;
+
+  update public.tropiezos
+     set estado    = coalesce(p_estado, estado),
+         visto     = (coalesce(p_estado, estado) in ('hecho', 'no')),
+         nota      = coalesce(left(p_nota, 500), nota),
+         arreglado = coalesce(left(p_arreglado, 20), arreglado)
+   where id = p_id
+  returning jsonb_build_object(
+              'id', id, 'estado', estado, 'visto', visto,
+              'nota', nota, 'arreglado', arreglado) into quedo;
+
+  return quedo;
+end;
+$fn$;
+
+revoke all on function public.tropiezo_estado(bigint, text, text, text) from public, anon;
+grant execute on function public.tropiezo_estado(bigint, text, text, text) to authenticated;
 
 
 -- ============================================================

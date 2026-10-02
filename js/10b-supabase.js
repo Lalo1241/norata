@@ -486,6 +486,18 @@ async function sbTropiezoVisto(id, visto) {
   return r.body;
 }
 
+/* El estado, la nota privada y la versión en que salió, de UNO (0.7.171). Lo
+   que venga en `null` no se toca. Devuelve cómo quedó la fila, o `null` si ya
+   no está. */
+async function sbTropiezoEstado(id, estado, nota, arreglado) {
+  const r = await sbDatos("/rpc/tropiezo_estado", {
+    method: "POST",
+    body: JSON.stringify({ p_id: id, p_estado: estado, p_nota: nota, p_arreglado: arreglado })
+  });
+  if (!r.ok) throw sbError(r);
+  return r.body;
+}
+
 /* Apuntar que algo se rompió.
 
    Va por `sbFetch` y no por `sbDatos` a propósito: `sbDatos` exige un token, y

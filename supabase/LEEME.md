@@ -43,6 +43,33 @@ es bajo; el día que haya gente fuera, no.
 
 ---
 
+### 2. Estados del buzón y más números — 2 oct 2026
+
+**Qué**: de `administracion.sql`, cinco cosas, y van juntas:
+
+1. Las tres columnas nuevas de `tropiezos` (`estado`, `nota`, `arreglado`) y el
+   `update` que pasa a «hecho» lo que ya estaba visto.
+2. `tropiezos_vistos()` y `tropiezo_visto()`, que ahora mueven también el estado.
+3. `tropiezo_estado()`, nueva.
+4. `metricas()` entera: 90 días en vez de 14, la curva de cuántas siguen, las
+   versiones con quién dejó de abrir, y los reportes con su estado.
+
+Todo es `add column if not exists` y `create or replace`: **se puede pegar dos
+veces sin consecuencias**, y no borra ni cambia ningún reporte.
+
+**Qué pasa mientras no se pegue**: nada malo. El Puesto de mando (0.7.171)
+mira si la respuesta trae `estado`; si no, ofrece lo de antes —dar por
+atendido— y enseña 14 días. Al pegarlo, los estados, la nota, los rangos de 30
+y 90 días y la curva aparecen solos, sin subir otra versión.
+
+**No se probó contra una base de verdad**: aquí no hay Postgres. Va dentro de
+`begin; … commit;`, así que si el editor da un error no se queda nada a medias;
+en ese caso, copiar el mensaje tal cual.
+
+**Dónde**: panel de Supabase → SQL Editor → pestaña nueva → pegar → Run.
+
+---
+
 ## Borrar la cuenta (`borrar-cuenta.sql`)
 
 **Sin esto, el botón «Borrar mi cuenta» de Ajustes no funciona**: avisa de que

@@ -283,19 +283,18 @@ texto sin aprobar a la vista**: se pone en `false` —el panel vuelve a pedir
 
 ### «Norata por dentro»: lo que el boceto tenía y todavía no existe
 
-La 0.7.167 conecta lo que el servidor ya da, y la 0.7.170 trajo el formulario
-con cuatro tipos. Lo demás se diseñó con Eduardo sobre el boceto
+La 0.7.167 conecta lo que el servidor ya da, la 0.7.170 trajo el formulario con
+cuatro tipos y la 0.7.171 los estados del buzón y los rangos de 30 y 90 días
+—esos dos, a la espera de que se pegue su SQL (`supabase/LEEME.md`)—. Lo demás
+se diseñó con Eduardo sobre el boceto
 (`https://claude.ai/artifact/A7bwfCvJSRdFhTGbKBDHoi`) y espera esto, en el orden
 en que conviene hacerlo:
 
-- **Estados, nota privada y «salió en la versión»** en el buzón: columnas nuevas
-  en `tropiezos` y `metricas()` devolviéndolas. Hoy solo existe `visto`.
 - **La respuesta de vuelta** («Lo que me contaste», en Ajustes): hay que atar el
   reporte a la cuenta, y solo si quien reporta marca «Avísame cuando lo revises».
-- **Rango de 30 y 90 días, la curva de cuántas siguen y el histórico del
-  cobro** con sus devoluciones: `metricas()` solo da 14 días, y el cobro solo
-  sabe cómo está cada suscripción ahora. El histórico pide apuntar cada pago
-  desde la función `cobro`.
+- **El histórico del cobro** con sus devoluciones: el cobro solo sabe cómo está
+  cada suscripción ahora. Pide apuntar cada pago desde la función `cobro`, que
+  hay que volver a desplegar.
 - **Beta testers**: una tabla con el rol, la invitación por enlace y un botón
   en su menú. Hoy una prueba solo se enciende con su enlace, en la pestaña.
 - **La barrera de subidas**: `main` como cola, una rama `vivo` protegida que es
@@ -315,6 +314,73 @@ en que conviene hacerlo:
   el grifo cambia y la frase no.
 
 ## La lista
+
+### 0.7.171 · 2 oct 2026
+
+**«Norata por dentro» pasa a llamarse Puesto de mando, se ve siempre en Norata
+Clásico y su buzón ya sabe en qué estado está cada reporte.** Es la segunda
+tanda del panel, pedida por Eduardo al abrirlo: «métele más diseño, haz que se
+vea con la identidad gruesa que maneja ya Norata Clásico», la etiqueta de Alpha
+en las versiones, y que avance todo lo que se pueda de lo apuntado, dándole el
+SQL para pegar.
+
+**Abre directo.** La fila de Ajustes y la del mini menú abren la capa de un
+toque (`mostrarAjuste` y `abrirAjustes` la desvían). Antes el mini menú pasaba
+por una sección con un solo botón «Abrir», y Eduardo lo mandó en una captura:
+«ya no tendría ningún sentido».
+
+**El nombre.** Puesto de mando, elegido por él entre cuatro. La capa se sigue
+llamando `#dentro` y el prefijo sigue siendo `dn-`: renombrarlos era tocar todo
+para que nada cambiara.
+
+**Siempre en Norata Clásico, «sí o sí».** Declarar los tonos de la casa sobre la
+capa no bastaba, y se midió: con un mundo puesto, Catedral y Averno le cambiaban
+el tamaño a los títulos, Cyberpunk les ponía su sombra de dos colores, Blueprint
+y Arcade enderezaban los campos y Reliquia aligeraba las negritas. Un mundo no
+solo cambia variables: viste `h2`, `b`, `button` y `textarea` a secas. Lo
+cierran tres cosas en `css/dentro.css`:
+
+- los tonos de la casa, redeclarados en `#dentro` en sus dos caras;
+- **toda regla cuelga de `#dentro`**, y un identificador gana a cualquier
+  selector de mundo, que no lleva ninguno;
+- y lo que un mundo pueda poner y la hoja no declara pieza por pieza —sombra de
+  texto, mayúsculas, marco, interlineado, filtros— se neutraliza de una vez.
+
+Además dejó de usar `.btn`: tiene sus botones (`.dn-btn`).
+
+**Cómo se comprobó, y es la medida que vale:** una foto de 26 propiedades de
+cada elemento de las siete pantallas del panel (1 261 elementos), con la casa y
+luego con Reliquia, Blueprint, Catedral, Averno, Cyberpunk y Arcade, de noche y
+de día. **Cero diferencias en las doce comparaciones.** Antes del arreglo eran
+entre 1 y 31 por mundo.
+
+**El diseño.** Tarjetas de burbuja —tres esquinas amplias y una corta—, filas
+anchas en la barra con la activa en oro, títulos de 30, cifras de 34 en
+negrita, botones en pastilla, campos de 2 px y el fondo de la casa con sus dos
+manchas de luz. De día, sin resplandor.
+
+**La versión con su etapa**, igual que al pie de la app: «Alpha V0.7.171 ·
+2 oct 2026», en la barra y en Subidas. La etapa sale del número
+(`dnEtapa`), así que cambiará sola a Beta.
+
+**Los estados del buzón.** Cuatro —nuevo, en curso, hecho, descartado—, y cada
+tipo los nombra a su manera: una idea está «Planeada» y luego «Hecha», una duda
+queda «Contestada», un «me gustó» solo se lee. Con ellos, una nota privada y la
+versión en que salió. **Piden SQL**, y por eso el panel funciona de las dos
+maneras: mientras la respuesta del servidor no traiga `estado`, lo deduce de
+`visto` y ofrece lo de antes; al pegar el SQL aparecen solos, sin subir otra
+versión. Lo mismo con los números: 14 días hoy, y con el SQL el rango de 30 y
+90, la curva de cuántas siguen con los días y, en las versiones, en coral quien
+dejó de abrir ahí.
+
+**El SQL está en `supabase/administracion.sql` y en «Pendiente de pegar».** No
+se probó contra una base de verdad —aquí no hay Postgres—; va dentro de una
+transacción para que un error no deje nada a medias.
+
+**Cómo se probó lo demás.** Con la respuesta del servidor imitada en sus dos
+formas, la de hoy y la de después de pegar: cambiar de estado, apuntar la
+versión, guardar la nota al salir del campo, los tres rangos, las cinco salas
+en computadora y a 375 px sin desbordar ni dejar huecos.
 
 ### 0.7.170 · 2 oct 2026
 

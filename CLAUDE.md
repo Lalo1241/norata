@@ -550,12 +550,30 @@ página quedaría en blanco. No añade riesgo nuevo —sin JavaScript esta app n
 pinta nada de todos modos— y el `<noscript>` de al lado devuelve el
 comportamiento de siempre a quien lo tenga apagado.
 
-## Norata por dentro
+## El Puesto de mando
 
 **La consola de administración es una capa aparte (`#dentro`), no una sección
-de Ajustes** (0.7.167). La abre `abrirDentro()` desde la fila de Ajustes, y todo
-lo suyo vive en `js/10e-panel.js` y `css/dentro.css`, con el prefijo `dn-`:
-la app ya tiene `.panel`, `.seg` y `.chip`, y los archivos comparten ámbito.
+de Ajustes** (0.7.167; se llamaba «Norata por dentro» hasta la 0.7.171). La
+abre `abrirDentro()` de un toque desde la fila de Ajustes y desde el mini menú
+—`mostrarAjuste` y `abrirAjustes` la desvían—, y todo lo suyo vive en
+`js/10e-panel.js` y `css/dentro.css`, con el prefijo `dn-`: la app ya tiene
+`.panel`, `.seg`, `.chip` y `.btn`, y los archivos comparten ámbito. Va solo en
+español y sin `tx()`.
+
+**Se ve SIEMPRE en Norata Clásico, tengas el mundo que tengas** (Eduardo,
+0.7.171: «sí o sí»). Un mundo no solo cambia variables: viste `h2`, `b`,
+`button` y `textarea` a secas, así que redeclarar los tonos no basta. Lo
+sostienen tres cosas, y al tocar `css/dentro.css` no se rompe ninguna:
+
+- los tonos de la casa, redeclarados en `#dentro` en sus dos caras;
+- **toda regla cuelga de `#dentro`**: un identificador gana a cualquier selector
+  de mundo. Una regla nueva que empiece por `.dn-` a secas pierde contra el
+  mundo y nadie lo nota en la casa;
+- **ninguna clase de la app** dentro de la capa: sus botones son `.dn-btn`.
+
+Se comprueba con una foto de los estilos calculados de todas sus pantallas, con
+la casa y con cada mundo y Arcade, de noche y de día: tienen que salir
+idénticas. En la 0.7.171 fueron 1 261 elementos y cero diferencias.
 
 Cinco salas —Hoy, Buzón, Subidas, Números y Laboratorio— y cuatro reglas que
 puso Eduardo sobre el boceto y valen para cualquier cosa que se añada:
@@ -575,9 +593,16 @@ cómo saber si está encendida. Y un tipo de reporte nuevo son DOS filas: una en
 `REP_TIPOS` (`js/09-inicio.js`), que es el formulario, y otra en `DN_TIPOS`,
 que es el buzón. El tipo viaja dentro del mensaje (`[Lugar|tipo] …`).
 
+**El panel funciona con el SQL pegado y sin pegar.** Los estados del buzón, los
+rangos de 30 y 90 días y la curva de retención dependen de columnas y campos
+que solo existen cuando Eduardo pega el SQL a mano. El panel mira si la
+respuesta los trae (`t.estado !== undefined`, `m.retencion`, `dias.length`) y,
+si no, ofrece lo de antes. **Al añadir algo que pida SQL, se hace igual**: una
+versión de la app llega sola y un `.sql` no.
+
 **Sin sesión de administrador no hay números**, así que se prueba imitando la
-respuesta de `metricas()` en la consola: `esAdmin = true`, `metricasCache =
-{…}` con su misma forma, y `abrirDentro()`.
+respuesta de `metricas()` en la consola, en sus dos formas: `esAdmin = true`,
+`metricasCache = {…}` y `abrirDentro()`.
 
 ## Los interruptores
 

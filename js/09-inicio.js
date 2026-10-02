@@ -1885,8 +1885,9 @@ function seccionesAjustes() {
          pero dentro de un mundo el oro sigue siendo un aviso —el plan que se
          acaba— y la trastienda pasa a la tinta del mundo (ver el bloque «El
          menú dentro de un mundo» de `mundos/app.py`). */
-      id: "admin", nombre: tx("Norata por dentro"), icon: "chart", tono: "trastienda",
-      sub: tx("El modo de pruebas, cuánta gente la usa y lo que se rompe")
+      /* Sin `tx()`: el Puesto de mando va solo en español (Eduardo, 0.7.171). */
+      id: "admin", nombre: "Puesto de mando", icon: "chart", tono: "trastienda",
+      sub: "El buzón, los números y lo que está en pruebas"
     });
   }
   return secs;
@@ -2527,6 +2528,10 @@ async function reportarFallo() {
 
 function abrirAjustes(sec) {
   cerrarMenuAjustes();
+  /* El Puesto de mando no es una sección: es una capa, y se abre de un toque
+     desde donde sea (0.7.171). Pasando por Ajustes quedaba una pantalla con un
+     solo botón «Abrir», que Eduardo quitó: «ya no tendría ningún sentido». */
+  if (sec === "admin" && typeof abrirDentro === "function") { abrirDentro(); return; }
   /* Antes de tocar `ajusteAbierto`, no después: `showView("settings")` lo pone
      a null a propósito (entrar por el menú de abajo siempre empieza igual), y
      si se eligiera primero la sección, el viaje la borraría por el camino. */
@@ -2545,6 +2550,7 @@ document.addEventListener("keydown", (e) => {
 });
 
 function mostrarAjuste(id) {
+  if (id === "admin" && typeof abrirDentro === "function") { abrirDentro(); return; }
   const d = seccionDeAjuste(id);
   ajusteAbierto = d.sec;
   renderAjustes();
