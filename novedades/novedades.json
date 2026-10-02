@@ -673,6 +673,21 @@
       }
     },
     {
+      "version": "0.7.162",
+      "fecha": "2026-10-02",
+      "estado": "borrador",
+      "clase": "mejora",
+      "titulo": "Refrescar ya se alcanza a ver",
+      "resumen": "Al refrescar, la carga se queda un par de segundos en vez de pasar como un parpadeo.",
+      "puntos": [],
+      "retoques": [],
+      "en": {
+        "titulo": "Refreshing is now visible",
+        "resumen": "When you refresh, the loading screen stays for a couple of seconds instead of flashing by.",
+        "puntos": []
+      }
+    },
+    {
       "version": "0.7.161",
       "fecha": "2026-10-02",
       "estado": "borrador",

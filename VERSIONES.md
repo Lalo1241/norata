@@ -283,6 +283,19 @@ texto sin aprobar a la vista**: se pone en `false` —el panel vuelve a pedir
 
 ## La lista
 
+### 0.7.162 · 2 oct 2026
+
+**Refrescar se queda dos segundos a la vista.** Eduardo: «a veces sale un micro
+instante y no se entiende qué pasó». El refresco nació en la 0.7.158 sin
+mínimo, y con la app sirviéndose de su copia la carga duraba un parpadeo: se
+leía como un fallo, no como rapidez. Número propio y no un 4º de la 0.7.161,
+que es el estreno de una versión y no esto.
+
+- `CARGA_REFRESCO = 2000` (`js/10c-portada.js`): la salida corta espera a que
+  la página lleve dos segundos abierta. Contado desde que se abrió, como el
+  mínimo de la entrada, así que un arranque lento no suma nada encima.
+- La entrada (3 s y zoom) y el estreno no cambian.
+
 ### 0.7.161 · 2 oct 2026
 
 **Actualizar, de una pieza: el logo llega, el aro se llena y sube el telón.**

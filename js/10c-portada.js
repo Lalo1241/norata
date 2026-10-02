@@ -226,10 +226,10 @@ function cargaRectRedondo(cx, cy, m, r) {
 
      entrada   primera apertura de la pestaña o de la app, e iniciar sesión:
                el mínimo de 3 s y el zoom (`cargaZoom`).
-     refresco  recargar, tirar para actualizar, cambiar de mundo o paleta:
-               sin mínimo y con la salida corta (`cargaCorta`).
-     estreno   pulsar «Actualizar»: el aro se cierra una vez, un latido y la
-               salida corta (`cargaEstreno`).
+     refresco  recargar o tirar para actualizar: dos segundos a la vista y
+               la salida corta (`cargaCorta`).
+     estreno   pulsar «Actualizar»: el aro se llena, sale el letrero de la
+               versión y sube el telón (`cargaEstreno`).
 
    Cuál toca lo decide el script de arriba de index.html (`window.__carga`),
    porque el estreno tiene otro dibujo desde el primer cuadro. `modo` lo
@@ -263,7 +263,13 @@ function cargaEntrar(modo) {
     if (cargaTurno !== mio) { listo(); return; }
     setTimeout(listo, hacer());
   }, ms));
-  if (cual === "refresco") return tras(0, () => cargaCorta(el, mio));
+  /* El refresco también tiene su mínimo (0.7.162). Nació sin ninguno y, con
+     la app sirviéndose de su copia, la carga duraba lo que un parpadeo: «sale
+     un micro instante y no se entiende qué pasó» (Eduardo). Una carga que no
+     da tiempo a leerse no parece rapidez, parece un fallo. Contado desde que
+     se abrió la página, como el de la entrada: a quien le tardó más el
+     arranque no se le suma nada. */
+  if (cual === "refresco") return tras(Math.max(0, CARGA_REFRESCO - performance.now()), () => cargaCorta(el, mio));
   /* El aro tarda 1,9 s en llenarse y empezó con el primer cuadro, y después
      el letrero se queda un segundo a la vista: se les deja terminar aunque la
      app haya arrancado antes. */
@@ -278,6 +284,7 @@ function cargaEntrar(modo) {
    carga entera se desvanece. Sin telón y sin zoom: es lo que se ve al
    refrescar, y tiene que sentirse como que no costó nada.
    Devuelve cuánto tarda, como `cargaZoom`. */
+const CARGA_REFRESCO = 2000;  // lo mínimo que se ve la carga al refrescar
 const CARGA_CORTA = 400;
 const CARGA_ARO = 2900;       // 1,9 s de llenado + 1 s con el letrero a la vista
 const CARGA_TELON = 560;
