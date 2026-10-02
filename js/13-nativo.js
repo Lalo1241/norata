@@ -91,7 +91,11 @@
        se vería, y encima de otra ventana la pisaría. Con un tope, para no
        quedarse preguntando para siempre si algo no cierra. */
     const cuandoEsteLista = (hacer) => {
-      const tope = Date.now() + 20000;
+      /* Dos minutos y no veinte segundos (0.7.181). Con el servidor lento la
+         carga podía durar más de veinte, el aviso se rendía sin decir nada y el
+         pedido se quedaba apuntado: salía en la siguiente apertura, en mitad
+         de otra cosa —a Eduardo, justo después de actualizar—. */
+      const tope = Date.now() + 120000;
       (function mirar() {
         const modal = document.getElementById("modal");
         const lista = typeof cargaVisible === "function" && !cargaVisible() &&
@@ -132,6 +136,25 @@
     };
     if (document.readyState === "complete") revisarIconoPedido();
     else window.addEventListener("load", revisarIconoPedido);
+
+    /* Para «Actualizar» (0.7.181): si hay un icono pendiente, el cambio de
+       icono se hace DENTRO de la actualización y no como una ventana aparte
+       después. Eduardo: «sale la animación de Actualizar, y luego te recibe
+       la ventana para reiniciar la app… debería ser parte todo de lo mismo».
+       Devuelve el icono que falta poner, o null si no falta ninguno. */
+    window.norataIconoPendiente = () => {
+      let pedido = false;
+      try { pedido = localStorage.getItem(ICONO_PEDIDO_LLAVE) === "1"; } catch (e) {}
+      const id = pedido ? iconoQueToca() : null;
+      if (!id) return Promise.resolve(null);
+      return Promise.resolve(iconoNativo.actual())
+        .then((r) => { if (r && r.icono === id) { olvidarPedido(); return null; } return id; })
+        .catch(() => null);
+    };
+    window.norataIconoReiniciar = (id) => {
+      olvidarPedido();
+      return Promise.resolve(iconoNativo.poner({ icono: id, reiniciar: true }));
+    };
 
     /* ---- El color con el que abre la app (0.7.166) ----
        La pantalla de arranque la pinta Android antes de que corra nada de
@@ -341,7 +364,18 @@
     try { if (typeof VERSION !== "undefined") sessionStorage.setItem("norata-estreno-de", VERSION); } catch (e) {}
     const llegada = typeof cargaLlegar === "function" ? cargaLlegar(tx("Actualizando…")) : Promise.resolve();
     llegada.then(() => (typeof cargaDespedir === "function" ? cargaDespedir() : null))
-      .then(() => act.set({ id: lista.id })).catch(() => {
+      .then(() => (typeof window.norataIconoPendiente === "function" ? window.norataIconoPendiente() : null))
+      .then((icono) => {
+        if (!icono) return act.set({ id: lista.id });
+        /* UNA SOLA PIEZA con el icono pendiente (0.7.181): la versión nueva se
+           deja puesta para el próximo arranque y la app se reinicia una vez,
+           ya con su icono, en vez de estrenar ahora y salir después con
+           «Reiniciando…». Al volver abre con la entrada de siempre. Si el
+           icono no se pudo cambiar, se estrena como siempre. */
+        return Promise.resolve(act.next({ id: lista.id })).catch(() => {})
+          .then(() => window.norataIconoReiniciar(icono))
+          .then((p) => { if (!(p && p.cambiado)) return act.set({ id: lista.id }); });
+      }).catch(() => {
       try { sessionStorage.removeItem("norata-estreno"); sessionStorage.removeItem("norata-estreno-de"); } catch (e) {}
       if (typeof cargaCerrar === "function") cargaCerrar();
       if (typeof toast === "function") toast(tx("No pude estrenar la versión nueva. Se pondrá sola al cerrar la app."), "atencion");

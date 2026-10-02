@@ -679,6 +679,21 @@
       }
     },
     {
+      "version": "0.7.181",
+      "fecha": "2026-10-02",
+      "estado": "borrador",
+      "clase": "arreglo",
+      "titulo": "Abre aunque el servidor tarde",
+      "resumen": "Si la sincronización tarda, Norata ya no se queda en la pantalla de carga: abre con lo que tienes y trae lo demás por detrás. Y tu plan se reconoce desde el primer instante.",
+      "puntos": [],
+      "retoques": [],
+      "en": {
+        "titulo": "Opens even when the server is slow",
+        "resumen": "If syncing takes a while, Norata no longer sits on the loading screen: it opens with what you have and fetches the rest in the background. And your plan is recognized from the first moment.",
+        "puntos": []
+      }
+    },
+    {
       "version": "0.7.177",
       "fecha": "2026-10-02",
       "estado": "borrador",

@@ -315,6 +315,33 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.181 · 2 oct 2026
+
+**Un servidor lento ya no atasca la carga ni le quita el plan a nadie, y
+«Actualizar» no deja un «Reiniciando…» suelto detrás.** Eduardo, en el APK:
+cambió de tema, la carga se quedó girando («solo salió el isologo, el aro y el
+texto»), y con la cuenta Fundador la app le pedía pagar los mundos — todo
+mientras decía «Sincronizando…». Y aparte: después de la animación de
+Actualizar le salía la ventana de reiniciar, y pidió que fuera todo una pieza.
+
+- **La sincronía del arranque tiene tope** (`js/11-arranque.js`): se esperaba
+  sin límite. Ahora 5 s; después se entra con lo del dispositivo y lo que baje
+  repinta solo (`adoptRemote`). Si llega tarde, también se mira entonces si el
+  tema de la cuenta es el puesto (`conciliarAspecto`).
+- **El plan se pide al empezar**, no detrás de la sincronía: su primera línea
+  pone la copia guardada, y eso tiene que pasar antes de cualquier espera.
+  Por eso Fundador veía candados: la copia no se ponía hasta que la sincronía
+  terminaba.
+- **«Reiniciando…» después de actualizar era un icono pendiente**: el aviso
+  del icono espera a que se quite la carga, se rendía a los 20 s sin decir
+  nada y el pedido salía en la apertura siguiente. Ahora espera hasta dos
+  minutos, y si al pulsar «Actualizar» hay un icono pendiente, se hace dentro
+  de la actualización: la versión nueva queda puesta para el arranque
+  (`act.next`) y la app se reinicia una sola vez, ya con su icono.
+
+**Sin probar** en el teléfono ni con un servidor lento de verdad: en local,
+con la sincronía colgada a mano.
+
 ### 0.7.180 · 2 oct 2026
 
 **Novedades anuncia lo mismo que el changelog del sitio, y lo enseña igual.**

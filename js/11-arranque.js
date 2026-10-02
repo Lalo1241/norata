@@ -315,8 +315,36 @@ showView("summary");
      desde la puerta —bajar el progreso, pintar, destapar, ofrecer el tutorial—,
      así que por ese camino se salta entero. El desgaste no: ese lo hace nadie
      más y tiene que correr en los dos. */
+  /* EL PLAN SE PIDE YA, sin esperarlo (0.7.181). Su primera línea pone la
+     copia guardada de la vez anterior, y eso tiene que pasar ANTES de
+     cualquier espera. Antes se pedía al final de todo, detrás de la
+     sincronía: con el servidor lento, Eduardo —Fundador— vio la app pidiéndole
+     pagar los mundos que ya tiene hasta que la sincronía terminó. */
+  const planPedido = recienEntrado ? null : planCargar();
+
   if (!recienEntrado) {
-    if (!veniaDeGoogle && syncReady()) await syncRun({ silent: true });
+    /* La sincronía, CON TOPE (0.7.181). Aquí se esperaba sin límite, y con el
+       servidor lento la carga se quedaba girando —«se atoró, solo salió el
+       isologo, el aro y el texto»— hasta que contestara. Cumplido el plazo se
+       entra con lo que hay en el dispositivo; la sincronía sigue por detrás y,
+       cuando llega, repinta sola (`adoptRemote`). Es el mismo tope que ya
+       tenía la entrada a una cuenta (`adoptarSesion`), más corto: aquí sí hay
+       una copia buena con la que pintar. */
+    if (!veniaDeGoogle && syncReady()) {
+      const sincronia = syncRun({ silent: true });
+      const llego = await Promise.race([
+        sincronia.then(() => true, () => true),
+        new Promise(listo => setTimeout(() => listo(false), 5000))
+      ]);
+      /* Si llegó tarde, lo que se hacía aquí con ella se hace cuando llegue:
+         mirar si el tema que trae la cuenta es el que hay puesto. Si no lo
+         es, `conciliarAspecto` lo cambia detrás de su cortina, como siempre. */
+      if (!llego) {
+        sincronia.then(() => {
+          if (typeof conciliarAspecto === "function") conciliarAspecto();
+        }, () => {});
+      }
+    }
     /* Con lo de la cuenta ya en memoria y la carga todavía puesta: ¿lo que
        este dispositivo lleva es lo que toca? Si hay que cambiarlo se hace
        aquí, tapado, y se recarga; lo de abajo ya no corre (0.7.160). */
@@ -381,8 +409,8 @@ showView("summary");
      mirando la pantalla de carga por culpa de una pregunta de negocio. Ver
      `js/10d-plan.js`, que empieza explicando por qué nada de esto es
      seguridad. */
-  if (!recienEntrado) {
-    planCargar().then(() => {
+  if (planPedido) {
+    planPedido.then(() => {
       /* Solo se repinta si resultó que sí paga: para quien no, ya está bien
          dibujado y un repintado de más hace parpadear la pantalla. */
       if (esPro()) showView(activeMainView || "summary");
