@@ -448,7 +448,11 @@ del DOM, no la vista.
   media app con el color viejo puesto. **Se arregla quitando la transición**
   — apuntar a `background-color` en vez de `background` no sirve. Cuando hay
   que cambiar muchas variables de golpe, la clase `cambiando-modo` las apaga
-  todas durante un turno (ver `ponerTema` en `js/01-base.js`).
+  todas durante un turno (ver `ponerTemaYa` en `js/01-base.js`). **Y por eso
+  la atenuación de noche a día (0.7.177) no es una transición**: `ponerTema`
+  funde una foto de la página de antes con la de después
+  (`startViewTransition`). Para suavizar cualquier otro cambio de muchas
+  variables a la vez, ese es el camino; una `transition` no.
 - **`align-items: center` esconde para siempre la parte de arriba de un hijo
   más alto que el contenedor.** El desplazamiento no llega a negativos. Se
   centra con `margin: auto` sobre el hijo.

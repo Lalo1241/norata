@@ -679,6 +679,21 @@
       }
     },
     {
+      "version": "0.7.177",
+      "fecha": "2026-10-02",
+      "estado": "borrador",
+      "clase": "mejora",
+      "titulo": "De noche a día, sin fogonazo",
+      "resumen": "Al cambiar entre modo claro y oscuro, la pantalla se funde de uno a otro en lugar de cambiar de golpe. En cualquier mundo.",
+      "puntos": [],
+      "retoques": [],
+      "en": {
+        "titulo": "From night to day, without the flash",
+        "resumen": "When you switch between light and dark mode, the screen blends from one to the other instead of snapping. In any world.",
+        "puntos": []
+      }
+    },
+    {
       "version": "0.7.176",
       "fecha": "2026-10-02",
       "estado": "borrador",

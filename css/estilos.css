@@ -1024,6 +1024,13 @@
      es como tiene que entrar: un modo claro que se desvanece desde el oscuro
      durante un cuarto de segundo se ve como un fallo, no como un efecto. */
   html.cambiando-modo, html.cambiando-modo * { transition: none !important; }
+  /* La atenuación del cambio de modo (0.7.177, `ponerTema` en js/01-base.js):
+     la foto de antes se funde con la página de después. Aquí solo va el
+     ritmo, y solo para esa transición. El velo es el respaldo de los
+     navegadores que no saben fundir fotos. */
+  html.funde-modo::view-transition-old(root),
+  html.funde-modo::view-transition-new(root) { animation-duration: 0.45s; animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+  .velo-modo { position: fixed; inset: 0; z-index: var(--piso-carga); pointer-events: none; }
 
   /* ---------- De día el mapa de talentos no brilla ----------
      Cada nodo encendido lleva una copia borrosa de sí mismo por debajo. Sobre

@@ -324,6 +324,23 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.177 · 2 oct 2026
+
+**Pasar de noche a día se atenúa, en cualquier mundo.** Eduardo: «una
+animación de atenuación cuando se cambia del modo claro al oscuro y viceversa
+en cualquier mundo, para que no sea un flashazo».
+
+- **Se funden dos fotos, no las propiedades** (`ponerTema`, `js/01-base.js`):
+  el navegador retrata la página, el modo cambia de golpe como siempre
+  (`ponerTemaYa`) y la foto vieja se funde con la página nueva en 0,45 s
+  (`document.startViewTransition`). Una transición de CSS aquí no se puede:
+  es la trampa de las variables que se quedan congeladas. Y por ser fotos,
+  no depende de qué variables declare cada mundo.
+- **Respaldo** donde el navegador no sabe: un velo con el fondo de antes que
+  se retira en el mismo tiempo.
+- **No se atenúa** con «menos movimiento», con la pestaña en segundo plano,
+  detrás de una carga (el cambio ya va tapado) ni si el modo no cambia.
+
 ### 0.7.176 · 2 oct 2026
 
 **El logo ya no parpadea al cruzar la recarga de «Actualizar» y «Cambiar de

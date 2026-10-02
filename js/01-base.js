@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.176";
+const VERSION = "0.7.177";
 const VERSION_FECHA = "2 oct 2026";
 
 /* ---- La web de fuera, en UN solo sitio ----
@@ -538,7 +538,59 @@ function recargarApp(desde) {
   setTimeout(() => location.reload(), Math.max(0, falta));
 }
 
+/* LA ATENUACIÓN DEL CAMBIO DE MODO (0.7.177). Pasar de noche a día era un
+   fogonazo: todas las variables cambian en el mismo cuadro. Eduardo pidió que
+   se atenúe, en cualquier mundo.
+
+   NO es una transición de CSS, y no puede serlo: una transición sobre una
+   propiedad cuyo valor sale de una variable se queda congelada (la trampa de
+   `cambiando-modo`, abajo), y aquí cambian todas. Lo que se hace es fundir DOS
+   FOTOS: el navegador retrata la página como está, se cambia el modo de golpe
+   —igual que siempre, con las transiciones apagadas— y la foto vieja se funde
+   con la página nueva (`startViewTransition`). No depende de qué variables
+   declare cada mundo, así que vale para todos sin tocar ninguno.
+
+   Donde el navegador no sabe hacerlo hay un respaldo más simple: un velo del
+   fondo de ANTES que se retira. Y no se atenúa nada cuando no se vería o
+   estorbaría: con «menos movimiento», con la pestaña en segundo plano, detrás
+   de una carga (ahí el cambio ya va tapado) o si el modo no cambia. */
+const MODO_FUNDE = 450;
 function ponerTema(cual) {
+  const raiz = document.documentElement;
+  const cambia = (cual === "claro") !== raiz.classList.contains("claro");
+  const quieto = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const tapado = typeof cargaVisible === "function" && cargaVisible();
+  if (!cambia || quieto || tapado || document.visibilityState !== "visible") { ponerTemaYa(cual); return; }
+
+  if (typeof document.startViewTransition === "function") {
+    /* La clase es lo que le da su ritmo a ESTA transición (css/estilos.css):
+       así no se le cambia a ninguna otra que llegue a usar lo mismo. */
+    raiz.classList.add("funde-modo");
+    const soltar = () => raiz.classList.remove("funde-modo");
+    let vt = null;
+    try { vt = document.startViewTransition(() => ponerTemaYa(cual)); }
+    catch (e) { soltar(); ponerTemaYa(cual); return; }
+    /* Una transición que el navegador se salta —llegó otra encima— rechaza
+       sus promesas. No es un fallo: el modo ya se cambió. */
+    vt.finished.then(soltar, soltar);
+    if (vt.ready) vt.ready.catch(() => {});
+    if (vt.updateCallbackDone) vt.updateCallbackDone.catch(() => {});
+    return;
+  }
+
+  const fondo = getComputedStyle(raiz).getPropertyValue("--bg").trim();
+  if (!document.body || !fondo || typeof document.body.animate !== "function") { ponerTemaYa(cual); return; }
+  const velo = document.createElement("div");
+  velo.className = "velo-modo";
+  velo.style.background = fondo;
+  document.body.appendChild(velo);
+  ponerTemaYa(cual);
+  velo.animate([{ opacity: 1 }, { opacity: 0 }], { duration: MODO_FUNDE, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" });
+  setTimeout(() => velo.remove(), MODO_FUNDE + 40);
+}
+
+/* El cambio en sí, de golpe. Lo llama `ponerTema`, con o sin atenuación. */
+function ponerTemaYa(cual) {
   const claro = cual === "claro";
   const raiz = document.documentElement;
 
