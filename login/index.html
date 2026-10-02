@@ -33,6 +33,10 @@
      directo que abre el login para siempre, incluso con la sesión ya puesta. -->
 <link rel="stylesheet" href="../css/fuente.css">
 <link rel="stylesheet" href="../css/estilos.css">
+<!-- Los ambientes, desde que la puerta lleva el tema del dispositivo
+     (0.7.160). Los mundos y Arcade no van aquí: pesan, y los engancha el
+     script de abajo solo si este dispositivo lleva uno. -->
+<link rel="stylesheet" href="../css/ambientes.css">
 
 <!-- ============ NI DENTRO DE UN MARCO AJENO (0.7.139) ============
      Medido: la app se dejaba meter en un `<iframe>` de cualquier sitio, sin
@@ -88,6 +92,118 @@
       var mtc = document.querySelector('meta[name="theme-color"]');
       if (mtc) mtc.setAttribute("content", "#dcdef0");
     }
+  } catch (e) {}
+
+  /* ---- La puerta lleva el tema de este dispositivo (0.7.160) ----
+     Hasta aquí la puerta iba SIEMPRE en los colores de la casa, y quien tenía
+     un mundo puesto veía la casa al entrar y su mundo un instante después.
+     Eduardo: «siempre en su primera carga, venga de donde venga, tiene que
+     tener la capacidad de predecir qué mundo colocar y nunca más enseñar nada
+     de otro mundo si no lo cambias».
+
+     Lo que la puerta puede saber sin que nadie haya entrado es lo que este
+     dispositivo llevaba la última vez, y eso es lo que pone: el mismo atributo,
+     la misma paleta y las mismas hojas que el script de arriba de la app. Lo
+     único que NO cambia es la marca: el logotipo sigue en menta (ver «La
+     marca, dentro de un mundo» en apariencias/LEEME.md).
+
+     Si después entra OTRA cuenta, la app lo concilia detrás de la carga
+     (`conciliarAspecto`, js/10i-apariencia.js). Y las dos huellas de abajo las
+     estampan `mundos/app.py` y `mundos/arcade.py`, igual que en index.html. */
+  try {
+    var puesta = localStorage.getItem("norata-apariencia");
+    if (puesta && puesta !== "casa") document.documentElement.setAttribute("data-apariencia", puesta);
+    try {
+      var pals = JSON.parse(localStorage.getItem("norata-paletas") || "{}") || {};
+      if (puesta && pals[puesta]) document.documentElement.setAttribute("data-paleta", pals[puesta]);
+    } catch (e) {}
+    if (["reliquia", "plano", "catedral", "averno", "cyber"].indexOf(puesta) >= 0) {
+      var lm = document.createElement("link");
+      lm.rel = "stylesheet";
+      lm.setAttribute("blocking", "render");
+      lm.href = "../css/mundos.css?h=019a2470dc";
+      document.head.appendChild(lm);
+    }
+  } catch (e) {}
+  try {
+    if (localStorage.getItem("norata-material") === "arcade") {
+      document.documentElement.setAttribute("data-material", "arcade");
+      var la = document.createElement("link");
+      la.rel = "stylesheet";
+      la.setAttribute("blocking", "render");
+      la.href = "../css/arcade.css?h=7a162ce693";
+      document.head.appendChild(la);
+    }
+  } catch (e) {}
+
+  /* ---- Ni un cuadro con otro mundo: el mismo candado que en la app ----
+     La página no enseña nada hasta que la hoja del mundo y sus letras están
+     cargadas; mientras tanto, un solo color liso: el fondo apuntado. Con tope
+     de 2,5 s, y MIRANDO además de escuchar (una hoja retirada no avisa). La
+     explicación larga está en el mismo bloque de index.html. */
+  try {
+    (function () {
+      var raiz = document.documentElement;
+      var fondo = "";
+      try { fondo = localStorage.getItem("norata-fondo") || ""; } catch (e) {}
+      var guardado = /^(#[0-9a-f]{3,8}|rgba?\([\d\s.,%\/]+\))$/i.test(fondo);
+      if (!guardado) fondo = raiz.classList.contains("claro") ? "#dcdef0" : "#10151d";
+      if (guardado) {
+        var mb = document.querySelector('meta[name="theme-color"]');
+        if (mb) mb.setAttribute("content", fondo);
+      }
+      var velo = document.createElement("style");
+      velo.textContent = "html{background:" + fondo + " !important}body{visibility:hidden !important}";
+      document.head.appendChild(velo);
+      var suelto = false;
+      function soltar() {
+        if (suelto) return;
+        suelto = true;
+        if (velo.parentNode) velo.parentNode.removeChild(velo);
+        window.__veloFuera = Math.round(performance.now());
+      }
+      function letras() {
+        try {
+          var cs = getComputedStyle(raiz), pedir = [];
+          var real = cs.getPropertyValue("--bg").trim();
+          if (/^#[0-9a-f]{3,8}$/i.test(real) && real !== fondo) {
+            velo.textContent = "html{background:" + real + " !important}body{visibility:hidden !important}";
+            var mr = document.querySelector('meta[name="theme-color"]');
+            if (mr) mr.setAttribute("content", real);
+          }
+          ["--tipo-titulo", "--tipo-cifra", "--sans"].forEach(function (v) {
+            var f = cs.getPropertyValue(v).trim();
+            if (!f) return;
+            pedir.push(document.fonts.load("16px " + f));
+            pedir.push(document.fonts.load("700 16px " + f));
+          });
+          Promise.all(pedir).then(soltar, soltar);
+        } catch (e) { soltar(); }
+      }
+      var hojas = [];
+      if (typeof lm !== "undefined" && lm) hojas.push(lm);
+      if (typeof la !== "undefined" && la) hojas.push(la);
+      var pedidas = false, fallidas = [];
+      function resueltas() {
+        for (var i = 0; i < hojas.length; i++) {
+          var h = hojas[i];
+          if (h.isConnected && !h.sheet && fallidas.indexOf(h) < 0) return false;
+        }
+        return true;
+      }
+      function mirar() {
+        if (suelto || pedidas) return;
+        if (!resueltas()) { setTimeout(mirar, 40); return; }
+        pedidas = true;
+        letras();
+      }
+      hojas.forEach(function (h) {
+        h.addEventListener("load", mirar);
+        h.addEventListener("error", function () { fallidas.push(h); mirar(); });
+      });
+      mirar();
+      setTimeout(soltar, 2500);
+    })();
   } catch (e) {}
 </script>
 

@@ -71,6 +71,9 @@ def main():
     tocados = []
     if estampar("index.html", '.href = "css/arcade.css', r"(css/arcade\.css)(\?h=[0-9a-f]+)?", h_css):
         tocados.append("index.html")
+    # La puerta también lo pide desde la 0.7.160, con su ruta (`../css/…`).
+    if estampar(os.path.join("login", "index.html"), '.href = "../css/arcade.css', r"(css/arcade\.css)(\?h=[0-9a-f]+)?", h_css):
+        tocados.append("login/index.html")
     if estampar(os.path.join("css", "estilos.css"), 'url("celestibyte.woff2', r"(celestibyte\.woff2)(\?h=[0-9a-f]+)?", h_letra):
         tocados.append("css/estilos.css")
 

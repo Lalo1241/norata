@@ -2356,6 +2356,7 @@ const TEXTOS_EN = {
   "Ocultar la contraseña": "Hide the password",
   "Un momento…": "One moment…",
   "Cambiando tema…": "Changing theme…",
+  "Poniendo tu tema…": "Applying your theme…",
   "Reiniciando…": "Restarting…",
   "Norata necesita reiniciarse": "Norata needs to restart",
   "Para terminar de mudarnos al nuevo mundo que elegiste, la aplicación necesita reiniciarse un instante y aplicar todos los ajustes correctamente.": "To finish moving into the new world you picked, the app needs to restart for a moment and apply every change correctly.",

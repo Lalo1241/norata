@@ -283,6 +283,62 @@ texto sin aprobar a la vista**: se pone en `false` —el panel vuelve a pedir
 
 ## La lista
 
+### 0.7.160 · 1 oct 2026
+
+**El tema viaja con la cuenta, por dispositivo, y la puerta lo lleva puesto.**
+Eduardo, tras la 0.7.158: «si ya sabe el dato de la cuenta, debe saber su
+configuración previa… siempre en su primera carga, venga de donde venga, tiene
+que predecir qué mundo colocar y nunca más enseñar nada de otro mundo si no lo
+cambias. No quiero más brechas hoy ni futuras». Y a media obra: quien quiera un
+tema distinto en cada dispositivo tiene que poder.
+
+- **El aspecto apuntado en la cuenta, POR DISPOSITIVO.** Mundo o ambiente,
+  paletas, modo y Arcade van en `settings.aspectos[idDelDispositivo]`
+  (`js/10i-apariencia.js`: `apuntarAspecto`, `conciliarAspecto`). El
+  dispositivo manda sobre lo suyo; la cuenta solo decide cuando el dispositivo
+  no sabe —es nuevo, o lo guardado era de otra cuenta (`norata-aspecto-de`)—, y
+  entonces pone lo último usado ahí o, si nunca se entró, lo último de
+  cualquiera. Un solo aspecto compartido habría hecho que dos dispositivos se
+  pelearan el tema.
+- **Se concilia con la carga puesta**: al arrancar, después de la sincronía, y
+  al entrar a una cuenta (`adoptarSesion`). Si hay que cambiar, se cambia
+  detrás, se recarga y la app nunca se destapa con un mundo ajeno.
+  `cambiarTapado` ya no hace su fundido desde transparente si la carga estaba
+  puesta: la habría abierto un instante sobre la app.
+- **La fusión une el mapa** (`js/10-fusion.js`): con `settings` entero del lado
+  más nuevo, un dispositivo borraba la entrada del otro.
+- **Venir de un cambio de tema es una ENTRADA**: `recargarApp` deja
+  `norata-entrada` y la carga que sigue lleva el zoom («para que se vea
+  apantallante el cambio»). Corrige el reparto de la 0.7.158, donde iba la
+  salida corta.
+- **La puerta lleva el tema del dispositivo.** `login/index.html` pone el
+  atributo, la paleta, las hojas (`ambientes.css` en la cabeza; `mundos.css` y
+  `arcade.css` solo si hacen falta) y el mismo candado que la app. La marca
+  sigue en menta. `mundos/app.py` y `mundos/arcade.py` sellan ya sus huellas en
+  TRES sitios, no dos.
+- **El color liso se corrige solo**: con las hojas cargadas, el candado lee el
+  `--bg` de verdad y lo usa (y lo apunta) mientras llegan las letras.
+- **Un mundo que deja de poderse usar se quita tapado**
+  (`refrescarApariencia`): cortina, cambio detrás, cortina fuera. No recarga,
+  porque lo guardado sigue siendo lo que la persona eligió.
+
+**Medido:** arranque normal, el dispositivo queda apuntado sin cambio a la
+vista. Cambio de tema, la carga se va a los 4,6 s (zoom). Otra cuenta con otro
+tema: la carga se queda a opacidad 1 de principio a fin, el tema cambia detrás
+a los 8 ms, y tras la recarga sale en claro desde el primer cuadro (velo a los
+19 ms, `theme-color` y `norata-fondo` en `#dcdef0`). La puerta en Averno: hoja
+bloqueante a los 22 ms, velo a los 36, sin desbordes; en los siete temas y los
+dos modos, el peor contraste es el de la letra chica del pie, parecido al de
+la casa (3,3), salvo Blueprint oscuro (2,1). La fusión, en los dos sentidos,
+conserva los tres dispositivos y gana la entrada más reciente.
+
+**Cazado al escribirlo:** la segunda llamada seguida a `refrescarApariencia`
+veía la cortina «puesta» mientras entraba y cambiaba a media opacidad; la
+guarda va primero.
+
+**Lo que NO se pudo probar aquí:** una sesión real contra Supabase —la cuenta
+de otro se simuló sustituyendo `aspectoCuenta`—, Firefox y Safari, y el APK.
+
 ### 0.7.159 · 1 oct 2026
 
 **El anuncio de la 1.0 cabe en 9 segundos, con todo ya en su sitio.** Eduardo

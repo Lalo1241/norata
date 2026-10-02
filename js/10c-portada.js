@@ -1441,6 +1441,11 @@ async function adoptarSesion(mensaje) {
     syncRun({ silent: true }),
     new Promise(listo => setTimeout(listo, 12000))
   ]);
+  /* El progreso ya bajó, y con él lo que la cuenta sabe de tu tema. Si este
+     dispositivo no lo traía —es nuevo, o lo guardado era de otra cuenta— se
+     pone AQUÍ, con la carga todavía delante, y se recarga: la app nunca llega
+     a destaparse con un mundo que no es el tuyo (0.7.160). */
+  if (typeof conciliarAspecto === "function" && conciliarAspecto()) return;
   showView(activeMainView || "summary");
 
   // La app ya está pintada con lo que toca: recién ahora se destapa

@@ -673,6 +673,29 @@
       }
     },
     {
+      "version": "0.7.160",
+      "fecha": "2026-10-01",
+      "estado": "borrador",
+      "clase": "mejora",
+      "titulo": "Tu tema te sigue a donde entres",
+      "resumen": "Tu cuenta recuerda el mundo, la paleta y el modo de cada dispositivo. Al entrar desde uno nuevo, Norata abre ya con tu tema.",
+      "puntos": [
+        "Cada dispositivo puede tener su propio tema.",
+        "La pantalla de inicio de sesión también lleva el tema de ese dispositivo.",
+        "Al cambiar de tema, el cambio llega con la animación del logo."
+      ],
+      "retoques": [],
+      "en": {
+        "titulo": "Your theme follows you wherever you sign in",
+        "resumen": "Your account remembers the world, palette and mode of each device. When you sign in from a new one, Norata opens already in your theme.",
+        "puntos": [
+          "Each device can have its own theme.",
+          "The sign-in screen also wears that device's theme.",
+          "When you change themes, the change arrives with the logo animation."
+        ]
+      }
+    },
+    {
       "version": "0.7.158",
       "fecha": "2026-10-01",
       "estado": "borrador",

@@ -317,6 +317,10 @@ showView("summary");
      más y tiene que correr en los dos. */
   if (!recienEntrado) {
     if (!veniaDeGoogle && syncReady()) await syncRun({ silent: true });
+    /* Con lo de la cuenta ya en memoria y la carga todavía puesta: ¿lo que
+       este dispositivo lleva es lo que toca? Si hay que cambiarlo se hace
+       aquí, tapado, y se recarga; lo de abajo ya no corre (0.7.160). */
+    if (typeof conciliarAspecto === "function" && conciliarAspecto()) return;
   }
   applyDecay();
   if (!recienEntrado) {

@@ -1021,9 +1021,11 @@ if __name__ == "__main__":
     # prefijo (`href^=`) justo para no depender de la huella. Sellándolo también
     # funcionaba, pero el día que un sellado alcance a un sitio y no al otro,
     # la app pediría el mundo dos veces sin que nada lo delate.
-    marcas = ('.href = "css/mundos.css',)
+    # Y la puerta, que desde la 0.7.160 lleva el mundo del dispositivo y lo pide
+    # con su ruta (`../css/…`).
+    marcas = ('.href = "css/mundos.css', '.href = "../css/mundos.css')
     tocados = []
-    for rel in ("index.html", os.path.join("js", "10i-apariencia.js")):
+    for rel in ("index.html", os.path.join("js", "10i-apariencia.js"), os.path.join("login", "index.html")):
         ruta = os.path.join(raiz, rel)
         lineas = open(ruta, encoding="utf-8").read().split("\n")
         cambio = False

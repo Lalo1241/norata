@@ -803,6 +803,44 @@ isotipo no la cambia nadie. En el menú de la app un mundo solo la RECOLOREA
 correos se quedan en menta, y un ambiente no la toca nunca. El reparto y el porqué, en «La marca, dentro de un mundo» de
 `apariencias/LEEME.md`.
 
+## Ni un cuadro con otro mundo
+
+**Regla de Eduardo, y es de las que no admiten matices (0.7.158 y 0.7.160):**
+nunca puede verse, ni un instante, un color, una letra o un diseño que no sea
+el del tema puesto. «Me molesta mucho verlo, se percibe mal y lo detesto… no
+quiero más brechas hoy ni futuras, aun cuando las pantallas de carga tengan que
+tardar más (sin exagerar)». Cualquier cambio en el arranque, las apariencias o
+las cargas se MIDE contra esto antes de subir.
+
+Lo que lo sostiene, y nada de esto se quita sin entender por qué está:
+
+| Pieza | Dónde | Qué impide |
+| --- | --- | --- |
+| El candado del primer cuadro | script de arriba de `index.html` y de `login/index.html` | `body` invisible y `html` de un color liso (`norata-fondo`) hasta que cargan la hoja del mundo, la de Arcade y las letras de `--tipo-titulo`, `--tipo-cifra` y `--sans`. Tope 2,5 s; MIRA `link.sheet` además de escuchar `load` (una hoja retirada no avisa) |
+| `norata-fondo` | lo apunta `pintarColorDeBarra`, y el candado lo corrige con el `--bg` real | el color liso y `theme-color` antes de que arranque el JS |
+| El aspecto por dispositivo en la cuenta | `settings.aspectos`, `conciliarAspecto` (`js/10i-apariencia.js`) | abrir con la casa en un dispositivo nuevo o donde entró otra cuenta |
+| `cambiarTapado` y `recargarApp` | `js/10i-apariencia.js`, `js/01-base.js` | cambiar de tema a la vista: siempre detrás de la cortina y con recarga |
+| `refrescarApariencia`, tapado | `js/10i-apariencia.js` | quitar a la vista un mundo que dejó de poderse usar |
+
+**Cada dispositivo manda sobre su tema** (también de Eduardo): la cuenta lo
+lleva apuntado por dispositivo y solo decide cuando el dispositivo no sabe. No
+convertirlo en un solo aspecto compartido: dos dispositivos abiertos se
+pelearían el tema.
+
+**Al añadir un mundo o un archivo de estilos que se pida en caliente:** su
+hoja tiene que pasar por el candado (las variables `lm` y `la` del script de
+arriba) y su huella sellarse en las DOS páginas. **Al añadir una forma nueva de
+cambiar el aspecto:** pasa por `cambiarTapado` y llama a `apuntarAspecto`.
+
+**Cómo se mide:** `window.__veloFuera` (ms hasta enseñar la página) contra el
+`responseEnd` de la hoja y el estado de `document.fonts`; y una foto de los
+estilos al irse la carga contra otra 2,5 s después, que tiene que dar cero
+diferencias.
+
+**Lo que sigue fuera:** la pantalla de arranque nativa del APK es un color
+fijo del sistema (cambiarla pide tocar lo nativo), y la marca de la puerta se
+queda en menta por la regla de marca.
+
 ## El material
 
 La paleta de arriba resuelve el COLOR. Desde 0.7.37 hay una segunda familia al

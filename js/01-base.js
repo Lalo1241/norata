@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.159";
+const VERSION = "0.7.160";
 const VERSION_FECHA = "1 oct 2026";
 
 /* ---- La web de fuera, en UN solo sitio ----
@@ -527,6 +527,11 @@ function logotipoSrc() {
 const CAMBIO_MINIMO = 2500;
 const ICONO_PEDIDO_LLAVE = "norata-icono-pedido";
 function recargarApp(desde) {
+  /* Venir de un cambio de tema es una ENTRADA: la carga que sigue lleva el
+     zoom del logo, «para que se vea apantallante el cambio» (Eduardo,
+     0.7.160). La marca la lee el script de arriba de index.html. En el APK la
+     app además se reinicia, y un arranque en frío ya es una entrada. */
+  try { sessionStorage.setItem("norata-entrada", "1"); } catch (e) {}
   if (typeof window.norataIcono !== "function") { location.reload(); return; }
   try { localStorage.setItem(ICONO_PEDIDO_LLAVE, "1"); } catch (e) {}
   const falta = CAMBIO_MINIMO - (Date.now() - (desde || Date.now()));
@@ -574,6 +579,9 @@ function ponerTema(cual) {
     if (meta) meta.setAttribute("content", claro ? "#dcdef0" : "#10151d");
   }
   pintarTema();
+  /* El modo también es parte del aspecto que la cuenta lleva apuntado por
+     dispositivo (js/10i-apariencia.js, 0.7.160). */
+  if (typeof apuntarAspecto === "function") apuntarAspecto();
 }
 
 function alternarTema() {

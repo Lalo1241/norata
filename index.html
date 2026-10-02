@@ -266,6 +266,17 @@
       function letras() {
         try {
           var cs = getComputedStyle(raiz), pedir = [];
+          /* Con las hojas ya cargadas se sabe el fondo DE VERDAD: se corrige
+             el color liso mientras llegan las letras (0.7.160). El apuntado
+             puede ser de antes de un cambio hecho sin la hoja a mano —una
+             cuenta que acaba de traer su tema a un dispositivo nuevo—. */
+          var real = cs.getPropertyValue("--bg").trim();
+          if (/^#[0-9a-f]{3,8}$/i.test(real) && real !== fondo) {
+            velo.textContent = "html{background:" + real + " !important}body{visibility:hidden !important}";
+            var mr = document.querySelector('meta[name="theme-color"]');
+            if (mr) mr.setAttribute("content", real);
+            try { if (!sessionStorage.getItem("norata-apariencia-prueba")) localStorage.setItem("norata-fondo", real); } catch (e) {}
+          }
           ["--tipo-titulo", "--tipo-cifra", "--sans"].forEach(function (v) {
             var f = cs.getPropertyValue(v).trim();
             if (!f) return;
@@ -324,7 +335,11 @@
      dibujo desde el primer cuadro. Lo lee `cargaEntrar` (js/10c-portada.js). */
   try {
     var est = sessionStorage.getItem("norata-estreno");
-    window.__carga = est ? "estreno" : (sessionStorage.getItem("norata-abierta") ? "refresco" : "entrada");
+    /* Y venir de un cambio de tema también es una entrada (0.7.160): la marca
+       la deja `recargarApp`. */
+    var ent = sessionStorage.getItem("norata-entrada");
+    if (ent) sessionStorage.removeItem("norata-entrada");
+    window.__carga = est ? "estreno" : ((ent || !sessionStorage.getItem("norata-abierta")) ? "entrada" : "refresco");
     if (est) {
       sessionStorage.removeItem("norata-estreno");
       window.__estreno = est;

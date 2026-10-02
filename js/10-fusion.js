@@ -198,6 +198,27 @@ function fusionarEstados(a, b, bEsMasNuevo) {
     out.settings = out.settings || {};
     out.settings.rotos = [...rotosA, ...rotosB.filter(x => !rotosA.includes(x))];
   }
+  /* El aspecto de cada dispositivo (js/10i-apariencia.js, 0.7.160). Es un mapa
+     `dispositivo -> lo que lleva`, y cada dispositivo escribe SOLO su entrada:
+     con `settings` entero del lado más nuevo, el teléfono que guardó después
+     borraba la de la computadora, y la próxima vez que se entrara ahí desde
+     cero la cuenta ya no sabría qué poner. Se unen, y de una misma entrada
+     gana la más reciente. */
+  {
+    const aspA = (base.settings && base.settings.aspectos) || {};
+    const aspB = (otro.settings && otro.settings.aspectos) || {};
+    const ids = [...new Set([...Object.keys(aspA), ...Object.keys(aspB)])];
+    if (ids.length) {
+      const junto = {};
+      ids.forEach(k => {
+        const x = aspA[k], y = aspB[k];
+        junto[k] = (x && y) ? ((y.t || 0) > (x.t || 0) ? y : x) : (x || y);
+      });
+      out.settings = out.settings || {};
+      out.settings.aspectos = junto;
+    }
+  }
+
   /* Los secretos encontrados (Arcade, 0.7.131), igual: lo encontrado nunca se
      vuelve a cerrar, lo haya encontrado el teléfono o la PC. */
   const secA = (base.settings && base.settings.secretos) || [];

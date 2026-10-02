@@ -223,7 +223,12 @@ function arcadeAlternar(si) {
   /* `recargarApp`: en el APK, Arcade también trae su icono, y cambiarlo
      reinicia la app entera después de un aviso (ver js/01-base.js). */
   const tapadoDesde = Date.now();
-  setTimeout(() => { guardar(); recargarApp(tapadoDesde); }, 220);
+  setTimeout(() => {
+    guardar();
+    /* Arcade también es parte del aspecto apuntado en la cuenta (0.7.160). */
+    if (typeof apuntarAspecto === "function") apuntarAspecto();
+    recargarApp(tapadoDesde);
+  }, 220);
 }
 function arcadeEnCaliente(si) {
   const raiz = document.documentElement;
