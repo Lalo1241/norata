@@ -283,6 +283,23 @@ texto sin aprobar a la vista**: se pone en `false` —el panel vuelve a pedir
 
 ## La lista
 
+### 0.7.164.1 · 2 oct 2026
+
+**El rótulo «Sonido» ya no queda pisado por su interruptor, y la novedad de
+los interruptores sale publicada.** Es un 4º de la 0.7.164: pule lo que trajo.
+
+- **El rótulo pisado.** En la columna de Ajustes de la computadora (274 px,
+  siempre) «Sonido» necesita 43 px y le quedaban 30: el rótulo se encogía por
+  debajo de su texto (`min-width: 0`) y el interruptor lo tapaba. Estaba
+  apuntado en la 0.7.164 como «ya pasaba antes». Ahora `.tema-fila` deja bajar
+  el interruptor a la línea siguiente cuando no cabe, y `.tema-tit` no se
+  encoge (`flex: 1 0 auto`). En esa columna «Sonido» queda en dos líneas y
+  «Aspecto» en una, que sí cabe. Medido a 320, 360, 1024 y 1440 px, en inglés,
+  en Averno y en el mini menú del engrane: nunca se pisa y nada desborda.
+- **La novedad de la 0.7.164, aprobada por Eduardo**: pasa de `borrador` a
+  `publicado`. Las de las otras sesiones (0.7.154 a 0.7.163) siguen en
+  borrador: él aprobó solo esta.
+
 ### 0.7.164 · 2 oct 2026
 
 **Los interruptores se deslizan con una sola pastilla que rebota, y el

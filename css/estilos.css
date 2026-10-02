@@ -4102,9 +4102,17 @@
     border-image: var(--marco-tarjeta);
     border-radius: var(--r-grande);
     padding: 10px 12px;
+    /* Si el rótulo y el interruptor no caben en la misma línea, el
+       interruptor BAJA a la siguiente. Antes el rótulo se encogía por debajo
+       de su propio texto (`min-width: 0`) y el interruptor lo pisaba: con la
+       ventana a 1024 px la columna de Ajustes mide 274, y «Sonido» necesita
+       43 px donde le quedaban 30. En inglés, o con una palabra más larga,
+       pasaba antes. */
+    flex-wrap: wrap;
+    row-gap: 8px;
   }
   .tema-tit {
-    flex: 1; min-width: 0;
+    flex: 1 0 auto;
     font-size: 14px;
     font-weight: 600;
   }

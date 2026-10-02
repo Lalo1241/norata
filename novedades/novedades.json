@@ -681,7 +681,7 @@
     {
       "version": "0.7.164",
       "fecha": "2026-10-02",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "mejora",
       "titulo": "Los interruptores se deslizan con rebote",
       "resumen": "Al cambiar una opción, una pastilla viaja de una a otra y rebota al llegar. Pasa en toda la app y en cualquier mundo.",
@@ -728,7 +728,15 @@
           ]
         }
       ],
-      "retoques": [],
+      "retoques": [
+        {
+          "version": "0.7.164.1",
+          "texto": "En Ajustes, el rótulo de Sonido ya no queda tapado por su interruptor.",
+          "en": {
+            "texto": "In Settings, the Sound label is no longer covered by its switch."
+          }
+        }
+      ],
       "en": {
         "titulo": "Switches now slide with a bounce",
         "resumen": "When you change an option, a pill travels from one to the other and bounces as it lands. It happens across the whole app, in any world.",
