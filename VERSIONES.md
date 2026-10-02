@@ -283,6 +283,85 @@ texto sin aprobar a la vista**: se pone en `false` —el panel vuelve a pedir
 
 ## La lista
 
+### 0.7.163 · 2 oct 2026
+
+**Los interruptores se deslizan con una sola pastilla que rebota, y el
+Hiperfoco tiene un color por modo.** Eduardo mandó una captura del interruptor
+de Sonido en Averno con las DOS opciones encendidas a la vez y pidió
+animaciones «fluidas, con rebote, sin bugs» y el motor actualizado. Todo lo
+demás salió de probarlo él en un boceto con la app dentro, control por control.
+Número propio: no pule la 0.7.162, que es la carga al refrescar.
+
+**Lo que fallaba.** El motor de la 0.7.154 no movía nada: destapaba la opción
+nueva con un recorte y retiraba una copia de la vieja. A media animación eso
+eran dos trozos de pastilla con el hueco del control en medio, y en Averno y
+Catedral, con su curva a saltos, cuatro fotos de eso.
+
+**El motor, rehecho** (`instalarDesliza`, `js/01-base.js`):
+
+- **Viaja UNA pastilla**: una copia vacía de la opción encendida, así que la
+  pinta el mundo puesto. Los rótulos se funden encima.
+- **Rebota sin salirse.** El canto de delante llega y se para; el de atrás se
+  pasa hacia dentro y vuelve. Una curva con sobrepaso sacaba la pastilla por
+  el borde del control, que es donde acaba casi siempre.
+- **Sin parpadeo.** Se animaba con un temporizador, y entre el toque y el
+  temporizador se pintaba un cuadro con el control ya en su estado final.
+  Ahora un `MutationObserver` anima en el mismo turno del redibujado. Y las
+  opciones apagadas se FUNDEN bajo la pastilla: una encendida translúcida
+  sustituye el fondo de la apagada, y con la apagada entera debajo el tono
+  saltaba en el primer y el último cuadro.
+- **El rebote no mueve la velocidad.** Las dos cosas salían de la
+  amortiguación del muelle, así que con menos rebote el viaje iba más lento.
+  Ahora el muelle es fijo y el rebote solo escala cuánto se pasa.
+- **Tocar deprisa no da saltos**: la pastilla sale de donde iba la anterior.
+- **Las perillas** rebotan (tres píxeles como mucho) y su carril cambia de
+  color con ellas. Sus `transition` de CSS se quitaron: harían el viaje doble.
+- **Solo se desliza un grupo con UNA opción encendida.** Con la rutina del
+  Pomodoro vinculada hay cinco días encendidos y el cambio va de golpe.
+
+**Los números son de Eduardo**, elegidos en el boceto, y viven en CSS como
+variables que se leen del control y se heredan:
+
+| Qué | Variable | Valor |
+| --- | --- | --- |
+| Rebote, en todos | `--desliza-rebote` | 0,65 |
+| Opciones en fila | `--desliza-lento` | 3 (por la base del mundo: 1,08 s en la casa) |
+| Perillas de Mis módulos | `.mod-sw` | 2 |
+| Hoja de ritmo del Pomodoro | `#jornada-hoja` | 4 |
+
+La base sigue saliendo de `--dur-media` (300-480 ms), así que cada mundo
+conserva su peso. La CURVA del mundo ya no se usa aquí: Averno, Catedral y
+Arcade se deslizan fluido. Eso Eduardo lo vio en el boceto y no lo objetó,
+pero tampoco lo contestó cuando se le preguntó: si lo quiere a saltos, es
+volver a leer `--curva` para esos tres.
+
+**Controles que el motor no alcanzaba y ahora sí:** mapa/lista de una rama
+(`.vista-seg`), la rejilla de Ramas, los planes del panel, los del Pomodoro
+(`.jor-seg`, `.jor-animo`, los días de la rutina, los tres modos del Hiperfoco
+y sus dos perillas, que son un `::after`) y la puerta, donde lo enciende
+`12-login.js`.
+
+**El Hiperfoco, con color por modo** (Eduardo): Travesía en verde, Inmersión
+en coral y Respiro en violeta, en la tarjeta encendida, la arena del reloj, el
+botón de empezar y el rótulo de Respiro. Salen de `--paleta-1/3/4` y no de
+`--mint`, `--coral` y `--lila`, que cada mundo recolorea: en Averno Travesía
+e Inmersión saldrían casi iguales. `jPintarControles` apunta el modo en
+`data-hf` de `#jornada-content`; la pausa sigue en coral y el descanso de
+Travesía en brasa, que son estados.
+
+**Cómo se midió.** El panel no compone fotogramas, así que las animaciones no
+avanzan: se pausan, se les pone `currentTime` a mano y se lee la pastilla
+cuadro a cuadro —nunca fuera de la caja del grupo, y el último cuadro igual a
+la opción de verdad—. Así en todos los controles alcanzables y en 14
+combinaciones de mundo y modo. Sin probar: los planes del panel (piden cuenta
+de administrador), «menos movimiento», y el movimiento a velocidad real, que
+lo juzgó Eduardo en el boceto. Una trampa que costó dos vueltas: en ese panel
+la animación anterior de una perilla se queda colgada en el cuadro 0 y falsea
+la medida siguiente; hay que hacer `finish()` antes.
+
+**Apuntado y sin hacer:** en la casa, a 1024 px, el rótulo «Sonido» de
+Ajustes queda pisado por su interruptor. Ya pasaba antes y no es del motor.
+
 ### 0.7.162 · 2 oct 2026
 
 **Refrescar se queda dos segundos a la vista.** Eduardo: «a veces sale un micro

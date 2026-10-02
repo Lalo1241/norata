@@ -646,6 +646,18 @@
     --dur-media: 0.22s;
     --curva: ease;
     --curva-rebote: cubic-bezier(0.34, 1.56, 0.64, 1);
+    /* El peso de un interruptor al deslizarse (`instalarDesliza`, en
+       js/01-base.js). Los dos números son de Eduardo, elegidos probando en
+       el boceto control por control, y no «se ven mejor» con otros:
+         rebote  cuánto se pasa al llegar; 0 llega y frena. No cambia la
+                 velocidad.
+         lento   por cuánto se multiplica la duración base del mundo. 3 para
+                 las opciones en fila; las perillas van a 2 y los controles
+                 de la hoja del Pomodoro a 4 (cada uno en su regla).
+       Se leen del control, así que se heredan: para darle otro peso a los
+       interruptores de una pantalla basta con declararlos en su contenedor. */
+    --desliza-rebote: 0.65;
+    --desliza-lento: 3;
 
     /* ---------- Los pisos ----------
        Cada cosa que se pone encima de la app tenía su número suelto, escrito
@@ -660,6 +672,7 @@
        cualquiera de los de abajo —la portada incluida— y nunca abre nada.
        Encima solo quedan las dos pantallas que no preguntan: la de cargar y
        la de "esta versión ya no vale". */
+    --piso-sobre-desliza: 1; /* lo que va pegado a una opción y no puede taparlo su copia al deslizarse */
     --piso-mando: 30;      /* el − % + del mapa, flotando sobre el lienzo */
     --piso-rama: 40;       /* el menú de una rama, colgado de su fila */
     --piso-barra: 60;      /* la barra de navegación */
@@ -3316,7 +3329,6 @@
     border-radius: var(--r-boton);
     background: var(--line);
     position: relative;
-    transition: background 0.16s ease;
   }
   .mod-sw i {
     position: absolute;
@@ -3324,12 +3336,16 @@
     width: 17px; height: 17px;
     border-radius: var(--r-redondo);
     background: var(--faint);
-    transition: transform 0.16s ease, background 0.16s ease;
   }
+  /* Sin `transition`: la fila se redibuja al tocarla, así que nunca llegó a
+     verse, y el viaje de la bolita lo hace el motor (`instalarDesliza`). Con
+     las dos, el día que la fila dejara de redibujarse haría el viaje doble. */
+  /* Una perilla viaja 17 px y no necesita la calma de una pastilla que cruza
+     medio control: va al doble de la base y no al triple (Eduardo). */
+  .mod-sw { --desliza-lento: 2; }
   .mod-row.on .mod-sw { background: var(--mint-soft); }
   .mod-row.on .mod-sw i { transform: translateX(17px); background: var(--mint); }
   .mod-row:not(.on) .mod-tx b { color: var(--muted); }
-  @media (prefers-reduced-motion: reduce) { .mod-sw, .mod-sw i { transition: none; } }
 
   /* ---------- El aro de «cuánto te falta para el nivel N» ----------
      El de los CUADROS EMERGENTES, que es donde la barra no va: «la barra de los
@@ -4123,6 +4139,27 @@
   .ts-op.on {
     background: var(--mint-macizo);
     color: var(--sobre-macizo);
+  }
+
+  /* ---- Las copias de un interruptor que se desliza ----
+     Las pone y las quita `instalarDesliza` (js/01-base.js) durante medio
+     segundo, encima del control. Son copias de una opción con sus mismas
+     clases, y aquí se les quita la mitad que no les toca: la pastilla es el
+     MATERIAL sin rótulo y viaja; el rótulo es la LETRA sin material y se
+     funde encima. Con `!important` porque tienen que ganarle a cualquier
+     mundo, que viste la opción con reglas más específicas que estas. */
+  [data-desliza-copia] { transition: none !important; animation: none !important; }
+  [data-desliza-copia="pastilla"] { min-width: 0 !important; min-height: 0 !important; padding: 0 !important; }
+  [data-desliza-copia="rotulo"],
+  [data-desliza-copia="rotulo"]::before,
+  [data-desliza-copia="rotulo"]::after {
+    background: none !important;
+    border-color: transparent !important;
+    border-image: none !important;
+    box-shadow: none !important;
+    outline: 0 !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
   }
 
   /* En el mini menú la fila no lleva tarjeta propia: el menú YA es la

@@ -673,6 +673,67 @@
       }
     },
     {
+      "version": "0.7.163",
+      "fecha": "2026-10-02",
+      "estado": "borrador",
+      "clase": "mejora",
+      "titulo": "Los interruptores se deslizan con rebote",
+      "resumen": "Al cambiar una opción, una pastilla viaja de una a otra y rebota al llegar. Pasa en toda la app y en cualquier mundo.",
+      "puntos": [
+        "Aspecto, Sonido, tus módulos, el informe y los formularios se mueven igual.",
+        "En el Pomodoro también: los días de tu rutina y los tres modos del Hiperfoco.",
+        "Cada modo del Hiperfoco tiene su color, y lo llevan la tarjeta, el reloj de arena y el botón."
+      ],
+      "grafico": [
+        {
+          "tipo": "colores",
+          "titulo": "Un color por modo",
+          "en": {
+            "titulo": "One color per mode"
+          },
+          "datos": [
+            {
+              "nombre": "Travesía",
+              "en": {
+                "nombre": "Journey"
+              },
+              "colores": [
+                "#5fe0b0"
+              ]
+            },
+            {
+              "nombre": "Inmersión",
+              "en": {
+                "nombre": "Deep dive"
+              },
+              "colores": [
+                "#ff8a70"
+              ]
+            },
+            {
+              "nombre": "Respiro",
+              "en": {
+                "nombre": "Breather"
+              },
+              "colores": [
+                "#b7a2ea"
+              ]
+            }
+          ]
+        }
+      ],
+      "retoques": [],
+      "en": {
+        "titulo": "Switches now slide with a bounce",
+        "resumen": "When you change an option, a pill travels from one to the other and bounces as it lands. It happens across the whole app, in any world.",
+        "puntos": [
+          "Appearance, Sound, your modules, the report and the forms all move the same way.",
+          "In Pomodoro too: your routine's days and the three Hyperfocus modes.",
+          "Each Hyperfocus mode has its own color, on the card, the hourglass and the button."
+        ]
+      }
+    },
+    {
       "version": "0.7.162",
       "fecha": "2026-10-02",
       "estado": "borrador",

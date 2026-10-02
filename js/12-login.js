@@ -120,6 +120,10 @@ traducirDOM();
   puertaLadoPegar();
   puertaIdiomaPintar();
   puertaMarcaEnlazar();
+  /* Los dos interruptores de la esquina —idioma y sol/luna— se deslizan como
+     los de dentro. Aquí no corre `11-arranque.js`, que es quien lo enciende
+     en la app. */
+  if (typeof instalarDesliza === "function") instalarDesliza();
 
   cargaCerrar();
 

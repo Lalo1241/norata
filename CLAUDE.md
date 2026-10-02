@@ -532,24 +532,73 @@ comportamiento de siempre a quien lo tenga apagado.
 **Todo interruptor se desliza, y lo hace el motor** (Eduardo, 0.7.154): vale
 para los de hoy, los que vengan y cualquier mundo. No se escribe una animación
 por pantalla: `instalarDesliza()` (`js/01-base.js`) pone un solo oyente y anima
-cualquier control que se parezca a los que ya hay.
+cualquier control que se parezca a los que ya hay. Corre en las dos páginas:
+lo enciende `11-arranque.js` en la app y `12-login.js` en la puerta.
 
 **Por qué no es una transición de CSS:** casi todos se redibujan al tocarlos
 (`innerHTML`), así que el elemento encendido deja de existir y no hay nada que
 el navegador pueda animar. El motor apunta dónde estaba ANTES del redibujado y
 anima sobre el DOM nuevo.
 
+**Viaja UNA pastilla, y rebota sin salirse.** Es una copia vacía de la opción
+encendida —así la pinta el mundo que esté puesto— que va de la vieja a la
+nueva mientras los rótulos se funden encima. El canto de delante llega y se
+para; el de atrás se pasa hacia dentro y vuelve: se estira al salir y se
+aplasta contra la pared al llegar. Lo primero que hubo no movía nada —destapaba
+la opción nueva con un recorte y retiraba una copia de la vieja— y a media
+animación eso eran dos trozos encendidos con el hueco del control en medio;
+en Averno y Catedral, a saltos. Eduardo lo mandó en una captura. **No volver
+a las dos mitades, ni a una curva con sobrepaso**: esa saca la pastilla por el
+borde del control, que es donde acaba casi siempre.
+
 Al escribir uno nuevo, entra solo si cumple una de estas dos formas:
 
 | Figura | El contenedor | Lo encendido |
 | --- | --- | --- |
-| Opciones en fila | `role="radiogroup"`, `role="tablist"`, `.seg`, `.tema-sw` o `data-desliza` | `.on`, `.active` o su `aria-checked` / `aria-selected` / `aria-pressed` |
-| Perilla de encender/apagar | un `button` | la bolita casa con `.mod-sw i` o lleva `data-perilla` |
+| Opciones en fila | casa con `DESLIZA_GRUPOS` (`role="radiogroup"`, `role="tablist"`, `.seg`, `.tema-sw`…) o lleva `data-desliza` | `.on`, `.active` o su `aria-checked` / `aria-selected` / `aria-pressed` |
+| Perilla de encender/apagar | un `button` | la bolita casa con `.mod-sw i` o lleva `data-perilla`; si es el `::after` de un elemento, ese elemento va en `DESLIZA_PERILLA_PSEUDO` o lleva `data-perilla-after` |
 
-Si un control nuevo no encaja, **se amplía una de las tres listas de arriba de
-`instalarDesliza`**, no se le pone una animación suelta. El peso del movimiento
-sale de `--dur-media` y `--curva`, así que cada mundo lo mueve a su manera, y
-con «menos movimiento» no se mueve nada.
+Si un control nuevo no encaja, **se amplía una de las listas de arriba de
+`instalarDesliza`**, no se le pone una animación suelta. Cinco cosas que
+muerden:
+
+- **Se anima en el mismo turno en que el control se redibuja**, con un
+  `MutationObserver`, y no con un temporizador: entre el toque y el
+  temporizador el navegador pinta un cuadro con el control ya en su estado
+  final, y la pastilla volviendo a salir de la opción vieja se ve como un
+  parpadeo. Por lo mismo las opciones apagadas se FUNDEN debajo de la
+  pastilla: una encendida translúcida sustituye el fondo de la apagada, no se
+  le pone encima, y con la apagada entera debajo el tono saltaba en el primer
+  y el último cuadro.
+- **Solo se desliza un grupo con UNA opción encendida.** Con varias (los
+  días del Pomodoro con la rutina vinculada) no hay pastilla que viaje y el
+  cambio va de golpe. Y una marca que es de la opción y no de la selección
+  —el punto de «hoy»— se le quita a la pastilla en el CSS de su pantalla.
+- **Sin `transition` en el CSS del control.** Se sumaría a la del motor y la
+  bolita haría el viaje dos veces el día que el control deje de redibujarse.
+- **El peso son dos variables que se leen del CONTROL y se heredan**:
+  `--desliza-rebote` (0,65; 0 es sin rebote) y `--desliza-lento` (por cuánto
+  se multiplica la duración base del mundo, que sale de `--dur-media` acotada
+  entre 300 y 480 ms). **Los números los eligió Eduardo en el boceto, control
+  por control, y no se cambian por gusto**: 3 las opciones en fila, 2 las
+  perillas (`.mod-sw`), 4 la hoja del Pomodoro (`#jornada-hoja`). Para darle
+  otro peso a una pantalla se declara en su contenedor, no en el motor.
+  **Son dos mandos y no se tocan entre sí**: el rebote cambia cuánto se pasa
+  la pastilla, nunca cuánto tarda en llegar. La primera versión sacaba las
+  dos cosas de la amortiguación del muelle y bajar el rebote frenaba el viaje
+  entero. `--curva` ya NO se usa aquí, porque a saltos no hay rebote. Con
+  «menos movimiento» no se mueve nada.
+- **Las copias llevan `data-desliza-copia`** y las recorta `css/estilos.css`:
+  «pastilla» es el material sin rótulo y «rotulo» la letra sin material. Un
+  mundo que encienda una opción con algo que esas reglas no quitan (un dibujo
+  en un hijo, por ejemplo) lo verá doble medio segundo: se arregla ahí.
+
+**Cómo se prueba, que no es mirando:** el panel no compone fotogramas, así que
+las animaciones no avanzan y lo que limpia las copias es el temporizador de
+respaldo, no el final de la animación. Se pausan, se les pone `currentTime` a
+mano y se mide la pastilla cuadro a cuadro: nunca fuera de la caja del grupo,
+y el último cuadro igual a la opción de verdad. Con `--desliza-dur: 14s`
+puesto en `<html>` da tiempo a sacar una captura a medio viaje.
 
 ## Las capas
 

@@ -131,9 +131,55 @@ html.claro {
 }
 .jor-hf-sel b { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .jor-hf-sel span { font-size: 11.5px; color: var(--muted); line-height: 1.3; }
-.jor-hf-sel[aria-pressed="true"] { border-color: var(--mint); background: var(--mint-soft); }
-.jor-hf-sel[aria-pressed="true"] b { color: var(--mint); }
+/* Cada modo tiene su color, y es de Eduardo: Travesía en verde, Inmersión en
+   coral y Respiro en violeta. Salen de los ocho tonos del usuario
+   (`--paleta-N`) y no de `--mint`, `--coral` o `--lila`: esos tres los
+   recolorea cada mundo —en Averno el acento es rojo y Travesía e Inmersión
+   saldrían casi iguales—, y la paleta del usuario es la misma en todos y ya
+   trae sus dos caras, la de noche y la de día. El borde es una línea (pide 3
+   sobre 1) y el nombre es texto (pide 4,5): por eso uno usa `-linea` y el
+   otro se hunde hacia la tinta, igual que `trazo()` y `tinta()` en
+   js/01-base.js. */
+.jor-hf-sel[data-v="travesia"],  #jornada-content[data-hf="travesia"]  { --hf: var(--paleta-1); --hf-linea: var(--paleta-1-linea); }
+.jor-hf-sel[data-v="inmersion"], #jornada-content[data-hf="inmersion"] { --hf: var(--paleta-3); --hf-linea: var(--paleta-3-linea); }
+.jor-hf-sel[data-v="respiro"],   #jornada-content[data-hf="respiro"]   { --hf: var(--paleta-4); --hf-linea: var(--paleta-4-linea); }
+/* El modo puesto tiñe además la arena del reloj y el botón de empezar
+   (`jPintarControles` apunta cuál es en `data-hf`). La arena en pausa o en la
+   brasa conserva su tono: son estados, y un estado manda sobre el modo.
+   Menos en Respiro, que ES un descanso de principio a fin: su reloj va
+   siempre en brasa, y sin la segunda regla saldría amarillo y nunca violeta.
+   El botón NO se pinta con `background`: se le cambia la variable de la que
+   ya sale su fondo, así que sigue siendo el `btn-primary` de cada mundo con
+   su material. Averno y Catedral lo hacen de `--relleno-sangre`, que se
+   calcula arriba, en `<html>`, y por eso se vuelve a calcular aquí. */
+#jornada-content[data-hf] .jor-arena:not(.brasa):not(.pausa),
+#jornada-content[data-hf="respiro"] .jor-arena:not(.pausa) { --jor-grano: var(--hf); }
+/* Y el rótulo de debajo del contador, por lo mismo: el de Respiro salía en
+   el amarillo de la brasa encima de un reloj violeta. Es texto, así que se
+   hunde hacia la tinta como el nombre de la tarjeta. En pausa sigue en coral. */
+#jornada-content[data-hf] #jor-fase.foco,
+#jornada-content[data-hf="respiro"] #jor-fase.brasa { color: color-mix(in srgb, var(--hf), var(--tinta-fondo) var(--hundir)); }
+#jornada-content[data-hf] .btn-primary[data-a="lite-go"] {
+  --mint-macizo: var(--hf);
+  --sobre-macizo: var(--sobre-vivo);
+  --relleno-sangre: color-mix(in srgb, var(--hf) 42%, var(--card));
+  --relleno-sangre-hover: color-mix(in srgb, var(--hf) 55%, var(--card));
+}
+html.claro #jornada-content[data-hf] .btn-primary[data-a="lite-go"] {
+  --relleno-sangre: color-mix(in srgb, var(--hf) 20%, var(--card));
+  --relleno-sangre-hover: color-mix(in srgb, var(--hf) 30%, var(--card));
+  --tinta-sangre: color-mix(in srgb, var(--hf), var(--tinta-fondo) var(--hundir));
+}
+.jor-hf-sel[aria-pressed="true"] {
+  border-color: var(--hf-linea, var(--mint));
+  background: color-mix(in srgb, var(--hf, var(--mint)) 13%, transparent);
+}
+.jor-hf-sel[aria-pressed="true"] b { color: color-mix(in srgb, var(--hf, var(--mint)), var(--tinta-fondo) var(--hundir)); }
+/* Con piso: el lápiz queda por encima de las copias que el motor de
+   interruptores pone un momento sobre las tarjetas al cambiar de modo. Sin
+   él, la copia tapaba el lápiz y volvía a aparecer al acabar: un parpadeo. */
 .jor-hf-lapiz {
+  z-index: var(--piso-sobre-desliza);
   position: absolute; top: 6px; right: 5px; width: 24px; height: 24px; padding: 0;
   border: 0; border-radius: var(--r-redondo); background: transparent; color: var(--muted);
   display: grid; place-items: center; cursor: pointer;
@@ -185,13 +231,18 @@ html.claro {
 .jor-palanca { position: relative; flex: none; width: 38px; height: 22px; border-radius: var(--r-pastilla); background: var(--carril); border: 1px solid var(--line); }
 .jor-palanca::after {
   content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px;
-  border-radius: var(--r-redondo); background: var(--muted); transition: transform .15s ease;
+  border-radius: var(--r-redondo); background: var(--muted);
 }
 .jor-vinculo[aria-checked="true"] .jor-palanca { background: var(--mint-soft); border-color: var(--mint); }
 .jor-vinculo[aria-checked="true"] .jor-palanca::after { transform: translateX(16px); background: var(--mint); }
 .jor-vinculo-tx { display: grid; gap: 1px; min-width: 0; }
 .jor-vinculo-tx b { font-size: 13.5px; font-weight: 700; }
 .jor-vinculo-tx small { font-size: 11.5px; color: var(--muted); line-height: 1.35; }
+/* El punto de «hoy» es del DÍA, no de la selección: no viaja con la pastilla
+   cuando un interruptor se desliza (ver `instalarDesliza`), y el rótulo que
+   se funde encima lo conserva, o desaparecería medio segundo y volvería. */
+.jor-dia.hoy[data-desliza-copia="pastilla"]::after { content: none !important; }
+.jor-dia.hoy[data-desliza-copia="rotulo"]::after { background: currentColor !important; }
 .jor-dias-nota { margin: 0; font-size: 12px; color: var(--faint); line-height: 1.4; }
 
 /* ---------- La rueda ---------- */
@@ -526,8 +577,12 @@ input.jor-num::-webkit-outer-spin-button, input.jor-num::-webkit-inner-spin-butt
 .jor-lapiz-num:hover { color: var(--text); background: var(--carril); }
 .jor-lapiz-num svg { width: 14px; height: 14px; }
 .jor-paso output { min-width: 80px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; font-size: 14px; }
+/* Los interruptores de la hoja de ajustes del Pomodoro se deslizan más
+   despacio que los del resto de la app: 4 veces la base (Eduardo, sobre el
+   boceto). Va en la hoja y no en cada control, que la variable se hereda. */
+#jornada-hoja { --desliza-lento: 4; }
 .jor-sw { width: 44px; height: 26px; border-radius: var(--r-redondo); border: 1px solid var(--line); background: var(--carril); position: relative; padding: 0; flex: none; cursor: pointer; }
-.jor-sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: var(--muted); transition: transform .2s ease; }
+.jor-sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: var(--muted); }
 .jor-sw[aria-checked="true"] { background: var(--mint-macizo); border-color: var(--mint-macizo); }
 .jor-sw[aria-checked="true"]::after { transform: translateX(18px); background: var(--sobre-macizo); }
 /* El color propio de un bloque: «Automático» y los ocho de la app. */

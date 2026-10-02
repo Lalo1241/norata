@@ -1607,9 +1607,20 @@ function jPintarControles() {
   const c = document.getElementById("jor-controles");
   if (!c) return;
   const j = jDatos(), run = j.run, cfg = j.cfg;
+  /* El color del modo del Hiperfoco (Eduardo): Travesía en verde, Inmersión
+     en coral y Respiro en violeta. Se apunta en la pantalla entera y no en la
+     tarjeta, porque lo llevan también el reloj de arena y el botón de
+     empezar, que no cuelgan de ella. Fuera del Hiperfoco se quita, y todo
+     vuelve al acento. Los tonos, en css/jornada.css. */
+  const lite = (jModo() === "lite" && !run) || (run && run.lite);
+  const pantalla = document.getElementById("jornada-content");
+  if (pantalla) {
+    if (lite) pantalla.dataset.hf = run ? (run.modo || "travesia") : jHfCfg().hfModo;
+    else pantalla.removeAttribute("data-hf");
+  }
   /* Un tramo rápido se lleva con sus propios controles aunque se mire desde
      la rueda: pasarlo a los de la rueda lo convertiría en otro tramo. */
-  if ((jModo() === "lite" && !run) || (run && run.lite)) { c.innerHTML = jControlesLite(run); return; }
+  if (lite) { c.innerHTML = jControlesLite(run); return; }
   const r = jRef(jObjetivo());
   const flecha = '<svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg>';
   const mas = `<button type="button" class="btn btn-ghost jor-icono" data-a="nuevo" aria-label="${escapeAttr(tx("Crear bloque"))}" title="${escapeAttr(tx("Crear bloque"))}"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>`;

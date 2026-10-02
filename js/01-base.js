@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.162";
+const VERSION = "0.7.163";
 const VERSION_FECHA = "2 oct 2026";
 
 /* ---- La web de fuera, en UN solo sitio ----
@@ -613,34 +613,62 @@ function alternarTema() {
 
    Son dos figuras:
 
-     - **Opciones** (dos o más botones en fila, uno encendido): la pastilla
-       encendida viaja de la vieja a la nueva. No se mueve ningún elemento
-       real —cada mundo pinta la pastilla a su manera: un relleno, un marco de
-       píxel, un recorte— sino que la nueva se DESTAPA desde el lado por el que
-       llega y sobre la vieja se retira una copia encendida. Las dos mitades
-       juntas son una ventana del ancho de la pastilla cruzando de un lado al
-       otro, hecha con el material del mundo que esté puesto.
-     - **Perilla** (un interruptor de encender/apagar): el botón redondo sale
-       de donde estaba y llega a donde está.
+     - **Opciones** (dos o más botones en fila, uno encendido): UNA pastilla
+       viaja de la vieja a la nueva. Es una copia vacía de la opción encendida
+       —así que la pinta el mundo que esté puesto: un relleno, un marco de
+       píxel, un recorte— y los rótulos se funden por encima.
+     - **Perilla** (un interruptor de encender/apagar): la bolita sale de donde
+       estaba y llega a donde está, y el carril cambia de color con ella.
 
-   **El peso lo pone el mundo**: duración y curva salen de `--dur-media` y
-   `--curva`, así que en Averno y Catedral el deslizamiento va a saltos, como
-   todo lo demás allí.
+   **Lo que había hasta la 0.7.159 y por qué se quitó.** No viajaba nada: la
+   opción nueva se DESTAPABA con un recorte y sobre la vieja se retiraba una
+   copia. A media animación eso eran dos trozos de pastilla con el hueco del
+   control en medio —se veían dos opciones encendidas a la vez—, y en Averno y
+   Catedral, con su curva a saltos, cuatro fotos de eso. Eduardo lo mandó en
+   una captura. Si algún día vuelve a hacer falta «destapar», no es con dos
+   mitades.
+
+   **El rebote no se sale del carril.** No es una curva con sobrepaso —eso
+   sacaría la pastilla por el borde del control, que es donde acaba casi
+   siempre—: el canto que va delante llega y SE PARA en su sitio, y el de
+   atrás sigue de largo hacia dentro y vuelve. La pastilla se estira al salir
+   y se aplasta contra la pared al llegar. En una perilla sí hay sobrepaso,
+   pero de tres píxeles como mucho, que es lo que le sobra a su carril.
+
+   **El peso son tres variables, y se leen del CONTROL** (se heredan, así que
+   el mundo las pone en `:root` y una pantalla puede cambiárselas a los suyos):
+   `--desliza-rebote` (0 llega sin rebotar; cambia cuánto se pasa, nunca
+   cuánto tarda), `--desliza-lento` (por cuánto se multiplica la duración
+   base del mundo, que sale de `--dur-media` acotada entre 300 y 480 ms) y
+   `--desliza-dur`, que casi nadie necesita y manda sobre las otras dos
+   cuentas. El muelle llega en el primer cuarto de la duración y el resto es
+   el rebote asentándose, así que una duración de un segundo no es un viaje de
+   un segundo. La CURVA del mundo ya no se usa aquí: a saltos no hay rebote
+   que valga.
 
    **Para que un interruptor nuevo entre solo**, basta con que se parezca a
    los que ya hay: su contenedor casa con `DESLIZA_GRUPOS` (o lleva
    `data-desliza`) y la opción encendida con `DESLIZA_PUESTO` (`.on` o su
-   `aria-*`); una perilla, con `DESLIZA_PERILLA` (o `data-perilla`). Si un
-   día hace falta otra forma, se añade AQUÍ, en una de las tres listas, y no
-   con una animación suelta en su pantalla.
+   `aria-*`); una perilla, con `DESLIZA_PERILLA` (o `data-perilla`), y si la
+   bolita es el `::after` de un elemento, con `DESLIZA_PERILLA_PSEUDO` (o
+   `data-perilla-after`). Si un día hace falta otra forma, se añade AQUÍ, en
+   una de las listas, y no con una animación suelta en su pantalla. **Y sin
+   `transition` en su CSS**: se sumaría a esta y la bolita haría el viaje dos
+   veces.
 
-   Se define aquí y se enciende desde `js/11-arranque.js`: este archivo también
-   lo carga la puerta, y ahí nada puede ejecutarse al cargar. */
-const DESLIZA_GRUPOS = '[role="radiogroup"], [role="tablist"], .seg, .tema-sw, [data-desliza]';
+   Se define aquí y se enciende desde `js/11-arranque.js` y, en la puerta,
+   desde `js/12-login.js`: este archivo lo cargan las dos páginas y ahí nada
+   puede ejecutarse al cargar. */
+const DESLIZA_GRUPOS = '[role="radiogroup"], [role="tablist"], .seg, .tema-sw, .vista-seg, .rejilla-sel, ' +
+  '.jor-seg, .jor-animo, .jor-dias-fila, .jor-hf-modos, .pn-planes, .puerta-idioma, [data-desliza]';
 const DESLIZA_OPCION = 'button, [role="radio"], [role="tab"]';
 const DESLIZA_PUESTO = '.on, .active, [aria-checked="true"], [aria-selected="true"], [aria-pressed="true"]';
 const DESLIZA_PERILLA = '.mod-sw i, [data-perilla]';
+const DESLIZA_PERILLA_PSEUDO = '.jor-sw, .jor-palanca, [data-perilla-after]';
 const DESLIZA_MARCAS = [["aria-checked", "true"], ["aria-selected", "true"], ["aria-pressed", "true"]];
+/* Cuántas fotos del muelle se le dan al navegador. Entre una y otra va en
+   línea recta, así que con pocas el rebote sale con esquinas. */
+const DESLIZA_FOTOS = 36;
 
 /* Dónde vive un elemento, dicho de forma que sobreviva a un redibujado: el
    `id` más cercano hacia arriba y, desde ahí, el número de hijo en cada
@@ -670,42 +698,108 @@ function deslizaOpciones(grupo) {
     o => o.closest(DESLIZA_GRUPOS) === grupo && !o.hasAttribute("data-desliza-copia"));
 }
 
+/* La opción encendida de un grupo, si es UNA. Con varias a la vez no hay
+   pastilla que viaje: es el selector de días del Pomodoro cuando la rutina
+   está vinculada (cinco días hábiles encendidos, o los dos del fin de
+   semana), y cualquier grupo donde se elija más de una cosa. Ahí el cambio
+   se queda como siempre, de golpe. */
 function deslizaPuesto(grupo) {
-  return deslizaOpciones(grupo).filter(o => o.matches(DESLIZA_PUESTO))[0] || null;
+  const puestas = deslizaOpciones(grupo).filter(o => o.matches(DESLIZA_PUESTO));
+  return puestas.length === 1 ? puestas[0] : null;
 }
 
-/* El peso del movimiento, leído del mundo puesto. Con «menos movimiento» no
-   hay ninguno: se devuelve null y nadie anima. */
-function deslizaRitmo() {
+/* Un tiempo de CSS en segundos. `parseFloat` a secas lee «220ms» como 220
+   segundos. */
+function deslizaSegundos(texto) {
+  const n = parseFloat(texto);
+  if (!(n >= 0)) return NaN;
+  return /ms\s*$/.test(String(texto)) ? n / 1000 : n;
+}
+
+/* El peso del movimiento de UN control. Se lee del control y no de `<html>`:
+   las variables se heredan, así que el mundo pone el suyo arriba y una
+   pantalla puede darle otro a sus interruptores sin tocar el motor. Con
+   «menos movimiento» no hay ninguno: se devuelve null y nadie anima.
+
+   La duración son dos números multiplicados: la base del MUNDO (sale de
+   `--dur-media`, acotada entre 300 y 480 ms) por la calma del CONTROL
+   (`--desliza-lento`). Los valores de la calma los eligió Eduardo probando
+   en el boceto, control por control (ver `:root` en css/estilos.css). */
+function deslizaRitmo(el) {
   try {
     if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return null;
   } catch (e) {}
-  const cs = getComputedStyle(document.documentElement);
-  const seg = parseFloat(cs.getPropertyValue("--dur-media")) || 0.22;
-  const curva = cs.getPropertyValue("--curva").trim() || "ease";
-  return { duration: Math.round(seg * 1000), easing: curva };
+  const cs = getComputedStyle(el && el.isConnected ? el : document.documentElement);
+  const propia = deslizaSegundos(cs.getPropertyValue("--desliza-dur"));
+  const media = deslizaSegundos(cs.getPropertyValue("--dur-media"));
+  let lento = parseFloat(cs.getPropertyValue("--desliza-lento"));
+  if (!(lento > 0)) lento = 1;
+  const ms = propia > 0 ? propia * 1000
+    : Math.min(480, Math.max(300, (media >= 0 ? media : 0.22) * 1000 + 140)) * Math.min(lento, 8);
+  let rebote = parseFloat(cs.getPropertyValue("--desliza-rebote"));
+  if (!(rebote >= 0)) rebote = 1;
+  return { duration: Math.round(ms), rebote: Math.min(rebote, 2) };
 }
 
-/* `animate` rechaza una curva que no entiende con una excepción. Un mundo que
-   escriba mal la suya no puede dejar un interruptor sin funcionar: se repite
-   con la de la casa. */
-function deslizaAnimar(el, cuadros, ritmo) {
+/* Un muelle, partido en sus dos mitades, con `t` de 0 a 1 sobre la duración
+   entera:
+
+     `llega(t)`  por dónde va el viaje, de 0 a 1. Nunca pasa de 1.
+     `sobra(t)`  lo que se pasa después de llegar, de 0 a 1 en su punto más
+                 alto (y un pelo negativo al volver). Quien lo usa lo
+                 multiplica por los píxeles que quiera.
+
+   **El rebote cambia CUÁNTO se pasa, no CUÁNDO llega.** La primera versión
+   sacaba las dos cosas del mismo número —la amortiguación del muelle—, así
+   que con menos rebote el viaje entero iba más lento: Eduardo movía la barra
+   de rebote del boceto y lo que cambiaba era la velocidad. Ahora el muelle es
+   siempre el mismo y el rebote solo escala `sobra`. Con rebote cero no se
+   corta en seco al llegar: el viaje se mezcla con una frenada suave que
+   acaba casi a la vez. */
+function deslizaMuelle(rebote) {
+  const z = 0.55, w = 6.5 / z, wd = w * Math.sqrt(1 - z * z);
+  const pico = Math.exp(-Math.PI * z / Math.sqrt(1 - z * z));
+  /* El instante en que el muelle toca el 1 por primera vez. */
+  const tc = (Math.PI - Math.atan2(Math.sqrt(1 - z * z), z)) / wd;
+  const muelle = t => 1 - Math.exp(-z * w * t) * (Math.cos(wd * t) + (z * w / wd) * Math.sin(wd * t));
+  const suave = t => { const u = Math.min(1, t / (tc * 1.1)); return u * u * (3 - 2 * u); };
+  const r = Math.min(1, Math.max(0, rebote));
+  return {
+    llega: t => t <= 0 ? 0 : t >= 1 ? 1 : (1 - r) * suave(t) + r * (t < tc ? muelle(t) : 1),
+    sobra: t => t <= tc || t >= 1 ? 0 : (muelle(t) - 1) / pico
+  };
+}
+
+/* `animate` puede rechazar unos cuadros con una excepción. Un interruptor no
+   puede quedarse sin funcionar por su adorno: sin animación se queda como
+   estaba antes de este motor, cambiando de golpe. */
+function deslizaAnimar(el, cuadros, opciones) {
   if (!el || !el.animate) return null;
-  try { return el.animate(cuadros, ritmo); }
-  catch (e) {
-    try { return el.animate(cuadros, { duration: ritmo.duration, easing: "ease" }); }
-    catch (e2) { return null; }
-  }
+  try { return el.animate(cuadros, opciones); }
+  catch (e) { return null; }
+}
+
+/* La caja de un elemento en las coordenadas en las que se coloca un hijo
+   `position: absolute` de su grupo. */
+function deslizaCaja(grupo, r) {
+  const g = grupo.getBoundingClientRect();
+  return {
+    x: r.left - g.left - grupo.clientLeft + grupo.scrollLeft,
+    y: r.top - g.top - grupo.clientTop + grupo.scrollTop,
+    w: r.width, h: r.height
+  };
 }
 
 /* Una copia de una opción, puesta encima de ella sin ocupar sitio. Lleva sus
    mismas clases, así que la viste el mundo que esté puesto, y no se puede
-   tocar ni leer: es un dibujo de 200 ms. */
-function deslizaCopia(grupo, opcion, encendida, modelo) {
+   tocar ni leer: es un dibujo de medio segundo. `papel` dice qué parte de la
+   opción es —lo recorta `css/estilos.css`—: «pastilla» es el material sin
+   rótulo, «rotulo» el rótulo sin material y «apagada» la opción entera. */
+function deslizaCopia(grupo, opcion, encendida, modelo, papel) {
   const c = opcion.cloneNode(true);
   c.removeAttribute("id");
   c.removeAttribute("onclick");
-  c.setAttribute("data-desliza-copia", "");
+  c.setAttribute("data-desliza-copia", papel || "");
   c.setAttribute("aria-hidden", "true");
   c.tabIndex = -1;
   c.querySelectorAll("[id]").forEach(x => x.removeAttribute("id"));
@@ -715,61 +809,218 @@ function deslizaCopia(grupo, opcion, encendida, modelo) {
   DESLIZA_MARCAS.forEach(par => {
     if (modelo.getAttribute(par[0]) === par[1]) c.setAttribute(par[0], encendida ? "true" : "false");
   });
-  const g = grupo.getBoundingClientRect(), r = opcion.getBoundingClientRect();
+  const r = deslizaCaja(grupo, opcion.getBoundingClientRect());
   c.style.cssText += ";position:absolute;margin:0;box-sizing:border-box;pointer-events:none;" +
-    "left:" + (r.left - g.left - grupo.clientLeft + grupo.scrollLeft) + "px;" +
-    "top:" + (r.top - g.top - grupo.clientTop + grupo.scrollTop) + "px;" +
-    "width:" + r.width + "px;height:" + r.height + "px;";
+    "left:" + r.x + "px;top:" + r.y + "px;width:" + r.w + "px;height:" + r.h + "px;";
   if (getComputedStyle(grupo).position === "static") grupo.style.position = "relative";
   grupo.appendChild(c);
   return c;
 }
 
-function deslizaOpcion(grupo, indiceViejo, nuevo, ritmo) {
-  const vieja = deslizaOpciones(grupo)[indiceViejo];
-  if (!vieja || vieja === nuevo) return;
-  const a = vieja.getBoundingClientRect(), b = nuevo.getBoundingClientRect();
-  const dx = (b.left + b.width / 2) - (a.left + a.width / 2);
-  const dy = (b.top + b.height / 2) - (a.top + a.height / 2);
-  if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
-  /* Por qué lado llega la pastilla a la nueva, que es el mismo por el que se
-     va de la vieja. `inset(arriba derecha abajo izquierda)`. */
-  let tapada, ida;
-  if (Math.abs(dx) >= Math.abs(dy)) {
-    tapada = dx > 0 ? "inset(0 100% 0 0)" : "inset(0 0 0 100%)";
-    ida    = dx > 0 ? "inset(0 0 0 100%)" : "inset(0 100% 0 0)";
-  } else {
-    tapada = dy > 0 ? "inset(0 0 100% 0)" : "inset(100% 0 0 0)";
-    ida    = dy > 0 ? "inset(100% 0 0 0)" : "inset(0 0 100% 0)";
+/* Los cuadros del viaje de la pastilla, de la caja `a` a la caja `b`. Cada
+   eje mueve sus dos cantos por separado: el que va delante se adelanta y se
+   para en su sitio —nunca retrocede, o se despegaría de la pared—, y el de
+   atrás llega después, se pasa hacia dentro y vuelve. */
+function deslizaCuadros(a, b, ritmo) {
+  const m = deslizaMuelle(ritmo.rebote);
+  const eje = (p0, q0, p1, q1) => {
+    const viaje = ((p1 + q1) - (p0 + q0)) / 2;
+    const dir = Math.abs(viaje) < 1 ? 0 : (viaje > 0 ? 1 : -1);
+    /* Cuánto se aplasta al llegar, en píxeles: proporcional al viaje, pero
+       nunca más de un noveno de la pastilla ni de ocho píxeles: con más, el
+       rótulo se sale de ella en el apretón y un viaje largo ya da un bote. */
+    const tope = Math.min(Math.abs(viaje) * 0.12, (q1 - p1) * 0.11, 8) * Math.min(ritmo.rebote, 1.5);
+    let delante = 0;
+    return i => {
+      const t = i / DESLIZA_FOTOS;
+      delante = Math.max(delante, m.llega(Math.min(1, t * 1.3)));
+      const atras = m.llega(t);
+      const aplasta = tope * m.sobra(t);
+      if (dir > 0) return [p0 + (p1 - p0) * atras + aplasta, q0 + (q1 - q0) * delante];
+      if (dir < 0) return [p0 + (p1 - p0) * delante, q0 + (q1 - q0) * atras - aplasta];
+      return [p0 + (p1 - p0) * atras, q0 + (q1 - q0) * atras];
+    };
+  };
+  const ex = eje(a.x, a.x + a.w, b.x, b.x + b.w);
+  const ey = eje(a.y, a.y + a.h, b.y, b.y + b.h);
+  const px = n => (Math.round(n * 100) / 100) + "px";
+  const cuadros = [];
+  for (let i = 0; i <= DESLIZA_FOTOS; i++) {
+    const x = ex(i), y = ey(i);
+    cuadros.push({ left: px(x[0]), top: px(y[0]), width: px(x[1] - x[0]), height: px(y[1] - y[0]) });
   }
-  const entera = "inset(0 0 0 0)";
-  /* Tres piezas, las tres con el mismo reloj:
-       la nueva se destapa encendida;
-       debajo de lo que aún no se destapó, una copia suya APAGADA, para que su
-       rótulo no desaparezca mientras llega la pastilla;
-       y sobre la vieja, una copia ENCENDIDA que se retira hacia la nueva. */
-  const apagada = deslizaCopia(grupo, nuevo, false, nuevo);
-  const encendida = deslizaCopia(grupo, vieja, true, nuevo);
-  const fin = [
-    deslizaAnimar(nuevo, { clipPath: [tapada, entera] }, ritmo),
-    deslizaAnimar(apagada, { clipPath: [entera, ida] }, ritmo),
-    deslizaAnimar(encendida, { clipPath: [entera, ida] }, ritmo)
-  ];
-  const quitar = () => { apagada.remove(); encendida.remove(); };
-  /* Con temporizador y no con `onfinish`: en una pestaña que no pinta las
-     animaciones no avanzan nunca, y las dos copias se quedarían encima del
-     control para siempre. */
-  setTimeout(quitar, ritmo.duration + 60);
-  if (!fin[0]) quitar();
+  /* El último se escribe a mano: el muelle llega a 0,998 y con eso la
+     pastilla saltaría medio píxel al soltarla. */
+  cuadros[DESLIZA_FOTOS] = { left: px(b.x), top: px(b.y), width: px(b.w), height: px(b.h) };
+  return cuadros;
 }
 
-function deslizaPerilla(perilla, antes, ritmo) {
-  const r = perilla.getBoundingClientRect();
-  const dx = antes.left - r.left, dy = antes.top - r.top;
+/* `desde` es de dónde sale la pastilla cuando no sale de la opción vieja: de
+   donde iba la anterior, si se tocó otra vez antes de que llegara. */
+function deslizaOpcion(grupo, indiceViejo, nuevo, ritmo, desde) {
+  const vieja = deslizaOpciones(grupo)[indiceViejo];
+  if (!vieja || vieja === nuevo) return;
+  const b = deslizaCaja(grupo, nuevo.getBoundingClientRect());
+  const a = desde || deslizaCaja(grupo, vieja.getBoundingClientRect());
+  if (b.w < 1 || b.h < 1 || a.w < 1 || a.h < 1) return;
+  if (Math.abs(a.x - b.x) < 1 && Math.abs(a.y - b.y) < 1 &&
+      Math.abs(a.w - b.w) < 1 && Math.abs(a.h - b.h) < 1) return;
+  /* Seis piezas con el mismo reloj, de abajo arriba:
+       la opción nueva de verdad, ESCONDIDA mientras dura —ya está encendida y
+       su material estaría en su sitio antes de que llegue la pastilla—;
+       en su lugar, una copia suya APAGADA, que se funde;
+       la opción vieja de verdad, ya apagada, que APARECE fundiéndose;
+       la pastilla, que viaja;
+       y los dos rótulos encendidos, el viejo fundiéndose y el nuevo saliendo.
+
+     Las dos apagadas se funden y no están de golpe por el primer y el último
+     cuadro: una opción apagada puede tener material propio (las de `.seg`
+     llevan su fondo) y una encendida translúcida lo SUSTITUYE, no se le pone
+     encima. Con la apagada entera debajo, la pastilla salía y llegaba sobre
+     un fondo que la opción de verdad no tiene, y en esos dos cuadros el tono
+     daba un salto. Así el primer cuadro es idéntico a lo que había antes de
+     tocar y el último a lo que queda. */
+  const apagada = deslizaCopia(grupo, nuevo, false, nuevo, "apagada");
+  const pastilla = deslizaCopia(grupo, nuevo, true, nuevo, "pastilla");
+  pastilla.textContent = "";
+  const rotuloViejo = deslizaCopia(grupo, vieja, true, nuevo, "");
+  /* Dos opciones del mismo control pueden encenderse en tonos distintos —
+     «Silencio» en coral, «Con sonido» en menta—: la pastilla sale del tono
+     viejo. Se lee de la copia ANTES de dejarla en rótulo, que le quita el
+     fondo. Son colores ya calculados, no variables: aquí sí se pueden animar. */
+  const tonoViejo = getComputedStyle(rotuloViejo).backgroundColor;
+  const tonoNuevo = getComputedStyle(pastilla).backgroundColor;
+  /* Y el marco, por lo mismo: los tres modos del Hiperfoco se encienden cada
+     uno en su color, borde incluido. */
+  const marcoViejo = getComputedStyle(rotuloViejo).borderTopColor;
+  const marcoNuevo = getComputedStyle(pastilla).borderTopColor;
+  rotuloViejo.setAttribute("data-desliza-copia", "rotulo");
+  const rotuloNuevo = deslizaCopia(grupo, nuevo, true, nuevo, "rotulo");
+  const copias = [apagada, pastilla, rotuloViejo, rotuloNuevo];
+
+  const reloj = { duration: ritmo.duration, easing: "linear", fill: "both" };
+  /* La opacidad a la que vuelven es la suya, no 1: una opción con candado o
+     desactivada ya va atenuada. */
+  const opVieja = getComputedStyle(vieja).opacity, opApagada = getComputedStyle(apagada).opacity;
+  const vivas = [
+    deslizaAnimar(nuevo, { opacity: [0, 0] }, { duration: ritmo.duration, fill: "forwards" }),
+    deslizaAnimar(pastilla, deslizaCuadros(a, b, ritmo), reloj),
+    deslizaAnimar(rotuloViejo, [{ opacity: 1 }, { opacity: 0, offset: 0.35 }, { opacity: 0 }], reloj),
+    deslizaAnimar(rotuloNuevo, [{ opacity: 0 }, { opacity: 1, offset: 0.4 }, { opacity: 1 }], reloj),
+    deslizaAnimar(vieja, [{ opacity: 0 }, { opacity: opVieja, offset: 0.4 }, { opacity: opVieja }], { duration: ritmo.duration }),
+    deslizaAnimar(apagada, [{ opacity: opApagada }, { opacity: 0, offset: 0.4 }, { opacity: 0 }], reloj)
+  ];
+  const sinTono = /^(transparent|rgba\(0, 0, 0, 0\))$/;
+  if (tonoViejo !== tonoNuevo && !sinTono.test(tonoViejo) && !sinTono.test(tonoNuevo)) {
+    vivas.push(deslizaAnimar(pastilla,
+      [{ backgroundColor: tonoViejo }, { backgroundColor: tonoNuevo, offset: 0.5 }, { backgroundColor: tonoNuevo }], reloj));
+  }
+  if (marcoViejo !== marcoNuevo && !sinTono.test(marcoViejo) && !sinTono.test(marcoNuevo)) {
+    vivas.push(deslizaAnimar(pastilla,
+      [{ borderColor: marcoViejo }, { borderColor: marcoNuevo, offset: 0.5 }, { borderColor: marcoNuevo }], reloj));
+  }
+  let quitado = false;
+  const quitar = () => {
+    if (quitado) return;
+    quitado = true;
+    copias.forEach(c => c.remove());
+    vivas.forEach(v => { try { if (v) v.cancel(); } catch (e) {} });
+    if (grupo.__desliza && grupo.__desliza.pastilla === pastilla) grupo.__desliza = null;
+  };
+  grupo.__desliza = { pastilla, quitar };
+  /* La opción de verdad vuelve a verse y las copias se van en la MISMA
+     instrucción (`quitar` cancela y retira de una vez), y por eso la que la
+     esconde se queda puesta al acabar (`fill: forwards`): si se soltara sola,
+     un cuadro podría pillar los dos materiales uno encima del otro, o
+     ninguno. Y además con temporizador: en una pestaña que no pinta las
+     animaciones no avanzan nunca, y las copias se quedarían encima del
+     control —y la opción nueva escondida— para siempre. */
+  if (vivas[0] && vivas[1]) vivas[0].onfinish = quitar;
+  else quitar();
+  setTimeout(quitar, ritmo.duration + 250);
+}
+
+/* ---- La perilla ----
+   La bolita puede ser un elemento (`.mod-sw i`) o el `::after` de otro
+   (`.jor-sw`). De las dos se saca lo mismo: dónde está y de qué color son
+   ella y su carril. */
+function deslizaPerillaDe(control) {
+  if (!control || !control.querySelector) return null;
+  const el = control.querySelector(DESLIZA_PERILLA);
+  if (el) return { el, pseudo: null, carril: el.parentElement };
+  const con = control.matches(DESLIZA_PERILLA_PSEUDO) ? control : control.querySelector(DESLIZA_PERILLA_PSEUDO);
+  return con ? { el: con, pseudo: "::after", carril: con } : null;
+}
+
+function deslizaFotoPerilla(p) {
+  const cs = getComputedStyle(p.el, p.pseudo);
+  const cc = getComputedStyle(p.carril);
+  /* Lo que la mueve su propio `transform`: hace falta para colocar la de un
+     `::after`, que no tiene caja que medir, y para deshacer lo que el
+     estirón le hace a ese desplazamiento (ver `deslizaPerilla`). */
+  let tx = 0, ty = 0;
+  try {
+    const m = new DOMMatrixReadOnly(cs.transform === "none" ? "" : cs.transform);
+    tx = m.m41; ty = m.m42;
+  } catch (e) {}
+  let x = tx, y = ty;
+  if (!p.pseudo) {
+    const r = p.el.getBoundingClientRect(), g = p.carril.getBoundingClientRect();
+    x = r.left - g.left; y = r.top - g.top;
+  }
+  return { x, y, tx, ty, fondo: cs.backgroundColor, carril: cc.backgroundColor, borde: cc.borderTopColor };
+}
+
+function deslizaPerilla(p, antes, ritmo) {
+  const ahora = deslizaFotoPerilla(p);
+  const dx = antes.x - ahora.x, dy = antes.y - ahora.y;
   if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
-  /* `translate` y no `transform`: la perilla ya usa `transform` para su
-     sitio, y animarlo se lo pisaría durante el viaje. */
-  deslizaAnimar(perilla, { translate: [dx + "px " + dy + "px", "0px 0px"] }, ritmo);
+  const m = deslizaMuelle(ritmo.rebote);
+  const largo = Math.hypot(dx, dy);
+  const enX = Math.abs(dx) >= Math.abs(dy);
+  const paso = 1 / DESLIZA_FOTOS;
+  /* El sobrepaso, en píxeles: tres como mucho, que es lo que hay entre la
+     bolita y el borde de su carril. */
+  const pasa = Math.min(largo * 0.126 * Math.min(ritmo.rebote, 1.5), 3) / largo;
+  const va = t => m.llega(t) + pasa * m.sobra(t);
+  /* La velocidad más alta del viaje, para estirar en proporción a ella. */
+  let vmax = 0;
+  for (let i = 0; i <= DESLIZA_FOTOS; i++) {
+    vmax = Math.max(vmax, Math.abs(va(i * paso + paso / 2) - va(i * paso - paso / 2)));
+  }
+  const cuadros = [];
+  for (let i = 0; i <= DESLIZA_FOTOS; i++) {
+    const t = i * paso;
+    const s = va(t);
+    const v = vmax ? Math.abs(va(t + paso / 2) - va(t - paso / 2)) / vmax : 0;
+    const estira = 1 + 0.22 * v, encoge = 1 - 0.08 * v;
+    const sx = enX ? estira : encoge, sy = enX ? encoge : estira;
+    /* `translate` y `scale` sueltos, y no `transform`: la perilla ya usa
+       `transform` para su sitio, y animarlo se lo pisaría durante el viaje.
+       Pero `scale` se aplica DESPUÉS de ese `transform`, así que también
+       estira su desplazamiento: una bolita puesta a 17 px se iría a 20. Se
+       le resta aquí. */
+    const x = (1 - s) * dx - (sx - 1) * ahora.tx;
+    const y = (1 - s) * dy - (sy - 1) * ahora.ty;
+    cuadros.push({
+      translate: (Math.round(x * 100) / 100) + "px " + (Math.round(y * 100) / 100) + "px",
+      scale: (Math.round(sx * 1000) / 1000) + " " + (Math.round(sy * 1000) / 1000)
+    });
+  }
+  cuadros[DESLIZA_FOTOS] = { translate: "0px 0px", scale: "1 1" };
+  const reloj = { duration: ritmo.duration, easing: "linear" };
+  if (p.pseudo) reloj.pseudoElement = p.pseudo;
+  deslizaAnimar(p.el, cuadros, reloj);
+  /* Los colores cambian con ella y no de golpe. Son valores ya calculados,
+     no variables, así que no se quedan congelados. */
+  const tono = { duration: Math.round(ritmo.duration * 0.55), easing: "ease-out" };
+  if (antes.fondo !== ahora.fondo) {
+    deslizaAnimar(p.el, { backgroundColor: [antes.fondo, ahora.fondo] },
+      p.pseudo ? Object.assign({ pseudoElement: p.pseudo }, tono) : tono);
+  }
+  if (antes.carril !== ahora.carril || antes.borde !== ahora.borde) {
+    deslizaAnimar(p.carril, { backgroundColor: [antes.carril, ahora.carril], borderColor: [antes.borde, ahora.borde] }, tono);
+  }
 }
 
 function instalarDesliza() {
@@ -778,20 +1029,46 @@ function instalarDesliza() {
   document.addEventListener("click", ev => {
     const t = ev.target && ev.target.closest ? ev.target : null;
     if (!t) return;
-    const ritmo = deslizaRitmo();
-    if (!ritmo) return;
+    if (!deslizaRitmo()) return;
+    /* Se mira en cuanto el DOM cambia, y EN EL MISMO TURNO: un
+       `MutationObserver` avisa justo al terminar el `onclick` que redibujó,
+       antes de que el navegador pinte. Con un temporizador —lo que había— se
+       pintaba un cuadro entero con el control ya en su estado final, y
+       después la pastilla volvía a salir de la opción vieja: eso era el
+       parpadeo al cambiar (Eduardo, sobre el boceto). El observador no se
+       corta con `stopPropagation`, que es lo que hacen las ventanas, y
+       también caza el cambio que llega tras una espera corta (guardar, pedir
+       algo). Los temporizadores se quedan de respaldo. La primera mirada que
+       encuentre el control cambiado anima, y las demás no hacen nada. */
+    const luego = mirar => {
+      let hecho = false, mo = null;
+      const soltar = () => { if (mo) { mo.disconnect(); mo = null; } };
+      const una = () => { if (!hecho && mirar()) { hecho = true; soltar(); } };
+      try {
+        mo = new MutationObserver(una);
+        mo.observe(document.body, { childList: true, subtree: true, attributes: true,
+          attributeFilter: ["class", "aria-checked", "aria-selected", "aria-pressed"] });
+      } catch (e) { mo = null; }
+      setTimeout(una, 0);
+      setTimeout(una, 90);
+      setTimeout(() => { una(); soltar(); }, 400);
+    };
 
     /* ---- Una perilla: el control que se tocó tiene una dentro ---- */
     const control = t.closest("button, [role='switch'], label");
-    const perilla = control && control.querySelector(DESLIZA_PERILLA);
+    const perilla = deslizaPerillaDe(control);
     if (perilla) {
-      const antes = perilla.getBoundingClientRect();
+      const antes = deslizaFotoPerilla(perilla);
+      const ritmo = deslizaRitmo(perilla.carril);
       const llave = deslizaLlave(control);
-      setTimeout(() => {
-        const c2 = deslizaBuscar(llave);
-        const p2 = c2 && c2.querySelector && c2.querySelector(DESLIZA_PERILLA);
-        if (p2) deslizaPerilla(p2, antes, ritmo);
-      }, 0);
+      luego(() => {
+        const p2 = deslizaPerillaDe(deslizaBuscar(llave));
+        if (!p2) return false;
+        const ahora = deslizaFotoPerilla(p2);
+        if (Math.abs(antes.x - ahora.x) < 1 && Math.abs(antes.y - ahora.y) < 1) return false;
+        deslizaPerilla(p2, antes, ritmo);
+        return true;
+      });
       return;
     }
 
@@ -801,27 +1078,25 @@ function instalarDesliza() {
     if (!grupo) return;
     const vieja = deslizaPuesto(grupo);
     if (!vieja || vieja === opcion) return;
-    const opciones = deslizaOpciones(grupo);
-    const iVieja = opciones.indexOf(vieja);
+    const iVieja = deslizaOpciones(grupo).indexOf(vieja);
     const llave = deslizaLlave(grupo);
-    /* Se mira un turno después, que es cuando el `onclick` ya redibujó. Y dos
-       veces más por si el cambio llega tras una espera corta (guardar, pedir
-       algo): la primera que encuentre la pastilla en otro sitio anima, y las
-       demás no hacen nada. */
-    let hecho = false;
-    const mirar = () => {
-      if (hecho) return;
+    const ritmo = deslizaRitmo(grupo);
+    /* Si se toca otra vez antes de que la pastilla llegue, la siguiente sale
+       de donde va esta y no de la opción: tocar deprisa no da saltos. */
+    let desde = null;
+    if (grupo.__desliza && grupo.__desliza.pastilla.isConnected) {
+      desde = deslizaCaja(grupo, grupo.__desliza.pastilla.getBoundingClientRect());
+    }
+    luego(() => {
       const g2 = deslizaBuscar(llave);
-      if (!g2 || !g2.matches || !g2.matches(DESLIZA_GRUPOS)) return;
+      if (!g2 || !g2.matches || !g2.matches(DESLIZA_GRUPOS)) return false;
       const nuevo = deslizaPuesto(g2);
-      if (!nuevo) return;
-      if (deslizaOpciones(g2).indexOf(nuevo) === iVieja) return;
-      hecho = true;
-      deslizaOpcion(g2, iVieja, nuevo, ritmo);
-    };
-    setTimeout(mirar, 0);
-    setTimeout(mirar, 90);
-    setTimeout(mirar, 280);
+      if (!nuevo) return false;
+      if (deslizaOpciones(g2).indexOf(nuevo) === iVieja) return false;
+      if (g2.__desliza) g2.__desliza.quitar();
+      deslizaOpcion(g2, iVieja, nuevo, ritmo, desde);
+      return true;
+    });
   }, true);
 }
 
