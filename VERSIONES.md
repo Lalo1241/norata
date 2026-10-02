@@ -283,6 +283,29 @@ texto sin aprobar a la vista**: se pone en `false` —el panel vuelve a pedir
 
 ## La lista
 
+### 0.7.165 · 2 oct 2026
+
+**Novedades: cuatro aprobadas y el panel sin lo que parecía de ejemplo.**
+Eduardo: «mándalo a Novedades y quita de ahí todos los borradores que no
+sirvan y estaban de puro ejemplo».
+
+- **Publicadas** (pasan de borrador a publicado): 0.7.158 (el zoom solo al
+  entrar), 0.7.160 (tu tema te sigue), 0.7.161 (actualizar tiene su entrada) y
+  0.7.162 (refrescar se alcanza a ver).
+- **Los anuncios de la beta y la 1.0 ya no salen en la lista de Ajustes**
+  mientras sean borrador (`renderPanelNovedades`, `js/10l-novedades.js`). Con
+  los borradores a la vista encabezaban el panel anunciando la Play Store. NO
+  se borraron del JSON: son el anuncio de verdad. Se ven y se prueban con
+  `?novedades=borrador`, como siempre.
+- **Borrada la entrada 0.7.154** («Los interruptores se deslizan»): la 0.7.164
+  rehízo ese motor entero y lo que contaba —«en Averno y Catedral va a
+  saltos»— ya no es verdad. Ojo: el desfile del número de un hito cuenta un 3º
+  menos por esto.
+- **Siguen en borrador, sin tocar**, porque son de otras sesiones y Eduardo no
+  las ha aprobado: 0.7.157 y 0.7.163.
+
+Sin novedad propia: no cambia nada que contar a quien usa la app.
+
 ### 0.7.164.1 · 2 oct 2026
 
 **El rótulo «Sonido» ya no queda pisado por su interruptor, y la novedad de

@@ -773,7 +773,7 @@
     {
       "version": "0.7.162",
       "fecha": "2026-10-02",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "mejora",
       "titulo": "Refrescar ya se alcanza a ver",
       "resumen": "Al refrescar, la carga se queda un par de segundos en vez de pasar como un parpadeo.",
@@ -788,7 +788,7 @@
     {
       "version": "0.7.161",
       "fecha": "2026-10-02",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "mejora",
       "titulo": "Actualizar tiene su propia entrada",
       "resumen": "Al actualizar, el logo llega desde el frente, su aro se llena y Norata te dice qué versión estrenas antes de levantar el telón.",
@@ -809,7 +809,7 @@
     {
       "version": "0.7.160",
       "fecha": "2026-10-01",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "mejora",
       "titulo": "Tu tema te sigue a donde entres",
       "resumen": "Tu cuenta recuerda el mundo, la paleta y el modo de cada dispositivo. Al entrar desde uno nuevo, Norata abre ya con tu tema.",
@@ -832,7 +832,7 @@
     {
       "version": "0.7.158",
       "fecha": "2026-10-01",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "mejora",
       "titulo": "El zoom del logo, solo cuando entras",
       "resumen": "La animación del logo se queda para cuando abres Norata o inicias sesión. Refrescar es casi instantáneo y actualizar tiene su propia carga.",
@@ -868,29 +868,6 @@
         "puntos": [
           "In Averno and Catedral it showed red on red.",
           "The “Expansion” label is green in every world."
-        ]
-      }
-    },
-    {
-      "version": "0.7.154",
-      "fecha": "2026-10-01",
-      "estado": "borrador",
-      "clase": "mejora",
-      "titulo": "Los interruptores se deslizan",
-      "resumen": "Al cambiar entre Oscuro y Claro, encender el sonido o apagar un módulo, ahora ves el interruptor moverse.",
-      "puntos": [
-        "Vale para todos los interruptores de la app, en cualquier mundo.",
-        "Cada mundo lo mueve a su manera: en Averno y Catedral va a saltos.",
-        "En Averno, los iconos del menú brillan cuando pasas el cursor."
-      ],
-      "retoques": [],
-      "en": {
-        "titulo": "Switches now slide",
-        "resumen": "When you switch between Dark and Light, turn the sound on or turn a module off, you now see the switch move.",
-        "puntos": [
-          "It works for every switch in the app, in any world.",
-          "Each world moves it its own way: in Averno and Catedral it goes in steps.",
-          "In Averno, the menu icons glow when you hover over them."
         ]
       }
     },

@@ -382,7 +382,14 @@ async function renderPanelNovedades() {
      prueba —la ventana y los dos anuncios de hito— siguen detrás del
      parámetro, que es donde tienen sentido. */
   const borrador = novedadesEnBorrador();
-  const lista = novedadesVisibles(await cargarNovedades(), borrador || NOVEDADES_BORRADORES_A_LA_VISTA);
+  /* Los anuncios de la beta y de la 1.0 NO salen en la lista mientras sean
+     borrador (0.7.165). Están escritos de antemano y sin fecha, y con los
+     borradores a la vista encabezaban el panel diciendo «Norata ya está en la
+     Play Store»: Eduardo los leyó como textos de ejemplo que sobraban. No se
+     borran del JSON —son el anuncio de verdad, y `probarHito` los usa—: se
+     ven con `?novedades=borrador`, que es donde se prueban. */
+  const lista = novedadesVisibles(await cargarNovedades(), borrador || NOVEDADES_BORRADORES_A_LA_VISTA)
+    .filter((e) => borrador || !(novedadClase(e) === "hito" && e.estado !== "publicado"));
   const aviso = borrador ? `
     <div class="nov-prueba">
       <b>${escapeHtml(tx("Estás viendo los borradores"))}</b>
