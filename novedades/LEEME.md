@@ -322,6 +322,16 @@ enseña las `"publicado"`.
    dispositivos con la siguiente versión que se publique. Si corre prisa, se
    publica solo eso como un 4º de la versión vigente.
 
+**Una ficha ya publicada también pasa por él cuando se le cambia un texto.**
+El paso de borrador solo protege a las fichas nuevas: el 2 oct 2026 se le
+añadieron a la 0.7.147 y a la 0.7.148 —publicadas las dos— los `detalle`, las
+`nota`, los títulos de sus gráficos y los `alt` de sus imágenes, y salieron al
+sitio y a la app sin que Eduardo los leyera, porque nada los detenía. Lo
+preguntó él al verlo. Desde entonces: **todo texto nuevo o cambiado en una
+ficha publicada se le enseña escrito ANTES de subirlo** —el español y el
+inglés—, y se sube con su visto bueno. Vale igual para lo que se escribe
+dentro de una imagen (los rótulos de una captura, los textos de una lámina).
+
 La ventana se apunta como vista POR ENTRADA, no por número de versión: una
 entrada aprobada días después de que su versión llegó sale igual la próxima vez
 que se abra la app.
