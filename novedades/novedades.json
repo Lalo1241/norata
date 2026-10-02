@@ -673,6 +673,27 @@
       }
     },
     {
+      "version": "0.7.161",
+      "fecha": "2026-10-02",
+      "estado": "borrador",
+      "clase": "mejora",
+      "titulo": "Actualizar tiene su propia entrada",
+      "resumen": "Al actualizar, el logo llega desde el frente, su aro se llena y Norata te dice qué versión estrenas antes de levantar el telón.",
+      "puntos": [
+        "La carga ya no se corta en dos: es una sola animación de principio a fin.",
+        "El número de la versión nueva sale mientras el aro se cierra."
+      ],
+      "retoques": [],
+      "en": {
+        "titulo": "Updating has its own entrance",
+        "resumen": "When you update, the logo arrives from the front, its ring fills and Norata tells you which version you're getting before the curtain lifts.",
+        "puntos": [
+          "The loading screen no longer splits in two: it's one animation from start to finish.",
+          "The new version number appears while the ring closes."
+        ]
+      }
+    },
+    {
       "version": "0.7.160",
       "fecha": "2026-10-01",
       "estado": "borrador",

@@ -504,6 +504,9 @@
      cubrir. Se apaga sola cuando la app ya sabe qué enseñar. -->
 <div class="carga" id="carga" role="status" aria-live="polite">
   <div class="carga-marca">
+    <!-- El resplandor del estreno (0.7.161). El PRIMERO de la marca a
+         propósito: así queda detrás del isotipo sin escribir un z-index. -->
+    <span class="carga-halo" aria-hidden="true"></span>
     <span class="carga-anillo"></span>
     <svg viewBox="0 0 250 250" aria-hidden="true"><path d="M224.919,110.004h-5.319c-2.476,0-4.487-2.011-4.487-4.487V25.081c0-4.947-4.027-8.973-8.973-8.973h-87.162c-4.947,0-8.973,4.027-8.973,8.973v5.319c0,2.476-2.011,4.487-4.487,4.487H31.811c-8.658,0-15.703,7.046-15.703,15.703v80.436c0,4.947,4.027,8.973,8.973,8.973h5.319c2.476,0,4.487,2.011,4.487,4.487v80.432c0,4.947,4.027,8.973,8.973,8.973h87.166c4.947,0,8.973-4.027,8.973-8.973v-5.319c0-2.476,2.011-4.487,4.487-4.487h55.755c18.556,0,33.65-15.094,33.65-33.65v-62.485c0-4.947-4.027-8.973-8.973-8.973ZM55.91,128.783h-5.319c-2.476,0-4.487-2.011-4.487-4.487v-54.927c0-2.476,2.011-4.487,4.487-4.487h61.657c4.947,0,8.973-4.027,8.973-8.973v-5.319c0-2.476,2.011-4.487,4.487-4.487h54.923c2.476,0,4.487,2.011,4.487,4.487v61.657c0,4.947,4.027,8.973,8.973,8.973h5.319c2.476,0,4.487,2.011,4.487,4.487v45.949c0,7.422-6.038,13.46-13.46,13.46h-52.679c-4.947,0-8.973,4.027-8.973,8.973v5.319c0,2.476-2.011,4.487-4.487,4.487h-54.927c-2.476,0-4.487-2.011-4.487-4.487v-61.653c0-4.947-4.027-8.973-8.973-8.973Z"/></svg>
     <!-- El aro del ESTRENO (0.7.158): se cierra una sola vez en vez de girar.
@@ -512,6 +515,8 @@
     <svg class="carga-aro" viewBox="0 0 96 96" aria-hidden="true"><circle cx="48" cy="48" r="47"/></svg>
   </div>
   <p class="carga-msg" id="carga-msg">Abriendo Norata…</p>
+  <!-- El letrero del estreno (0.7.161): solo se ve con `html.carga-estreno`. -->
+  <div class="carga-version" id="carga-version"><b></b><span></span></div>
 </div>
 <script>
   /* El texto de la carga de estreno, antes del primer cuadro. La versión la
@@ -522,9 +527,16 @@
       if (window.__carga !== "estreno") return;
       var m = document.getElementById("carga-msg"), v = String(window.__estreno || "");
       var en = localStorage.getItem("norata-idioma") === "en";
-      var num = /^\d[\d.]*$/.test(v);
-      m.textContent = num ? (en ? "Updating to " + v : "Estrenando la " + v)
-                          : (en ? "Updating…" : "Estrenando la versión nueva");
+      var num = /^\d+\.[\d.]*$/.test(v);
+      /* El mismo texto con el que la carga llegó antes de recargar, para que
+         el relevo entre las dos páginas no cambie ni una letra. */
+      m.textContent = en ? "Updating…" : "Actualizando…";
+      /* Y el letrero que sale al 60 % del aro. Si no se supo qué versión
+         venía, `cargaEntrar` pone la de verdad en cuanto carga el JavaScript,
+         que es antes de que el letrero empiece a verse. */
+      var caja = document.getElementById("carga-version");
+      caja.firstElementChild.textContent = num ? (en ? "Version " : "Versión ") + v : (en ? "New version" : "Versión nueva");
+      caja.lastElementChild.textContent = en ? "Ready for you" : "Lista para ti";
     } catch (e) {}
   })();
 </script>

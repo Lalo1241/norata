@@ -300,10 +300,11 @@
   window.norataHayVersion = () => !!lista;
   window.norataActualizar = function () {
     if (!lista) return;
-    if (typeof cargaMostrar === "function") cargaMostrar(tx("Actualizando…"));
-    /* La carga que viene es la del estreno, con su versión (0.7.158). */
-    try { sessionStorage.setItem("norata-estreno", lista.version || "1"); } catch (e) {}
-    act.set({ id: lista.id }).catch(() => {
+    /* La carga que viene es la del estreno, con su versión (0.7.158), y llega
+       con el zoom al revés antes de cambiar de paquete (0.7.161). */
+    try { sessionStorage.setItem("norata-estreno", lista.version || "si"); } catch (e) {}
+    const llegada = typeof cargaLlegar === "function" ? cargaLlegar(tx("Actualizando…")) : Promise.resolve();
+    llegada.then(() => act.set({ id: lista.id })).catch(() => {
       try { sessionStorage.removeItem("norata-estreno"); } catch (e) {}
       if (typeof cargaCerrar === "function") cargaCerrar();
       if (typeof toast === "function") toast(tx("No pude estrenar la versión nueva. Se pondrá sola al cerrar la app."), "atencion");

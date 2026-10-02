@@ -584,6 +584,10 @@ async function norataActualizar(btn) {
   const antes = rotulo ? rotulo.innerHTML : null;
   if (btn) btn.disabled = true;
   if (rotulo) rotulo.textContent = "Actualizando…";
+  /* La carga LLEGA mientras el worker nuevo termina de entrar (0.7.161): el
+     logo viene desde enorme y se asienta, y la recarga ocurre con ella ya
+     puesta. Las dos cosas corren a la vez y se espera a las dos. */
+  const llegada = typeof cargaLlegar === "function" ? cargaLlegar(tx("Actualizando…")) : Promise.resolve();
   try {
     if (swRegistro) {
       await Promise.race([
@@ -599,7 +603,10 @@ async function norataActualizar(btn) {
   /* La carga que viene es la del ESTRENO, no el zoom ni la corta (0.7.158):
      se apunta qué versión entra para que lo diga desde el primer cuadro. Si
      no se sabe cuál es, se dice sin número. */
-  try { sessionStorage.setItem("norata-estreno", window.__versionQueEntra || "1"); } catch (e) {}
+  await llegada;
+  /* «si» y no un número cuando no se sabe cuál entra: un «1» pasaba por
+     versión, no coincidía con la de verdad y el estreno se daba por fallido. */
+  try { sessionStorage.setItem("norata-estreno", window.__versionQueEntra || "si"); } catch (e) {}
   location.reload();
 }
 
