@@ -679,6 +679,27 @@
       }
     },
     {
+      "version": "0.7.175",
+      "fecha": "2026-10-02",
+      "estado": "borrador",
+      "clase": "mejora",
+      "titulo": "Las novedades se explican mejor",
+      "resumen": "Los gráficos de una novedad ahora dicen qué cuenta cada número y cuándo se tiene cada paleta.",
+      "puntos": [
+        "Cada cifra lleva su explicación debajo, y el antes y ahora dice qué fue lo que llegó.",
+        "Las paletas salen una por renglón, con el nivel en que se ganan."
+      ],
+      "retoques": [],
+      "en": {
+        "titulo": "Updates explain themselves better",
+        "resumen": "The charts in an update now say what each number counts and when you get each palette.",
+        "puntos": [
+          "Every figure carries its explanation underneath, and before-and-now says what arrived.",
+          "Palettes come one per row, with the level where you earn them."
+        ]
+      }
+    },
+    {
       "version": "0.7.174",
       "fecha": "2026-10-02",
       "estado": "borrador",
@@ -1074,6 +1095,9 @@
           "alt": "Norata's Summary with Cyberpunk on: panels with corner brackets and the streak drawn as a circuit."
         }
       },
+      "banner": {
+        "foco": "70% 21%"
+      },
       "grafico": [
         {
           "tipo": "cifras",
@@ -1086,28 +1110,34 @@
               "valor": "5.º",
               "texto": "mundo de Norata",
               "en": {
-                "texto": "Norata world"
+                "texto": "Norata world",
+                "detalle": "It joins Blueprint, Relic, Cathedral and Inferno."
               },
               "icono": "globe",
-              "tono": 5
+              "tono": 5,
+              "detalle": "Se suma a Blueprint, Reliquia, Catedral y Averno."
             },
             {
               "valor": "5",
               "texto": "paletas con su cara de día",
               "en": {
-                "texto": "palettes with a daytime face"
+                "texto": "palettes with a daytime face",
+                "detalle": "Four come with the world and the fifth is earned."
               },
               "icono": "brush",
-              "tono": 4
+              "tono": 4,
+              "detalle": "Cuatro llegan con el mundo y la quinta se gana."
             },
             {
               "valor": "5",
               "texto": "rangos en tu camino",
               "en": {
-                "texto": "ranks on your path"
+                "texto": "ranks on your path",
+                "detalle": "Signal, Link, Protocol, Core and Legend."
               },
               "icono": "crown",
-              "tono": 2
+              "tono": 2,
+              "detalle": "Señal, Enlace, Protocolo, Núcleo y Leyenda."
             }
           ]
         },
@@ -1121,62 +1151,73 @@
             {
               "nombre": "Visor",
               "en": {
-                "nombre": "Visor"
+                "nombre": "Visor",
+                "nota": "Default"
               },
               "colores": [
                 "#05080d",
                 "#0b1119",
                 "#27e2ff",
                 "#ff3d8b"
-              ]
+              ],
+              "nota": "De partida"
             },
             {
               "nombre": "Ácido",
               "en": {
-                "nombre": "Acid"
+                "nombre": "Acid",
+                "nota": "With the world"
               },
               "colores": [
                 "#050a06",
                 "#0a130c",
                 "#b4f23a",
                 "#a472ff"
-              ]
+              ],
+              "nota": "Con el mundo"
             },
             {
               "nombre": "Cobalto",
               "en": {
-                "nombre": "Cobalt"
+                "nombre": "Cobalt",
+                "nota": "With the world"
               },
               "colores": [
                 "#050716",
                 "#0b0f26",
                 "#7c95ff",
                 "#ff6fb3"
-              ]
+              ],
+              "nota": "Con el mundo"
             },
             {
               "nombre": "Ultravioleta",
               "en": {
-                "nombre": "Ultraviolet"
+                "nombre": "Ultraviolet",
+                "nota": "With the world"
               },
               "colores": [
                 "#0a0614",
                 "#170a33",
                 "#d08bf0",
                 "#ffcf85"
-              ]
+              ],
+              "nota": "Con el mundo"
             },
             {
               "nombre": "Voltaje",
               "en": {
-                "nombre": "Voltage"
+                "nombre": "Voltage",
+                "nota": "Earned at level 18"
               },
               "colores": [
                 "#07070a",
                 "#121208",
                 "#fcee0a",
                 "#ff2e6e"
-              ]
+              ],
+              "nota": "Se gana en el nivel 18",
+              "candado": true
             }
           ]
         }
@@ -1246,7 +1287,16 @@
           "Your path there: Signal, Link, Protocol, Core and Legend.",
           "Voltage, the fifth palette, is earned with the third rank."
         ]
-      }
+      },
+      "imagenes": [
+        {
+          "src": "novedades/img/0.7.148-cyberpunk-dia-y-noche.jpg",
+          "alt": "El Resumen con Cyberpunk, partido en diagonal: a la izquierda de día, a la derecha de noche.",
+          "en": {
+            "alt": "The Summary with Cyberpunk, split diagonally: daytime on the left, night on the right."
+          }
+        }
+      ]
     },
     {
       "version": "0.7.147",
@@ -1266,55 +1316,55 @@
           "alt": "My look with Blueprint on: its five palettes, from Cyan to Laser, and the list of worlds."
         }
       },
+      "banner": {
+        "foco": "72% 0%"
+      },
       "grafico": [
         {
           "tipo": "comparar",
-          "titulo": "Antes y ahora",
+          "titulo": "Paletas nuevas por mundo",
           "en": {
-            "titulo": "Before and now"
+            "titulo": "New palettes per world"
           },
           "datos": [
             {
               "texto": "Paletas de Blueprint",
               "en": {
-                "texto": "Blueprint palettes"
+                "texto": "Blueprint palettes",
+                "detalle": "+ Archive, Prism, Steel and Laser"
               },
               "antes": 1,
               "ahora": 5,
               "icono": "map",
-              "tono": 5
+              "tono": 5,
+              "detalle": "+ Archivo, Prisma, Acero y Láser"
             },
             {
               "texto": "Paletas de Reliquia",
               "en": {
-                "texto": "Relic palettes"
+                "texto": "Relic palettes",
+                "detalle": "+ Garnet, Lapis lazuli, Emerald and Obsidian"
               },
               "antes": 1,
               "ahora": 5,
               "icono": "gem",
-              "tono": 4
+              "tono": 4,
+              "detalle": "+ Granate, Lapislázuli, Esmeralda y Obsidiana"
             },
             {
               "texto": "Paletas de Catedral",
               "en": {
-                "texto": "Cathedral palettes"
+                "texto": "Cathedral palettes",
+                "detalle": "+ Rose window"
               },
               "antes": 4,
               "ahora": 5,
               "icono": "roseton",
-              "tono": 3
-            },
-            {
-              "texto": "Ambientes de la casa",
-              "en": {
-                "texto": "Home ambiences"
-              },
-              "antes": 7,
-              "ahora": 10,
-              "icono": "sol",
-              "tono": 1
+              "tono": 3,
+              "detalle": "+ Rosetón"
             }
-          ]
+          ],
+          "tras": 1
         },
         {
           "tipo": "colores",
@@ -1326,62 +1376,185 @@
             {
               "nombre": "Cian",
               "en": {
-                "nombre": "Cyan"
+                "nombre": "Cyan",
+                "nota": "Default"
               },
               "colores": [
                 "#0d2b52",
                 "#0b1219",
                 "#9fd0ff",
                 "#6ea2d8"
-              ]
+              ],
+              "nota": "De partida"
             },
             {
               "nombre": "Archivo",
               "en": {
-                "nombre": "Archive"
+                "nombre": "Archive",
+                "nota": "With the world"
               },
               "colores": [
                 "#2c3350",
                 "#191c2d",
                 "#ecd8b4",
                 "#6fa39a"
-              ]
+              ],
+              "nota": "Con el mundo"
             },
             {
               "nombre": "Prisma",
               "en": {
-                "nombre": "Prism"
+                "nombre": "Prism",
+                "nota": "With the world"
               },
               "colores": [
                 "#221c42",
                 "#120f25",
                 "#86ead9",
                 "#a58be0"
-              ]
+              ],
+              "nota": "Con el mundo"
             },
             {
               "nombre": "Acero",
               "en": {
-                "nombre": "Steel"
+                "nombre": "Steel",
+                "nota": "With the world"
               },
               "colores": [
                 "#1f2433",
                 "#12141e",
                 "#e9f0c6",
                 "#6d7694"
-              ]
+              ],
+              "nota": "Con el mundo"
             },
             {
               "nombre": "Láser",
               "en": {
-                "nombre": "Laser"
+                "nombre": "Laser",
+                "nota": "Earned at level 18"
               },
               "colores": [
                 "#08203a",
                 "#04111e",
                 "#7fe69a",
                 "#2a8cc4"
-              ]
+              ],
+              "nota": "Se gana en el nivel 18",
+              "candado": true
+            }
+          ],
+          "tras": 1
+        },
+        {
+          "tipo": "cifras",
+          "titulo": "Ambientes de Norata clásico",
+          "en": {
+            "titulo": "Classic Norata ambiences"
+          },
+          "datos": [
+            {
+              "valor": "10",
+              "texto": "ambientes en total",
+              "detalle": "Antes eran siete.",
+              "icono": "sol",
+              "tono": 1,
+              "en": {
+                "texto": "ambiences in total",
+                "detalle": "There used to be seven."
+              }
+            },
+            {
+              "valor": "3",
+              "texto": "ambientes nuevos",
+              "detalle": "Cobre, Zafiro y Oliva.",
+              "icono": "star",
+              "tono": 2,
+              "en": {
+                "texto": "new ambiences",
+                "detalle": "Copper, Sapphire and Olive."
+              }
+            },
+            {
+              "valor": "1",
+              "texto": "ambiente rehecho",
+              "detalle": "Duna, ahora un desierto de verdad.",
+              "icono": "brush",
+              "tono": 3,
+              "en": {
+                "texto": "ambience remade",
+                "detalle": "Dune, now a real desert."
+              }
+            }
+          ]
+        },
+        {
+          "tipo": "colores",
+          "titulo": "Cuándo se abre cada uno",
+          "en": {
+            "titulo": "When each one opens"
+          },
+          "datos": [
+            {
+              "nombre": "Cobre",
+              "en": {
+                "nombre": "Copper",
+                "nota": "Opens at level 10"
+              },
+              "colores": [
+                "#0f1714",
+                "#1d2b26",
+                "#5fe0b0",
+                "#d08a55"
+              ],
+              "nota": "Se abre en el nivel 10",
+              "candado": true
+            },
+            {
+              "nombre": "Zafiro",
+              "en": {
+                "nombre": "Sapphire",
+                "nota": "Level 16, with Norata Pro"
+              },
+              "colores": [
+                "#0b0d22",
+                "#1b1f42",
+                "#7f95ff",
+                "#7ee8d6"
+              ],
+              "nota": "Nivel 16, con Norata Pro",
+              "candado": true
+            },
+            {
+              "nombre": "Duna",
+              "en": {
+                "nombre": "Dune",
+                "nota": "Level 20 · remade"
+              },
+              "colores": [
+                "#1b140c",
+                "#332616",
+                "#5fe0b0",
+                "#8c86e0"
+              ],
+              "nota": "Nivel 20 · rehecho",
+              "candado": true
+            },
+            {
+              "nombre": "Oliva",
+              "en": {
+                "nombre": "Olive",
+                "nota": "Opens at level 30"
+              },
+              "colores": [
+                "#101209",
+                "#242a16",
+                "#5fe0b0",
+                "#c2b3f2"
+              ],
+              "nota": "Se abre en el nivel 30",
+              "candado": true
             }
           ]
         }
@@ -1394,7 +1567,24 @@
           "Each world's fifth palette is earned with the third rank of its path.",
           "The new ambiences are Copper, Sapphire and Olive, and Dune was remade as a real desert."
         ]
-      }
+      },
+      "imagenes": [
+        {
+          "src": "novedades/img/0.7.147-paletas-dia-y-noche.jpg",
+          "alt": "Mi apariencia con Blueprint, partida en diagonal: sus cinco paletas de día a la izquierda y de noche a la derecha.",
+          "en": {
+            "alt": "My look with Blueprint, split diagonally: its five palettes in daytime on the left and at night on the right."
+          },
+          "tras": 1
+        },
+        {
+          "src": "novedades/img/0.7.147-ambientes-nuevos.jpg",
+          "alt": "La pantalla de Habilidades partida en cuatro tiras diagonales: Cobre, Zafiro, Duna y Oliva, cada una con su rótulo.",
+          "en": {
+            "alt": "The Skills screen split into four diagonal strips: Copper, Sapphire, Dune and Olive, each with its label."
+          }
+        }
+      ]
     }
   ]
 }

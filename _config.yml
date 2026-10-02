@@ -104,5 +104,8 @@ exclude:
   - correos/LEEME.md
   # Las novedades: el JSON se publica (lo lee la app); su guía no.
   - novedades/LEEME.md
-  # El CSV para el CMS de Framer: es de trabajo, no lo pide nadie por la red.
-  - novedades/framer.csv
+  # `novedades/framer.csv` SÍ se publica (1 oct 2026): lo baja cada hora la
+  # hoja de Google de la que Framer sincroniza el changelog del sitio. Solo
+  # lleva lo ya aprobado, que es lo mismo que enseña la app. El de borradores
+  # no se versiona; se nombra aquí por si alguien lo añade a la fuerza.
+  - novedades/framer-borradores.csv

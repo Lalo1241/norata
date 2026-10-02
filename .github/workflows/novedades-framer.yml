@@ -1,0 +1,50 @@
+# ============================================================
+#  El CSV del changelog del sitio
+# ============================================================
+#
+#  El changelog de norata.framer.website es una colección del CMS de
+#  Framer, y se llena sola por una cadena de tres eslabones:
+#
+#    novedades/novedades.json  ->  novedades/framer.csv  ->  hoja de Google  ->  Framer
+#
+#  El primero es el único que depende de este repositorio, y falla en
+#  silencio: si alguien aprueba una novedad en el JSON y el CSV no se
+#  rehace, la app la enseña y el sitio no, sin un solo error en ningún
+#  lado. El hook de pre-commit lo rehace solo, pero un hook no corre en
+#  un rebase ni en una máquina que no los tenga activados.
+#
+#  Esto NO lo arregla: lo avisa. Arreglarlo desde aquí sería un commit de
+#  un robot en `main`, y con varias sesiones subiendo a la vez eso es un
+#  rechazo de push garantizado para la siguiente.
+
+name: CSV del changelog
+
+on:
+  push:
+    paths:
+      - novedades/**
+      - herramientas/novedades-framer.py
+      - .github/workflows/novedades-framer.yml
+  pull_request:
+    paths:
+      - novedades/**
+      - herramientas/novedades-framer.py
+
+permissions:
+  contents: read
+
+jobs:
+  al-dia:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rehacer el CSV y comparar
+        run: |
+          python3 herramientas/novedades-framer.py
+          if [ -n "$(git status --porcelain -- novedades/framer.csv novedades/img)" ]; then
+            git status --short -- novedades/framer.csv novedades/img
+            git diff -- novedades/framer.csv | head -40
+            echo "::error file=novedades/novedades.json::novedades/framer.csv o un gráfico no están al día. Corre: python herramientas/novedades-framer.py y súbelo."
+            exit 1
+          fi
+          echo "El CSV y los gráficos están al día."

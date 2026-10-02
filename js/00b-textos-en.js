@@ -2704,6 +2704,11 @@ const TEXTOS_EN = {
  /* Las novedades y el aviso de versión lista (0.7.149). */
  "Novedades": "What's new",
  /* La clase de una novedad (0.7.151). */
+ "Nueva etapa": "New stage",
+ "Por subir": "Ready to ship",
+ "Antes": "Before",
+ "Lo que ya había": "What was already there",
+ "Lo nuevo": "What's new",
  "Expansión": "Expansion",
  "Mejora": "Improvement",
  "Arreglo": "Fix",

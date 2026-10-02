@@ -48,6 +48,8 @@ SITIO = "https://mi.norata.app"
 EN_CALIENTE = [
     "css/mundos.css",
     "caminos/caminos.json",
+    # Lo baja la hoja de Google de la que Framer sincroniza el changelog.
+    "novedades/framer.csv",
     "privacidad/index.html",
     "terminos/index.html",
     "correos/04-bienvenida.html",

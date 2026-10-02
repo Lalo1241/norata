@@ -324,6 +324,58 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.175 · 2 oct 2026
+
+**El changelog del sitio sale de las mismas fichas que la app, con su tarjeta,
+sus imágenes y sus gráficos; y el gráfico de una novedad se rehízo en los dos
+sitios.** Es la tanda entera del changelog de norata.framer.website, que se
+trabajó con Eduardo en una sola conversación y no llegó a publicarse por
+partes: por eso es una línea.
+
+**La cadena.** `novedades.json` → `novedades/framer.csv` (lo rehace el
+`pre-commit` cuando entra el JSON y lo vigila `novedades-framer.yml`) →
+mi.norata.app → la hoja de Google «Norata · Novedades»
+(`herramientas/novedades-hoja.gs`, cada hora) → el plugin Google Sheets de
+Framer. Al sitio solo va lo destacado —expansiones y nuevas etapas, o lo que
+lleve `"sitio": true`—, porque Framer admite mil filas por colección.
+
+**La tarjeta del sitio es un componente de código**, `TarjetaNovedad` (copia
+en `herramientas/framer/`). Eduardo la paró tres veces y de ahí salió: banner
+arriba pegado a los cantos, como un parche de Steam; la cápsula de la clase
+con su color; las imágenes ENTRE el texto, todas del mismo tamaño y con zoom
+al tocarlas; y «Retoques» con su raya y su rótulo. Con capas de Framer no
+salía ninguna de las cuatro.
+
+**Las imágenes.** La de acompañamiento ya no repite la del banner: es la misma
+pantalla partida en diagonal, de día y de noche (`herramientas/capturas/`), o
+varias apariencias en tiras cuando lo que se cuenta son ambientes. Y cada cosa
+que el texto menciona lleva su imagen al lado: las fichas ganan `banner`,
+`imagenes` y `tras`.
+
+**El gráfico, en el sitio y en la app.** Eduardo: «no tiene la identidad
+visual de Norata clásico», las paletas sin esquinas redondas y sin decir en
+qué nivel se gana cada una, los números sin un texto que dijera qué contaban,
+y la pastilla «+4» de más. Y al aprobarlo: «que a futuro sea siempre este
+estilo de diseño». Quedó en renglones: el número con lo que cuenta al lado y
+su explicación debajo (`detalle`), cada paleta con cuándo se tiene (`nota`,
+`candado`), y el antes y ahora con casillas, sus dos números rotulados y qué
+fue lo que llegó. El SVG del sitio lleva Outfit incrustada y la huella de su
+contenido en el nombre; la app dibuja lo mismo con sus tonos
+(`novedadBloqueHTML`).
+
+**«Hito» se llama «Nueva etapa» y va en morado** (`--casa-lila`), en la app y
+en el sitio: es la única excepción a «el lila es de Fundador», y Eduardo la
+confirmó porque sale dos veces en la vida de la app.
+
+**Preparado para la sala Subidas:** una ficha puede llevar `id` (por él la
+reconocen la app y Framer), y el estado `aprobado` entre borrador y publicado.
+
+**Medido:** la tarjeta, en la vista previa de Framer a 1200, 810 y 390 px, con
+el zoom abriendo; el gráfico de la app, de noche y de día, sin nada que se
+salga de su caja en 400 px. **Sin medir:** el gráfico de la app con un mundo
+puesto, y la ventana de la 0.7.147 en teléfono, que ahora trae cuatro bloques
+y es larga.
+
 ### 0.7.174 · 2 oct 2026
 
 **Cambiar de cuenta tiene su propia carga, y entra ya en el tema de la otra.**

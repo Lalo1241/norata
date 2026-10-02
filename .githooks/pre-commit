@@ -1,4 +1,24 @@
 #!/bin/sh
 # Al hacer commit: lo que va a entrar (el índice). Ver marcas-de-conflicto.sh.
 # Ojo: un rebase no pasa por aquí; eso lo recoge pre-push.
-exec sh "$(git rev-parse --show-toplevel)/.githooks/marcas-de-conflicto.sh"
+raiz="$(git rev-parse --show-toplevel)"
+sh "$raiz/.githooks/marcas-de-conflicto.sh" || exit 1
+
+# Si entran las novedades, entra con ellas el CSV del changelog del sitio.
+# Una hoja de Google lo baja de mi.norata.app y Framer sincroniza desde ahí:
+# si el JSON cambia y el CSV no, el sitio se queda contando la versión vieja
+# sin que nada falle. Quien llegue sin pasar por aquí (un rebase, una máquina
+# sin hooks) lo para `.github/workflows/novedades-framer.yml`.
+if git diff --cached --name-only | grep -qx "novedades/novedades.json"; then
+  py=""
+  for c in python3 python; do
+    if "$c" -c "import sys" >/dev/null 2>&1; then py="$c"; break; fi
+  done
+  if [ -z "$py" ]; then
+    echo "pre-commit: no hay Python para rehacer novedades/framer.csv." >&2
+    echo "  Corre herramientas/novedades-framer.py a mano antes de subir." >&2
+  else
+    "$py" "$raiz/herramientas/novedades-framer.py" >/dev/null || exit 1
+    git add -- "$raiz/novedades/framer.csv" "$raiz/novedades/img"
+  fi
+fi

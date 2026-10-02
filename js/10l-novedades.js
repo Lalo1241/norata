@@ -110,9 +110,19 @@ function cargarNovedades() {
    borradores. De la más nueva a la más vieja. */
 function novedadesVisibles(entradas, conBorradores) {
   return entradas
-    .filter((e) => e && e.version && (e.estado === "publicado" || (conBorradores && e.estado === "borrador")))
+    .filter((e) => e && e.version && (e.estado === "publicado" || (conBorradores && (e.estado === "borrador" || e.estado === "aprobado"))))
     .filter((e) => conBorradores || !versionMasNueva(e.version, VERSION))
     .sort((a, b) => (versionMasNueva(a.version, b.version) ? -1 : 1));
+}
+
+/* Con qué se reconoce una ficha. Era la versión, y bastaba mientras cada
+   versión traía un solo cambio. Con los paquetes semanales varias fichas
+   comparten número —el del paquete—, y apuntando la versión como vista la
+   segunda ficha de un paquete ya no se anunciaba nunca. Las de antes no
+   llevan `id` y siguen reconociéndose por su versión, así que lo que cada
+   dispositivo tiene apuntado como visto sigue valiendo. */
+function novedadLlave(e) {
+  return (e && (e.id || e.version)) || "";
 }
 
 /* En inglés, si la entrada trae su versión en inglés; si no, la española. Una
@@ -157,8 +167,11 @@ function novedadFecha(iso) {
 const NOVEDAD_CLASES = {
   /* El cuarto, que no es un tamaño sino un momento (0.7.152): la entrada en
      la beta (`0.8`) y el lanzamiento (`1.0`). En vez de la ventana abre la
-     escena de `abrirHito`, y lleva además `"hito": "beta"` o `"1.0"`. */
-  hito:      { nombre: "Hito",      ventana: true },
+     escena de `abrirHito`, y lleva además `"hito": "beta"` o `"1.0"`.
+     Por dentro sigue siendo `hito`; en pantalla se llama «Nueva etapa»
+     (Eduardo: «hito» no le decía de qué iba). Es la palabra que la app ya
+     usa para la alpha y la beta, en la etiqueta del número y en la insignia. */
+  hito:      { nombre: "Nueva etapa", ventana: true },
   expansion: { nombre: "Expansión", ventana: true },
   mejora:    { nombre: "Mejora",    ventana: true },
   arreglo:   { nombre: "Arreglo",   ventana: false }
@@ -193,38 +206,56 @@ function novedadTono(d, i) {
 function novedadIcono(d) {
   return d && d.icono && typeof icon === "function" ? `<span class="nov-g-ic">${icon(d.icono, 14)}</span>` : "";
 }
+/* Rehecho en la 0.7.175, con lo que Eduardo le vio al gráfico del sitio y pidió
+   «a futuro siempre»: **ningún número sin su explicación, ninguna paleta sin
+   decir cuándo se tiene**, y todo en renglones que se leen de izquierda a
+   derecha en vez de cajas sueltas. De ahí tres campos nuevos por dato:
+   `detalle` (qué hay detrás del número, o qué fue lo que llegó), `nota`
+   (cuándo se tiene una paleta) y `candado` (si hay que ganarla). El «antes y
+   ahora» perdió la pastilla de «+4»: los dos números, rotulados, ya lo dicen.
+   El SVG del sitio (`herramientas/novedades-framer.py`) dibuja lo mismo. */
 function novedadBloqueHTML(g) {
   if (!g || !Array.isArray(g.datos) || !g.datos.length) return "";
   const titulo = novedadCampo(g, "titulo");
   const cab = titulo ? `<span class="nov-graf-tit">${escapeHtml(titulo)}</span>` : "";
   const texto = (d) => escapeHtml(novedadCampo(d, "texto") || novedadCampo(d, "nombre") || "");
+  const detalle = (d) => {
+    const t = novedadCampo(d, "detalle");
+    return t ? `<span class="nov-det">${escapeHtml(t)}</span>` : "";
+  };
+  const tonos = (d, i) => `--t: var(--paleta-${novedadTono(d, i)}); --t-linea: var(--paleta-${novedadTono(d, i)}-linea)`;
   if (g.tipo === "comparar") {
-    /* Puntitos y no barras: «de 1 a 5» se cuenta, no se mide. Los de antes van
-       apagados y los que llegaron, encendidos en su tono; la diferencia, en
-       una pastilla al final. Más de 12 se cambia a una barra partida. */
-    return `<div class="nov-graf nov-comparar">${cab}${g.datos.map((d, i) => {
+    /* Casillas y no barras: «de 1 a 5» se cuenta, no se mide. Las de antes van
+       apagadas y las que llegaron, encendidas en su tono. Más de 12 se cambia
+       a una barra partida. */
+    return `<div class="nov-graf nov-comparar">${cab}
+      <span class="nov-cmp-cab" aria-hidden="true"><span>${escapeHtml(tx("Antes"))}</span><span>${escapeHtml(tx("Ahora"))}</span></span>${g.datos.map((d, i) => {
       const a = Number(d.antes) || 0, b = Number(d.ahora) || 0, max = Math.max(a, b);
-      const dif = b - a;
       const pips = max <= 12
         ? Array.from({ length: max }, (_, k) => `<i class="${k < Math.min(a, b) ? "ya" : (k < b ? "nuevo" : "fue")}"></i>`).join("")
         : `<span class="nov-cmp-barra"><i class="ya" style="width:${Math.round(Math.min(a, b) / max * 100)}%"></i><i class="nuevo" style="width:${Math.round(Math.max(0, b - a) / max * 100)}%"></i></span>`;
       return `
-      <div class="nov-cmp" style="--t: var(--paleta-${novedadTono(d, i)}); --t-linea: var(--paleta-${novedadTono(d, i)}-linea)">
+      <div class="nov-cmp" style="${tonos(d, i)}">
         <span class="nov-cmp-et">${novedadIcono(d)}<span>${texto(d)}</span></span>
-        <span class="nov-cmp-pips">${pips}</span>
         <span class="nov-cmp-num"><span class="antes">${escapeHtml(String(d.antes))}</span><span class="flecha" aria-hidden="true">→</span><b>${escapeHtml(String(d.ahora))}</b></span>
-        ${dif ? `<span class="nov-cmp-dif">${dif > 0 ? "+" : "−"}${Math.abs(dif)}</span>` : ""}
+        <span class="nov-cmp-pips">${pips}</span>
+        ${detalle(d)}
       </div>`;
-    }).join("")}</div>`;
+    }).join("")}
+      <span class="nov-cmp-ley"><span><i class="ya"></i>${escapeHtml(tx("Lo que ya había"))}</span><span><i class="nuevo"></i>${escapeHtml(tx("Lo nuevo"))}</span></span></div>`;
   }
   if (g.tipo === "colores") {
-    /* Cada paleta con sus muestras y su nombre debajo: decir «Ácido» sin
-       enseñar el ácido no presenta nada. */
-    return `<div class="nov-graf nov-colores">${cab}<div class="nov-col-fila">${g.datos.map((d) => `
+    /* Cada paleta en su renglón: sus muestras en una pastilla, su nombre y
+       cuándo se tiene. Decir «Ácido» sin enseñar el ácido no presenta nada, y
+       enseñarlo sin decir que el último se gana, tampoco. */
+    return `<div class="nov-graf nov-colores">${cab}<div class="nov-col-fila">${g.datos.map((d) => {
+      const nota = novedadCampo(d, "nota");
+      return `
       <span class="nov-col">
         <span class="nov-col-muestras">${(d.colores || []).slice(0, 5).map((c) => `<i style="background:${escapeAttr(c)}" title="${escapeAttr(c)}"></i>`).join("")}</span>
-        <span class="nov-col-nom">${texto(d)}</span>
-      </span>`).join("")}</div></div>`;
+        <span class="nov-col-tx"><span class="nov-col-nom">${texto(d)}</span>${nota ? `<span class="nov-col-nota${d.candado ? " gana" : ""}">${d.candado && typeof icon === "function" ? icon("lock", 11) : ""}<span>${escapeHtml(nota)}</span></span>` : ""}</span>
+      </span>`;
+    }).join("")}</div></div>`;
   }
   if (g.tipo === "barras") {
     const max = Math.max.apply(null, g.datos.map((d) => Number(d.valor) || 0)) || 1;
@@ -235,8 +266,12 @@ function novedadBloqueHTML(g) {
         <b>${escapeHtml(String(d.valor))}</b>
       </div>`).join("")}</div>`;
   }
-  return `<div class="nov-graf nov-cifras">${cab}<div class="nov-cifras-fila">${g.datos.slice(0, 4).map((d, i) => `
-    <span class="nov-cifra" style="--t: var(--paleta-${novedadTono(d, i)})">${novedadIcono(d)}<b>${escapeHtml(String(d.valor))}</b><span>${texto(d)}</span></span>`).join("")}</div></div>`;
+  /* Las cifras: el número y lo que cuenta en un mismo renglón, y debajo qué
+     hay detrás. Antes eran cajas con un número suelto arriba. */
+  return `<div class="nov-graf nov-cifras">${cab}${g.datos.slice(0, 4).map((d, i) => `
+    <div class="nov-cifra" style="${tonos(d, i)}">${novedadIcono(d)}
+      <span class="nov-cifra-tx"><span class="nov-cifra-que"><b>${escapeHtml(String(d.valor))}</b> ${texto(d)}</span>${detalle(d)}</span>
+    </div>`).join("")}</div>`;
 }
 function novedadGraficoHTML(g) {
   return (Array.isArray(g) ? g : [g]).map(novedadBloqueHTML).join("");
@@ -260,6 +295,7 @@ function novedadHTML(e, medios) {
         <span class="nov-ver">V${escapeHtml(e.version)}</span>
         <span class="nov-fecha">${escapeHtml(novedadFecha(e.fecha))}</span>
         ${e.estado === "borrador" ? `<span class="nov-borrador">${escapeHtml(tx("Borrador"))}</span>` : ""}
+        ${e.estado === "aprobado" ? `<span class="nov-borrador">${escapeHtml(tx("Por subir"))}</span>` : ""}
       </div>
       <h4 class="nov-tit">${escapeHtml(novedadCampo(e, "titulo") || "")}</h4>
       ${novedadCampo(e, "resumen") ? `<p class="nov-res">${escapeHtml(novedadCampo(e, "resumen"))}</p>` : ""}
@@ -325,15 +361,15 @@ async function revisarNovedades() {
 
   let vistas = leerVistas();
   if (vistas === null) {
-    vistas = publicadas.map((e) => e.version);
+    vistas = publicadas.map(novedadLlave);
     guardarVistas(vistas);
   }
-  const pendientes = publicadas.filter((e) => vistas.indexOf(e.version) < 0);
+  const pendientes = publicadas.filter((e) => vistas.indexOf(novedadLlave(e)) < 0);
   /* Los arreglos no abren ventana (ver `NOVEDAD_CLASES`): se dan por vistos y,
      si solo hay arreglos, se avisa con el aviso chico de abajo. */
   const conVentana = pendientes.filter((e) => NOVEDAD_CLASES[novedadClase(e)].ventana);
   if (pendientes.length && !conVentana.length) {
-    guardarVistas(vistas.concat(pendientes.map((e) => e.version)));
+    guardarVistas(vistas.concat(pendientes.map(novedadLlave)));
   }
 
   /* Un hito pendiente manda sobre todo lo demás: es su escena y no la ventana.
@@ -345,7 +381,7 @@ async function revisarNovedades() {
       /* El número que rueda es el que esta persona tenía ANTES de actualizar:
          «0.7.163 → Beta» cuenta su salto, no el de otro. */
       abrirHito(hito, { desde: vista || "" }).then(() => {
-        guardarVistas((leerVistas() || []).concat(pendientes.map((e) => e.version)));
+        guardarVistas((leerVistas() || []).concat(pendientes.map(novedadLlave)));
       });
     });
     return;
@@ -356,7 +392,7 @@ async function revisarNovedades() {
       ventanaNovedades(conVentana).then(() => {
         /* Se apuntan al CERRARLA, no al pedirla: si la app se cierra antes de
            que salga, la próxima vez vuelve a salir. */
-        guardarVistas((leerVistas() || []).concat(pendientes.map((e) => e.version)));
+        guardarVistas((leerVistas() || []).concat(pendientes.map(novedadLlave)));
       });
     });
     return;

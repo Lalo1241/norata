@@ -8518,8 +8518,10 @@
   .nov-clase.c-expansion { color: var(--casa-menta); background: var(--casa-menta-soft); }
   .nov-clase.c-mejora { color: var(--celeste); background: var(--celeste-soft); }
   .nov-clase.c-arreglo { color: var(--muted); background: var(--sup-panel); }
-  /* El hito va en la luciérnaga de la marca: no hay otro momento así. */
-  .nov-clase.c-hito { color: var(--sobre-vivo); background: var(--fire); }
+  /* «Nueva etapa» (la clase `hito`) va en morado, y lo pidió Eduardo. Sale
+     del lila de la CASA y no de `--lila`, que los mundos recolorean: la
+     etiqueta tiene que ser la misma en cualquier mundo, como la expansión. */
+  .nov-clase.c-hito { color: var(--casa-lila); background: var(--casa-lila-soft); }
   /* La expansión pesa más también en la lista: su tarjeta lleva el filo del
      acento y el título más grande. */
   .nov-lista .nov-expansion { border-color: color-mix(in srgb, var(--mint) 45%, var(--line)); }
@@ -8527,42 +8529,50 @@
   .nov-lista .nov-arreglo .nov-tit { font-size: 14.5px; }
   .nov-img { margin: 0 0 12px; border-radius: var(--r-chico); overflow: hidden; background: var(--sup-hondo); }
   .nov-img img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; }
-  /* ---- Los gráficos de una novedad (rehechos en 0.7.153) ----
+  /* ---- Los gráficos de una novedad (rehechos en 0.7.153 y en 0.7.175) ----
      Cada dato en su tono (`--t`, uno de los ocho de la app) con su icono, y
-     escrito con la mezcla de `tinta()` para que de día llegue a 4,5. Nada se
-     estira a lo ancho: las barras topan en 220 px y la comparación son
-     puntitos, que se cuentan sin medir. */
-  .nov-graf { margin-top: 12px; padding: 12px; border-radius: var(--r-chico); background: var(--sup-hondo); display: grid; gap: 9px; }
+     escrito con la mezcla de `tinta()` para que de día llegue a 4,5.
+     La 0.7.175 los puso en renglones, como la lámina del sitio que Eduardo
+     aprobó («a futuro siempre este estilo»): el número con lo que cuenta al
+     lado y su explicación debajo, las paletas con su nota, y el antes y
+     ahora sin la pastilla de «+4». */
+  .nov-graf { margin-top: 12px; padding: 12px; border-radius: var(--r-chico); background: var(--sup-hondo); display: grid; gap: 10px; }
   .nov-graf-tit { display: block; font-size: 10px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
-  .nov-g-ic { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: var(--r-mini); color: var(--t, var(--mint)); background: color-mix(in srgb, var(--t, var(--mint)) 16%, transparent); }
+  .nov-g-ic { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: var(--r-mini); color: var(--t-linea, var(--t, var(--mint))); background: color-mix(in srgb, var(--t, var(--mint)) 16%, transparent); }
   .nov-g-ic svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
-  .nov-cifras-fila { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 10px; }
-  .nov-cifra { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; text-align: left; padding: 9px 10px; border-radius: var(--r-mini); background: color-mix(in srgb, var(--t) 8%, transparent); }
-  .nov-cifra b { font-family: var(--sans); font-size: 24px; font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums;
+  .nov-det { display: block; font-size: 11.5px; font-weight: 400; color: var(--muted); line-height: 1.3; text-align: left; }
+  .nov-cifra { display: flex; align-items: center; gap: 10px; min-width: 0; text-align: left; }
+  .nov-cifra .nov-g-ic { width: 34px; height: 34px; }
+  .nov-cifra .nov-g-ic svg { width: 18px; height: 18px; }
+  .nov-cifra-tx { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .nov-cifra-que { font-size: 13.5px; font-weight: 600; line-height: 1.2; }
+  .nov-cifra b { font-family: var(--sans); font-size: 22px; font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums; margin-right: 3px;
     color: color-mix(in srgb, var(--t), var(--tinta-fondo) var(--hundir)); }
-  .nov-cifra > span:last-child { font-size: 11.5px; color: var(--muted); line-height: 1.3; }
-  /* Antes y ahora: lo que había, apagado; lo que llegó, encendido. */
-  /* El nombre en su renglón y los puntitos con los números debajo: en una sola
-     fila, con diez puntitos, el nombre se quedaba en «Ambi…» (0.7.153). */
-  .nov-cmp { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: "et et et" "pips num dif"; column-gap: 10px; row-gap: 6px; align-items: center; font-size: 12.5px; }
+  /* Antes y ahora: lo que había, apagado; lo que llegó, encendido. El nombre y
+     los dos números arriba, las casillas debajo a lo ancho, y al final qué fue
+     lo que llegó. */
+  .nov-cmp-cab { display: flex; justify-content: flex-end; gap: 12px; margin-bottom: -5px; font-size: 9px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+  .nov-cmp { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "et num" "pips pips" "det det"; column-gap: 10px; row-gap: 5px; align-items: center; font-size: 12.5px; }
   .nov-cmp + .nov-cmp { padding-top: 9px; border-top: 1px solid var(--line); }
   .nov-cmp-et { grid-area: et; display: flex; align-items: center; gap: 8px; min-width: 0; text-align: left; font-weight: 600; }
-  .nov-cmp-pips { grid-area: pips; padding-left: 32px; }
   .nov-cmp-num { grid-area: num; }
-  .nov-cmp-dif { grid-area: dif; }
-  .nov-cmp-pips { display: flex; flex-wrap: wrap; gap: 3px; }
-  .nov-cmp-pips i { width: 9px; height: 9px; border-radius: var(--r-redondo); }
+  .nov-cmp .nov-det { grid-area: det; }
+  .nov-cmp-pips { grid-area: pips; display: flex; gap: 4px; }
+  .nov-cmp-pips i { flex: 1 1 0; max-width: 34px; height: 8px; border-radius: var(--r-barra); }
   .nov-cmp-pips i.ya { background: color-mix(in srgb, var(--t-linea) 45%, var(--carril)); }
   .nov-cmp-pips i.nuevo { background: var(--t-linea); }
   .nov-cmp-pips i.fue { box-shadow: inset 0 0 0 1.5px var(--carril); }
-  .nov-cmp-barra { display: flex; width: 110px; height: 9px; border-radius: var(--r-barra); background: var(--carril); overflow: hidden; }
+  .nov-cmp-barra { display: flex; width: 100%; height: 8px; border-radius: var(--r-barra); background: var(--carril); overflow: hidden; }
   .nov-cmp-barra i.ya { background: color-mix(in srgb, var(--t-linea) 45%, var(--carril)); }
   .nov-cmp-barra i.nuevo { background: var(--t-linea); }
-  .nov-cmp-num { display: inline-flex; align-items: baseline; gap: 5px; font-family: var(--sans); font-variant-numeric: tabular-nums; }
-  .nov-cmp-num .antes { color: var(--faint); text-decoration: line-through; }
+  .nov-cmp-num { display: inline-flex; align-items: baseline; gap: 6px; font-family: var(--sans); font-variant-numeric: tabular-nums; }
+  .nov-cmp-num .antes { color: var(--muted); }
   .nov-cmp-num .flecha { color: var(--faint); }
-  .nov-cmp-num b { font-size: 15px; color: color-mix(in srgb, var(--t), var(--tinta-fondo) var(--hundir)); }
-  .nov-cmp-dif { font-size: 10px; font-weight: 800; color: var(--sobre-vivo); background: var(--t); border-radius: var(--r-pastilla); padding: 1px 6px; }
+  .nov-cmp-num b { font-size: 16px; color: color-mix(in srgb, var(--t), var(--tinta-fondo) var(--hundir)); }
+  .nov-cmp-ley { display: flex; flex-wrap: wrap; gap: 4px 14px; padding-top: 9px; border-top: 1px solid var(--line); font-size: 10.5px; color: var(--muted); }
+  .nov-cmp-ley > span { display: inline-flex; align-items: center; gap: 6px; }
+  .nov-cmp-ley i { width: 16px; height: 7px; border-radius: var(--r-barra); background: var(--text); }
+  .nov-cmp-ley i.ya { opacity: 0.3; }
   /* Las barras, cortas y cada una en su tono. */
   .nov-barra { display: grid; grid-template-columns: minmax(0, 1fr) minmax(60px, 220px) 2.5ch; gap: 9px; align-items: center; font-size: 12.5px; }
   .nov-barra-et { display: flex; align-items: center; gap: 8px; min-width: 0; color: var(--muted); text-align: left; }
@@ -8570,12 +8580,18 @@
   .nov-barra-carril { height: 8px; border-radius: var(--r-barra); background: var(--carril); overflow: hidden; }
   .nov-barra-carril i { display: block; height: 100%; border-radius: inherit; background: var(--t); }
   .nov-barra b { font-family: var(--sans); font-variant-numeric: tabular-nums; text-align: right; }
-  /* Las paletas: cada una con sus muestras de verdad y su nombre debajo. */
-  .nov-col-fila { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 10px; }
-  .nov-col { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
-  .nov-col-muestras { display: flex; height: 26px; border-radius: var(--r-mini); overflow: hidden; box-shadow: inset 0 0 0 1px var(--line); }
+  /* Las paletas: cada una en su renglón, con sus muestras de verdad en una
+     pastilla, su nombre y cuándo se tiene. La que hay que ganar lo dice en el
+     tono de «en curso», con su candado. */
+  .nov-col-fila { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 9px 12px; }
+  .nov-col { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .nov-col-muestras { flex: none; display: flex; width: 64px; height: 24px; border-radius: var(--r-pastilla); overflow: hidden; box-shadow: inset 0 0 0 1px var(--line); }
   .nov-col-muestras i { flex: 1; }
-  .nov-col-nom { font-size: 11.5px; font-weight: 600; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .nov-col-tx { display: flex; flex-direction: column; gap: 1px; min-width: 0; text-align: left; }
+  .nov-col-nom { font-size: 13px; font-weight: 700; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .nov-col-nota { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--muted); line-height: 1.3; }
+  .nov-col-nota.gana { color: var(--estado-curso-tinta); }
+  .nov-col-nota svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
   /* Una novedad se lee a la izquierda, también dentro de la ventana. La regla
      que centraba es `.modal-card p` —todo párrafo de cualquier cuadro—, que
      le gana a `.nov-res` por especificidad: el resumen salía centrado entre el
@@ -13040,7 +13056,10 @@
    con su color, que es lo que evita leerlos como el mismo mensaje dicho dos
    veces. */
 .plan-card.destacada { border-color: var(--mint); }
-/* El lila es de Fundador y de nada más (ver `--lila` en :root). Lo llevan su
+/* El lila es de Fundador y de nada más (ver `--lila` en :root), con UNA
+   excepción que aprobó Eduardo: la etiqueta «Nueva etapa» de las novedades
+   (`.nov-clase.c-hito`), que sale dos veces en la vida de la app —la beta y
+   la 1.0—. No es precedente para pintar de lila nada más. Lo llevan su
    tarjeta de precio y el bloque de ascenso de Ajustes (`.plan-subir`), y van
    juntos en los mismos selectores a propósito: son la misma promesa en dos
    pantallas, y separados acaban discrepando en un tono. */

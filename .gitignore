@@ -13,6 +13,10 @@ mainquest-respaldo-*.json
 # Configuración local de herramientas
 .claude/
 
+# El CSV de las novedades CON borradores: es para probar el diseño del
+# changelog en Framer. El bueno (`novedades/framer.csv`) sí se versiona.
+novedades/framer-borradores.csv
+
 # Ruido del sistema
 Thumbs.db
 desktop.ini

@@ -239,7 +239,7 @@ con el mismo número, una línea en `VERSIONES.md` y **su novedad en
 **Lo que cambió, contado para quien usa la app**, en `novedades/novedades.json`:
 una entrada por 3º, con sus 4º dentro como retoques. La lee la app —una
 ventana al estrenar una versión y Ajustes → Novedades (`js/10l-novedades.js`)—
-y la leerá la página de changelog del sitio el día que exista.
+y la lee también el changelog del sitio.
 
 - **Nada sale sin que Eduardo lo apruebe.** Las entradas nacen en
   `"borrador"` y la ventana que sale al abrir solo enseña `"publicado"`. Las
@@ -264,9 +264,20 @@ y la leerá la página de changelog del sitio el día que exista.
   app. Si una novedad habla de colores, lleva un bloque `colores`. Sus borradores ya están escritos; se prueban con
   `?novedades=borrador`. Y la etiqueta «Alpha» del número cambia sola a «Beta»
   en la `0.8` y se va en la `1.0`.
-- **El changelog del sitio sale del mismo JSON**: el sitio es Framer, y
-  `herramientas/novedades-framer.py` escribe el CSV para su CMS y dibuja los
-  gráficos como SVG. Nada se escribe dos veces.
+- **El changelog del sitio sale del mismo JSON (0.7.175)**: el sitio es
+  Framer, y `herramientas/novedades-framer.py` escribe `novedades/framer.csv`
+  —lo rehace el `pre-commit`, lo vigila `novedades-framer.yml`— y dibuja los
+  gráficos como SVG. De ahí lo toma una hoja de Google y de ella el CMS. Al
+  sitio solo va lo destacado. La tarjeta es un componente de código
+  (`herramientas/framer/TarjetaNovedad.tsx`). Nada se escribe dos veces.
+- **Cómo se ilustra una novedad es regla de Eduardo, «a futuro siempre»**
+  (0.7.175), y está entera en `novedades/LEEME.md`: una expansión lleva banner;
+  la imagen de acompañamiento no lo repite —es la misma pantalla partida en
+  diagonal, de día y de noche, o varias apariencias en tiras—; **cada cosa que
+  el texto menciona lleva su imagen al lado** (`tras`); y en un gráfico
+  **ningún número va sin su explicación** (`detalle`) **ni una paleta sin
+  decir cuándo se tiene** (`nota`, `candado`). Las capturas se sacan con
+  `herramientas/capturas/`.
 - **«Ya está lista la versión X» es una tarjeta que se queda**
   (`avisoVersionLista`), en la web del teléfono y en el APK. En la computadora
   sigue el botón de la barra lateral.

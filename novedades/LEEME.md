@@ -37,6 +37,28 @@ Esto dice qué ganas tú, en dos o tres renglones.
 - Lo que no le importa a quien usa la app —un arreglo interno, un
   documento— no lleva entrada ni retoque.
 
+## El alta es la novedad: una ficha por cambio
+
+Eduardo lo cerró el 2 oct 2026, al juntar esto con la sala **Subidas** del
+panel («Norata por dentro»): dar de alta un cambio allí y escribir su novedad
+aquí son **la misma ficha**, no dos listas que haya que mantener parejas.
+
+| Campo | Qué es |
+| --- | --- |
+| `id` | El nombre de la ficha, en minúsculas y con guiones (`vitrina-logros`). Se pone al darla de alta y **no cambia nunca**: por él la reconocen la app (lo que ya viste) y Framer (el `Slug`) |
+| `estado` | `borrador` (dada de alta, espera) → `aprobado` (con tu visto bueno, espera a que suba su paquete) → `publicado` (en vivo) |
+| `version`, `fecha` | Las del **paquete** en que sale. Varias fichas pueden compartirlas |
+| `toca` | Opcional: las zonas de la app que mueve (`["Mundos", "La puerta"]`). Lo usa Subidas, no el changelog |
+
+- **Una sola aprobación.** Aprobar el cambio en Subidas es aprobar su texto.
+- **Las cinco primeras fichas no llevan `id`** y se reconocen por su versión
+  (`v0-7-148`). No se les pone ahora: cambiarles el nombre las anunciaría otra
+  vez en cada dispositivo y las duplicaría en Framer.
+- **Dos fichas con la misma versión y sin `id` no pasan**: el exportador se
+  niega, porque en Framer una pisaría a la otra.
+- Mientras Subidas no exista, las fichas las siguen escribiendo las sesiones,
+  como hasta hoy. El formato ya es el que Subidas va a leer.
+
 ## La clase: cuánto pesa (0.7.151)
 
 Eduardo pidió distinguir qué novedad es más grande que otra. **La decide qué le
@@ -137,6 +159,79 @@ Para las que lo merecen, que casi siempre son expansiones.
   enseñar lo que viaja dentro del paquete, y meter todas las imágenes lo haría
   crecer con cada expansión. Se quita sola, sin dejar hueco.
 
+### Para la tarjeta del sitio: el banner y dónde cae cada imagen
+
+Eduardo lo pidió el 2 oct 2026, con los parches de Steam de ejemplo: **una
+expansión lleva arriba una imagen ancha, pegada a los cantos de la tarjeta, y
+las demás imágenes van entre el texto, no todas al final.** Son tres campos
+que solo mira el exportador; la app no los lee.
+
+```json
+"imagen":   { "src": "novedades/img/0.7.148-cyberpunk.jpg", "alt": "…", "tras": 1 },
+"imagenes": [{ "src": "novedades/img/0.7.148-paletas.jpg", "alt": "…", "tras": 2 }],
+"banner":   { "foco": "70% 21%" }
+```
+
+| Campo | Qué hace |
+| --- | --- |
+| `banner.foco` | Adónde mirar dentro de la `imagen` para el banner, que es 4:1 y una captura es 16:9. Se escribe como un `object-position` («70% 21%»: 70 % a lo ancho, 21 % a lo alto). Sin él se queda la franja del centro |
+| `banner.src` | Un arte hecho para el banner, en vez de recortar la `imagen`. Con su `alt` |
+| `tras` | Después de cuántos `puntos` cae esa imagen: `0` es antes del primero. Sin `tras`, después del último |
+| `imagenes` | Más imágenes de acompañamiento, cada una con su `src`, su `alt` y su `tras` |
+
+- **Una expansión sin `banner` ni `imagen` sale sin banner**, y el exportador
+  lo avisa al correr.
+- **La `imagen` que sale de banner no se repite debajo** (Eduardo la vio dos
+  veces en la misma tarjeta y lo paró). En el cuerpo solo van las de
+  `imagenes`, y la `imagen` únicamente cuando el banner trae su propio
+  `src`.
+- **La imagen de acompañamiento de un mundo o una paleta es la misma pantalla
+  partida en diagonal, de día a la izquierda y de noche a la derecha.** Se
+  saca con `herramientas/capturas/` (ahí están los pasos) y se llama
+  `<versión>-<qué>-dia-y-noche.jpg`.
+
+### El gráfico, en el sitio
+
+El SVG del sitio se rehízo el 2 oct 2026 con lo que Eduardo le vio al primero:
+no tenía la identidad de Norata clásico, las paletas no tenían esquinas
+redondas ni decían cuándo se gana cada una, y los números no llevaban un texto
+que dijera qué contaban. Tres campos más en cada dato, que hoy solo lee el
+exportador:
+
+| Campo | En qué forma | Qué dice |
+| --- | --- | --- |
+| `detalle` | `cifras`, `comparar` | Qué hay detrás del número. En `cifras`, una frase («Señal, Enlace, Protocolo, Núcleo y Leyenda.»); en `comparar`, **qué es lo que llegó**, corto y en un renglón («+ Cobre, Zafiro y Oliva») |
+| `nota` | `colores` | Cuándo se tiene esa paleta: «De partida», «Con el mundo», «Se gana en el nivel 18» |
+| `candado` | `colores` | `true` si hay que ganarla: la nota sale en amarillo con su candado |
+
+- **Cada cosa que el texto menciona lleva su imagen al lado**, no una sola
+  para toda la ficha. Eduardo lo vio en la 0.7.147: hablaba de los ambientes
+  nuevos y ninguna imagen los enseñaba. Quedó con dos filas: tras el punto de
+  las paletas, su captura y su lámina; tras el de los ambientes, los cuatro
+  en tiras (`herramientas/capturas/tiras.mjs`) y la lámina que dice en qué
+  nivel se abre cada uno.
+- **El «antes y ahora» no lleva pastilla de «+4»** ni se titula «Antes y
+  ahora»: los dos números ya lo dicen y van rotulados. El título dice QUÉ
+  cambió («Paletas nuevas por mundo»).
+- **Un número sin `detalle` no explica nada**, que es justo lo que Eduardo
+  señaló. Al escribir un gráfico nuevo, cada dato lleva el suyo.
+- **La lámina mide siempre 1200×675** y lleva la letra Outfit dentro (sale de
+  `css/fuente.css`) y los iconos de la app (`ICONS`). Dos bloques van lado a
+  lado; más de cuatro no caben.
+- **Su archivo lleva la huella de su contenido en el nombre**
+  (`0.7.148-grafico-30103c2e.svg`) y el exportador borra el anterior: si el
+  dibujo cambia, cambia de dirección solo, y nadie se queda viendo el viejo.
+- La app sigue dibujando su gráfico con sus propias reglas
+  (`novedadBloqueHTML`): estos tres campos todavía no los enseña.
+- **Las imágenes que caen en el mismo sitio salen en una fila**, y los
+  bloques del gráfico llevan su `tras` igual que una imagen: los que
+  comparten `tras` van en la misma lámina. **Todas las de una tarjeta miden lo mismo**
+  —una caja 16:9, media tarjeta en computadora y entera en teléfono— y se
+  abren más grandes al tocarlas. De eso se encarga el componente del sitio,
+  no hay que recortar nada.
+- **El `foco` se comprueba mirando la tarjeta**, no a ojo sobre la captura: en
+  teléfono el banner es menos ancho y enseña más alto.
+
 ## El changelog del sitio (Framer)
 
 El sitio vive en Framer y su changelog es una colección del CMS. Sale del
@@ -148,12 +243,66 @@ python herramientas/novedades-framer.py --borradores # para probar el diseño
 ```
 
 Escribe `novedades/framer.csv` (una fila por entrada, con las columnas en
-español y en inglés, la clase, «Destacada» para las expansiones, el cuerpo en
-HTML con los retoques, y las direcciones completas de la imagen y del gráfico)
-y los SVG de los gráficos en `novedades/img/`. En Framer: la colección se
-importa desde ese CSV. **Antes de importar hay que publicar** —subir a `main` y
-esperar el minuto de GitHub Pages—, porque Framer baja las imágenes de
-`mi.norata.app` en ese momento.
+español y en inglés, la clase, «Destacada» para las expansiones, el `Cuerpo`
+en HTML —puntos, imágenes, gráfico y retoques, ya en su orden— y el `Banner`
+con su `Banner foco`) y los SVG de los gráficos en `novedades/img/`. Con
+`--borradores` escribe en `novedades/framer-borradores.csv`, que no se
+versiona ni se publica: es para probar el diseño importándolo a mano.
+
+**La tarjeta del sitio es UN componente de código, `TarjetaNovedad`** (vive en
+Framer, en Assets → Code; su copia está en `herramientas/framer/`). Lo era
+con capas de Framer y se rehízo el 2 oct 2026 porque con capas no salía lo que
+Eduardo pidió: el banner pegado a los cantos, las imágenes entre el texto y
+todas del mismo tamaño, el zoom al tocarlas, y «Retoques» con su rótulo y su
+raya. Tres consecuencias:
+
+- **`Cuerpo` y `Body (EN)` son Plain Text en el CMS, no Formatted Text**: el
+  componente recibe el HTML tal cual y le pone los estilos de sus clases
+  `nv-*`. `Banner` es Image; `Fecha`, Date.
+- **Cambiar cómo se ve la tarjeta es cambiar el `.tsx` y volver a pegarlo en
+  Framer**, no mover capas. Y cambiar el HTML que sale de `cuerpo()` pide
+  mirar que el componente siga teniendo estilo para esas clases.
+- **Los tonos y la letra están escritos dentro del componente** (los de la
+  cara clara del sitio). Si el sitio cambia de aspecto, la tarjeta no lo sigue
+  sola.
+
+**La colección se llena por una cadena, y nadie copia nada a mano** (Eduardo,
+1 oct 2026):
+
+| Eslabón | Quién lo mueve | Cada cuánto |
+| --- | --- | --- |
+| `novedades.json` → `framer.csv` | el hook de pre-commit, al entrar el JSON | en el mismo commit |
+| `framer.csv` → mi.norata.app | GitHub Pages | al subir a `main` |
+| mi.norata.app → hoja de Google | el script de la hoja (`herramientas/novedades-hoja.gs`) | cada hora |
+| hoja de Google → CMS de Framer | el plugin Google Sheets de Framer | **un clic en «Sync», y publicar el sitio** |
+
+- **`framer.csv` solo lleva lo publicado**, así que aprobar una entrada sigue
+  siendo lo único que la saca: en la app y en el sitio.
+- **Y solo lo destacado** (Eduardo, 2 oct 2026): Framer admite 1000 filas por
+  colección y la app llevaba más de cien versiones en seis semanas. Al sitio
+  van las **expansiones y las nuevas etapas**; una mejora o un arreglo se
+  quedan en la app, salvo que su ficha lleve `"sitio": true`. Con
+  `"sitio": false` se saca del sitio una expansión que no lo merezca. La app
+  no mira ese campo: en Ajustes → Novedades sale todo lo publicado. El
+  exportador avisa al pasar de 800 filas y se niega con más de 1000.
+- **Si el CSV se queda viejo no falla nada**: la app enseña la novedad y el
+  sitio no. Por eso lo vigila `.github/workflows/novedades-framer.yml`, que
+  lo rehace y compara. Un hook no corre en un rebase ni en una máquina sin
+  `core.hooksPath`.
+- **El último eslabón no es automático**: el plugin de Framer sincroniza al
+  pulsar su botón, y un cambio del CMS no llega al sitio hasta publicar. Si
+  algún día estorba, la Server API de Framer hace las dos cosas desde un
+  script.
+- **El script de la hoja comprueba antes de borrar**: si el CSV no contesta o
+  llega a medias, la hoja se queda con lo último bueno.
+- **La clase `hito` se llama «Nueva etapa» en pantalla y va en morado**, en la
+  app y en el sitio (Eduardo, 1 oct 2026: «hito» no le decía de qué iba). Por
+  dentro sigue siendo `hito`.
+- **Framer casa las filas por `Slug`** (`v0-7-148`). No se cambia cómo se
+  forma, o cada entrada se duplicaría en la colección.
+- El banner lo baja Framer de `mi.norata.app` al sincronizar, y las imágenes
+  del cuerpo las pide de ahí el navegador de quien mira: lo que no esté
+  publicado todavía llega sin imagen.
 
 ## Nada sale sin que Eduardo lo apruebe
 

@@ -4,3 +4,7 @@
 .githooks/* text eol=lf
 # Lo mismo para los guiones de consola de `herramientas/`.
 herramientas/*.sh text eol=lf
+# Lo que genera `herramientas/novedades-framer.py` sale sin retorno de carro
+# y así se queda, para que regenerarlo en Windows no lo marque como cambiado.
+novedades/framer.csv text eol=lf
+novedades/img/*.svg text eol=lf
