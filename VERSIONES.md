@@ -332,9 +332,9 @@ que deben ser intuitivas de entender», sobre todo en Idioma y Más preferencias
 - **Las opciones van en fila dentro de Ajustes** (`#ajustes-cuerpo .ob-pace`):
   todas juntas o una por fila, nunca dos y una suelta. La bienvenida no cambia:
   usa las mismas opciones y allí siguen apiladas.
-- Medido: Mi perfil con todo desplegado, sin «Tus datos», pasa de 1.932 a
-  1.707 px de alto en el teléfono (400) y queda en 1.213 en la computadora.
-  Nada desborda ni se corta.
+- Medido con todo desplegado y sin «Tus datos»: 1.707 px de alto en el
+  teléfono (400) y 1.213 en la computadora. Nada desborda. El «antes» no se
+  midió en las mismas condiciones, así que no se da la diferencia.
 
 ### 0.7.168 · 2 oct 2026
 
