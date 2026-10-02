@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-/* Los avisos de Norata en la app de Android (0.7.161): las piezas que
+/* Los avisos de Norata en la app de Android (0.7.163): las piezas que
    comparten el complemento (`AvisosPlugin`, lo que habla con la página) y el
    receptor (`AvisosReceptor`, lo que contesta a los botones y a las alarmas).
 
@@ -395,7 +395,7 @@ final class Avisos {
         notificar(c, ID_RELOJ, b.build());
     }
 
-    /* ---------- Los moldes (0.7.161) ----------
+    /* ---------- Los moldes (0.7.163) ----------
        Con moldes, los botones son los de Norata, dentro del aviso, y los de
        Android se quedan solo para el reloj de pulsera (WearableExtender): ahí
        el molde no se ve. Sin moldes (Android 6, o un APK a medias) devuelve

@@ -283,13 +283,14 @@ texto sin aprobar a la vista**: se pone en `false` —el panel vuelve a pedir
 
 ## La lista
 
-### 0.7.161 · 2 oct 2026
+### 0.7.163 · 2 oct 2026
 
 **Los avisos del Pomodoro en la app de Android: el reloj en la cortina, el
 final de cada fase con la app cerrada y una alarma al empezar cada actividad.**
 Lo pidió Eduardo: avisos con diseño en el APK, que el Pomodoro se pueda iniciar
 y pausar desde el aviso, y que sirva de alarma para el inicio de cada
-actividad.
+actividad. Se escribió como 0.7.161 y se renumeró al fusionar: otra sesión
+ya había publicado la 0.7.161 y la 0.7.162.
 
 - **Por qué no salía nada:** el Pomodoro avisaba con la API `Notification` del
   navegador (`jAvisar`), y el WebView de Android no la trae; en el APK tampoco
@@ -374,6 +375,59 @@ clave, el de dormir se calla, iniciar desde la alarma arranca el tramo a la
 hora del toque y abre el Pomodoro, y los iconos llegan en PNG. Sin errores en
 la consola. **Falta verlo en un teléfono de verdad.**
 
+### 0.7.162 · 2 oct 2026
+
+**Refrescar se queda dos segundos a la vista.** Eduardo: «a veces sale un micro
+instante y no se entiende qué pasó». El refresco nació en la 0.7.158 sin
+mínimo, y con la app sirviéndose de su copia la carga duraba un parpadeo: se
+leía como un fallo, no como rapidez. Número propio y no un 4º de la 0.7.161,
+que es el estreno de una versión y no esto.
+
+- `CARGA_REFRESCO = 2000` (`js/10c-portada.js`): la salida corta espera a que
+  la página lleve dos segundos abierta. Contado desde que se abrió, como el
+  mínimo de la entrada, así que un arranque lento no suma nada encima.
+- La entrada (3 s y zoom) y el estreno no cambian.
+
+### 0.7.161 · 2 oct 2026
+
+**Actualizar, de una pieza: el logo llega, el aro se llena y sube el telón.**
+Eduardo lo fue armando sobre el boceto, botón a botón: «¿y si la animación de
+actualizar generara al inicio lo mismo que Entrar pero inverso?». Tema nuevo y
+no un 4º de la 0.7.160: aquello eran los temas por dispositivo, esto es cómo se
+estrena una versión.
+
+- **Antes de recargar, la carga LLEGA** (`cargaLlegar`, `js/10c-portada.js`):
+  las mismas animaciones del zoom de la entrada, puestas en su final y
+  corriendo hacia atrás a 1,25×. La marca viene desde enorme y se asienta en su
+  círculo; la app se cierra detrás. Corre a la vez que la espera del worker
+  nuevo, y se recarga con la carga ya puesta. En el APK, antes de cambiar de
+  paquete.
+- **Después de recargar, todo por CSS desde el primer cuadro**
+  (`html.carga-estreno`): el aro se llena en 1,9 s (antes 0,9); al 60 % se va
+  «Actualizando…» y sale el letrero —«Versión X» arriba, chico y en el acento,
+  «Lista para ti» debajo—, y con él un resplandor leve detrás del logo, que
+  respira. Un segundo quieto, y la carga sube como un telón (560 ms).
+- **Lo que Eduardo quitó por el camino**, apuntado en el código para no
+  volver: el latido del logo al cerrar el aro, el logo volviendo a su latido de
+  espera al asentarse («hace un mal cambio de color y un salto»), el número en
+  grande y el resplandor fuerte («es mucha luz»).
+- **De día no hay resplandor** (la regla de siempre), y con «menos movimiento»
+  la carga nace terminada: aro cerrado y letrero puesto.
+- **Un fallo que venía de la 0.7.158 y nadie había visto**: cuando no se sabía
+  qué versión entraba, se apuntaba un «1»; eso pasaba por número de versión,
+  no coincidía con la de verdad y el estreno se daba por fallido —salía la
+  carga corta con «Abriendo Norata…»—. Ahora se apunta «si», y el letrero
+  toma el número de la versión que de verdad cargó.
+
+**Cómo se midió**, que no es mirando: con las animaciones en pausa y
+`currentTime` a mano. En 0, 95, 500, 1140, 1300, 1500, 1900 y 2900 ms el aro,
+el texto, el letrero y el halo valen lo que dice la tabla del CSS; el logo no
+se mueve ni un píxel ni cambia de opacidad en toda la secuencia. La llegada:
+cinco animaciones a −1,25, 1 259 ms, y al acabar ninguna queda puesta. El
+telón: a mitad la carga va 388 px arriba, al final está fuera entera.
+
+**Sin probar:** con un estreno de verdad (un worker nuevo entrando) y en el
+APK. Lo primero se ve solo con la siguiente versión que se publique.
 
 ### 0.7.160.2 · 1 oct 2026
 

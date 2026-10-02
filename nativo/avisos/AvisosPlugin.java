@@ -95,7 +95,7 @@ public class AvisosPlugin extends Plugin {
         if (color != null) {
             try { ed.putInt("color", Color.parseColor(color)); } catch (IllegalArgumentException e) { /* el de siempre */ }
         }
-        // Los tonos de los moldes (0.7.161): ya resueltos por la página.
+        // Los tonos de los moldes (0.7.163): ya resueltos por la página.
         JSObject col = call.getObject("colores");
         if (col != null) ed.putString("colores", col.toString());
         String zona = call.getString("zona");

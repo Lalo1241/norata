@@ -1,5 +1,5 @@
 /* ============================================================
-   Los avisos en la app de Android (0.7.161)
+   Los avisos en la app de Android (0.7.163)
    ============================================================
 
    El puente entre el Pomodoro (js/09d-jornada.js) y el complemento nativo
@@ -56,7 +56,7 @@
     })).catch(() => null);
   }
 
-  /* ---- El tono de los avisos sigue al mundo (0.7.161) ----
+  /* ---- El tono de los avisos sigue al mundo (0.7.163) ----
      Lo pidió Eduardo: los avisos «tienen que venir de la mano del diseño del
      mundo seleccionado». Es la misma regla que la marca en el menú
      (`--marca-menu`, 0.7.148.4): un MUNDO recolorea, y la casa, un ambiente y
@@ -96,7 +96,7 @@
     return (h <= 20 || h >= 340) && sat >= 0.45;
   }
 
-  /* ---- Los tonos de los moldes (0.7.161) ----
+  /* ---- Los tonos de los moldes (0.7.163) ----
      El APK no lee el CSS: se le manda cada tono ya resuelto, en el mundo y el
      modo de la app. Aquí se aplican las reglas que aprobó Eduardo sobre la
      lámina, y el APK no decide ninguna:
@@ -158,7 +158,7 @@
   function iconoPNG(ic) {
     if (!ic || !ic.dibujo) return Promise.resolve("");
     const fondo = colorDe(ic.color);
-    /* Un solo redondeo para todos los mundos (0.7.161, como el marco), o un
+    /* Un solo redondeo para todos los mundos (0.7.163, como el marco), o un
        disco para los descansos, que en la rueda también son redondos. */
     const disco = ic.forma === "disco";
     const k = fondo + "|" + (disco ? "o" : "r") + "|" + ic.dibujo;

@@ -80,7 +80,7 @@ que abre sin red y sin pasar por Chrome. Lo que eso cambia aquí:
   no esté ahí, hay que añadirlo a mano a su lista de `cp`.
 - **El APK solo se reinstala si cambia lo nativo** (el icono, un permiso, un
   complemento nuevo). Los pasos están en `LEEME.md` de esa carpeta.
-- **Los avisos del sistema son nativos (0.7.161).** El WebView no trae la API
+- **Los avisos del sistema son nativos (0.7.163).** El WebView no trae la API
   `Notification` del navegador, así que en el APK avisa el complemento
   `AvisosNorata` (`nativo/avisos/`, con su instalador y su `LEEME.md`): el
   reloj del Pomodoro en la cortina, el final de fase con la app cerrada y una

@@ -120,6 +120,7 @@ function cargaMostrar(mensaje) {
   if (!el) return;
   cargaTurno++;
   cargaSoltarZoom(el);
+  document.documentElement.classList.remove("carga-llega");
   const msg = document.getElementById("carga-msg");
   if (msg) msg.textContent = mensaje || tx("Un momento…");
   el.classList.remove("oculta", "fuera");
@@ -225,10 +226,10 @@ function cargaRectRedondo(cx, cy, m, r) {
 
      entrada   primera apertura de la pestaña o de la app, e iniciar sesión:
                el mínimo de 3 s y el zoom (`cargaZoom`).
-     refresco  recargar, tirar para actualizar, cambiar de mundo o paleta:
-               sin mínimo y con la salida corta (`cargaCorta`).
-     estreno   pulsar «Actualizar»: el aro se cierra una vez, un latido y la
-               salida corta (`cargaEstreno`).
+     refresco  recargar o tirar para actualizar: dos segundos a la vista y
+               la salida corta (`cargaCorta`).
+     estreno   pulsar «Actualizar»: el aro se llena, sale el letrero de la
+               versión y sube el telón (`cargaEstreno`).
 
    Cuál toca lo decide el script de arriba de index.html (`window.__carga`),
    porque el estreno tiene otro dibujo desde el primer cuadro. `modo` lo
@@ -242,12 +243,19 @@ function cargaEntrar(modo) {
   window.__carga = "refresco";
   /* Un estreno que no estrenó nada —el worker no llegó, el paquete falló— no
      puede anunciar una versión que no es la que se ve. */
-  if (cual === "estreno" && /^\d/.test(String(window.__estreno || "")) &&
+  if (cual === "estreno" && /^\d+\.\d/.test(String(window.__estreno || "")) &&
       typeof VERSION !== "undefined" && window.__estreno !== VERSION) {
     cual = "refresco";
     document.documentElement.classList.remove("carga-estreno");
     const msg = document.getElementById("carga-msg");
     if (msg) msg.textContent = tx("Abriendo Norata…");
+  }
+  /* El letrero del estreno dice la versión QUE SE VE, no la que se anunció:
+     si quien pulsó «Actualizar» no sabía cuál venía, aquí ya se sabe. Llega a
+     tiempo de sobra: el letrero no empieza a salir hasta el segundo 1,3. */
+  if (cual === "estreno" && typeof VERSION !== "undefined") {
+    const num = document.querySelector("#carga-version b");
+    if (num) num.textContent = tx("Versión") + " " + VERSION;
   }
   if (!el || el.classList.contains("oculta")) return Promise.resolve();
   const mio = ++cargaTurno;
@@ -255,9 +263,16 @@ function cargaEntrar(modo) {
     if (cargaTurno !== mio) { listo(); return; }
     setTimeout(listo, hacer());
   }, ms));
-  if (cual === "refresco") return tras(0, () => cargaCorta(el, mio));
-  /* El aro tarda 0,9 s en cerrarse y empezó con el primer cuadro: se le deja
-     terminar aunque la app haya arrancado antes. */
+  /* El refresco también tiene su mínimo (0.7.162). Nació sin ninguno y, con
+     la app sirviéndose de su copia, la carga duraba lo que un parpadeo: «sale
+     un micro instante y no se entiende qué pasó» (Eduardo). Una carga que no
+     da tiempo a leerse no parece rapidez, parece un fallo. Contado desde que
+     se abrió la página, como el de la entrada: a quien le tardó más el
+     arranque no se le suma nada. */
+  if (cual === "refresco") return tras(Math.max(0, CARGA_REFRESCO - performance.now()), () => cargaCorta(el, mio));
+  /* El aro tarda 1,9 s en llenarse y empezó con el primer cuadro, y después
+     el letrero se queda un segundo a la vista: se les deja terminar aunque la
+     app haya arrancado antes. */
   if (cual === "estreno") return tras(Math.max(0, CARGA_ARO - performance.now()), () => cargaEstreno(el, mio));
   /* Contado desde que se abrió la página y no desde aquí: el arranque ya tardó
      lo que tardó, y sumarle tres segundos enteros encima sería castigar a
@@ -269,8 +284,11 @@ function cargaEntrar(modo) {
    carga entera se desvanece. Sin telón y sin zoom: es lo que se ve al
    refrescar, y tiene que sentirse como que no costó nada.
    Devuelve cuánto tarda, como `cargaZoom`. */
+const CARGA_REFRESCO = 2000;  // lo mínimo que se ve la carga al refrescar
 const CARGA_CORTA = 400;
-const CARGA_ARO = 950;
+const CARGA_ARO = 2900;       // 1,9 s de llenado + 1 s con el letrero a la vista
+const CARGA_TELON = 560;
+const CARGA_INVERSO = 1.25;   // la llegada va algo más rápida que la entrada
 function cargaCorta(el, mio) {
   const quieto = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (quieto || typeof el.animate !== "function") { cargaCerrar(); return 300; }
@@ -295,27 +313,88 @@ function cargaCorta(el, mio) {
   return CARGA_CORTA + 30;
 }
 
-/* El ESTRENO: el aro ya se cerró (lo anima el CSS desde el primer cuadro), el
-   isotipo da UN latido —«ya está»— y se va con la salida corta. */
+/* ================= El ESTRENO, de una pieza (0.7.161) =================
+   Rehecho con Eduardo sobre el boceto, paso a paso. La secuencia cruza una
+   recarga, y por eso vive en dos mitades:
+
+   ANTES de recargar (`cargaLlegar`, al pulsar «Actualizar»): el zoom de la
+   entrada AL REVÉS. Son las mismas animaciones de `cargaZoom`, llevadas a su
+   final y puestas a correr hacia atrás: la marca llega desde enorme y frena
+   al asentarse en su círculo, y la ventana por la que se veía la app se
+   cierra. La carga se queda puesta, quieta, mientras entra la versión.
+
+   DESPUÉS de recargar (todo por CSS desde el primer cuadro, con
+   `html.carga-estreno`; ver css/estilos.css): el aro se llena en 1,9 s; al
+   60 % sale el letrero —«Versión X · Lista para ti»— y con él un resplandor
+   leve detrás del logo, que respira; cerrado el aro, todo se queda un
+   segundo. Y aquí, al final, la carga SUBE como un telón.
+
+   Lo que Eduardo fue quitando, para no volver a ponerlo:
+     - el LATIDO del logo al cerrarse el aro: con el resplandor ya sobraba, y
+       dos golpes seguidos se sentían nerviosos;
+     - el logo volviendo a su latido de espera al asentarse: empieza apagado
+       y más chico, y eso era un salto de color en plena unión. Por eso en
+       toda esta secuencia el isotipo va quieto y entero;
+     - el número en grande: la frase manda y el número acompaña;
+     - el resplandor fuerte: «es mucha luz». Tiene que notarse por cómo
+       respira, no por cuánto alumbra. Y de día no existe (regla de la casa). */
 function cargaEstreno(el, mio) {
   const quieto = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (quieto || typeof el.animate !== "function") { cargaCerrar(); return 300; }
-  const logo = el.querySelector(".carga-marca svg");
-  const LATIDO = 320;
-  if (logo) {
-    const cs = getComputedStyle(logo);
-    const desde = { opacity: cs.opacity, transform: cs.transform === "none" ? "scale(1)" : cs.transform };
-    logo.style.animation = "none";
-    cargaAnims.push(logo.animate(
-      [desde, { opacity: 1, transform: "scale(1.16)", offset: 0.45 }, { opacity: 1, transform: "scale(1)" }],
-      { duration: LATIDO, easing: "cubic-bezier(.22,1,.36,1)", fill: "forwards" }));
-  }
-  setTimeout(() => { if (cargaTurno === mio) cargaCorta(el, mio); }, LATIDO + 40);
-  return LATIDO + 40 + CARGA_CORTA + 30;
+  /* El telón: la carga entera se aparta hacia arriba. Nada se desvanece. */
+  cargaAnims.push(el.animate(
+    [{ transform: "translateY(0)" }, { transform: "translateY(-101%)" }],
+    { duration: CARGA_TELON, easing: "cubic-bezier(.7,0,.3,1)", fill: "forwards" }));
+  el.classList.add("corta");
+  setTimeout(() => {
+    if (cargaTurno !== mio) return;
+    el.classList.add("oculta");
+    cargaSoltarZoom(el);
+  }, CARGA_TELON + 30);
+  return CARGA_TELON + 30;
 }
 
-/* Devuelve cuántos ms tarda en irse, para que `cargaEntrar` espere justo eso. */
-function cargaZoom(el, mio) {
+/* La primera mitad del estreno: la carga LLEGA con el zoom al revés. Devuelve
+   una promesa que se cumple con la marca ya asentada; quien llama recarga
+   después. Con la carga ya puesta, o con «menos movimiento», se pone sin más. */
+function cargaLlegar(mensaje) {
+  const el = document.getElementById("carga");
+  if (!el) return Promise.resolve();
+  const raiz = document.documentElement;
+  const quieto = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (quieto || typeof el.animate !== "function" || cargaVisible()) {
+    cargaMostrar(mensaje);
+    raiz.classList.add("carga-llega");
+    return Promise.resolve();
+  }
+  const mio = ++cargaTurno;
+  cargaSoltarZoom(el);
+  const msg = document.getElementById("carga-msg");
+  if (msg) msg.textContent = mensaje || tx("Un momento…");
+  /* `carga-llega` deja el isotipo quieto y el anillo tenue (ver el CSS): es
+     el mismo dibujo con el que nace la carga de estreno al otro lado de la
+     recarga, así que el relevo entre las dos páginas no cambia nada. */
+  raiz.classList.add("carga-llega");
+  /* Se monta SIN verse y se enseña ya con las animaciones puestas en su
+     final. Hace falta montarla antes: `cargaZoom` mide dónde cae la marca, y
+     una carga con `display: none` mide cero —el hueco saldría en la esquina—.
+     Y enseñarla antes de darles la vuelta sería un cuadro de carga entera. */
+  el.style.visibility = "hidden";
+  el.classList.remove("oculta", "fuera");
+  const ms = cargaZoom(el, mio, true);
+  el.style.visibility = "";
+  return new Promise(listo => setTimeout(() => {
+    /* Asentada: se sueltan las animaciones del zoom. En su primer cuadro
+       valen lo mismo que el reposo, así que soltarlas no mueve nada. */
+    if (cargaTurno === mio) cargaSoltarZoom(el);
+    listo();
+  }, ms));
+}
+
+/* Devuelve cuántos ms tarda en irse, para que `cargaEntrar` espere justo eso.
+   Con `alReves` monta las mismas animaciones y las corre hacia atrás, y
+   entonces devuelve cuánto tarda en LLEGAR (ver `cargaLlegar`). */
+function cargaZoom(el, mio, alReves) {
   const quieto = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (quieto || typeof el.animate !== "function") { cargaCerrar(); return 300; }
 
@@ -331,6 +410,10 @@ function cargaZoom(el, mio) {
   /* El latido se para donde esté y se lleva a lleno. Con `animation: none` a
      secas el isotipo saltaría de golpe desde su punto del latido. */
   if (logo) {
+    /* Al revés el isotipo llega entero: si se leyera a medio latido,
+       terminaría la llegada apagado y más chico, que es el salto de color
+       que Eduardo vio en la unión. */
+    if (alReves) logo.style.animation = "none";
     const cs = getComputedStyle(logo);
     const desde = { opacity: cs.opacity, transform: cs.transform === "none" ? "scale(1)" : cs.transform };
     logo.style.animation = "none";
@@ -403,6 +486,17 @@ function cargaZoom(el, mio) {
     requestAnimationFrame(cuadro);
   })();
 
+  /* AL REVÉS: todas a su final y hacia atrás. A `T` y no a su propio final:
+     el anillo dura menos que el zoom, y puesto en SU final arrancaría al
+     principio de la llegada en vez de al final, que es donde le toca. */
+  if (alReves) {
+    cargaAnims.forEach(a => {
+      try { a.pause(); a.currentTime = T; a.playbackRate = -CARGA_INVERSO; a.play(); } catch (e) {}
+    });
+    pintar();
+    return Math.round(T / CARGA_INVERSO) + 30;
+  }
+
   /* Se cierra por reloj y no por el `finished` de las animaciones: donde el
      navegador no pinta cuadros (una pestaña de fondo) las animaciones no
      avanzan nunca, y la carga se quedaría puesta —transparente, pero
@@ -424,6 +518,7 @@ function cargaCerrar(seca) {
   if (!el || el.classList.contains("oculta")) return;
   const mio = ++cargaTurno;
   cargaSoltarZoom(el);
+  document.documentElement.classList.remove("carga-llega");
   if (seca) { el.classList.add("oculta"); el.classList.remove("fuera"); return; }
   el.classList.add("fuera");
   setTimeout(() => {

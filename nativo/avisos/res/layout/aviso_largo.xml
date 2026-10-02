@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- El aviso ABIERTO (0.7.161): al deslizarlo. Arriba el icono, el rótulo, el
+<!-- El aviso ABIERTO (0.7.163): al deslizarlo. Arriba el icono, el rótulo, el
      nombre (dos renglones como mucho) y la cifra con su rótulo ENCIMA; debajo
      los tramos con su texto; y los botones a lo ancho. Android deja 256 dp como
      mucho; el más alto mide unos 232 con textos larguísimos. -->

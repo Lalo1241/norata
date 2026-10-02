@@ -22,7 +22,7 @@ import org.json.JSONObject;
 
 import java.util.Map;
 
-/* Los dos moldes de un aviso, llenos (0.7.161): el PLEGADO, como llega, y el
+/* Los dos moldes de un aviso, llenos (0.7.163): el PLEGADO, como llega, y el
    ABIERTO, al deslizarlo. Los dibujos están en res/layout/aviso_corto.xml y
    aviso_largo.xml; aquí solo se ponen los textos, los colores y la cuenta.
 

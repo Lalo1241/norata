@@ -2821,6 +2821,7 @@ const TEXTOS_EN = {
  /* Las versiones en la app de Android (0.7.148.9). */
  "Norata se actualizó a la versión {0}": "Norata updated to version {0}",
  "Actualizando…": "Updating…",
+ "Versión": "Version",
  "No pude estrenar la versión nueva. Se pondrá sola al cerrar la app.": "I couldn't switch to the new version. It will apply when you close the app.",
  "Vista previa": "Preview",
  "Paletas": "Palettes",
@@ -3733,7 +3734,7 @@ const TEXTOS_EN = {
   "Descansar {0} min": "Rest {0} min",
   "Seguir sin descanso": "Keep going without a break",
   "Sin permiso para avisar: el navegador lo tiene bloqueado": "No permission to notify: the browser has it blocked",
-  /* Los moldes de los avisos de Android (0.7.161): lo que se lee dentro de cada aviso. */
+  /* Los moldes de los avisos de Android (0.7.163): lo que se lee dentro de cada aviso. */
   "Acaba a las {0}": "Ends at {0}",
   "Vuelves a las {0}": "Back at {0}",
   "Cuando quieras": "Whenever you like",

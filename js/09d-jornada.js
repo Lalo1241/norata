@@ -2217,7 +2217,7 @@ function jMostrarPendientes() {
     toast(T`Mientras no estabas · ${m}`, "logro", { label: tx("Ver"), onclick: "irAModulo('jornada')", ms: 10000 }), i * 400));
 }
 
-/* ---------- Los avisos de la app de Android (0.7.161) ----------
+/* ---------- Los avisos de la app de Android (0.7.163) ----------
    En el APK los avisos los pone el sistema, con el complemento `AvisosNorata`
    (su código, en `nativo/avisos/`; el puente, en js/13b-avisos.js). Fuera del
    APK, o en uno que no lo traiga, `jNativo()` es nada y todo sigue como antes.
@@ -2259,7 +2259,7 @@ function jIconoAviso(ref, b, disco) {
   return { dibujo: b ? jIconoBloque(b) : r ? jIconoDe(r.o) : J_ARENA, color, forma: disco ? "disco" : "" };
 }
 
-/* ---------- Las vistas de los moldes (0.7.161) ----------
+/* ---------- Las vistas de los moldes (0.7.163) ----------
    Lo que se ve dentro de cada aviso, en sus dos estados: `corto` (plegado,
    como llega) y `largo` (abierto). Es la lámina «Avisos de Norata» hecha
    datos: lo aprobó Eduardo pieza por pieza, y el APK solo la pinta

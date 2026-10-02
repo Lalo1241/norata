@@ -10553,16 +10553,84 @@
     position: absolute; inset: 0; width: 96px; height: 96px;
     fill: none; animation: none; transform: rotate(-90deg); display: none;
   }
+  /* Nace a opacidad 0: con el extremo redondeado, un trazo de longitud cero se
+     pinta como un punto arriba del círculo, y se veía antes de arrancar. */
   .carga-aro circle {
     stroke: var(--mint-macizo); stroke-width: 2; stroke-linecap: round;
-    stroke-dasharray: 295.3; stroke-dashoffset: 295.3;
+    stroke-dasharray: 295.3; stroke-dashoffset: 295.3; opacity: 0;
   }
+
+  /* ---- El estreno de una pieza (0.7.161) ----
+     La explicación larga está en `cargaEstreno` (js/10c-portada.js). Aquí va
+     todo lo que pasa DESPUÉS de recargar, y va por CSS a propósito: arranca
+     con el primer cuadro, sin esperar a que cargue ni una línea de JavaScript,
+     así que la carga que llegó al otro lado de la recarga sigue sin pausa.
+
+       0 – 1,9 s    el aro se llena
+       1,14 s       (el 60 % del aro) se va «Actualizando…» y sale el letrero
+       1,26 s       nace el resplandor, y desde 1,96 s respira
+       1,9 – 2,9 s  todo quieto, a la vista; después el telón (JavaScript)
+
+     `carga-llega` es la otra mitad, ANTES de recargar: el mismo dibujo —el
+     isotipo quieto y el anillo tenue— sin el aro. */
+  html.carga-estreno .carga-marca svg,
+  html.carga-llega .carga-marca svg { animation: none; }
+  html.carga-estreno .carga-anillo,
+  html.carga-llega .carga-anillo { animation: none; border-color: var(--mint-soft); }
   html.carga-estreno .carga-marca svg.carga-aro { display: block; }
-  html.carga-estreno .carga-aro circle { animation: cargaAro 0.9s cubic-bezier(0.65, 0, 0.35, 1) forwards; }
-  html.carga-estreno .carga-anillo { animation: none; border-color: var(--mint-soft); }
-  @keyframes cargaAro { to { stroke-dashoffset: 0; } }
+  html.carga-estreno .carga-aro circle { animation: cargaAro 1.9s cubic-bezier(0.65, 0, 0.35, 1) forwards; }
+  @keyframes cargaAro {
+    0%   { stroke-dashoffset: 295.3; opacity: 0; }
+    5%   { opacity: 1; }
+    100% { stroke-dashoffset: 0; opacity: 1; }
+  }
+
+  /* El letrero. Va FUERA del flujo, en el sitio del texto: dentro de la
+     columna, cambiar una línea por dos movería el logo, y eso es un salto.
+     La frase manda y el número acompaña (a 30 px el número gritaba). */
+  .carga-version {
+    position: absolute; left: 0; right: 0; top: calc(50% + 44px);
+    display: grid; gap: 2px; justify-items: center; text-align: center;
+    opacity: 0; pointer-events: none;
+  }
+  .carga-version b { font-size: 13px; font-weight: 600; color: var(--mint); font-variant-numeric: tabular-nums; letter-spacing: 0.03em; }
+  .carga-version span { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.35; }
+  html.carga-estreno .carga-msg { animation: cargaMsgSeVa 0.2s ease-in 1.14s forwards; }
+  html.carga-estreno .carga-version { animation: cargaLetrero 0.46s cubic-bezier(0.22, 1, 0.36, 1) 1.26s forwards; }
+  @keyframes cargaMsgSeVa { to { opacity: 0; transform: translateY(-6px); } }
+  @keyframes cargaLetrero { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  /* El resplandor: apenas un aliento detrás del logo. La primera versión iba
+     al doble de luz y Eduardo la paró («es mucha luz»). Va DETRÁS del isotipo
+     sin escribir ningún `z-index`: es el primer hijo de la marca y el isotipo
+     se vuelve posicionado, así que lo pinta encima el orden del documento.
+     Sin eso, por ir en `absolute`, el halo lo teñiría. */
+  .carga-marca svg { position: relative; }
+  .carga-halo {
+    position: absolute; inset: -24px; border-radius: var(--r-disco);
+    background: radial-gradient(circle,
+      color-mix(in srgb, var(--mint) 38%, transparent) 0%,
+      color-mix(in srgb, var(--mint) 10%, transparent) 45%,
+      transparent 70%);
+    opacity: 0; pointer-events: none;
+  }
+  html.carga-estreno .carga-halo {
+    animation: cargaHaloNace 0.7s cubic-bezier(0.22, 1, 0.36, 1) 1.26s forwards,
+               cargaHaloRespira 1.8s ease-in-out 1.96s infinite alternate;
+  }
+  @keyframes cargaHaloNace { from { opacity: 0; transform: scale(0.8); } to { opacity: 0.3; transform: scale(1); } }
+  @keyframes cargaHaloRespira { from { opacity: 0.3; transform: scale(1); } to { opacity: 0.14; transform: scale(1.05); } }
+  /* De día no hay resplandor (ver «La paleta» en CLAUDE.md): sobre papel un
+     halo es una mancha. Queda el letrero, que es lo que dice algo. */
+  html.claro .carga-halo { display: none; }
+
+  /* Sin movimiento, la carga de estreno nace ya terminada: aro cerrado,
+     letrero puesto y sin resplandor. */
   @media (prefers-reduced-motion: reduce) {
-    html.carga-estreno .carga-aro circle { animation: none; stroke-dashoffset: 0; }
+    html.carga-estreno .carga-aro circle { animation: none; stroke-dashoffset: 0; opacity: 1; }
+    html.carga-estreno .carga-msg { animation: none; opacity: 0; }
+    html.carga-estreno .carga-version { animation: none; opacity: 1; }
+    html.carga-estreno .carga-halo { animation: none; }
   }
   .carga.sale .carga-msg { position: relative; }
 

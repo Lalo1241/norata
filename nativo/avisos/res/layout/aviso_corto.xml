@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- El aviso PLEGADO (0.7.161): como llega. Icono, dos renglones y UNA cosa a la
+<!-- El aviso PLEGADO (0.7.163): como llega. Icono, dos renglones y UNA cosa a la
      derecha (la cifra o un botón). Todo en dp y no en sp: el alto lo pone Android
      (64 dp, o menos en algunos teléfonos) y con letra del sistema agrandada esto
      se saldría por abajo. Lo de dentro va centrado, así cabe aunque le den 48.
