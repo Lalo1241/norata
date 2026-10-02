@@ -283,6 +283,49 @@ texto sin aprobar a la vista**: se pone en `false` —el panel vuelve a pedir
 
 ## La lista
 
+### 0.7.166 · 2 oct 2026
+
+**La app de Android abre en el color de tu tema, y sin el logo de Capacitor.**
+Eduardo, sobre la brecha que quedaba de «ni un cuadro con otro mundo»: «quitar
+el logo que emana de la apertura, porque es otro ajeno a lo nuestro», y el
+color, «si se adapta a los del tema y sin parpadeos… que entre de lleno en ese
+color y no que haga el cambio a medio camino».
+
+**Pide reinstalar el APK una vez** (`armar-apk.ps1`): casi todo es nativo. Lo
+único que llega solo con esta versión es que la página MANDA el color; un APK
+de antes no sabe recibirlo y sigue como estaba.
+
+- **El logo ajeno era la imagen de fábrica de Capacitor**: el tema de arranque
+  todavía llevaba `android:background` apuntando a `splash.png`, su logo azul
+  sobre blanco. El instalador lo quita del tema y saca las once imágenes de
+  `res/` (quedan en `res.antes-iconos/`, por si hay que deshacer).
+- **El color, en tres sitios**, que son los tres que se ven antes que la
+  página (`IconoPlugin.java`, «El color con el que abre la app»):
+  1. la pantalla de arranque del sistema: viajan 68 temas `Arranque_<color>`
+     (`res/values/arranque.xml`), uno por cada fondo de la app, y el
+     complemento elige el del tema puesto con `setSplashScreenTheme`. Android
+     lo recuerda para la próxima apertura. **Solo Android 13 o más**;
+  2. el fondo de la ventana, que antes era el del tema de Android (blanco con
+     el teléfono en modo claro);
+  3. el fondo del WebView antes de su primer cuadro.
+- **La página lo manda** (`mandarFondo`, `js/13-nativo.js`): el `--bg` leído,
+  al terminar de cargar y al irse la app al fondo. Solo si lo que se ve es lo
+  guardado.
+- **Los 68 colores se midieron en la app**: cada ambiente y cada paleta de
+  cada mundo, de noche y de día (98 combinaciones), leyendo `--bg` con las
+  hojas cargadas; coinciden con lo que declara cada paleta. Están en
+  `mundos/iconos/arranque-colores.json` y los convierte
+  `node mundos/iconos/arranque.js`. **Un mundo, paleta o ambiente nuevo suma
+  ahí sus dos fondos.** Si se olvida, el complemento toma el más parecido.
+
+**Lo que queda sin cerrar, dicho claro:**
+- **Android 12 y anteriores** no dejan elegir el tema de arranque: ahí el
+  primer instante sigue en la noche de la casa, y con un tema claro se nota.
+- **El primer arranque tras reinstalar** sale en la noche de la casa: el color
+  se apunta al abrir y vale desde la siguiente.
+- **Sin probar en un teléfono.** Compila y el APK trae los 68 temas (mirado
+  con `aapt2`), pero no había teléfono conectado.
+
 ### 0.7.165 · 2 oct 2026
 
 **Novedades: cuatro aprobadas y el panel sin lo que parecía de ejemplo.**

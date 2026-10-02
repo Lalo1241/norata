@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generado por mundos/iconos/arranque.js desde arranque-colores.json: un
+     tema de arranque por cada fondo que la app puede tener. Lo elige
+     IconoPlugin (setSplashScreenTheme, Android 13 o más). No editar a mano. -->
+<resources>
+    <string-array name="arranque_colores" translatable="false">
+        <item>c010c11</item>
+        <item>c030e08</item>
+        <item>c04060c</item>
+        <item>c040b13</item>
+        <item>c041109</item>
+        <item>c050613</item>
+        <item>c050716</item>
+        <item>c050805</item>
+        <item>c05080d</item>
+        <item>c050a06</item>
+        <item>c050a1a</item>
+        <item>c060506</item>
+        <item>c060d10</item>
+        <item>c07030a</item>
+        <item>c070707</item>
+        <item>c07070a</item>
+        <item>c07080f</item>
+        <item>c080904</item>
+        <item>c080d0b</item>
+        <item>c08203a</item>
+        <item>c090612</item>
+        <item>c090c0d</item>
+        <item>c0a0614</item>
+        <item>c0b0301</item>
+        <item>c0b0507</item>
+        <item>c0d0f11</item>
+        <item>c0d1030</item>
+        <item>c0d2b52</item>
+        <item>c0e161f</item>
+        <item>c0f0508</item>
+        <item>c100b06</item>
+        <item>c10151d</item>
+        <item>c1f2433</item>
+        <item>c221c42</item>
+        <item>c2c3350</item>
+        <item>cbed0c4</item>
+        <item>cc1cbe0</item>
+        <item>ccacaca</item>
+        <item>ccbdcde</item>
+        <item>ccdc5de</item>
+        <item>cd5ded9</item>
+        <item>cd6c6ca</item>
+        <item>cd6ebef</item>
+        <item>cd7d9eb</item>
+        <item>cdbccc2</item>
+        <item>cdcdece</item>
+        <item>cdcdef0</item>
+        <item>cdce6e8</item>
+        <item>cdce8f6</item>
+        <item>cdde1ea</item>
+        <item>cdde2e1</item>
+        <item>cdfdde9</item>
+        <item>cdfe0ea</item>
+        <item>cdfe1e6</item>
+        <item>cdfe4dc</item>
+        <item>ce0e3de</item>
+        <item>ce1e6f5</item>
+        <item>ce2d4bc</item>
+        <item>ce2dfdd</item>
+        <item>ce2e4df</item>
+        <item>ce2e9da</item>
+        <item>ce3e6ee</item>
+        <item>ce4eaf2</item>
+        <item>ce5e4f8</item>
+        <item>ce6dfe6</item>
+        <item>ce8e7d7</item>
+        <item>ce9e1da</item>
+        <item>cece2f1</item>
+    </string-array>
+    <style name="Arranque_010c11" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#010c11</item></style>
+    <style name="Arranque_030e08" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#030e08</item></style>
+    <style name="Arranque_04060c" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#04060c</item></style>
+    <style name="Arranque_040b13" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#040b13</item></style>
+    <style name="Arranque_041109" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#041109</item></style>
+    <style name="Arranque_050613" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#050613</item></style>
+    <style name="Arranque_050716" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#050716</item></style>
+    <style name="Arranque_050805" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#050805</item></style>
+    <style name="Arranque_05080d" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#05080d</item></style>
+    <style name="Arranque_050a06" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#050a06</item></style>
+    <style name="Arranque_050a1a" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#050a1a</item></style>
+    <style name="Arranque_060506" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#060506</item></style>
+    <style name="Arranque_060d10" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#060d10</item></style>
+    <style name="Arranque_07030a" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#07030a</item></style>
+    <style name="Arranque_070707" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#070707</item></style>
+    <style name="Arranque_07070a" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#07070a</item></style>
+    <style name="Arranque_07080f" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#07080f</item></style>
+    <style name="Arranque_080904" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#080904</item></style>
+    <style name="Arranque_080d0b" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#080d0b</item></style>
+    <style name="Arranque_08203a" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#08203a</item></style>
+    <style name="Arranque_090612" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#090612</item></style>
+    <style name="Arranque_090c0d" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#090c0d</item></style>
+    <style name="Arranque_0a0614" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#0a0614</item></style>
+    <style name="Arranque_0b0301" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#0b0301</item></style>
+    <style name="Arranque_0b0507" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#0b0507</item></style>
+    <style name="Arranque_0d0f11" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#0d0f11</item></style>
+    <style name="Arranque_0d1030" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#0d1030</item></style>
+    <style name="Arranque_0d2b52" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#0d2b52</item></style>
+    <style name="Arranque_0e161f" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#0e161f</item></style>
+    <style name="Arranque_0f0508" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#0f0508</item></style>
+    <style name="Arranque_100b06" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#100b06</item></style>
+    <style name="Arranque_10151d" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#10151d</item></style>
+    <style name="Arranque_1f2433" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#1f2433</item></style>
+    <style name="Arranque_221c42" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#221c42</item></style>
+    <style name="Arranque_2c3350" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#2c3350</item></style>
+    <style name="Arranque_bed0c4" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#bed0c4</item></style>
+    <style name="Arranque_c1cbe0" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#c1cbe0</item></style>
+    <style name="Arranque_cacaca" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#cacaca</item></style>
+    <style name="Arranque_cbdcde" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#cbdcde</item></style>
+    <style name="Arranque_cdc5de" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#cdc5de</item></style>
+    <style name="Arranque_d5ded9" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#d5ded9</item></style>
+    <style name="Arranque_d6c6ca" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#d6c6ca</item></style>
+    <style name="Arranque_d6ebef" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#d6ebef</item></style>
+    <style name="Arranque_d7d9eb" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#d7d9eb</item></style>
+    <style name="Arranque_dbccc2" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#dbccc2</item></style>
+    <style name="Arranque_dcdece" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#dcdece</item></style>
+    <style name="Arranque_dcdef0" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#dcdef0</item></style>
+    <style name="Arranque_dce6e8" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#dce6e8</item></style>
+    <style name="Arranque_dce8f6" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#dce8f6</item></style>
+    <style name="Arranque_dde1ea" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#dde1ea</item></style>
+    <style name="Arranque_dde2e1" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#dde2e1</item></style>
+    <style name="Arranque_dfdde9" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#dfdde9</item></style>
+    <style name="Arranque_dfe0ea" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#dfe0ea</item></style>
+    <style name="Arranque_dfe1e6" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#dfe1e6</item></style>
+    <style name="Arranque_dfe4dc" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#dfe4dc</item></style>
+    <style name="Arranque_e0e3de" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#e0e3de</item></style>
+    <style name="Arranque_e1e6f5" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#e1e6f5</item></style>
+    <style name="Arranque_e2d4bc" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#e2d4bc</item></style>
+    <style name="Arranque_e2dfdd" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#e2dfdd</item></style>
+    <style name="Arranque_e2e4df" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#e2e4df</item></style>
+    <style name="Arranque_e2e9da" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#e2e9da</item></style>
+    <style name="Arranque_e3e6ee" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#e3e6ee</item></style>
+    <style name="Arranque_e4eaf2" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#e4eaf2</item></style>
+    <style name="Arranque_e5e4f8" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#e5e4f8</item></style>
+    <style name="Arranque_e6dfe6" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#e6dfe6</item></style>
+    <style name="Arranque_e8e7d7" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#e8e7d7</item></style>
+    <style name="Arranque_e9e1da" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#e9e1da</item></style>
+    <style name="Arranque_ece2f1" parent="AppTheme.NoActionBarLaunch"><item name="windowSplashScreenBackground">#ece2f1</item></style>
+</resources>

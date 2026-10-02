@@ -249,7 +249,8 @@ async function instalar() {
     if (!tema) {
       nada("No encontré el tema de arranque («…Launch») en styles.xml: se queda como estaba");
     } else {
-      const pre = /SplashScreen/.test(tema[2]) ? "" : "android:";
+      const deCapacitor = /SplashScreen/.test(tema[2]);
+      const pre = deCapacitor ? "" : "android:";
       const poner = { [pre + "windowSplashScreenAnimatedIcon"]: "@android:color/transparent",
                       [pre + "windowSplashScreenBackground"]: "#10151d" };
       let cuerpo = tema[3];
@@ -265,6 +266,14 @@ async function instalar() {
           cambio = true;
         }
       }
+      // 6b. Fuera la imagen de fábrica de Capacitor (0.7.166). El tema de
+      //     arranque traía `android:background` apuntando a `splash.png`: el
+      //     logo azul de Capacitor sobre blanco. Eduardo lo vio al abrir —«es
+      //     otro, ajeno a lo nuestro»—. Se quita del tema, y las imágenes se
+      //     sacan de res/ a la carpeta de copias, por si hay que deshacer.
+      const reImagen = /[ \t]*<item\s+name="android:background"\s*>\s*@drawable\/splash\s*<\/item>[ \t]*\r?\n?/;
+      const teniaImagen = reImagen.test(cuerpo);
+      if (teniaImagen) { cuerpo = cuerpo.replace(reImagen, ""); cambio = true; }
       if (!cambio) {
         nada("La pantalla de arranque ya iba sin icono");
       } else {
@@ -272,6 +281,38 @@ async function instalar() {
         estilos = estilos.replace(tema[0], tema[0].replace(tema[3], cuerpo));
         fs.writeFileSync(rutaEstilos, estilos);
         ok("La pantalla de arranque de Android, sin icono y con el fondo de la app");
+        if (teniaImagen) ok("El tema de arranque ya no pinta la imagen de Capacitor");
+      }
+      if (!/@drawable\/splash\b/.test(estilos)) {
+        let fuera = 0;
+        const res = path.join(main, "res");
+        for (const carpeta of fs.readdirSync(res)) {
+          const img = path.join(res, carpeta, "splash.png");
+          if (!/^drawable/.test(carpeta) || !fs.existsSync(img)) continue;
+          respaldar(img);
+          fs.unlinkSync(img);
+          fuera++;
+        }
+        if (fuera) ok(fuera + " imágenes de arranque de Capacitor, fuera de res/");
+      }
+
+      // 6c. Un tema de arranque por cada fondo de la app (0.7.166): el
+      //     complemento elige el del tema puesto y Android lo usa la próxima
+      //     vez que abra (ver IconoPlugin, «El color con el que abre la app»).
+      //     Llegaron en el paso 1 con el nombre del tema de Capacitor; aquí
+      //     se les pone el de ESTE proyecto. Sin `Theme.SplashScreen` no hay
+      //     de dónde colgarlos y no compilarían: se quitan.
+      const rutaArranque = path.join(main, "res", "values", "arranque.xml");
+      if (fs.existsSync(rutaArranque)) {
+        if (!deCapacitor) {
+          fs.unlinkSync(rutaArranque);
+          nada("El tema de arranque no es el de Capacitor: el arranque se queda en el color de la casa");
+        } else {
+          const arr = fs.readFileSync(rutaArranque, "utf8");
+          const con = arr.replace(/parent="[^"]*"/g, `parent="${tema[1]}"`);
+          if (con !== arr) fs.writeFileSync(rutaArranque, con);
+          ok("Los temas de arranque, uno por cada fondo de la app (los usa Android 13 o más)");
+        }
       }
     }
   }

@@ -679,6 +679,27 @@
       }
     },
     {
+      "version": "0.7.166",
+      "fecha": "2026-10-02",
+      "estado": "borrador",
+      "clase": "mejora",
+      "titulo": "La app de Android abre en tu tema",
+      "resumen": "Al abrir la app, la pantalla ya sale en el color de tu mundo, sin pasar antes por otro.",
+      "puntos": [
+        "Se quitó un logo ajeno a Norata que asomaba al abrir.",
+        "Necesita la versión nueva de la app de Android, y Android 13 o más."
+      ],
+      "retoques": [],
+      "en": {
+        "titulo": "The Android app opens in your theme",
+        "resumen": "When you open the app, the screen already shows your world's color instead of passing through another one first.",
+        "puntos": [
+          "Removed a logo that wasn't Norata's and showed up at launch.",
+          "It needs the new version of the Android app, and Android 13 or later."
+        ]
+      }
+    },
+    {
       "version": "0.7.164",
       "fecha": "2026-10-02",
       "estado": "publicado",

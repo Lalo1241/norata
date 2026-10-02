@@ -6,6 +6,17 @@ pantalla de carga, la app vuelve ya con el mundo puesto y sale un aviso que
 no se puede saltar; al pulsarlo, o a los 10 segundos, la app se reinicia con
 el icono nuevo (0.7.146.2).
 
+**Y desde la 0.7.166 la app abre en el color del tema puesto.** El mismo
+instalador quita la imagen de fábrica de Capacitor (su logo azul, que asomaba
+al abrir) y mete un tema de arranque por cada fondo de la app
+(`res/values/arranque.xml`, 68). El complemento elige el del mundo, la paleta
+y el modo puestos, y Android lo usa en la siguiente apertura; además pinta la
+ventana y el WebView de ese color antes del primer cuadro. La pantalla de
+arranque del sistema solo se deja cambiar **desde Android 13**. Los colores
+salen de `mundos/iconos/arranque-colores.json`
+(`node mundos/iconos/arranque.js`): un mundo, paleta o ambiente nuevo suma ahí
+sus dos fondos.
+
 El instalador también deja **la pantalla de arranque de Android sin icono**
 (paso 6, en `res/values/styles.xml`): desde Android 12 el sistema pone el
 icono de la app en medio al abrir, antes de que la app pinte nada, y era el

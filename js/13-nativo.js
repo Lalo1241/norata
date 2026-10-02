@@ -132,6 +132,40 @@
     };
     if (document.readyState === "complete") revisarIconoPedido();
     else window.addEventListener("load", revisarIconoPedido);
+
+    /* ---- El color con el que abre la app (0.7.166) ----
+       La pantalla de arranque la pinta Android antes de que corra nada de
+       esto, y salía siempre en la noche de la casa: con un mundo claro, la
+       app abría en carbón y cambiaba a medio camino. Ahora se le dice al
+       complemento el fondo del tema puesto y él deja listo el arranque de la
+       PRÓXIMA apertura (el porqué de cada pieza, en IconoPlugin.java).
+
+       Se manda el `--bg` LEÍDO, no el apuntado: es el mismo tono liso con el
+       que nace la carga, así que arranque y carga son una sola pieza. Y solo
+       cuando lo que se ve es lo guardado: mirar un mundo en Mi apariencia no
+       es tenerlo puesto.
+
+       Dos momentos: al terminar de cargar —cubre el cambio de mundo, que
+       recarga, y llega antes del reinicio del icono— y al irse la app al
+       fondo, que cubre el modo claro y las paletas que cambian en caliente.
+       Un APK de antes no trae `fondo`: la llamada se rechaza y no pasa nada. */
+    let fondoMandado = "";
+    const mandarFondo = () => {
+      try {
+        if (typeof aparienciaDePrueba === "function" && aparienciaDePrueba()) return;
+        if (typeof APARIENCIA_LLAVE !== "undefined" &&
+            (document.documentElement.getAttribute("data-apariencia") || "casa") !== (localStorage.getItem(APARIENCIA_LLAVE) || "casa")) return;
+        const color = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim().toLowerCase();
+        if (!/^#[0-9a-f]{6}$/.test(color) || color === fondoMandado) return;
+        fondoMandado = color;
+        Promise.resolve(iconoNativo.fondo({ color })).catch(() => { fondoMandado = ""; });
+      } catch (e) {}
+    };
+    if (document.readyState === "complete") setTimeout(mandarFondo, 800);
+    else window.addEventListener("load", () => setTimeout(mandarFondo, 800));
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") mandarFondo();
+    });
   }
 
   if (!act) return;

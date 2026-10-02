@@ -106,6 +106,16 @@ que abre sin red y sin pasar por Chrome. Lo que eso cambia aquí:
   genera `mundos/iconos/android.js` y se copia a mano a esa carpeta con los
   pasos de `mundos/iconos/android/LEEME.md`. Un APK sin él cambia de mundo
   como siempre y se queda con el icono de la casa.
+- **La app abre en el color del tema puesto (0.7.166), no en la noche de la
+  casa.** La pantalla de arranque la pinta Android antes de que corra la app,
+  así que viaja un tema por cada fondo posible (`res/values/arranque.xml`) y
+  el complemento elige el suyo (`IconoPlugin.fondo`, Android 13 o más); la
+  página se lo manda con `mandarFondo` (`js/13-nativo.js`). **Al añadir un
+  mundo, una paleta o un ambiente, sus dos fondos van en
+  `mundos/iconos/arranque-colores.json`** y se corre
+  `node mundos/iconos/arranque.js`: si se olvida, ese tema abre en el tono
+  más parecido de los que hay, que es justo el cambio a medio camino que
+  Eduardo no quiere ver.
 
 ## Lo que no se publica
 

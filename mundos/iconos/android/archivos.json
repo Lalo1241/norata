@@ -198,5 +198,6 @@
  "mipmap-xxxhdpi/icono_talavera_frente.png",
  "mipmap-xxxhdpi/icono_ventisca.png",
  "mipmap-xxxhdpi/icono_ventisca_frente.png",
+ "values/arranque.xml",
  "values/iconos_mundos.xml"
 ]
