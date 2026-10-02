@@ -98,7 +98,15 @@ public class IconoPlugin extends Plugin {
        antes de que se pinte nada. */
     @Override
     public void load() {
-        pintarFondo(fondoGuardado());
+        final int color = fondoGuardado();
+        pintarFondo(color);
+        /* Y OTRA VEZ un turno después. El complemento de barras de Capacitor
+           (`SystemBars`) pinta el fondo de la ventana con el del tema de
+           Android —un gris— en un turno que encola al cargarse, y eso pisaba
+           el color de arriba. En el video de Eduardo eran dos franjas grises,
+           arriba y abajo, durante medio segundo al abrir. Este turno va
+           detrás del suyo. */
+        new Handler(Looper.getMainLooper()).post(() -> pintarFondo(color));
     }
 
     /** El tema de arranque de ese color, o el más parecido de los que trae el

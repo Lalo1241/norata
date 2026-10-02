@@ -317,6 +317,37 @@ async function instalar() {
     }
   }
 
+  // 7. La página, de borde a borde desde el primer cuadro (2 oct 2026).
+  //    Capacitor no sabe que la página pide `viewport-fit=cover` hasta que la
+  //    ha cargado y se lo pregunta; mientras tanto la deja ENTRE las barras
+  //    del sistema, y al saberlo la estira. En el video de Eduardo eso eran
+  //    tres cosas a la vez, durante medio segundo al abrir: dos franjas
+  //    grises arriba y abajo, el logo de la carga dando un salto al estirarse
+  //    la página, y la raya de desplazamiento asomando por el borde. La pista
+  //    `initialViewportFitValueHint` se lo dice de antemano: la página sale
+  //    estirada desde el principio y no hay nada que corregir después.
+  const rutaCap = path.join(proyecto, "..", "capacitor.config.json");
+  if (!fs.existsSync(rutaCap)) {
+    nada("No encontré capacitor.config.json: la página se sigue estirando un momento después de abrir");
+  } else {
+    let cap = null;
+    try { cap = JSON.parse(fs.readFileSync(rutaCap, "utf8")); } catch (e) { cap = null; }
+    if (!cap || typeof cap !== "object") {
+      nada("capacitor.config.json no se deja leer: se queda como estaba");
+    } else {
+      cap.plugins = cap.plugins || {};
+      cap.plugins.SystemBars = cap.plugins.SystemBars || {};
+      if (cap.plugins.SystemBars.initialViewportFitValueHint === "cover") {
+        nada("La página ya salía de borde a borde desde el primer cuadro");
+      } else {
+        respaldar(rutaCap);
+        cap.plugins.SystemBars.initialViewportFitValueHint = "cover";
+        fs.writeFileSync(rutaCap, JSON.stringify(cap, null, 2) + "\n");
+        ok("La página, de borde a borde desde el primer cuadro (sin franjas grises ni salto al abrir)");
+      }
+    }
+  }
+
   console.log(`
 Listo. Ahora el APK, firmado con tu llave, como dice el LEEME de esta carpeta
 (NO con el ▶ de Android Studio: firma con otra llave y el teléfono no deja

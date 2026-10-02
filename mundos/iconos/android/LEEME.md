@@ -17,6 +17,15 @@ salen de `mundos/iconos/arranque-colores.json`
 (`node mundos/iconos/arranque.js`): un mundo, paleta o ambiente nuevo suma ahí
 sus dos fondos.
 
+**Y la página sale de borde a borde desde el primer cuadro (2 oct 2026).**
+Al abrir se veían, durante medio segundo, dos franjas grises arriba y abajo,
+el logo de la carga dando un salto y la raya de desplazamiento en el borde:
+Capacitor dejaba la página entre las barras del sistema hasta averiguar que
+pide `viewport-fit=cover`, y después la estiraba. El instalador se lo dice de
+antemano (`plugins.SystemBars.initialViewportFitValueHint` en
+`capacitor.config.json`), y el complemento repinta el fondo de la ventana un
+turno después del de Capacitor, que lo dejaba gris.
+
 El instalador también deja **la pantalla de arranque de Android sin icono**
 (paso 6, en `res/values/styles.xml`): desde Android 12 el sistema pone el
 icono de la app en medio al abrir, antes de que la app pinte nada, y era el
