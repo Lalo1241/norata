@@ -281,9 +281,8 @@ function dnFiltrados() {
    decidir desde el panel. Al añadir una prueba a la app, su fila va aquí. */
 const dnSesion = (k, v) => { try { return sessionStorage.getItem(k) === v; } catch (e) { return false; } };
 const DN_PRUEBAS = [
-  { id: "novedades", n: "Novedades en borrador", q: "La ventana y los anuncios de hito, con lo que todavía no apruebas.", on: "?novedades=borrador", off: "?novedades=",
-    esta: () => typeof novedadesEnBorrador === "function" && novedadesEnBorrador(),
-    ojo: () => typeof NOVEDADES_BORRADORES_A_LA_VISTA !== "undefined" && NOVEDADES_BORRADORES_A_LA_VISTA ? "Ajustes → Novedades enseña los borradores sin enlace. Se apaga antes de la beta." : "" },
+  { id: "novedades", n: "Novedades por aprobar", q: "Ajustes → Novedades con lo que todavía no apruebas, la ventana y los anuncios de hito.", on: "?novedades=borrador", off: "?novedades=",
+    esta: () => typeof novedadesEnBorrador === "function" && novedadesEnBorrador() },
   { id: "informes", n: "Informes con datos de ejemplo", q: "Llena los informes con datos falsos para revisar las gráficas.", on: "?informes=demo", off: "?informes=no",
     esta: () => dnSesion("norata-prueba-informes", "demo") },
   { id: "esqueleto", n: "Esqueletos de carga", tag: "mejora", q: "Las siluetas mientras carga una pantalla. Se descartaron en la 0.7.96.", on: "?esqueleto=1", off: "?esqueleto=0",
@@ -434,7 +433,7 @@ function dnSalaHoy() {
     (r.pidieron_borrado || 0) > 0 ? ["mal", r.pidieron_borrado, r.pidieron_borrado === 1 ? "cuenta pidió borrarse" : "cuentas pidieron borrarse", "En el plazo de 30 días para arrepentirse", "ir:numeros"] : null,
     (r.sin_confirmar || 0) > 0 ? ["ojo", r.sin_confirmar, r.sin_confirmar === 1 ? "cuenta sin confirmar el correo" : "cuentas sin confirmar el correo", "Se registraron y nunca pulsaron el enlace", "ir:numeros"] : null,
     (r.nunca_abrieron || 0) > 0 ? ["ojo", r.nunca_abrieron, r.nunca_abrieron === 1 ? "cuenta nunca abrió la app" : "cuentas nunca abrieron la app", "Tienen cuenta y jamás entraron", "ir:numeros"] : null,
-    bor.length ? [viejo >= 5 ? "ojo" : "dato", bor.length, bor.length === 1 ? "novedad en borrador" : "novedades en borrador", viejo >= 5 ? "La más vieja lleva " + viejo + " días sin aprobar" : "Esperan tu visto bueno antes de salir", "ir:subidas"] : null,
+    bor.length ? [viejo >= 5 ? "ojo" : "dato", bor.length, bor.length === 1 ? "novedad por aprobar" : "novedades por aprobar", viejo >= 5 ? "La más vieja lleva " + viejo + " días sin aprobar" : "Esperan tu visto bueno antes de salir", "ir:subidas"] : null,
     enc.length ? ["dato", enc.length, enc.length === 1 ? "prueba encendida aquí" : "pruebas encendidas aquí", enc.map(p => p.n).join(", "), "ir:lab"] : null
   ].filter(Boolean);
   const sig = dnDeCada(r.siguen30 || 0, r.maduros || 0, 20);
@@ -755,17 +754,17 @@ function dnSalaSubidas() {
     <div class="dn-kpis tres">
       ${dnKpi("En vivo", "V" + dnE(enVivo), "", `<span class="dn-ver">${dnEtapa() ? `<span class="etapa">${dnEtapa()}</span>` : ""}<span>${b && b.vivo && b.vivo.fecha ? "· " + dnE(dnDia(String(b.vivo.fecha).slice(0, 10))) : "· " + dnE(typeof VERSION_FECHA !== "undefined" ? VERSION_FECHA : "")}</span></span>`)}
       ${total ? dnKpi("Ya la tienen", conLa, " de " + total, "personas que abrieron en 14 días") : dnKpi("Ya la tienen", "—", "", "Nadie abrió en 14 días")}
-      ${b ? dnKpi("En la cola", cola.length, "", cola.length ? "esperan para subir" : "nada espera") : dnKpi("Novedades por aprobar", DN.nov ? bor.length : "…", "", "en borrador")}
+      ${b ? dnKpi("En la cola", cola.length, "", cola.length ? "esperan para subir" : "nada espera") : dnKpi("Novedades por aprobar", DN.nov ? bor.length : "…", "", "ya en la app, sin anunciar")}
     </div>
     ${b && b.pagina && b.pagina !== "vivo" ? `<div class="dn-aviso dn-ojo"><b>La barrera todavía no frena nada.</b> El sitio se sigue publicando desde <code>${dnE(b.pagina)}</code>: lo que se sube ahí llega al vivo sin pasar por aquí. Falta cambiar la rama en GitHub → Settings → Pages → <code>vivo</code>.</div>` : ""}
     ${!b ? (DN.barError ? dnBarreraFaltaHTML() : `<div class="dn-panel"><div class="dn-vacio">Preguntando por la barrera…</div></div>`)
       : (b.grifo ? dnGrifoHTML() : `<div class="dn-panel"><h3>Falta el grifo</h3><p class="dn-nota">Pega <code>supabase/barrera.sql</code> en Supabase y vuelve a preguntar.</p><div class="dn-acciones"><button class="dn-btn b-linea mini" data-a="barrera">Volver a preguntar</button></div></div>`) + dnColaHTML() + dnCorridasHTML()}
     <div class="dn-panel"><div class="dn-pcab"><h3>Novedades por aprobar</h3><span class="dn-chip">${DN.nov ? bor.length : "…"}</span><div class="dn-der"><button class="dn-btn b-linea mini" data-a="novedades">Leerlas en Novedades</button></div></div>
-      <p class="dn-nota">Ninguna sale en la app ni en el sitio hasta que su estado pase a «publicado» en <code>novedades/novedades.json</code>. Para aprobar una, o cambiarle un texto, pídeselo a una sesión.</p>
-      ${!DN.nov ? `<div class="dn-vacio">Leyendo las novedades…</div>` : !bor.length ? `<div class="dn-vacio">No hay ninguna en borrador.</div>` : bor.map(e => {
+      <p class="dn-nota">El cambio de cada una ya está en la app. Lo que espera es su anuncio: no sale en la ventana, en Ajustes → Novedades ni en el sitio hasta que su estado pase a «publicado» en <code>novedades/novedades.json</code>. Para aprobar una, o cambiarle un texto, pídeselo a una sesión.</p>
+      ${!DN.nov ? `<div class="dn-vacio">Leyendo las novedades…</div>` : !bor.length ? `<div class="dn-vacio">No hay ninguna por aprobar.</div>` : bor.map(e => {
         const h = dnHace(e.fecha), clase = typeof novedadClase === "function" ? novedadClase(e) : (e.clase || "mejora");
         return `<div class="dn-prueba"><div>
-            <div class="dn-sobre-t">${dnEtq(clase)}<span class="dn-estado ${h !== null && h >= 5 ? "e-espera" : "e-no"}">${dnIc("reloj")}${h === null ? "Sin fecha" : h >= 5 ? "Lleva " + h + " días sin aprobar" : "En borrador, " + dnHaceTx(h)}</span></div>
+            <div class="dn-sobre-t">${dnEtq(clase)}<span class="dn-estado ${h !== null && h >= 5 ? "e-espera" : "e-no"}">${dnIc("reloj")}${h === null ? "Sin fecha" : h >= 5 ? "Lleva " + h + " días sin aprobar" : "Por aprobar, " + dnHaceTx(h)}</span></div>
             <h4>${dnE(e.titulo || "Sin título")}<span class="dn-chip">${dnE(e.version || "")}</span></h4>
             <p>${dnE(e.resumen || "")}</p></div>
           <div class="dn-acciones"><button class="dn-btn b-soft mini" data-a="ficha:${dnE(llave(e))}" aria-expanded="${DN.ficha === llave(e)}">${DN.ficha === llave(e) ? "Cerrar la ficha" : "Ver la ficha"}</button><button class="dn-btn b-linea mini" data-a="ventananov:${dnE(llave(e))}">Verla en su ventana</button></div>

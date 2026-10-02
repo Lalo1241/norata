@@ -314,8 +314,11 @@ enseña las `"publicado"`.
 
 1. **La sesión que publica una versión escribe su entrada o su retoque**, en
    borrador, en el mismo commit que la línea de `VERSIONES.md`.
-2. **Eduardo lo revisa en la app** con `?novedades=borrador`: en Ajustes →
-   Novedades salen los borradores marcados, y un botón enseña la ventana tal
+2. **Eduardo lo revisa en el Puesto de mando → Subidas**, que le abre cada
+   ficha entera, en español y en inglés (0.7.178). O con `?novedades=borrador`:
+   en Ajustes → Novedades salen entonces las que faltan, marcadas «Por
+   aprobar» —la palabra «Borrador» se leía como que el parche era de mentira
+   (0.7.179)—, y un botón enseña la ventana tal
    como se verá. `?novedades=` lo apaga. Solo vale para esa pestaña.
 3. **Al aprobarla** se cambia a `"publicado"` —a mano en GitHub o pidiéndoselo
    a una sesión—. Como este archivo está en `ASSETS`, el cambio llega a los

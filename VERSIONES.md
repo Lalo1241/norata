@@ -272,15 +272,6 @@ es donde vive lo que el repositorio ya dice y la base de datos todavía no.
 Lo demás de aquel reporte está cerrado: el respaldo trucado y el marco ajeno en
 la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
-### Apagar los borradores a la vista antes de la beta
-
-Desde la 0.7.155 el panel de Ajustes → Novedades enseña los borradores a
-cualquiera (`NOVEDADES_BORRADORES_A_LA_VISTA = true`, `js/10l-novedades.js`).
-Lo pidió Eduardo porque hoy es la única persona que usa la app y el parámetro
-de la dirección no lo recordaba. **El día que entre alguien más, eso es un
-texto sin aprobar a la vista**: se pone en `false` —el panel vuelve a pedir
-`?novedades=borrador`— o se aprueban antes las entradas que haya.
-
 ### «Norata por dentro»: lo que el boceto tenía y todavía no existe
 
 La 0.7.167 conecta lo que el servidor ya da, la 0.7.170 trajo el formulario con
@@ -323,6 +314,32 @@ en que conviene hacerlo:
   el grifo cambia y la frase no.
 
 ## La lista
+
+### 0.7.179 · 2 oct 2026
+
+**Lo que está por aprobar ya no sale en Ajustes → Novedades, y la etiqueta
+dice «Por aprobar».** Eduardo, al ver «Borrador» en las novedades: «suena a
+que no debiera estar y solo es una prueba de diseño, no de que ese parche sí
+sea legítimo». Y después: «en las Novedades que ven los usuarios no tiene
+sentido que salga algo así ahí, entonces corrige cómo se publican las cosas».
+
+Eran dos fallos distintos:
+
+- **La palabra.** «Borrador» se leía como que el parche era de mentira. Lo que
+  espera es el TEXTO que lo anuncia; el cambio ya está en vivo. Ahora dice
+  «Por aprobar», en la app y en el Puesto de mando, que además lo explica.
+- **El sitio donde salía.** Desde la 0.7.155 el panel de Ajustes enseñaba los
+  borradores a cualquiera (`NOVEDADES_BORRADORES_A_LA_VISTA`), apuntado para
+  apagarse antes de la beta. Se quitó entero, no se puso en `false`: Eduardo
+  ya no lo necesita, porque los revisa en el Puesto de mando → Subidas
+  (0.7.178). Con eso, **lo que está por aprobar no sale en ningún sitio que
+  vea un usuario**: ni en la ventana, ni en Ajustes, ni en el changelog.
+
+`?novedades=borrador` sigue valiendo para probar, solo en esa pestaña.
+
+No lleva novedad. **Medido:** sin el parámetro, la lista de Ajustes trae solo
+las publicadas; con él, vuelven las demás con la etiqueta nueva. Se cierra
+con esto el pendiente «Apagar los borradores a la vista antes de la beta».
 
 ### 0.7.178 · 2 oct 2026
 

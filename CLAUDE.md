@@ -244,9 +244,11 @@ y la lee también el changelog del sitio.
 - **Nada sale sin que Eduardo lo apruebe.** Las entradas nacen en
   `"borrador"` y la ventana que sale al abrir solo enseña `"publicado"`. Las
   reglas para escribirlas, en `novedades/LEEME.md`.
-- **El panel de Ajustes sí enseña los borradores, y es provisional (0.7.155)**:
-  `NOVEDADES_BORRADORES_A_LA_VISTA` está en `true` porque hoy solo usa la app
-  Eduardo. **Se apaga antes de la beta.** Las herramientas de prueba (la
+- **Lo que está por aprobar no sale en ningún sitio que vea un usuario
+  (0.7.179)**: ni en la ventana, ni en Ajustes → Novedades, ni en el sitio.
+  Eduardo las revisa en el Puesto de mando → Subidas. En pantalla se llaman
+  «Por aprobar», no «Borrador»: el cambio ya está en vivo, lo que espera es
+  su anuncio. Las herramientas de prueba (la lista con lo pendiente, la
   ventana, los anuncios de hito) siguen con `?novedades=borrador`.
 - **Se apuntan como vistas POR ENTRADA, no por versión**: una aprobada días
   después sale igual.

@@ -56,21 +56,16 @@ function novedadesEnBorrador() {
   try { return sessionStorage.getItem(NOVEDADES_BORRADOR) === "1"; } catch (e) { return false; }
 }
 
-/* ---- Los borradores, a la vista en el panel (0.7.155) ----
-   Eduardo abrió Ajustes → Novedades en la versión correcta y lo encontró
-   vacío: todas las entradas estaban en borrador y solo salían con
-   `?novedades=borrador` en la dirección, que no recordaba. Lo pidió así: «evita
-   que sea necesario para poder verlo siempre, total, solo estoy yo».
+/* ---- Lo que está por aprobar no sale en Ajustes → Novedades (0.7.179) ----
+   De la 0.7.155 a la 0.7.178 ese panel enseñaba también los borradores, con su
+   etiqueta, porque solo usaba la app Eduardo y así los revisaba sin recordar
+   el parámetro. Lo apagó él mismo al ver la etiqueta: «en las Novedades que
+   ven los usuarios no tiene sentido que salga algo así».
 
-   Así que el PANEL enseña también los borradores, cada uno con su etiqueta.
-   Lo que NO cambia es la ventana que sale sola al abrir: esa sigue siendo
-   solo para lo publicado, o cada versión le saltaría con un texto sin aprobar.
-
-   **Esto se apaga antes de la beta.** Vale mientras la única persona que usa
-   la app es él; el día que entre alguien más, un borrador a la vista es un
-   texto sin aprobar publicado. Se pone en `false` y el panel vuelve a pedir el
-   parámetro (está apuntado en VERSIONES.md, «Apuntado y sin hacer»). */
-const NOVEDADES_BORRADORES_A_LA_VISTA = true;
+   Ya no hace falta: las revisa en el Puesto de mando → Subidas, que le enseña
+   cada ficha entera (`dnFichaNovedad`, js/10e-panel.js). Aquí, como en la
+   ventana y en el sitio, **solo sale lo publicado**. El parámetro
+   `?novedades=borrador` sigue valiendo para probar, y solo en esa pestaña. */
 
 /* 0.7.149.1 contra 0.7.149: por tramos y como números — como texto, «0.7.99»
    saldría más nuevo que «0.7.149». */
@@ -294,7 +289,7 @@ function novedadHTML(e, medios) {
         <span class="nov-clase c-${clase}">${escapeHtml(tx(NOVEDAD_CLASES[clase].nombre))}</span>
         <span class="nov-ver">V${escapeHtml(e.version)}</span>
         <span class="nov-fecha">${escapeHtml(novedadFecha(e.fecha))}</span>
-        ${e.estado === "borrador" ? `<span class="nov-borrador">${escapeHtml(tx("Borrador"))}</span>` : ""}
+        ${e.estado === "borrador" ? `<span class="nov-borrador">${escapeHtml(tx("Por aprobar"))}</span>` : ""}
         ${e.estado === "aprobado" ? `<span class="nov-borrador">${escapeHtml(tx("Por subir"))}</span>` : ""}
       </div>
       <h4 class="nov-tit">${escapeHtml(novedadCampo(e, "titulo") || "")}</h4>
@@ -413,23 +408,22 @@ function abrirNovedades() {
 async function renderPanelNovedades() {
   const caja = document.getElementById("panel-novedades");
   if (!caja) return;
-  /* Dos cosas distintas desde la 0.7.155: la LISTA lleva los borradores
-     siempre (ver `NOVEDADES_BORRADORES_A_LA_VISTA`), y las HERRAMIENTAS de
-     prueba —la ventana y los dos anuncios de hito— siguen detrás del
-     parámetro, que es donde tienen sentido. */
+  /* La lista lleva solo lo publicado. Lo que está por aprobar, y las
+     herramientas de prueba —la ventana y los dos anuncios de hito—, van
+     detrás del parámetro. */
   const borrador = novedadesEnBorrador();
   /* Los anuncios de la beta y de la 1.0 NO salen en la lista mientras sean
-     borrador (0.7.165). Están escritos de antemano y sin fecha, y con los
-     borradores a la vista encabezaban el panel diciendo «Norata ya está en la
+     borrador (0.7.165). Están escritos de antemano y sin fecha, y cuando los
+     borradores iban a la vista encabezaban el panel diciendo «Norata ya está en la
      Play Store»: Eduardo los leyó como textos de ejemplo que sobraban. No se
      borran del JSON —son el anuncio de verdad, y `probarHito` los usa—: se
      ven con `?novedades=borrador`, que es donde se prueban. */
-  const lista = novedadesVisibles(await cargarNovedades(), borrador || NOVEDADES_BORRADORES_A_LA_VISTA)
+  const lista = novedadesVisibles(await cargarNovedades(), borrador)
     .filter((e) => borrador || !(novedadClase(e) === "hito" && e.estado !== "publicado"));
   const aviso = borrador ? `
     <div class="nov-prueba">
-      <b>${escapeHtml(tx("Estás viendo los borradores"))}</b>
-      <span>${escapeHtml(tx("Solo en esta pestaña. Lo que dice «Borrador» no lo ve nadie hasta que se apruebe."))}</span>
+      <b>${escapeHtml(tx("Estás viendo lo que falta aprobar"))}</b>
+      <span>${escapeHtml(tx("Solo en esta pestaña. Lo que dice «Por aprobar» ya está en la app, pero no se le anuncia a nadie hasta que se apruebe."))}</span>
       ${lista.length ? `<button type="button" class="btn btn-soft btn-block" onclick="novedadesProbarVentana()">${escapeHtml(tx("Ver la ventana de la más reciente"))}</button>` : ""}
       <div class="nov-prueba-hitos">
         <button type="button" class="btn btn-linea" onclick="probarHito('beta')">${escapeHtml(tx("Probar el anuncio de la beta"))}</button>
