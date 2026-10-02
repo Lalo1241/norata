@@ -51,7 +51,8 @@ desplegada desde el 2 oct 2026; al cambiar `functions/barrera/index.ts` se
 vuelve a desplegar con
 `supabase functions deploy barrera --project-ref wifffghnyrqfuwqlatci`.)
 
-1. **Pegar `barrera.sql` entero** en SQL Editor. Crea el grifo, que nace
+1. ~~Pegar `barrera.sql` entero~~ — **pegado el 2 oct 2026**, el grifo contesta.
+   Lo que decía: **Pegar `barrera.sql` entero** en SQL Editor. Crea el grifo, que nace
    ABIERTO: pegarlo no cambia nada hasta que alguien lo cierre.
 2. **La llave de GitHub.** Un token «fine-grained», solo para el repositorio de
    Norata, con Actions (leer y escribir), Contents (leer), Pages (leer) y
