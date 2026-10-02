@@ -580,6 +580,44 @@ grant execute on function public.tropiezo_visto(bigint, boolean) to authenticate
 -- «Los números» en Ajustes, el circuito entero está cerrado.
 
 
+-- ---- EL FUNDADOR DE CORTESÍA ----
+-- Quien administra tiene Norata entera abierta, y eso tiene que ser su plan
+-- DE VERDAD, no algo que la app deduce después.
+--
+-- Hasta el 1 oct 2026 no lo era: el plan real de la cuenta administradora era
+-- «libre» y la app le ponía Fundador por su cuenta al saber que era admin
+-- (`PLAN_DE_CASA`, js/10d-plan.js). Esa segunda respuesta llega después de la
+-- del plan, y en el hueco la app veía una cuenta gratuita con un mundo de
+-- pago puesto: lo quitaba. A Eduardo se le quitaba el mundo al abrir.
+--
+-- Con la fila aquí, `mi_plan()` contesta Fundador a la primera y no hay hueco.
+-- El estado 'cortesia' es lo que la separa de una venta (ver planes.sql).
+--
+-- SÍ se ejecuta al pegar el archivo, y se puede pegar las veces que haga
+-- falta: alcanza a todos los administradores que haya y, si alguno ya tenía
+-- fila, se la deja en Fundador. El `to_regclass` es por el orden: en una base
+-- nueva este archivo puede pegarse antes que planes.sql.
+do $cortesia$
+begin
+  if to_regclass('public.suscripciones') is not null then
+    insert into public.suscripciones (user_id, plan, estado, vence_el, renueva)
+    select user_id, 'fundador', 'cortesia', null, false
+      from public.administradores
+    on conflict (user_id) do update
+      set plan = 'fundador', estado = 'cortesia', vence_el = null,
+          renueva = false, actualizado = now();
+  end if;
+end
+$cortesia$;
+
+-- Al quitarle el permiso a alguien (abajo), su cortesía NO se va sola. Si
+-- tiene que irse:
+--
+--   delete from public.suscripciones
+--    where estado = 'cortesia' and user_id = (
+--      select id from auth.users where email = 'CORREO@AQUI');
+
+
 -- ---- QUITARLE EL PERMISO A ALGUIEN ----
 -- Esto BORRA. No se descomenta «de paso» junto con el insert de arriba: es la
 -- operación contraria y va aquí abajo, separada, para que descomentar sin

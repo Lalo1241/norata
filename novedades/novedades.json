@@ -1,6 +1,6 @@
 {
   "formato": 2,
-  "_camino": "Cada 3º publicado antes de que existieran las novedades, sacado de VERSIONES.md (0.7.153). Lo recorre el anuncio de la beta y de la 1.0. Lo de después sale de las entradas, así que esta lista no se toca más.",
+  "_camino": "Las marcadas con «relevante» pasan siempre por la ruleta del anuncio de hito (hitoMuestra). Cada 3º publicado antes de que existieran las novedades, sacado de VERSIONES.md (0.7.153). Lo recorre el anuncio de la beta y de la 1.0. Lo de después sale de las entradas, así que esta lista no se toca más.",
   "camino": [
     {
       "version": "0.6.1",
@@ -72,7 +72,8 @@
     },
     {
       "version": "0.7.14",
-      "fecha": "2026-08-27"
+      "fecha": "2026-08-27",
+      "relevante": true
     },
     {
       "version": "0.7.15",
@@ -168,7 +169,8 @@
     },
     {
       "version": "0.7.38",
-      "fecha": "2026-08-29"
+      "fecha": "2026-08-29",
+      "relevante": true
     },
     {
       "version": "0.7.39",
@@ -540,7 +542,8 @@
     },
     {
       "version": "0.7.131",
-      "fecha": "2026-09-24"
+      "fecha": "2026-09-24",
+      "relevante": true
     },
     {
       "version": "0.7.132",
@@ -560,7 +563,8 @@
     },
     {
       "version": "0.7.136",
-      "fecha": "2026-09-25"
+      "fecha": "2026-09-25",
+      "relevante": true
     },
     {
       "version": "0.7.137",
@@ -576,7 +580,8 @@
     },
     {
       "version": "0.7.140",
-      "fecha": "2026-09-26"
+      "fecha": "2026-09-26",
+      "relevante": true
     },
     {
       "version": "0.7.141",
@@ -600,7 +605,8 @@
     },
     {
       "version": "0.7.146",
-      "fecha": "2026-09-30"
+      "fecha": "2026-09-30",
+      "relevante": true
     },
     {
       "version": "0.7.147",
@@ -635,19 +641,17 @@
       "clase": "hito",
       "hito": "1.0",
       "titulo": "Norata 1.0",
-      "resumen": "Norata llega a la Play Store. Lo que empezó como una expedición de pocos ahora está a un toque de cualquiera.",
+      "resumen": "Norata ya está en la Play Store. Ahora cualquiera puede encontrarla; tú llegaste antes.",
       "puntos": [
-        "Búscala como Norata en la Play Store y compártela con quien quieras.",
-        "Tu cuenta, tu progreso y tus mundos vienen contigo, en todos tus dispositivos.",
+        "Para cuando te pregunten qué es eso que abres cada mañana, ya tienes adónde mandarlos.",
         "Gracias por recorrer el camino antes de que tuviera mapa."
       ],
       "retoques": [],
       "en": {
         "titulo": "Norata 1.0",
-        "resumen": "Norata arrives on the Play Store. What began as an expedition of a few is now one tap away for anyone.",
+        "resumen": "Norata is on the Play Store now. Anyone can find it; you got here first.",
         "puntos": [
-          "Find it as Norata on the Play Store and share it with whoever you like.",
-          "Your account, your progress and your worlds come with you, on every device.",
+          "For when someone asks what that thing you open every morning is, you finally have somewhere to send them.",
           "Thank you for walking the path before it had a map."
         ]
       }
@@ -659,26 +663,24 @@
       "clase": "hito",
       "hito": "beta",
       "titulo": "Norata entra en beta",
-      "resumen": "Lo que empezó como una alpha ya se sostiene sola. Desde hoy Norata es beta: más estable, más cuidada y abierta a más gente.",
+      "resumen": "{versiones} versiones después, la alpha nos quedó chica.",
       "puntos": [
-        "Todo lo tuyo sigue aquí: tus misiones, tus ramas y tus rachas.",
-        "Ganaste la insignia Expedición alpha, que solo tiene quien llegó antes de hoy.",
-        "Desde aquí, cada versión te cuenta lo que trae."
+        "En la alpha nacieron cinco mundos, las ramas y la expedición.",
+        "Tu sello de la alpha es de los que ya no se reparten."
       ],
       "retoques": [],
       "en": {
         "titulo": "Norata enters beta",
-        "resumen": "What began as an alpha now stands on its own. From today Norata is in beta: steadier, more polished and open to more people.",
+        "resumen": "{versiones} versions later, the alpha got too small for us.",
         "puntos": [
-          "Everything of yours is still here: your missions, your branches and your streaks.",
-          "You earned the Alpha expedition badge, held only by those who arrived before today.",
-          "From here on, every version tells you what it brings."
+          "The alpha gave birth to five worlds, the branches and the expedition.",
+          "Your alpha seal is one they don't hand out anymore."
         ]
       }
     },
     {
-      "version": "0.7.154",
-      "fecha": "2026-10-01",
+      "version": "0.7.161",
+      "fecha": "2026-10-02",
       "estado": "borrador",
       "clase": "expansion",
       "titulo": "El Pomodoro te avisa aunque la app esté cerrada",
@@ -700,85 +702,164 @@
       }
     },
     {
-      "version": "0.7.151",
+      "version": "0.7.160",
       "fecha": "2026-10-01",
       "estado": "borrador",
+      "clase": "mejora",
+      "titulo": "Tu tema te sigue a donde entres",
+      "resumen": "Tu cuenta recuerda el mundo, la paleta y el modo de cada dispositivo. Al entrar desde uno nuevo, Norata abre ya con tu tema.",
+      "puntos": [
+        "Cada dispositivo puede tener su propio tema.",
+        "La pantalla de inicio de sesión también lleva el tema de ese dispositivo.",
+        "Al cambiar de tema, el cambio llega con la animación del logo."
+      ],
+      "retoques": [],
+      "en": {
+        "titulo": "Your theme follows you wherever you sign in",
+        "resumen": "Your account remembers the world, palette and mode of each device. When you sign in from a new one, Norata opens already in your theme.",
+        "puntos": [
+          "Each device can have its own theme.",
+          "The sign-in screen also wears that device's theme.",
+          "When you change themes, the change arrives with the logo animation."
+        ]
+      }
+    },
+    {
+      "version": "0.7.158",
+      "fecha": "2026-10-01",
+      "estado": "borrador",
+      "clase": "mejora",
+      "titulo": "El zoom del logo, solo cuando entras",
+      "resumen": "La animación del logo se queda para cuando abres Norata o inicias sesión. Refrescar es casi instantáneo y actualizar tiene su propia carga.",
+      "puntos": [
+        "Al actualizar, la carga te dice qué versión estrenas.",
+        "Tu mundo se ve completo desde el primer instante, sin un parpadeo con otros colores ni con otra letra."
+      ],
+      "retoques": [],
+      "en": {
+        "titulo": "The logo zoom, only when you come in",
+        "resumen": "The logo animation is now saved for when you open Norata or sign in. Refreshing is almost instant, and updating has a loading screen of its own.",
+        "puntos": [
+          "When you update, the loading screen tells you which version you're getting.",
+          "Your world shows up whole from the first instant, with no flicker of other colors or another typeface."
+        ]
+      }
+    },
+    {
+      "version": "0.7.157",
+      "fecha": "2026-10-01",
+      "estado": "borrador",
+      "clase": "arreglo",
+      "titulo": "Novedades, legible en cualquier mundo",
+      "resumen": "El número de versión de cada novedad ya se lee bien en todos los mundos.",
+      "puntos": [
+        "En Averno y Catedral salía en rojo sobre rojo.",
+        "La etiqueta de «Expansión» va en verde en todos los mundos."
+      ],
+      "retoques": [],
+      "en": {
+        "titulo": "What's new, readable in any world",
+        "resumen": "The version number on each update is now easy to read in every world.",
+        "puntos": [
+          "In Averno and Catedral it showed red on red.",
+          "The “Expansion” label is green in every world."
+        ]
+      }
+    },
+    {
+      "version": "0.7.154",
+      "fecha": "2026-10-01",
+      "estado": "borrador",
+      "clase": "mejora",
+      "titulo": "Los interruptores se deslizan",
+      "resumen": "Al cambiar entre Oscuro y Claro, encender el sonido o apagar un módulo, ahora ves el interruptor moverse.",
+      "puntos": [
+        "Vale para todos los interruptores de la app, en cualquier mundo.",
+        "Cada mundo lo mueve a su manera: en Averno y Catedral va a saltos.",
+        "En Averno, los iconos del menú brillan cuando pasas el cursor."
+      ],
+      "retoques": [],
+      "en": {
+        "titulo": "Switches now slide",
+        "resumen": "When you switch between Dark and Light, turn the sound on or turn a module off, you now see the switch move.",
+        "puntos": [
+          "It works for every switch in the app, in any world.",
+          "Each world moves it its own way: in Averno and Catedral it goes in steps.",
+          "In Averno, the menu icons glow when you hover over them."
+        ]
+      }
+    },
+    {
+      "version": "0.7.151",
+      "fecha": "2026-10-01",
+      "estado": "publicado",
       "clase": "mejora",
       "titulo": "Las novedades, por tamaño",
       "resumen": "Cada novedad dice si es una expansión, una mejora o un arreglo, y las grandes llegan con imagen.",
       "puntos": [
-        "Una expansión trae una imagen y unas cifras para verla de un vistazo.",
-        "Los arreglos ya no te interrumpen con una ventana: te avisa la barrita de abajo.",
-        "En Ajustes → Novedades cada una lleva su etiqueta."
+        "Los arreglos ya no te detienen con una ventana: te avisa la barrita de abajo."
       ],
       "retoques": [],
       "en": {
         "titulo": "Updates, by size",
         "resumen": "Each update says whether it's an expansion, an improvement or a fix, and the big ones come with a picture.",
         "puntos": [
-          "An expansion brings a picture and a few numbers to take it in at a glance.",
-          "Fixes no longer interrupt you with a window: the small notice at the bottom lets you know.",
-          "In Settings → What's new each one carries its label."
+          "Fixes no longer stop you with a window: the small notice at the bottom lets you know."
         ]
       }
     },
     {
       "version": "0.7.150",
       "fecha": "2026-10-01",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "arreglo",
       "titulo": "Tu Resumen, sin huecos",
       "resumen": "Al juntar Talentos y Proyectos en Ramas, el Resumen se quedó con espacios vacíos. Ya está parejo en todas las pantallas.",
       "puntos": [
-        "Los acomodos ya no dejan huecos donde iba la tarjeta de Proyectos.",
-        "En el teléfono, Tus cifras se lee completa, sin textos cortados.",
-        "Si cambias el tamaño de la ventana, tu acomodo se ajusta solo a la pantalla."
+        "En el teléfono, Tus cifras se lee completa.",
+        "Si cambias el tamaño de la ventana, el acomodo se ajusta solo."
       ],
       "retoques": [],
       "en": {
         "titulo": "Your Summary, without gaps",
         "resumen": "When Talents and Projects merged into Branches, the Summary was left with empty spaces. It's even again on every screen.",
         "puntos": [
-          "Layouts no longer leave gaps where the Projects card used to go.",
-          "On the phone, Your numbers reads in full, with no cut-off text.",
-          "If you resize the window, your layout adjusts to the screen on its own."
+          "On the phone, Your numbers reads in full.",
+          "If you resize the window, the layout adjusts on its own."
         ]
       }
     },
     {
       "version": "0.7.149",
       "fecha": "2026-09-30",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "mejora",
       "titulo": "Ahora te enteras de lo que llega",
       "resumen": "Cuando hay una versión nueva, Norata te lo dice, y al estrenarla te cuenta qué trae.",
       "puntos": [
-        "Una tarjeta arriba te avisa cuando hay una versión lista, y se queda hasta que la usas.",
-        "Al actualizar sale esta ventana con lo nuevo, contado en corto.",
-        "En Ajustes → Novedades está todo lo que ha ido cambiando."
+        "La tarjeta de «versión lista» se queda arriba hasta que la usas o la cierras.",
+        "Lo que cambió antes vive en Ajustes → Novedades."
       ],
       "retoques": [],
       "en": {
         "titulo": "Now you'll know what's arriving",
         "resumen": "When a new version is ready, Norata tells you, and once it's in, it tells you what it brings.",
         "puntos": [
-          "A card at the top lets you know a version is ready, and it stays until you use it.",
-          "After updating, this window shows what's new, in short.",
-          "Settings → What's new keeps everything that has changed."
+          "The \"version ready\" card stays at the top until you use it or close it.",
+          "What changed before lives in Settings → What's new."
         ]
       }
     },
     {
       "version": "0.7.148",
       "fecha": "2026-09-30",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "expansion",
       "titulo": "Cyberpunk, el quinto mundo",
       "resumen": "Paneles con visor en vez de marco, cinco paletas con su cara de día y una racha que se enciende como un circuito.",
       "puntos": [
-        "Tu camino en Cyberpunk: Señal, Enlace, Protocolo, Núcleo y Leyenda.",
-        "Cinco paletas: Visor, Ácido, Cobalto y Ultravioleta llegan con el mundo; Voltaje se gana con el tercer rango.",
-        "La racha es una placa: cada día que cuenta enciende su pista."
+        "Tu camino ahí: Señal, Enlace, Protocolo, Núcleo y Leyenda.",
+        "Voltaje, la quinta paleta, se gana con el tercer rango."
       ],
       "imagen": {
         "src": "novedades/img/0.7.148-cyberpunk.jpg",
@@ -956,23 +1037,21 @@
         "titulo": "Cyberpunk, the fifth world",
         "resumen": "Panels with a visor instead of a frame, five palettes with their daytime face, and a streak that lights up like a circuit.",
         "puntos": [
-          "Your path in Cyberpunk: Signal, Link, Protocol, Core and Legend.",
-          "Five palettes: Visor, Acid, Cobalt and Ultraviolet come with the world; Voltage is earned with the third rank.",
-          "Your streak is a board: every day that counts lights up its track."
+          "Your path there: Signal, Link, Protocol, Core and Legend.",
+          "Voltage, the fifth palette, is earned with the third rank."
         ]
       }
     },
     {
       "version": "0.7.147",
       "fecha": "2026-09-30",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "expansion",
       "titulo": "Cinco paletas por mundo y diez ambientes",
       "resumen": "Cada mundo trae cinco paletas, Norata clásico llega a diez ambientes, y los mundos se miran desde Mi apariencia antes de ponértelos.",
       "puntos": [
-        "Cuatro paletas llegan con cada mundo, y la quinta se gana con el tercer rango de su camino.",
-        "Tres ambientes nuevos: Cobre, Zafiro y Oliva. Duna, rehecha como desierto de verdad.",
-        "En Mi apariencia la tarjeta toma la cara del mundo que estás mirando, aunque lleves puesto otro."
+        "La quinta paleta de cada mundo se gana con el tercer rango de su camino.",
+        "Los ambientes nuevos son Cobre, Zafiro y Oliva, y Duna se rehízo como desierto de verdad."
       ],
       "imagen": {
         "src": "novedades/img/0.7.147-paletas.jpg",
@@ -1106,9 +1185,8 @@
         "titulo": "Five palettes per world and ten ambiences",
         "resumen": "Every world brings five palettes, classic Norata reaches ten ambiences, and you can look at worlds from My look before wearing them.",
         "puntos": [
-          "Four palettes come with each world, and the fifth is earned with the third rank of its path.",
-          "Three new ambiences: Copper, Sapphire and Olive. Dune, remade as a real desert.",
-          "In My look the card takes on the face of the world you're looking at, even if you're wearing another."
+          "Each world's fifth palette is earned with the third rank of its path.",
+          "The new ambiences are Copper, Sapphire and Olive, and Dune was remade as a real desert."
         ]
       }
     }

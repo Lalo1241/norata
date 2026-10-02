@@ -189,12 +189,15 @@ function cargaSoltarZoom(el) {
   cargaAnims.forEach(a => { try { a.cancel(); } catch (e) {} });
   cargaAnims = [];
   if (!el) return;
-  el.classList.remove("sale");
+  el.classList.remove("sale", "corta");
   const logo = el.querySelector(".carga-marca svg");
   if (logo) logo.style.animation = "";
   const telon = el.querySelector(".carga-telon");
   if (telon) telon.remove();
   cargaTelonPintar = null;
+  /* El dibujo del estreno es de UNA carga: la siguiente que se muestre
+     («Cambiando tema…», «Guardando lo último…») vuelve al aro que gira. */
+  document.documentElement.classList.remove("carga-estreno");
 }
 
 /* Un rectángulo redondeado como trozo de trazado, para recortarlo del telón. */
@@ -217,19 +220,98 @@ function cargaRectRedondo(cx, cy, m, r) {
        letras blancas asomaban por el hueco y su botón menta se fundía con el
        logo. Congelado parecía un fallo de dibujo; lo vio Eduardo en la
        simulación (0.7.147.6). */
-function cargaEntrar() {
+/* TRES SALIDAS (0.7.158), para que el zoom no se gaste. Lo pidió Eduardo: salía
+   al abrir, al refrescar y al actualizar, y repetido ya no decía nada.
+
+     entrada   primera apertura de la pestaña o de la app, e iniciar sesión:
+               el mínimo de 3 s y el zoom (`cargaZoom`).
+     refresco  recargar, tirar para actualizar, cambiar de mundo o paleta:
+               sin mínimo y con la salida corta (`cargaCorta`).
+     estreno   pulsar «Actualizar»: el aro se cierra una vez, un latido y la
+               salida corta (`cargaEstreno`).
+
+   Cuál toca lo decide el script de arriba de index.html (`window.__carga`),
+   porque el estreno tiene otro dibujo desde el primer cuadro. `modo` lo
+   fuerza quien SABE que es una entrada aunque la pestaña ya estuviera
+   abierta: `adoptarSesion` y la vuelta de Google. Lo decidido vale para UNA
+   carga: la siguiente de esta misma página ya es un refresco. */
+function cargaEntrar(modo) {
   cargaSoltarPlazo();
   const el = document.getElementById("carga");
+  let cual = modo || window.__carga || "entrada";
+  window.__carga = "refresco";
+  /* Un estreno que no estrenó nada —el worker no llegó, el paquete falló— no
+     puede anunciar una versión que no es la que se ve. */
+  if (cual === "estreno" && /^\d/.test(String(window.__estreno || "")) &&
+      typeof VERSION !== "undefined" && window.__estreno !== VERSION) {
+    cual = "refresco";
+    document.documentElement.classList.remove("carga-estreno");
+    const msg = document.getElementById("carga-msg");
+    if (msg) msg.textContent = tx("Abriendo Norata…");
+  }
   if (!el || el.classList.contains("oculta")) return Promise.resolve();
   const mio = ++cargaTurno;
+  const tras = (ms, hacer) => new Promise(listo => setTimeout(() => {
+    if (cargaTurno !== mio) { listo(); return; }
+    setTimeout(listo, hacer());
+  }, ms));
+  if (cual === "refresco") return tras(0, () => cargaCorta(el, mio));
+  /* El aro tarda 0,9 s en cerrarse y empezó con el primer cuadro: se le deja
+     terminar aunque la app haya arrancado antes. */
+  if (cual === "estreno") return tras(Math.max(0, CARGA_ARO - performance.now()), () => cargaEstreno(el, mio));
   /* Contado desde que se abrió la página y no desde aquí: el arranque ya tardó
      lo que tardó, y sumarle tres segundos enteros encima sería castigar a
      quien tiene la red lenta. Al entrar a una cuenta ya pasó de sobra. */
-  const falta = Math.max(0, CARGA_MINIMO - performance.now());
-  return new Promise(listo => setTimeout(() => {
-    if (cargaTurno !== mio) { listo(); return; }
-    setTimeout(listo, cargaZoom(el, mio));
-  }, falta));
+  return tras(Math.max(0, CARGA_MINIMO - performance.now()), () => cargaZoom(el, mio));
+}
+
+/* La salida CORTA: 0,4 s. El texto se apaga, la marca se encoge un pelo y la
+   carga entera se desvanece. Sin telón y sin zoom: es lo que se ve al
+   refrescar, y tiene que sentirse como que no costó nada.
+   Devuelve cuánto tarda, como `cargaZoom`. */
+const CARGA_CORTA = 400;
+const CARGA_ARO = 950;
+function cargaCorta(el, mio) {
+  const quieto = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (quieto || typeof el.animate !== "function") { cargaCerrar(); return 300; }
+  const marca = el.querySelector(".carga-marca");
+  const msg = document.getElementById("carga-msg");
+  const anim = (nodo, frames, opts) => {
+    if (nodo) cargaAnims.push(nodo.animate(frames, Object.assign({ fill: "forwards" }, opts)));
+  };
+  anim(msg, [{ opacity: 1 }, { opacity: 0 }], { duration: 140, easing: "ease-in" });
+  anim(marca, [{ transform: "scale(1)", opacity: 1 }, { transform: "scale(.9)", opacity: 0 }],
+    { duration: 260, easing: "cubic-bezier(.4,0,1,1)" });
+  anim(el, [{ opacity: 1, offset: 0 }, { opacity: 1, offset: 0.2 }, { opacity: 0, offset: 1 }],
+    { duration: CARGA_CORTA, easing: "cubic-bezier(.4,0,.2,1)" });
+  el.classList.add("corta");
+  /* Por reloj, igual que el zoom: donde no se pintan cuadros las animaciones
+     no avanzan y la carga se quedaría tapando. */
+  setTimeout(() => {
+    if (cargaTurno !== mio) return;
+    el.classList.add("oculta");
+    cargaSoltarZoom(el);
+  }, CARGA_CORTA + 30);
+  return CARGA_CORTA + 30;
+}
+
+/* El ESTRENO: el aro ya se cerró (lo anima el CSS desde el primer cuadro), el
+   isotipo da UN latido —«ya está»— y se va con la salida corta. */
+function cargaEstreno(el, mio) {
+  const quieto = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (quieto || typeof el.animate !== "function") { cargaCerrar(); return 300; }
+  const logo = el.querySelector(".carga-marca svg");
+  const LATIDO = 320;
+  if (logo) {
+    const cs = getComputedStyle(logo);
+    const desde = { opacity: cs.opacity, transform: cs.transform === "none" ? "scale(1)" : cs.transform };
+    logo.style.animation = "none";
+    cargaAnims.push(logo.animate(
+      [desde, { opacity: 1, transform: "scale(1.16)", offset: 0.45 }, { opacity: 1, transform: "scale(1)" }],
+      { duration: LATIDO, easing: "cubic-bezier(.22,1,.36,1)", fill: "forwards" }));
+  }
+  setTimeout(() => { if (cargaTurno === mio) cargaCorta(el, mio); }, LATIDO + 40);
+  return LATIDO + 40 + CARGA_CORTA + 30;
 }
 
 /* Devuelve cuántos ms tarda en irse, para que `cargaEntrar` espere justo eso. */
@@ -1359,11 +1441,17 @@ async function adoptarSesion(mensaje) {
     syncRun({ silent: true }),
     new Promise(listo => setTimeout(listo, 12000))
   ]);
+  /* El progreso ya bajó, y con él lo que la cuenta sabe de tu tema. Si este
+     dispositivo no lo traía —es nuevo, o lo guardado era de otra cuenta— se
+     pone AQUÍ, con la carga todavía delante, y se recarga: la app nunca llega
+     a destaparse con un mundo que no es el tuyo (0.7.160). */
+  if (typeof conciliarAspecto === "function" && conciliarAspecto()) return;
   showView(activeMainView || "summary");
 
   // La app ya está pintada con lo que toca: recién ahora se destapa
   cerrarPortada(true);
-  await cargaEntrar();
+  /* Entrar a una cuenta es una ENTRADA aunque la pestaña ya estuviera abierta. */
+  await cargaEntrar("entrada");
   toast(mensaje || (tx("Hola de nuevo") + coma()), "logro");
   quizaTutorialDeEntrada();
 }

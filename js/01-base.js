@@ -48,8 +48,8 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.154";
-const VERSION_FECHA = "1 oct 2026";
+const VERSION = "0.7.161";
+const VERSION_FECHA = "2 oct 2026";
 
 /* ---- La web de fuera, en UN solo sitio ----
    La página pública de Norata, la que no es la app. Vive aquí y no escrita en
@@ -527,6 +527,11 @@ function logotipoSrc() {
 const CAMBIO_MINIMO = 2500;
 const ICONO_PEDIDO_LLAVE = "norata-icono-pedido";
 function recargarApp(desde) {
+  /* Venir de un cambio de tema es una ENTRADA: la carga que sigue lleva el
+     zoom del logo, «para que se vea apantallante el cambio» (Eduardo,
+     0.7.160). La marca la lee el script de arriba de index.html. En el APK la
+     app además se reinicia, y un arranque en frío ya es una entrada. */
+  try { sessionStorage.setItem("norata-entrada", "1"); } catch (e) {}
   if (typeof window.norataIcono !== "function") { location.reload(); return; }
   try { localStorage.setItem(ICONO_PEDIDO_LLAVE, "1"); } catch (e) {}
   const falta = CAMBIO_MINIMO - (Date.now() - (desde || Date.now()));
@@ -574,6 +579,9 @@ function ponerTema(cual) {
     if (meta) meta.setAttribute("content", claro ? "#dcdef0" : "#10151d");
   }
   pintarTema();
+  /* El modo también es parte del aspecto que la cuenta lleva apuntado por
+     dispositivo (js/10i-apariencia.js, 0.7.160). */
+  if (typeof apuntarAspecto === "function") apuntarAspecto();
 }
 
 function alternarTema() {
@@ -584,6 +592,239 @@ function alternarTema() {
    dos sitios a la vez —la pantalla de Ajustes del teléfono y el mini menú
    del engrane en la computadora—, y dos copias escritas a mano acabarían
    diciendo cosas distintas. Por eso también va con clases y no con ids. */
+/* ================= Todo interruptor se desliza =================
+   Regla del motor, y es de Eduardo (0.7.154): cualquier interruptor de la app,
+   de hoy o de mañana y en cualquier mundo, enseña su deslizamiento al cambiar.
+
+   **Por qué no bastaba con una transición de CSS.** Casi todos los
+   interruptores de Norata se REDIBUJAN al tocarlos (`innerHTML`): el de
+   Oscuro/Claro, el del sonido, las filas de Mis módulos. El elemento que
+   estaba encendido deja de existir y aparece otro ya encendido, así que no hay
+   nada que el navegador pueda animar: la transición que `.mod-sw i` tenía
+   escrita no se veía nunca. Y la otra mitad: una transición sobre un color
+   que sale de una variable se queda congelada (ver «Trampas» en CLAUDE.md),
+   que es justo lo que es el fondo de una opción encendida en cualquier mundo.
+
+   **Cómo lo hace.** Un solo oyente en el documento, en la fase de captura
+   —antes de que el `onclick` redibuje—, apunta DÓNDE estaba lo encendido.
+   Un turno después busca el mismo control en el DOM nuevo y anima con la Web
+   Animations API, que no depende de variables ni de que el elemento sea el
+   mismo. Nadie tiene que llamar a nada al escribir un interruptor nuevo.
+
+   Son dos figuras:
+
+     - **Opciones** (dos o más botones en fila, uno encendido): la pastilla
+       encendida viaja de la vieja a la nueva. No se mueve ningún elemento
+       real —cada mundo pinta la pastilla a su manera: un relleno, un marco de
+       píxel, un recorte— sino que la nueva se DESTAPA desde el lado por el que
+       llega y sobre la vieja se retira una copia encendida. Las dos mitades
+       juntas son una ventana del ancho de la pastilla cruzando de un lado al
+       otro, hecha con el material del mundo que esté puesto.
+     - **Perilla** (un interruptor de encender/apagar): el botón redondo sale
+       de donde estaba y llega a donde está.
+
+   **El peso lo pone el mundo**: duración y curva salen de `--dur-media` y
+   `--curva`, así que en Averno y Catedral el deslizamiento va a saltos, como
+   todo lo demás allí.
+
+   **Para que un interruptor nuevo entre solo**, basta con que se parezca a
+   los que ya hay: su contenedor casa con `DESLIZA_GRUPOS` (o lleva
+   `data-desliza`) y la opción encendida con `DESLIZA_PUESTO` (`.on` o su
+   `aria-*`); una perilla, con `DESLIZA_PERILLA` (o `data-perilla`). Si un
+   día hace falta otra forma, se añade AQUÍ, en una de las tres listas, y no
+   con una animación suelta en su pantalla.
+
+   Se define aquí y se enciende desde `js/11-arranque.js`: este archivo también
+   lo carga la puerta, y ahí nada puede ejecutarse al cargar. */
+const DESLIZA_GRUPOS = '[role="radiogroup"], [role="tablist"], .seg, .tema-sw, [data-desliza]';
+const DESLIZA_OPCION = 'button, [role="radio"], [role="tab"]';
+const DESLIZA_PUESTO = '.on, .active, [aria-checked="true"], [aria-selected="true"], [aria-pressed="true"]';
+const DESLIZA_PERILLA = '.mod-sw i, [data-perilla]';
+const DESLIZA_MARCAS = [["aria-checked", "true"], ["aria-selected", "true"], ["aria-pressed", "true"]];
+
+/* Dónde vive un elemento, dicho de forma que sobreviva a un redibujado: el
+   `id` más cercano hacia arriba y, desde ahí, el número de hijo en cada
+   peldaño. El DOM nuevo tiene la misma forma que el viejo —es el mismo
+   control vuelto a pintar—, así que el camino lleva al mismo sitio. */
+function deslizaLlave(el) {
+  const pasos = [];
+  let n = el;
+  while (n && n !== document.body && !n.id) {
+    const p = n.parentElement;
+    if (!p) return null;
+    pasos.unshift(Array.prototype.indexOf.call(p.children, n));
+    n = p;
+  }
+  return { raiz: n && n.id ? n.id : "", pasos };
+}
+
+function deslizaBuscar(llave) {
+  if (!llave) return null;
+  let n = llave.raiz ? document.getElementById(llave.raiz) : document.body;
+  for (let i = 0; n && i < llave.pasos.length; i++) n = n.children[llave.pasos[i]];
+  return n || null;
+}
+
+function deslizaOpciones(grupo) {
+  return Array.prototype.filter.call(grupo.querySelectorAll(DESLIZA_OPCION),
+    o => o.closest(DESLIZA_GRUPOS) === grupo && !o.hasAttribute("data-desliza-copia"));
+}
+
+function deslizaPuesto(grupo) {
+  return deslizaOpciones(grupo).filter(o => o.matches(DESLIZA_PUESTO))[0] || null;
+}
+
+/* El peso del movimiento, leído del mundo puesto. Con «menos movimiento» no
+   hay ninguno: se devuelve null y nadie anima. */
+function deslizaRitmo() {
+  try {
+    if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return null;
+  } catch (e) {}
+  const cs = getComputedStyle(document.documentElement);
+  const seg = parseFloat(cs.getPropertyValue("--dur-media")) || 0.22;
+  const curva = cs.getPropertyValue("--curva").trim() || "ease";
+  return { duration: Math.round(seg * 1000), easing: curva };
+}
+
+/* `animate` rechaza una curva que no entiende con una excepción. Un mundo que
+   escriba mal la suya no puede dejar un interruptor sin funcionar: se repite
+   con la de la casa. */
+function deslizaAnimar(el, cuadros, ritmo) {
+  if (!el || !el.animate) return null;
+  try { return el.animate(cuadros, ritmo); }
+  catch (e) {
+    try { return el.animate(cuadros, { duration: ritmo.duration, easing: "ease" }); }
+    catch (e2) { return null; }
+  }
+}
+
+/* Una copia de una opción, puesta encima de ella sin ocupar sitio. Lleva sus
+   mismas clases, así que la viste el mundo que esté puesto, y no se puede
+   tocar ni leer: es un dibujo de 200 ms. */
+function deslizaCopia(grupo, opcion, encendida, modelo) {
+  const c = opcion.cloneNode(true);
+  c.removeAttribute("id");
+  c.removeAttribute("onclick");
+  c.setAttribute("data-desliza-copia", "");
+  c.setAttribute("aria-hidden", "true");
+  c.tabIndex = -1;
+  c.querySelectorAll("[id]").forEach(x => x.removeAttribute("id"));
+  ["on", "active"].forEach(k => {
+    if (modelo.classList.contains(k)) c.classList.toggle(k, encendida);
+  });
+  DESLIZA_MARCAS.forEach(par => {
+    if (modelo.getAttribute(par[0]) === par[1]) c.setAttribute(par[0], encendida ? "true" : "false");
+  });
+  const g = grupo.getBoundingClientRect(), r = opcion.getBoundingClientRect();
+  c.style.cssText += ";position:absolute;margin:0;box-sizing:border-box;pointer-events:none;" +
+    "left:" + (r.left - g.left - grupo.clientLeft + grupo.scrollLeft) + "px;" +
+    "top:" + (r.top - g.top - grupo.clientTop + grupo.scrollTop) + "px;" +
+    "width:" + r.width + "px;height:" + r.height + "px;";
+  if (getComputedStyle(grupo).position === "static") grupo.style.position = "relative";
+  grupo.appendChild(c);
+  return c;
+}
+
+function deslizaOpcion(grupo, indiceViejo, nuevo, ritmo) {
+  const vieja = deslizaOpciones(grupo)[indiceViejo];
+  if (!vieja || vieja === nuevo) return;
+  const a = vieja.getBoundingClientRect(), b = nuevo.getBoundingClientRect();
+  const dx = (b.left + b.width / 2) - (a.left + a.width / 2);
+  const dy = (b.top + b.height / 2) - (a.top + a.height / 2);
+  if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+  /* Por qué lado llega la pastilla a la nueva, que es el mismo por el que se
+     va de la vieja. `inset(arriba derecha abajo izquierda)`. */
+  let tapada, ida;
+  if (Math.abs(dx) >= Math.abs(dy)) {
+    tapada = dx > 0 ? "inset(0 100% 0 0)" : "inset(0 0 0 100%)";
+    ida    = dx > 0 ? "inset(0 0 0 100%)" : "inset(0 100% 0 0)";
+  } else {
+    tapada = dy > 0 ? "inset(0 0 100% 0)" : "inset(100% 0 0 0)";
+    ida    = dy > 0 ? "inset(100% 0 0 0)" : "inset(0 0 100% 0)";
+  }
+  const entera = "inset(0 0 0 0)";
+  /* Tres piezas, las tres con el mismo reloj:
+       la nueva se destapa encendida;
+       debajo de lo que aún no se destapó, una copia suya APAGADA, para que su
+       rótulo no desaparezca mientras llega la pastilla;
+       y sobre la vieja, una copia ENCENDIDA que se retira hacia la nueva. */
+  const apagada = deslizaCopia(grupo, nuevo, false, nuevo);
+  const encendida = deslizaCopia(grupo, vieja, true, nuevo);
+  const fin = [
+    deslizaAnimar(nuevo, { clipPath: [tapada, entera] }, ritmo),
+    deslizaAnimar(apagada, { clipPath: [entera, ida] }, ritmo),
+    deslizaAnimar(encendida, { clipPath: [entera, ida] }, ritmo)
+  ];
+  const quitar = () => { apagada.remove(); encendida.remove(); };
+  /* Con temporizador y no con `onfinish`: en una pestaña que no pinta las
+     animaciones no avanzan nunca, y las dos copias se quedarían encima del
+     control para siempre. */
+  setTimeout(quitar, ritmo.duration + 60);
+  if (!fin[0]) quitar();
+}
+
+function deslizaPerilla(perilla, antes, ritmo) {
+  const r = perilla.getBoundingClientRect();
+  const dx = antes.left - r.left, dy = antes.top - r.top;
+  if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+  /* `translate` y no `transform`: la perilla ya usa `transform` para su
+     sitio, y animarlo se lo pisaría durante el viaje. */
+  deslizaAnimar(perilla, { translate: [dx + "px " + dy + "px", "0px 0px"] }, ritmo);
+}
+
+function instalarDesliza() {
+  if (window.__deslizaPuesto) return;
+  window.__deslizaPuesto = true;
+  document.addEventListener("click", ev => {
+    const t = ev.target && ev.target.closest ? ev.target : null;
+    if (!t) return;
+    const ritmo = deslizaRitmo();
+    if (!ritmo) return;
+
+    /* ---- Una perilla: el control que se tocó tiene una dentro ---- */
+    const control = t.closest("button, [role='switch'], label");
+    const perilla = control && control.querySelector(DESLIZA_PERILLA);
+    if (perilla) {
+      const antes = perilla.getBoundingClientRect();
+      const llave = deslizaLlave(control);
+      setTimeout(() => {
+        const c2 = deslizaBuscar(llave);
+        const p2 = c2 && c2.querySelector && c2.querySelector(DESLIZA_PERILLA);
+        if (p2) deslizaPerilla(p2, antes, ritmo);
+      }, 0);
+      return;
+    }
+
+    /* ---- Opciones: se tocó una que no era la encendida ---- */
+    const opcion = t.closest(DESLIZA_OPCION);
+    const grupo = opcion && opcion.closest(DESLIZA_GRUPOS);
+    if (!grupo) return;
+    const vieja = deslizaPuesto(grupo);
+    if (!vieja || vieja === opcion) return;
+    const opciones = deslizaOpciones(grupo);
+    const iVieja = opciones.indexOf(vieja);
+    const llave = deslizaLlave(grupo);
+    /* Se mira un turno después, que es cuando el `onclick` ya redibujó. Y dos
+       veces más por si el cambio llega tras una espera corta (guardar, pedir
+       algo): la primera que encuentre la pastilla en otro sitio anima, y las
+       demás no hacen nada. */
+    let hecho = false;
+    const mirar = () => {
+      if (hecho) return;
+      const g2 = deslizaBuscar(llave);
+      if (!g2 || !g2.matches || !g2.matches(DESLIZA_GRUPOS)) return;
+      const nuevo = deslizaPuesto(g2);
+      if (!nuevo) return;
+      if (deslizaOpciones(g2).indexOf(nuevo) === iVieja) return;
+      hecho = true;
+      deslizaOpcion(g2, iVieja, nuevo, ritmo);
+    };
+    setTimeout(mirar, 0);
+    setTimeout(mirar, 90);
+    setTimeout(mirar, 280);
+  }, true);
+}
+
 function temaSwitchHTML() {
   const claro = temaEsClaro();
   const op = (valor, nombre, ico, activo) => `
@@ -691,6 +932,40 @@ const TIPOS = {
     tecla: "R"
   }
 };
+
+/* ---- Las insignias (0.7.156) ----
+   Toda insignia que la app dé por un logro se dibuja con UNA figura de los
+   nodos de Ramas y UN símbolo dentro, y nada más. Lo pidió Eduardo al ver la
+   medalla de la 1.0 (cinta, «1.0» y una β diminuta): «que sea solo el símbolo,
+   y que use una forma de algún logro del módulo de talentos», para que sea el
+   lenguaje de los logros que vengan. La figura dice qué CLASE de logro es, con
+   el mismo significado que en el árbol:
+
+     hito      hexágono   algo que pasó una vez y se cierra
+     meta      rombo      algo que sostuviste en el tiempo
+     acumular  triángulo  algo que fue sumando
+     compra    círculo    una llave
+
+   Dos contornos —el aro y el relleno de dentro— y el símbolo en la letra de la
+   app, nunca en la del mundo: en Arcade y Averno una letra suelta no se lee.
+   Los colores son de quien la pinta (`--ins-tono`, `--ins-fondo`,
+   `--ins-tinta`, ver `.insignia` en css/estilos.css). */
+function insigniaSVG(tipo, simbolo, clase) {
+  const forma = (TIPOS[tipo] || TIPOS.hito).forma;
+  const fig = (r) => {
+    if (forma === "circulo") return (k) => `<circle class="${k}" cx="32" cy="32" r="${r}"/>`;
+    let v;
+    if (forma === "rombo") v = [[32, 32 - r], [32 + r, 32], [32, 32 + r], [32 - r, 32]];
+    else if (forma === "triangulo") v = [[32, 36 - r * 1.15], [32 + r, 36 + r * .58], [32 - r, 36 + r * .58]];
+    else v = [0, 1, 2, 3, 4, 5].map((i) => { const a = -Math.PI / 2 + i * Math.PI / 3; return [32 + r * Math.cos(a), 32 + r * Math.sin(a)]; });
+    return (k) => `<polygon class="${k}" points="${v.map((q) => q[0].toFixed(1) + "," + q[1].toFixed(1)).join(" ")}"/>`;
+  };
+  const [rAro, rDentro, y] = forma === "triangulo" ? [30, 20, 47] : forma === "rombo" ? [30, 20, 41] : [29, 21, 41];
+  return `<svg class="insignia${clase ? " " + clase : ""}" viewBox="0 0 64 64" aria-hidden="true">
+    ${fig(rAro)("aro")}${fig(rDentro)("dentro")}
+    <text x="32" y="${y}" text-anchor="middle" class="simbolo">${escapeHtml(simbolo)}</text>
+  </svg>`;
+}
 
 /* Las unidades de lo que se acumula. «dinero» se escribe con la moneda del
    ajuste; las demás, con su palabra. */
@@ -2137,7 +2412,7 @@ const CAPAS_QUE_TAPAN = [
      es lo que se ve. Contándola, la ventana de vuelta tras una ausencia no
      salía NUNCA — se pregunta justo al cerrar la carga, con el desvanecido en
      marcha, y se callaba (0.7.147.5). */
-  "#carga:not(.oculta):not(.fuera):not(.sale)"     // esperando
+  "#carga:not(.oculta):not(.fuera):not(.sale):not(.corta)"     // esperando
 ].join(",");
 
 function revisarFondoQuieto() {

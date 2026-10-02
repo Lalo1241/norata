@@ -69,12 +69,26 @@ la Play Store (`"version": "1.0"`, `"hito": "1.0"`). Eduardo pidió para ellos
   - **Con el estilo del mundo puesto** (su acento, sus botones), pero de noche.
   - **El número grande y el texto en la letra de la app** (`--sans`), nunca en
     la del mundo: en Arcade y Averno «Beta» no se leía.
-  - **El número desfila** por cada 3º publicado: en la beta, por la alpha; en
-    la 1.0, desde la primera versión, por la beta y sus actualizaciones, hasta
-    la 1.0 (nueve segundos). La lista es `camino` —lo de antes de las
-    novedades, sacado de `VERSIONES.md` y que ya no se toca— más las entradas.
-  - **Una insignia por hito**: sello hexagonal con α para la beta; medalla con
-    cinta, «1.0» y la letra de la etapa en que llegaste, para la 1.0.
+  - **La ruleta no crece con las versiones** (0.7.157.2): pasan como mucho 36
+    (beta) o 44 (1.0), elegidas por `hitoMuestra` —la primera, la primera de
+    cada 2º tramo, las expansiones, las de `camino` con `"relevante": true`, y
+    relleno repartido—, y para en «0.8.0» o «1.0.0». Para que una versión
+    vieja pase siempre, se le pone `"relevante": true` en `camino`.
+  - **Gira en el centro de la pantalla** (0.7.157.1): isotipo, etiqueta y
+    ruleta; con los últimos números suben a su sitio y al parar se despliega
+    lo demás.
+  - **El número gira como una ruleta** (0.7.153.2) por cada 3º publicado: en
+    la beta, por la alpha hasta caer en «Beta»; en la 1.0, desde la primera
+    versión, por la beta y sus actualizaciones, hasta la 1.0 (la pantalla entera, 9 s como mucho: 0.7.159).
+    La lista es `camino` —lo de antes de las novedades, sacado de
+    `VERSIONES.md` y que ya no se toca— más las entradas.
+  - **`{versiones}` en un texto se rellena solo** con cuántas versiones van
+    (`camino` más las entradas de 3º hasta la vigente). Un número escrito a
+    mano en un borrador se queda viejo antes de publicarse.
+  - **Una insignia por etapa** (0.7.156): la de la etapa en que llegaste,
+    igual en los dos hitos. Hexágono con α para la alpha, rombo con β para la
+    beta. Es el lenguaje de todas las insignias de la app (`insigniaSVG`,
+    ver «Las insignias» en `CLAUDE.md`).
   - **Debajo, un reporte que aparece al bajar**: días, días con algo hecho,
     mejor racha, misiones, nodos, la habilidad más alta, nivel y rango, la
     primera misión y un punto por día de las últimas semanas. Sin láminas:
@@ -170,3 +184,7 @@ Las reglas de «El tono» de `CLAUDE.md`, y además:
   gritar.
 - **Corto.** El título en una línea; los puntos, uno por renglón en el
   teléfono.
+- **Cada punto dice algo que el resumen no dijo.** Si repite el resumen con
+  otras palabras, o tranquiliza («no cambia nada de lo tuyo») en vez de
+  contar, se quita (Eduardo, 0.7.153.2). Un hito se festeja: lo hicimos
+  bien, y eso se celebra con quien lo usa, no se le explica.

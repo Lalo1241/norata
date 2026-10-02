@@ -1,5 +1,5 @@
 /* ============================================================
-   Los avisos en la app de Android (0.7.154)
+   Los avisos en la app de Android (0.7.161)
    ============================================================
 
    El puente entre el Pomodoro (js/09d-jornada.js) y el complemento nativo
@@ -55,7 +55,7 @@
     })).catch(() => null);
   }
 
-  /* ---- El tono de los avisos sigue al mundo (0.7.154) ----
+  /* ---- El tono de los avisos sigue al mundo (0.7.161) ----
      Lo pidió Eduardo: los avisos «tienen que venir de la mano del diseño del
      mundo seleccionado». Es la misma regla que la marca en el menú
      (`--marca-menu`, 0.7.148.4): un MUNDO recolorea, y la casa, un ambiente y

@@ -56,6 +56,22 @@ function novedadesEnBorrador() {
   try { return sessionStorage.getItem(NOVEDADES_BORRADOR) === "1"; } catch (e) { return false; }
 }
 
+/* ---- Los borradores, a la vista en el panel (0.7.155) ----
+   Eduardo abrió Ajustes → Novedades en la versión correcta y lo encontró
+   vacío: todas las entradas estaban en borrador y solo salían con
+   `?novedades=borrador` en la dirección, que no recordaba. Lo pidió así: «evita
+   que sea necesario para poder verlo siempre, total, solo estoy yo».
+
+   Así que el PANEL enseña también los borradores, cada uno con su etiqueta.
+   Lo que NO cambia es la ventana que sale sola al abrir: esa sigue siendo
+   solo para lo publicado, o cada versión le saltaría con un texto sin aprobar.
+
+   **Esto se apaga antes de la beta.** Vale mientras la única persona que usa
+   la app es él; el día que entre alguien más, un borrador a la vista es un
+   texto sin aprobar publicado. Se pone en `false` y el panel vuelve a pedir el
+   parámetro (está apuntado en VERSIONES.md, «Apuntado y sin hacer»). */
+const NOVEDADES_BORRADORES_A_LA_VISTA = true;
+
 /* 0.7.149.1 contra 0.7.149: por tramos y como números — como texto, «0.7.99»
    saldría más nuevo que «0.7.149». */
 function versionMasNueva(a, b) {
@@ -74,7 +90,13 @@ function cargarDocNovedades() {
   if (!novedadesPedidas) {
     novedadesPedidas = fetch(NOVEDADES_URL)
       .then((r) => (r.ok ? r.json() : null))
-      .then((d) => d || {})
+      .then((d) => {
+        d = d || {};
+        const vs = new Set((d.camino || []).map((c) => c.version));
+        (d.entradas || []).forEach((e) => { if (e.version && e.clase !== "hito" && String(e.version).split(".").length <= 3 && !versionMasNueva(e.version, VERSION)) vs.add(e.version); });
+        novedadesVersiones = vs.size;
+        return d;
+      })
       .catch(() => ({}));
   }
   return novedadesPedidas;
@@ -97,8 +119,18 @@ function novedadesVisibles(entradas, conBorradores) {
    entrada sin traducir se lee igual, que es mejor que no leerse. */
 function novedadCampo(e, campo) {
   const en = typeof idiomaActual === "function" && idiomaActual() === "en";
-  if (en && e.en && e.en[campo]) return e.en[campo];
-  return e[campo];
+  const v = en && e.en && e.en[campo] ? e.en[campo] : e[campo];
+  return novedadRellenar(v);
+}
+/* `{versiones}` en un texto se cambia por cuántas versiones van publicadas
+   (cada 3º de `camino` más los de las entradas, sin contar hitos). Lo usa el
+   borrador de la beta: escrito como «156 versiones después», el día de la beta
+   ya serían más y nadie se acordaría de cambiarlo. */
+let novedadesVersiones = 0;
+function novedadRellenar(v) {
+  if (typeof v === "string") return v.indexOf("{versiones}") < 0 ? v : v.replace(/\{versiones\}/g, novedadesVersiones ? hitoNum(novedadesVersiones) : "");
+  if (Array.isArray(v)) return v.map(novedadRellenar);
+  return v;
 }
 
 function novedadFecha(iso) {
@@ -345,8 +377,12 @@ function abrirNovedades() {
 async function renderPanelNovedades() {
   const caja = document.getElementById("panel-novedades");
   if (!caja) return;
+  /* Dos cosas distintas desde la 0.7.155: la LISTA lleva los borradores
+     siempre (ver `NOVEDADES_BORRADORES_A_LA_VISTA`), y las HERRAMIENTAS de
+     prueba —la ventana y los dos anuncios de hito— siguen detrás del
+     parámetro, que es donde tienen sentido. */
   const borrador = novedadesEnBorrador();
-  const lista = novedadesVisibles(await cargarNovedades(), borrador);
+  const lista = novedadesVisibles(await cargarNovedades(), borrador || NOVEDADES_BORRADORES_A_LA_VISTA);
   const aviso = borrador ? `
     <div class="nov-prueba">
       <b>${escapeHtml(tx("Estás viendo los borradores"))}</b>
@@ -429,8 +465,8 @@ window.addEventListener("load", () => setTimeout(revisarNovedades, 600));
      Tarda —en la 1.0, nueve segundos—, y es a propósito: es la celebración.
      La lista sale de `camino` (lo de antes de las novedades) y de las
      entradas (lo de después), así que no hay que mantenerla a mano.
-   - **Cada hito tiene su insignia**: un sello hexagonal para la beta y una
-     medalla con cinta para la 1.0.
+   - **La insignia es la de la etapa en que llegaste** (`hitoInsigniaSVG`):
+     hexágono con α para la alpha, rombo con β para la beta.
    - **Abajo, un reporte**: lo que recorriste, en tarjetas que aparecen al
      bajar. Sin láminas: las láminas son del aniversario, y aquí el
      espectáculo ya lo dio la escena de arriba.
@@ -442,9 +478,59 @@ window.addEventListener("load", () => setTimeout(revisarNovedades, 600));
 
    Se apunta como visto POR PERSONA, en `settings.hitosVistos` (viaja con la
    cuenta): un hito no se celebra dos veces porque tengas dos dispositivos. */
-const HITO_ETIQUETA = { beta: "Beta", "1.0": "1.0" };
-/* Cuánto dura el desfile, en milisegundos. */
-const HITO_DESFILE = { beta: 4800, "1.0": 9000 };
+/* Dónde para la ruleta: el número de la versión, con sus tres tramos (Eduardo,
+   0.7.157.2). Hasta entonces paraba en la palabra «Beta»; la palabra ya la
+   dice la etiqueta de arriba. */
+const HITO_ETIQUETA = { beta: "0.8.0", "1.0": "1.0.0" };
+/* Cuántas versiones pasan por la ruleta, como mucho. El giro dura lo mismo
+   haya las que haya (`HITO_DESFILE`), así que sin tope cada versión nueva
+   lo hacía más rápido hasta volverlo un borrón; con tope se elige cuáles. */
+const HITO_FILAS = { beta: 36, "1.0": 44 };
+/* Cuánto dura el desfile, en milisegundos. La 1.0 tiene un techo de Eduardo
+   (0.7.159): la pantalla entera, con todo ya en su sitio, en 9 s. La cuenta:
+   el giro empieza a los 2,9 s y, al parar, lo último de abajo entra a los
+   1,5 s y tarda 0,7 (`#hito.llego …` en css/estilos.css). 2,9 + 3,8 + 2,2 =
+   8,9: la décima de margen es lo que se retrasa el reloj del giro (medido,
+   unos 90 ms). Si cambia una de esas tres, se recorta aquí. Y la 1.0 lleva
+   menos filas que antes: 56 en menos de 4 s eran un borrón. */
+const HITO_DESFILE = { beta: 4800, "1.0": 3800 };
+
+/* Las versiones se escriben con tres tramos en la ruleta: «0.8» es «0.8.0». */
+function hitoVer(v) {
+  const t = String(v).split(".");
+  while (t.length < 3) t.push("0");
+  return t.join(".");
+}
+
+/* Cuáles pasan por la ruleta (0.7.157.2). Eduardo: que no se haga larga con
+   cada versión, pero que se vean sí o sí la más vieja, las relevantes, algunas
+   de relleno, la 0.8.0, la 0.9.0 y que aterrice en la 1.0.0. Así que primero
+   las que no pueden faltar, y el hueco que quede se reparte a partes iguales
+   entre las demás, para que se note que hubo muchas.
+
+   Relevantes son: la primera de cada 2º tramo (0.7.0, 0.8.0, 0.9.0…), las
+   que `camino` marca con `"relevante": true`, las expansiones de las
+   entradas y las tres últimas, que son las que se leen al frenar. */
+function hitoMuestra(doc, camino, hito) {
+  const max = HITO_FILAS[hito] || 40;
+  const lista = camino.map(hitoVer);
+  if (lista.length <= max) return lista;
+  const fijas = new Set([lista[0]]);
+  const relevantes = new Set();
+  (doc.camino || []).forEach((c) => { if (c.relevante) relevantes.add(hitoVer(c.version)); });
+  (doc.entradas || []).forEach((e) => { if (e.clase === "expansion" || e.clase === "hito") relevantes.add(hitoVer(e.version)); });
+  let tramo = "";
+  lista.forEach((v) => {
+    const t2 = v.split(".").slice(0, 2).join(".");
+    if (t2 !== tramo) { tramo = t2; fijas.add(v); }
+    if (relevantes.has(v)) fijas.add(v);
+  });
+  lista.slice(-3).forEach((v) => fijas.add(v));
+  const resto = lista.filter((v) => !fijas.has(v));
+  const hueco = Math.max(0, max - fijas.size);
+  for (let k = 0; k < hueco && k < resto.length; k++) fijas.add(resto[Math.floor((k + 0.5) * resto.length / hueco)]);
+  return lista.filter((v) => fijas.has(v));
+}
 
 function hitoDeEntrada(e) {
   return e && (e.hito === "beta" || e.hito === "1.0") ? e.hito : (versionMasNueva(e && e.version || "0", "0.9.999") ? "1.0" : "beta");
@@ -479,10 +565,13 @@ function hitoReporte(hito, doc) {
   const st = (typeof state !== "undefined" && state) || {};
   const s = st.settings || {};
   const hoy = typeof todayKey === "function" ? todayKey() : "";
-  const ini = s.inicio || null;
-  const dias = ini && typeof daysBetween === "function" ? daysBetween(ini, hoy) + 1 : 0;
-
   const activos = typeof activityDaySet === "function" ? [...activityDaySet()].sort() : [];
+  /* El primer día es el más viejo entre el inicio apuntado y lo primero que se
+     hizo: un respaldo importado trae días de antes del inicio de este
+     dispositivo, y sin esto salían «3 días desde que empezaste» y «10 días con
+     algo hecho, 350%». */
+  const ini = [s.inicio, activos[0]].filter(Boolean).sort()[0] || null;
+  const dias = ini && typeof daysBetween === "function" ? daysBetween(ini, hoy) + 1 : 0;
   let racha = 0, corrida = 0, previo = null;
   activos.forEach((k) => {
     corrida = previo && typeof addDaysKey === "function" && addDaysKey(previo, 1) === k ? corrida + 1 : 1;
@@ -528,30 +617,23 @@ function hitoReporte(hito, doc) {
   return { dias, ini, activos: activos.length, racha, misiones, primera, hab, nodos, nivel, rango, etapa, puntos, semanas };
 }
 
-function hitoInsigniaSVG(hito, etapa) {
-  const letra = etapa === "beta" ? "β" : "α";
-  if (hito === "1.0") {
-    /* La medalla de la 1.0: redonda, con su cinta, el número dentro y la letra
-       de la etapa en la que llegaste. */
-    return `<svg class="hito-ins-svg medalla" viewBox="0 0 64 72" aria-hidden="true">
-      <path class="cinta" d="M20 40 L12 70 L22 64 L28 72 L32 46 Z M44 40 L52 70 L42 64 L36 72 L32 46 Z"/>
-      <circle class="aro" cx="32" cy="28" r="24"/><circle class="dentro" cx="32" cy="28" r="18"/>
-      <text x="32" y="27" text-anchor="middle" class="num">1.0</text>
-      <text x="32" y="40" text-anchor="middle" class="letra">${letra}</text>
-    </svg>`;
-  }
-  /* El sello de la beta: un hexágono con la alfa en medio. */
-  return `<svg class="hito-ins-svg sello" viewBox="0 0 64 64" aria-hidden="true">
-    <path class="aro" d="M32 3l25 14.5v29L32 61 7 46.5v-29z"/>
-    <path class="dentro" d="M32 11l18 10.5v21L32 53 14 42.5v-21z"/>
-    <text x="32" y="41" text-anchor="middle" class="letra">${letra}</text>
-  </svg>`;
+/* La insignia de la etapa en la que llegaste, la misma en los dos hitos: quien
+   estuvo en la alpha la recibe en la beta y la vuelve a ver en la 1.0. La alpha
+   es un hexágono (un hito: pasó una vez) y la beta un rombo (una meta: la
+   sostuviste hasta la tienda). Hasta la 0.7.155 la 1.0 daba una medalla con
+   cinta y «1.0»; Eduardo la cambió por solo el símbolo. Ver `insigniaSVG`. */
+function hitoInsigniaSVG(etapa) {
+  return etapa === "beta" ? insigniaSVG("meta", "β", "hito-ins-svg") : insigniaSVG("hito", "α", "hito-ins-svg");
 }
 
 function hitoReporteHTML(d, hito) {
+  /* Cada tarjeta lleva su icono DOS veces: chico en su casilla y grande, de
+     marca de agua, en la esquina. Con una sola cifra dentro la tarjeta era un
+     rectángulo con un número; el dibujo grande es lo que la hace de algo. */
   const tarjeta = (tono, ico, valor, texto, extra) => `
     <div class="hito-rep" style="--t: var(--paleta-${tono})">
-      <span class="hito-rep-ic">${icon(ico, 18)}</span>
+      <span class="hito-rep-agua" aria-hidden="true">${icon(ico, 96)}</span>
+      <span class="hito-rep-ic">${icon(ico, 20)}</span>
       <b>${valor}</b><span>${escapeHtml(texto)}</span>${extra || ""}
     </div>`;
   const cont = (n) => `<span data-contar="${n}">${hitoNum(n)}</span>`;
@@ -565,16 +647,59 @@ function hitoReporteHTML(d, hito) {
   if (d.nodos) t.push(tarjeta(4, "star", cont(d.nodos), tx(d.nodos === 1 ? "nodo logrado" : "nodos logrados")));
   if (d.hab && d.hab.n) t.push(tarjeta(6, "bolt", T`Nivel ${d.hab.n}`, d.hab.nombre || ""));
   if (d.nivel) t.push(tarjeta(7, "crown", T`Nivel ${d.nivel}`, d.rango ? T`de expedición · ${d.rango}` : tx("de expedición")));
+  /* Con un número impar, la última se queda sola en media fila y se lee como
+     un hueco —es lo que vio Eduardo en una cuenta de tres días: una tarjeta y
+     media pantalla vacía al lado—. La última ocupa la fila entera. */
+  if (t.length % 2) t[t.length - 1] = t[t.length - 1].replace('class="hito-rep"', 'class="hito-rep hito-rep-ancha"');
   const primera = d.primera ? `
-    <div class="hito-rep hito-rep-ancha" style="--t: var(--paleta-1)">
-      <span class="hito-rep-ic">${icon("flag", 18)}</span>
+    <div class="hito-rep hito-rep-ancha hito-rep-origen" style="--t: var(--paleta-1)">
+      <span class="hito-rep-agua" aria-hidden="true">${icon("flag", 96)}</span>
+      <span class="hito-rep-ic">${icon("flag", 20)}</span>
       <span class="hito-rep-cita">${escapeHtml(tx("Todo empezó con"))} <b>«${escapeHtml(d.primera.nombre || "")}»</b></span>
       <i>${escapeHtml(novedadFecha(d.primera.k))}</i>
     </div>` : "";
+  /* El mapa de días. Eran rectángulos del ancho de la columna sin nada que
+     dijera qué era cada cosa, y los días de antes de empezar eran
+     transparentes: con una cuenta nueva quedaba una caja vacía con tres rayas
+     en una esquina. Ahora cada día es un cuadro del mismo tamaño, los de antes
+     de empezar se ven como un hueco con borde, hoy lleva su aro, y debajo va
+     la leyenda. La cuenta de arriba a la derecha es la de esa ventana. */
+  const hechos = d.puntos.filter((p) => p === 2).length;
+  const vividos = d.puntos.filter((p) => p > 0).length;
+  /* Dos formas según cuánto hay que enseñar. Con muchas semanas, una columna
+     por semana y cuadros chicos (caben 26). Con ocho o menos eso son cuatro
+     columnitas en una esquina de una caja vacía, así que se vuelve un
+     CALENDARIO: una fila por semana, siete casillas a todo lo ancho y arriba
+     la inicial de cada día. La última casilla siempre es hoy, así que las
+     iniciales se cuentan hacia atrás desde hoy. */
+  const calendario = d.semanas <= 8;
+  let iniciales = "";
+  if (calendario) {
+    let fmt = null;
+    try { fmt = new Intl.DateTimeFormat(typeof idiomaActual === "function" ? idiomaActual() : "es", { weekday: "narrow" }); } catch (e) {}
+    const hoyD = new Date();
+    const dias7 = [];
+    for (let j = 6; j >= 0; j--) {
+      const f = new Date(hoyD.getFullYear(), hoyD.getMonth(), hoyD.getDate() - j);
+      dias7.push(fmt ? fmt.format(f).toUpperCase() : "");
+    }
+    iniciales = `<span class="hito-mapa-dias" aria-hidden="true">${dias7.map((x) => `<b>${escapeHtml(x)}</b>`).join("")}</span>`;
+  }
   const mapa = d.puntos.length ? `
     <div class="hito-rep hito-rep-ancha hito-mapa-caja" style="--t: var(--paleta-5)">
-      <span class="hito-rep-tit">${escapeHtml(T`Tus últimas ${d.semanas} semanas, un punto por día`)}</span>
-      <span class="hito-mapa" style="--semanas:${d.semanas}">${d.puntos.map((p) => `<i class="p${p}"></i>`).join("")}</span>
+      <span class="hito-mapa-cab">
+        <span class="hito-rep-tit">${escapeHtml(T`Tus últimas ${d.semanas} semanas, un cuadro por día`)}</span>
+        <span class="hito-mapa-cuenta"><b>${hitoNum(hechos)}</b> ${escapeHtml(T`de ${hitoNum(vividos)}`)}</span>
+      </span>
+      ${iniciales}
+      <span class="hito-mapa${calendario ? " cal" : ""}" style="--semanas:${d.semanas}">${d.puntos.map((p, i) =>
+        `<i class="p${p}${i === d.puntos.length - 1 ? " hoy" : ""}"></i>`).join("")}</span>
+      <span class="hito-mapa-ley">
+        <span><i class="p2"></i>${escapeHtml(tx("Con algo hecho"))}</span>
+        <span><i class="p1"></i>${escapeHtml(tx("Sin nada"))}</span>
+        ${d.puntos.indexOf(0) >= 0 ? `<span><i class="p0"></i>${escapeHtml(tx("Antes de que empezaras"))}</span>` : ""}
+        <span><i class="p1 hoy"></i>${escapeHtml(tx("Hoy"))}</span>
+      </span>
     </div>` : "";
   const insignia = d.etapa === "alpha" ? tx("Expedición alpha") : tx("Expedición beta");
   const porque = d.etapa === "alpha"
@@ -583,8 +708,8 @@ function hitoReporteHTML(d, hito) {
   return `
     <section class="hito-reporte">
       <h3 class="hito-rep-titulo">${escapeHtml(tx(hito === "1.0" ? "Tu camino hasta la 1.0" : "Tu alpha, en números"))}</h3>
-      <div class="hito-insignia hito-${hito === "1.0" ? "medalla" : "sello"}">
-        ${hitoInsigniaSVG(hito, d.etapa)}
+      <div class="hito-insignia">
+        ${hitoInsigniaSVG(d.etapa)}
         <span><b>${escapeHtml(insignia)}</b><span>${escapeHtml(porque)}</span></span>
       </div>
       <div class="hito-reps">${t.join("")}${primera}${mapa}</div>
@@ -597,13 +722,22 @@ async function abrirHito(e, opciones) {
   const hito = hitoDeEntrada(e);
   const quieto = hitoQuieto();
   const doc = await cargarDocNovedades();
-  const camino = hitoCamino(doc, hito);
+  let camino = hitoCamino(doc, hito);
+  /* La 0.8 es un hito y `hitoCamino` deja fuera las entradas de hito: en la
+     1.0 se vuelve a meter, que es justo el cruce que hay que ver. */
+  if (hito === "1.0" && (doc.entradas || []).some((x) => x.hito === "beta" && x.estado === "publicado") && camino.indexOf("0.8") < 0) {
+    camino.push("0.8");
+    camino.sort((a, b) => (versionMasNueva(a, b) ? 1 : -1));
+  }
   /* En la prueba de la 1.0, mientras no exista ninguna beta, se inventan unas
      cuantas para que se vea el cruce de «Alpha» a «Beta». Solo en la prueba. */
   if (op.prueba && hito === "1.0" && !camino.some((v) => versionMasNueva(v, "0.7.9999"))) {
     camino.push("0.8");
     for (let i = 1; i <= 24; i++) camino.push("0.8." + i);
+    camino.push("0.9");
+    for (let i = 1; i <= 8; i++) camino.push("0.9." + i);
   }
+  camino = hitoMuestra(doc, camino, hito);
   const rep = hitoReporteHTML(hitoReporte(hito, doc), hito);
   cerrarHito(true);
 
@@ -617,17 +751,14 @@ async function abrirHito(e, opciones) {
     bichos += `<i style="--x:${(Math.cos(ang) * r).toFixed(1)}vmax;--y:${(Math.sin(ang) * r).toFixed(1)}vmax;animation-delay:${(0.3 + Math.random() * 0.7).toFixed(2)}s"></i>`;
   }
   const puntos = novedadCampo(e, "puntos") || [];
-  /* La vía de abajo del número: un tramo por etapa, del largo de las versiones
-     que tuvo. En la beta, solo la alpha; en la 1.0, alpha y beta. */
-  const nAlpha = camino.filter((v) => !versionMasNueva(v, "0.7.9999")).length;
-  const nBeta = camino.length - nAlpha;
-  const via = `
-    <div class="hito-via" aria-hidden="true">
-      <span class="hito-via-tramo alpha" style="flex:${Math.max(1, nAlpha)}"><em>Alpha</em></span>
-      ${hito === "1.0" ? `<span class="hito-via-tramo beta" style="flex:${Math.max(1, nBeta)}"><em>Beta</em></span>` : ""}
-      <span class="hito-via-meta"><em>${escapeHtml(HITO_ETIQUETA[hito])}</em></span>
-      <span class="hito-via-punto"></span>
-    </div>`;
+  /* La ruleta: una tira con cada versión y, arriba del todo, la etapa a la que
+     se llega. Baja como un rodillo hasta dejar la etapa en la ventana. */
+  const filas = [HITO_ETIQUETA[hito]].concat(camino.slice().reverse());
+  const ruleta = `
+    <span class="hito-ruleta" aria-hidden="true">
+      <span class="hito-tira">${filas.map((x, i) => `<span class="hito-fila${i === 0 ? " meta" : ""}">${escapeHtml(x)}</span>`).join("")}</span>
+    </span>
+    <span class="hito-ruleta-lector" aria-live="polite">${escapeHtml(HITO_ETIQUETA[hito])}</span>`;
 
   const v = document.createElement("div");
   v.id = "hito";
@@ -640,14 +771,15 @@ async function abrirHito(e, opciones) {
     <div class="hito-estrellas" aria-hidden="true">${estrellas}</div>
     <div class="hito-bichos" aria-hidden="true">${bichos}</div>
     <div class="hito-escena">
+      <div class="hito-cabeza">
       <div class="hito-marca" aria-hidden="true">
         <span class="hito-onda"></span><span class="hito-onda dos"></span>
         <svg viewBox="0 0 250 250"><path class="hito-iso" d="${HITO_ISOTIPO}"/></svg>
       </div>
       <div class="hito-numero">
-        <span class="hito-etapa">${escapeHtml(quieto ? HITO_ETIQUETA[hito] === "1.0" ? tx("Lanzamiento") : "Beta" : "Alpha")}</span>
-        <span class="hito-rodillo" aria-live="off">${escapeHtml(quieto ? HITO_ETIQUETA[hito] : (camino[0] || ""))}</span>
-        ${via}
+        <span class="hito-etapa">${escapeHtml(quieto ? hito === "1.0" ? tx("Lanzamiento") : "Beta" : "Alpha")}</span>
+        ${ruleta}
+      </div>
       </div>
       <div class="hito-texto">
         <h2 class="hito-tit">${escapeHtml(novedadCampo(e, "titulo") || "")}</h2>
@@ -681,6 +813,11 @@ async function abrirHito(e, opciones) {
     v.querySelector(".hito-todas").addEventListener("click", () => cerrar(true));
     void v.offsetWidth;
     v.classList.add("show");
+    /* La ruleta arranca en la primera versión, puesta antes de que se vea (el
+       número entra a los 2,8 s): si no, la etapa asomaría antes de girar. Y
+       después de `show`, que con la escena escondida las filas miden cero. */
+    hitoPonerTira(v, quieto ? 0 : v.querySelectorAll(".hito-fila").length - 1);
+    if (!quieto) hitoCentrar(v);
 
     const llegar = () => {
       if (!v.isConnected) return;
@@ -700,40 +837,83 @@ async function abrirHito(e, opciones) {
 }
 let hitoRelojes = [];
 
-/* El desfile del número: lento al salir, rápido en medio y lento al llegar,
-   para que se lean la primera versión y las últimas. Al cruzar la 0.8 la
-   etiqueta cambia de «Alpha» a «Beta» con un destello. Por reloj y no con CSS:
-   el número ES el contenido, y tiene que ser el de verdad en cada instante. */
+/* La ruleta (0.7.153.2). Eduardo, al ver la primera versión con barra: lo que
+   quería era el contador de la primera, el número que se movía de arriba
+   abajo como una ruleta, pero pasando por todas las versiones y parando en
+   la etapa. Así que es eso: una tira con todas las versiones que baja, lenta
+   al arrancar y al frenar, y rápida en medio, con las vecinas asomando
+   difuminadas arriba y abajo. Al cruzar la 0.8 la etiqueta pasa de «Alpha» a
+   «Beta» con un destello. La posición sale de un reloj y no de una animación
+   de CSS: lo que se ve en la ventana ES el número, y la etiqueta tiene que
+   saber en cuál va. */
 function hitoDesfile(v, camino, hito, alFinal) {
-  const rodillo = v.querySelector(".hito-rodillo"), etapa = v.querySelector(".hito-etapa");
-  const punto = v.querySelector(".hito-via-punto");
+  const tira = v.querySelector(".hito-tira"), etapa = v.querySelector(".hito-etapa");
+  const filas = tira ? tira.children.length : 0;
   const total = HITO_DESFILE[hito], t0 = Date.now(), n = camino.length;
-  let ultimo = -1, enBeta = false;
+  let enBeta = false, subio = false;
+  const poner = (fila) => hitoPonerTira(v, fila);
+  poner(filas - 1);
   v.classList.add("desfila");
   const paso = () => {
     if (!v.isConnected) return;
     const q = Math.min(1, (Date.now() - t0) / total);
     const f = q < 0.5 ? 4 * q * q * q : 1 - Math.pow(-2 * q + 2, 3) / 2;
-    const i = Math.min(n - 1, Math.floor(f * n));
-    if (punto) punto.style.left = (f * 100).toFixed(2) + "%";
-    if (i !== ultimo && n) {
-      ultimo = i;
-      rodillo.textContent = camino[i];
-      const beta = versionMasNueva(camino[i], "0.7.9999");
-      if (beta && !enBeta) {
-        enBeta = true;
-        etapa.textContent = "Beta";
-        v.classList.remove("cruce"); void v.offsetWidth; v.classList.add("cruce");
-      }
+    const fila = (filas - 1) * (1 - f);
+    poner(fila);
+    /* Desenfoque solo cuando va rápido: un rodillo de verdad se emborrona. */
+    v.classList.toggle("veloz", q > 0.18 && q < 0.82);
+    /* Con los últimos números, la cabeza sube del centro a su sitio y llega
+       justo cuando la ruleta para. */
+    if (!subio && q >= HITO_SUBIR) { subio = true; hitoSubir(v, Math.max(400, total * (1 - q))); }
+    /* La fila k de la tira es la versión n-k (la 0 es la etapa). */
+    const i = Math.min(n - 1, Math.max(0, Math.round(n - fila)));
+    if (!enBeta && camino[i] && versionMasNueva(camino[i], "0.7.9999")) {
+      enBeta = true;
+      etapa.textContent = "Beta";
+      v.classList.remove("cruce"); void v.offsetWidth; v.classList.add("cruce");
     }
-    if (q < 1) { hitoRelojes.push(setTimeout(paso, 33)); return; }
-    v.classList.remove("desfila");
-    rodillo.textContent = HITO_ETIQUETA[hito];
+    if (q < 1) { hitoRelojes.push(setTimeout(paso, 16)); return; }
+    v.classList.remove("desfila", "veloz");
+    if (!subio) hitoSubir(v, 400);
+    poner(0);
     etapa.textContent = hito === "1.0" ? tx("Lanzamiento") : "Beta";
     v.classList.add("aterriza");
     alFinal();
   };
   paso();
+}
+
+/* El isotipo y la ruleta giran en el centro de la pantalla (Eduardo,
+   0.7.157.1): es lo único que hay que mirar mientras cuenta. Cerca del final
+   suben a su sitio, arriba, y al parar se despliega lo demás (`.llego`).
+   Se mueve la cabeza entera con un `transform` puesto a mano y una animación
+   de la Web Animations API —nada de transiciones, que aquí se congelan—, y las
+   luciérnagas se mueven lo mismo para posarse donde está el isotipo. */
+const HITO_SUBIR = 0.8;
+function hitoCentrar(v) {
+  const cabeza = v.querySelector(".hito-cabeza");
+  if (!cabeza) return;
+  const r = cabeza.getBoundingClientRect();
+  const dy = Math.max(0, Math.round(innerHeight / 2 - (r.top + r.height / 2)));
+  v._hitoBajada = dy;
+  [cabeza, v.querySelector(".hito-bichos")].forEach((el) => { if (el) el.style.transform = `translateY(${dy}px)`; });
+}
+function hitoSubir(v, ms) {
+  const cabeza = v.querySelector(".hito-cabeza"), dy = v._hitoBajada || 0;
+  if (!cabeza || !dy) return;
+  cabeza.style.transform = "";
+  if (cabeza.animate) cabeza.animate([{ transform: `translateY(${dy}px)` }, { transform: "none" }],
+    { duration: ms, easing: "cubic-bezier(.45, 0, .2, 1)" });
+}
+
+/* Deja la fila `fila` de la tira en el centro de la ventana de la ruleta, que
+   enseña tres: la de arriba y la de abajo asoman difuminadas. Fila 0 es la
+   etapa; la última, la primera versión de todas. */
+function hitoPonerTira(v, fila) {
+  const tira = v.querySelector(".hito-tira");
+  if (!tira || !tira.firstElementChild) return;
+  const alto = tira.firstElementChild.getBoundingClientRect().height;
+  tira.style.transform = `translateY(${((1 - fila) * alto).toFixed(1)}px)`;
 }
 
 function hitoContar(v, quieto) {

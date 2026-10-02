@@ -272,9 +272,18 @@ es donde vive lo que el repositorio ya dice y la base de datos todavía no.
 Lo demás de aquel reporte está cerrado: el respaldo trucado y el marco ajeno en
 la 0.7.139, y el buzón de tropiezos el mismo día sin subir versión.
 
+### Apagar los borradores a la vista antes de la beta
+
+Desde la 0.7.155 el panel de Ajustes → Novedades enseña los borradores a
+cualquiera (`NOVEDADES_BORRADORES_A_LA_VISTA = true`, `js/10l-novedades.js`).
+Lo pidió Eduardo porque hoy es la única persona que usa la app y el parámetro
+de la dirección no lo recordaba. **El día que entre alguien más, eso es un
+texto sin aprobar a la vista**: se pone en `false` —el panel vuelve a pedir
+`?novedades=borrador`— o se aprueban antes las entradas que haya.
+
 ## La lista
 
-### 0.7.154 · 1 oct 2026
+### 0.7.161 · 2 oct 2026
 
 **Los avisos del Pomodoro en la app de Android: el reloj en la cortina, el
 final de cada fase con la app cerrada y una alarma al empezar cada actividad.**
@@ -335,6 +344,330 @@ aplican, una pausa vieja no, el final con la app de fondo va al sistema con su
 clave, el de dormir se calla, iniciar desde la alarma arranca el tramo a la
 hora del toque y abre el Pomodoro, y los iconos llegan en PNG. Sin errores en
 la consola. **Falta verlo en un teléfono de verdad.**
+
+
+### 0.7.160.2 · 1 oct 2026
+
+**El Fundador de la cuenta administradora, de verdad y no deducido.** Eduardo,
+tras la 0.7.160.1: «¿no habría forma de asignarle un plan fundador gratis? Es
+una cuenta de testeo, lo lógico es que tenga todo desbloqueado y no pase eso».
+
+- **En el servidor** (`supabase/`, pendiente de pegar: fila 2 de su LEEME): la
+  cuenta administradora recibe una fila en `suscripciones` con plan `fundador`
+  y un estado nuevo, **`cortesia`**. Así `mi_plan()` contesta Fundador a la
+  primera y deja de existir el hueco en el que la app la veía gratuita. La
+  0.7.160.1 lo tapaba desde la app; esto lo quita de raíz.
+- **Una cortesía no es una venta**: `lugares_fundador()` no la cuenta —no gasta
+  uno de los 200—, y las métricas tampoco, porque «pagando» y el MRR ya solo
+  miran `estado = 'activa'`. `cobro` no la toca: ya respetaba a un fundador.
+- **En la app**, `planConSimulacion` trata `estado: "cortesia"` como plan de
+  casa (`deCasa`): Mi plan sigue diciendo «Cuenta administradora… no hay
+  ningún cobro asociado» en vez de «$890, una sola vez». Medido con el plan
+  puesto a mano: `deCasa` verdadero, Averno y Reliquia disponibles.
+- `PLAN_DE_CASA` se queda: es el respaldo mientras el SQL no esté pegado, y
+  para una base nueva donde el admin aún no tenga su fila.
+
+### 0.7.160.1 · 1 oct 2026
+
+**El mundo ya no se quita solo al arrancar.** Eduardo, en la PC: «se anima la
+salida, se vuelve a cargar, y se quita el tema». Creía que era la sincronía de
+temas de la 0.7.160; era otra cosa que entró en esa misma versión.
+
+- **La causa.** La cuenta administradora tiene de plan real «Gratuito»: el
+  Fundador se lo pone `PLAN_DE_CASA` por ser admin, y esa respuesta
+  (`revisarAdmin`) llega DESPUÉS de la del plan. En el hueco,
+  `refrescarApariencia` veía «plan confirmado: gratuito» y bajaba el mundo a
+  la casa; al llegar la segunda respuesta lo devolvía. Eso ya pasaba —es el
+  «muchas veces me sale la versión de base» de la 0.7.143.2—, pero era un
+  parpadeo. La 0.7.160 metió ese cambio detrás de una cortina con una guarda
+  que DESCARTABA las llamadas que llegaban mientras estaba puesta, y la que
+  se perdía era justo la que devolvía el mundo: se quedaba quitado.
+- **No se quita nada hasta saberlo de verdad.** `aparienciaSeSabe()` pide las
+  dos respuestas —`PLAN_CONFIRMADO` y el nuevo `adminConfirmado`
+  (`js/10e-panel.js`)—. Con una sola, un «no puedes» no es una respuesta. Con
+  esto desaparece también el parpadeo de antes.
+- **`revisarAdmin` enciende el plan ANTES de revisar la apariencia** cuando la
+  cuenta es admin: revisaba primero, con el Gratuito todavía puesto.
+- **Ninguna llamada se descarta.** La que llega con la cortina puesta se
+  apunta y se repite al retirarla, y lo que toca se vuelve a calcular en el
+  momento de cambiar, no se arrastra desde que se pidió.
+- **`aspectoPermitido`** (la conciliación) usa la misma pregunta.
+
+**Medido**, reproduciendo las tres secuencias a mano sobre un mundo de Pro:
+plan gratuito sin saber aún si es admin, el mundo se queda y la cortina ni
+sale; llega el admin, sigue puesto con plan Fundador. La carrera (la buena
+llega 100 ms después de decidir quitar) acaba con el mundo puesto. Y una
+cuenta que de verdad no lo tiene: cortina, cambio detrás a los 340 ms, y lo
+guardado sigue siendo lo elegido.
+
+**No se pudo probar con la sesión real de Eduardo**: las respuestas del
+servidor se simularon poniendo `esAdmin`, `adminConfirmado` y el plan a mano.
+
+### 0.7.160 · 1 oct 2026
+
+**El tema viaja con la cuenta, por dispositivo, y la puerta lo lleva puesto.**
+Eduardo, tras la 0.7.158: «si ya sabe el dato de la cuenta, debe saber su
+configuración previa… siempre en su primera carga, venga de donde venga, tiene
+que predecir qué mundo colocar y nunca más enseñar nada de otro mundo si no lo
+cambias. No quiero más brechas hoy ni futuras». Y a media obra: quien quiera un
+tema distinto en cada dispositivo tiene que poder.
+
+- **El aspecto apuntado en la cuenta, POR DISPOSITIVO.** Mundo o ambiente,
+  paletas, modo y Arcade van en `settings.aspectos[idDelDispositivo]`
+  (`js/10i-apariencia.js`: `apuntarAspecto`, `conciliarAspecto`). El
+  dispositivo manda sobre lo suyo; la cuenta solo decide cuando el dispositivo
+  no sabe —es nuevo, o lo guardado era de otra cuenta (`norata-aspecto-de`)—, y
+  entonces pone lo último usado ahí o, si nunca se entró, lo último de
+  cualquiera. Un solo aspecto compartido habría hecho que dos dispositivos se
+  pelearan el tema.
+- **Se concilia con la carga puesta**: al arrancar, después de la sincronía, y
+  al entrar a una cuenta (`adoptarSesion`). Si hay que cambiar, se cambia
+  detrás, se recarga y la app nunca se destapa con un mundo ajeno.
+  `cambiarTapado` ya no hace su fundido desde transparente si la carga estaba
+  puesta: la habría abierto un instante sobre la app.
+- **La fusión une el mapa** (`js/10-fusion.js`): con `settings` entero del lado
+  más nuevo, un dispositivo borraba la entrada del otro.
+- **Venir de un cambio de tema es una ENTRADA**: `recargarApp` deja
+  `norata-entrada` y la carga que sigue lleva el zoom («para que se vea
+  apantallante el cambio»). Corrige el reparto de la 0.7.158, donde iba la
+  salida corta.
+- **La puerta lleva el tema del dispositivo.** `login/index.html` pone el
+  atributo, la paleta, las hojas (`ambientes.css` en la cabeza; `mundos.css` y
+  `arcade.css` solo si hacen falta) y el mismo candado que la app. La marca
+  sigue en menta. `mundos/app.py` y `mundos/arcade.py` sellan ya sus huellas en
+  TRES sitios, no dos.
+- **El color liso se corrige solo**: con las hojas cargadas, el candado lee el
+  `--bg` de verdad y lo usa (y lo apunta) mientras llegan las letras.
+- **Un mundo que deja de poderse usar se quita tapado**
+  (`refrescarApariencia`): cortina, cambio detrás, cortina fuera. No recarga,
+  porque lo guardado sigue siendo lo que la persona eligió.
+
+**Medido:** arranque normal, el dispositivo queda apuntado sin cambio a la
+vista. Cambio de tema, la carga se va a los 4,6 s (zoom). Otra cuenta con otro
+tema: la carga se queda a opacidad 1 de principio a fin, el tema cambia detrás
+a los 8 ms, y tras la recarga sale en claro desde el primer cuadro (velo a los
+19 ms, `theme-color` y `norata-fondo` en `#dcdef0`). La puerta en Averno: hoja
+bloqueante a los 22 ms, velo a los 36, sin desbordes; en los siete temas y los
+dos modos, el peor contraste es el de la letra chica del pie, parecido al de
+la casa (3,3), salvo Blueprint oscuro (2,1). La fusión, en los dos sentidos,
+conserva los tres dispositivos y gana la entrada más reciente.
+
+**Cazado al escribirlo:** la segunda llamada seguida a `refrescarApariencia`
+veía la cortina «puesta» mientras entraba y cambiaba a media opacidad; la
+guarda va primero.
+
+**Lo que NO se pudo probar aquí:** una sesión real contra Supabase —la cuenta
+de otro se simuló sustituyendo `aspectoCuenta`—, Firefox y Safari, y el APK.
+
+### 0.7.159 · 1 oct 2026
+
+**El anuncio de la 1.0 cabe en 9 segundos, con todo ya en su sitio.** Eduardo
+puso el techo y dijo de dónde recortar: de la ruleta. El giro de la 1.0 pasa
+de 9 s a 3,8 (`HITO_DESFILE`): empieza a los 2,9 s, para a los 6,7 y lo último
+de abajo termina de entrar 2,2 s después. Medido: aterriza a los 6,9 s (el
+reloj se retrasa unos 90 ms). Con menos tiempo, menos filas: 44 en vez de 56
+(`HITO_FILAS`). La beta no cambia. Es un 3º y no un 4º de la 0.7.157 porque
+`main` ya iba en la 0.7.158.
+
+### 0.7.158 · 1 oct 2026
+
+**Tres cargas en vez de una, y ni un cuadro con otro mundo.** Dos encargos de
+Eduardo en la misma tanda: que el zoom del logo no se gaste («si entras sale,
+le das a actualizar y vuelve a salir»), y que deje de verse «por un frame otro
+color o diseño de mundo que no es el mío… lo detesto».
+
+**Las tres cargas** (boceto aprobado: «me parecen excelente»). Cuál toca lo
+decide el script de arriba de `index.html` (`window.__carga`) y lo ejecuta
+`cargaEntrar(modo)` en `js/10c-portada.js`:
+
+- **Entrada** — primera apertura de la pestaña o de la app, e iniciar sesión
+  (`adoptarSesion` y la vuelta de Google la fuerzan): el mínimo de 3 s y el
+  zoom de siempre.
+- **Refresco** — recargar, tirar para actualizar, cambiar de mundo o paleta:
+  sin mínimo y con la salida corta de 0,4 s (`cargaCorta`).
+- **Estreno** — pulsar «Actualizar»: «Estrenando la X», el aro se cierra una
+  vez (0,9 s, CSS desde el primer cuadro), un latido y la salida corta
+  (`cargaEstreno`). Si la versión que se ve no es la anunciada, no lo anuncia.
+- La marca es `norata-abierta` en `sessionStorage`: dura lo que la pestaña o la
+  app abiertas. El estreno se apunta en `norata-estreno` antes de recargar
+  (`norataActualizar` en la web y en `js/13-nativo.js`). En el APK, la versión
+  que se estrena sola AL ABRIR quita la marca: para quien abre es su entrada.
+- Medido: entrada, la salida empieza a los 3,02 s; refresco, la app de vuelta
+  a los 0,49 s; estreno, 1,77 s; entrar a una cuenta, zoom al momento.
+
+**Ni un cuadro con otro mundo.** La hoja del mundo ya bloqueaba el primer
+pintado en Chrome (0.7.148.3), pero quedaban tres huecos, medidos:
+
+- **Las letras.** Todas las de los mundos entran con `font-display: swap`: el
+  primer cuadro salía con la de respaldo.
+- **Firefox y Safari** ignoran `blocking="render"` en una hoja enganchada
+  desde un script.
+- **`theme-color`** se quedaba en el color de la casa hasta arrancar el JS.
+
+Ahora la página no enseña nada suyo hasta que la hoja del mundo (y la de
+Arcade) y las letras que pide ese mundo están cargadas: un `<style>` puesto
+arriba deja `body` invisible y pinta `html` de un solo color liso, el fondo del
+mundo puesto, que `pintarColorDeBarra` deja apuntado en `norata-fondo` —solo
+cuando lo que se ve es lo guardado, no una vista previa—. Ese mismo color va a
+`theme-color` antes de que arranque nada. Las letras se leen de `--tipo-titulo`,
+`--tipo-cifra` y `--sans` ya calculadas, así que un mundo nuevo entra solo.
+
+- **Con tope de 2,5 s**, y mirando además de escuchar: `js/10k-arcade.js`
+  retira la hoja de Arcade cuando la cuenta no lo ha encontrado, y una hoja
+  retirada no avisa. La primera versión se quedó 2,5 s en blanco en ese caso.
+- Medido (`window.__veloFuera`, ms desde abrir): Averno 36 con la hoja a los 23
+  y Silkscreen, Tiny5 y Outfit cargadas; Catedral 60 con `celestibyte.woff2` a
+  los 52; Blueprint 58; Cyberpunk 37; Arcade retirado 28; Tinta 23; la casa 38.
+- **Y después de destaparse:** foto de los estilos de la barra, los botones y
+  las tarjetas al empezar a irse la carga y 2,5 s después, con Averno: cero
+  diferencias de color, letra, radio o borde.
+
+**Lo que NO cubre:** la puerta sigue en los colores de la casa por decisión
+(«La marca, dentro de un mundo»), y la pantalla de arranque nativa del APK es
+un color fijo del sistema; cambiarla pide tocar lo nativo.
+
+### 0.7.157.2 · 1 oct 2026
+
+**La ruleta del anuncio dura lo mismo haya las versiones que haya, y para en
+el número.** Eduardo: que no se haga exageradamente larga con cada versión, y
+que se vean sí o sí la más vieja, las relevantes, algunas de relleno, la 0.8.0,
+la 0.9.0 y aterrice en la 1.0.0; la de la beta, en la 0.8.0.
+
+- **`hitoMuestra`** elige como mucho 36 filas para la beta y 56 para la 1.0
+  (`HITO_FILAS`). Fijas: la primera, la primera de cada 2º tramo, las
+  expansiones, las de `camino` con `"relevante": true` (0.7.14, 0.7.38,
+  0.7.131, 0.7.136, 0.7.140, 0.7.146) y las tres últimas; el hueco que queda
+  se reparte a partes iguales entre las demás. El giro sigue durando 4,8 y 9 s.
+- **Para en «0.8.0» y en «1.0.0»** (`HITO_ETIQUETA`); «Beta» y «Lanzamiento»
+  los dice la etiqueta de arriba. Las versiones se escriben con tres tramos
+  (`hitoVer`: «0.8» es «0.8.0»).
+- **La 0.8 se vuelve a meter en la ruleta de la 1.0.** `hitoCamino` deja fuera
+  las entradas de hito, así que el día de la 1.0 el cruce a la beta no habría
+  tenido su número. La prueba de la 1.0 inventa también una 0.9.
+
+### 0.7.157.1 · 1 oct 2026
+
+**El anuncio de un hito gira en el centro de la pantalla.** Eduardo: «al
+centro debería salir la animación y el conteo; cerca de los últimos números,
+subir a donde están ahora, y al acabar desplegar todo lo demás». El isotipo, la
+etiqueta y la ruleta van juntos en `.hito-cabeza`, que nace bajada lo justo
+para quedar centrada (`hitoCentrar`, medido después de `.show`). Al 80% del
+giro sube a su sitio con la Web Animations API —nada de transiciones, que
+aquí se congelan— y llega justo cuando la ruleta para; entonces se despliega
+lo de abajo, como antes. Las luciérnagas se bajan lo mismo para posarse en el
+isotipo. Medido en teléfono y PC: el centro de la cabeza en 422 de 844 durante
+el giro y en 228 al acabar. Con «menos movimiento» no se mueve nada.
+### 0.7.157 · 1 oct 2026
+
+**Los paneles del anuncio de hito tienen diseño, y el número de versión deja
+de ir en rojo.** Las pidió Eduardo mirando Novedades y el anuncio de la beta
+con Averno puesto. Nació como 0.7.156 en la conversación del menú, a la vez que
+la otra publicaba la suya; de aquella tanda se quedó fuera la insignia fija que
+traía, porque la de `insigniaSVG` (figuras de nodos) es la que decidió él.
+
+- **Los paneles del reporte, rehechos** (`hitoReporteHTML`): casilla llena con
+  el icono, cifra de 36 px y el mismo icono de marca de agua en la esquina. Con
+  un número impar de tarjetas la última ocupa la fila entera (una cuenta de
+  tres días era una tarjeta y media pantalla vacía al lado).
+- **El mapa de días**: eran rectángulos del ancho de la columna y los días de
+  antes de empezar eran transparentes, así que una cuenta nueva enseñaba una
+  caja vacía con tres rayas. Con ocho semanas o menos es un calendario —una
+  fila por semana, con la inicial del día arriba—, y con más, una columna por
+  semana. Lleva leyenda, el día de hoy marcado y la cuenta de la ventana.
+- **El número de versión, neutro** (`.nov-ver`): tinta del mundo sobre un velo
+  de ella misma. Iba relleno del acento: rojo sobre rojo en Averno, ilegible, y
+  el rojo es «falló». «EXPANSIÓN» pasa al verde de la casa por lo mismo.
+- Probado con una cuenta de 3 días y una de 162, a 720 y a 400 px: nada
+  desborda.
+
+### 0.7.156 · 1 oct 2026
+
+**Las novedades de la 0.7.147 a la 0.7.151, publicadas, y la insignia de la
+beta, rehecha.** Eduardo las aprobó: ya le salen a todos, no solo en su panel (0.7.155). Es un
+3º y no un 4º de la 0.7.153 porque `main` ya iba en la 0.7.155.
+
+**La insignia.** La medalla de la 1.0 (cinta, «1.0» y la letra de la etapa)
+se cambió por solo el símbolo dentro de una figura de los nodos de Ramas, que
+es lo que pidió y lo que ya hacía el sello de la alpha. Queda como lenguaje
+para todo logro futuro: `insigniaSVG(tipo, simbolo)` en `js/01-base.js`, la
+figura por su significado en el árbol (hexágono = hito, rombo = meta,
+triángulo = acumular, círculo = compra). La alpha es hexágono con α; la beta,
+rombo con β. En los dos hitos sale la de la etapa en que llegaste. Escrito en
+«Las insignias» de `CLAUDE.md`.
+
+**Dos cosas del reporte que se vieron en su captura.** El mapa de puntos con
+cuatro semanas (alguien que acaba de empezar) estiraba cada columna a lo ancho
+de la tarjeta y se leía como tres barras grises: las columnas miden 9 px. Y
+los días desde que empezaste contaban desde `settings.inicio` aunque hubiera
+actividad de antes (un respaldo importado): ahora cuentan desde lo más viejo
+de las dos cosas.
+
+### 0.7.155 · 1 oct 2026
+
+**Ajustes → Novedades enseña los borradores sin pedir nada en la dirección.**
+Eduardo lo abrió en la versión correcta y estaba vacío: todo está en borrador
+y solo salía con `?novedades=borrador`. «Evita que sea necesario para poder
+verlo siempre, total, solo estoy yo.»
+
+- `NOVEDADES_BORRADORES_A_LA_VISTA` (`js/10l-novedades.js`), en `true`: el
+  panel lista también los borradores, cada uno con su etiqueta «Borrador».
+- **La ventana que sale sola al abrir no cambia**: solo lo publicado.
+- Las herramientas de prueba (ver la ventana, probar los anuncios de la beta y
+  la 1.0) siguen detrás de `?novedades=borrador`.
+- **Hay que apagarlo antes de la beta**: ver «Apuntado y sin hacer».
+- Sin entrada en `novedades.json`: no le cambia nada a quien usa la app.
+
+### 0.7.154 · 1 oct 2026
+
+**Todo interruptor se desliza, y en Averno el menú brilla al pasar el cursor.**
+Las dos las pidió Eduardo mirando el menú de la cuenta en la PC con Averno.
+
+- **El deslizamiento es del motor, no de cada pantalla.** Eduardo preguntó si
+  cualquier interruptor, de hoy o de mañana y en cualquier mundo, podía enseñar
+  su animación «como si fuese parte del motor». No se veía ninguna, y no por
+  falta de CSS: casi todos los interruptores se REDIBUJAN al tocarlos
+  (`innerHTML`), así que lo encendido deja de existir y aparece otro ya
+  encendido; la transición que `.mod-sw i` tenía escrita no corría nunca. Y un
+  fondo que sale de una variable se congela con una transición.
+- **Cómo**: `instalarDesliza()` (`js/01-base.js`, encendido desde
+  `js/11-arranque.js`) pone UN oyente en captura. Apunta dónde estaba lo
+  encendido, y un turno después anima sobre el DOM nuevo con la Web Animations
+  API. Dos figuras: **opciones** (la nueva se destapa por el lado por el que
+  llega la pastilla, y sobre la vieja se retira una copia encendida: juntas son
+  una ventana cruzando, con el material del mundo) y **perilla** (viaja con
+  `translate`, sin pisar su `transform`).
+- **El peso lo pone el mundo**: `--dur-media` y `--curva`. Medido: en la casa
+  220 ms `ease`; en Averno 300 ms `steps(4)`. Con «menos movimiento» no anima.
+- **Para lo que venga**: tres listas (`DESLIZA_GRUPOS`, `DESLIZA_PUESTO`,
+  `DESLIZA_PERILLA`) y los atributos `data-desliza` y `data-perilla`. Está
+  escrito en CLAUDE.md, «Los interruptores».
+- Probado pulsando de verdad: Oscuro/Claro, Silencio/Con sonido y la perilla de
+  Mis módulos. Las copias caen sobre el original al píxel y se retiran solas
+  (con temporizador, no con `onfinish`: en una pestaña que no pinta, las
+  animaciones no terminan y se quedarían encima).
+- **Averno, el cursor sobre el menú**: el icono ya no se rellena ni se pone
+  negro. Se aclara hacia el hueso y de noche lleva resplandor; de día no hay
+  resplandor y la misma mezcla lo oscurece. Es la tercera vuelta de esto
+  (0.7.147.10 sin relleno y negro, 0.7.148.3 con el rombo relleno y aún negro).
+
+### 0.7.153.2 · 1 oct 2026
+
+**El anuncio de la beta y la 1.0: los textos sin relleno y el número en
+ruleta.** Eduardo, al leer los borradores: «no seas redundante, festeja, lo
+hicimos bien tú y yo, no que vamos y le decimos eso al usuario». Los puntos que
+tranquilizaban («no cambia nada de lo tuyo») o que repetían el resumen se
+cayeron en las siete entradas; quedó lo que se celebra. El resumen de la beta
+dice cuántas versiones hubo con `{versiones}`, que la app rellena contando
+`camino` más las entradas de 3º publicadas hasta hoy (`novedadRellenar`): un
+número escrito a mano en el borrador se habría quedado viejo el día del hito.
+
+**La vía horizontal se cambió por una ruleta**, que es lo que pidió: el
+contador de la primera versión, que giraba de arriba abajo, ahora pasa por
+todas las versiones y se para en «Beta» (o en «1.0», pasando por la beta). Una
+tira vertical con una fila por versión que se desplaza con `translateY`,
+acelera y frena (cúbica), se desenfoca a toda velocidad (`veloz`) y enseña
+tres filas con la de en medio nítida. La altura de la fila se mide después de
+`.show`: antes, con la escena oculta, medía cero.
 
 ### 0.7.153.1 · 1 oct 2026
 

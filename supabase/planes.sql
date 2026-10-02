@@ -26,6 +26,10 @@ create table if not exists public.suscripciones (
 
   -- Lo que dice Stripe, copiado tal cual y sin interpretar:
   -- 'activa' | 'prueba' | 'impago' | 'cancelada' | 'ninguna'
+  -- Y uno que NO viene de Stripe: 'cortesia'. Es el Fundador que se le pone a
+  -- mano a la cuenta administradora (ver administracion.sql). No es una venta:
+  -- no cuenta como «pagando», no gasta un lugar del cupo, y la app lo enseña
+  -- como «Cuenta administradora» en vez de como una compra.
   estado        text not null default 'ninguna',
 
   -- Hasta cuándo está pagado. NULL en fundador: no vence nunca.
@@ -161,7 +165,10 @@ as $fn$
   select greatest(
     0,
     (select valor from public.ajustes_negocio where clave = 'cupo_fundador')
-    - (select count(*)::integer from public.suscripciones where plan = 'fundador')
+    -- Sin las cortesías: la cuenta administradora tiene Fundador puesto a mano
+    -- y no ocupa uno de los lugares que se venden.
+    - (select count(*)::integer from public.suscripciones
+        where plan = 'fundador' and estado <> 'cortesia')
   );
 $fn$;
 

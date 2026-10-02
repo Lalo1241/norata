@@ -80,7 +80,7 @@ que abre sin red y sin pasar por Chrome. Lo que eso cambia aquí:
   no esté ahí, hay que añadirlo a mano a su lista de `cp`.
 - **El APK solo se reinstala si cambia lo nativo** (el icono, un permiso, un
   complemento nuevo). Los pasos están en `LEEME.md` de esa carpeta.
-- **Los avisos del sistema son nativos (0.7.154).** El WebView no trae la API
+- **Los avisos del sistema son nativos (0.7.161).** El WebView no trae la API
   `Notification` del navegador, así que en el APK avisa el complemento
   `AvisosNorata` (`nativo/avisos/`, con su instalador y su `LEEME.md`): el
   reloj del Pomodoro en la cortina, el final de fase con la app cerrada y una
@@ -189,8 +189,12 @@ ventana al estrenar una versión y Ajustes → Novedades (`js/10l-novedades.js`)
 y la leerá la página de changelog del sitio el día que exista.
 
 - **Nada sale sin que Eduardo lo apruebe.** Las entradas nacen en
-  `"borrador"` y la app solo enseña `"publicado"`. Él las revisa con
-  `?novedades=borrador`. Las reglas para escribirlas, en `novedades/LEEME.md`.
+  `"borrador"` y la ventana que sale al abrir solo enseña `"publicado"`. Las
+  reglas para escribirlas, en `novedades/LEEME.md`.
+- **El panel de Ajustes sí enseña los borradores, y es provisional (0.7.155)**:
+  `NOVEDADES_BORRADORES_A_LA_VISTA` está en `true` porque hoy solo usa la app
+  Eduardo. **Se apaga antes de la beta.** Las herramientas de prueba (la
+  ventana, los anuncios de hito) siguen con `?novedades=borrador`.
 - **Se apuntan como vistas POR ENTRADA, no por versión**: una aprobada días
   después sale igual.
 - **Cada entrada tiene `clase` (0.7.151): `expansion`, `mejora` o `arreglo`**,
@@ -531,6 +535,30 @@ página quedaría en blanco. No añade riesgo nuevo —sin JavaScript esta app n
 pinta nada de todos modos— y el `<noscript>` de al lado devuelve el
 comportamiento de siempre a quien lo tenga apagado.
 
+## Los interruptores
+
+**Todo interruptor se desliza, y lo hace el motor** (Eduardo, 0.7.154): vale
+para los de hoy, los que vengan y cualquier mundo. No se escribe una animación
+por pantalla: `instalarDesliza()` (`js/01-base.js`) pone un solo oyente y anima
+cualquier control que se parezca a los que ya hay.
+
+**Por qué no es una transición de CSS:** casi todos se redibujan al tocarlos
+(`innerHTML`), así que el elemento encendido deja de existir y no hay nada que
+el navegador pueda animar. El motor apunta dónde estaba ANTES del redibujado y
+anima sobre el DOM nuevo.
+
+Al escribir uno nuevo, entra solo si cumple una de estas dos formas:
+
+| Figura | El contenedor | Lo encendido |
+| --- | --- | --- |
+| Opciones en fila | `role="radiogroup"`, `role="tablist"`, `.seg`, `.tema-sw` o `data-desliza` | `.on`, `.active` o su `aria-checked` / `aria-selected` / `aria-pressed` |
+| Perilla de encender/apagar | un `button` | la bolita casa con `.mod-sw i` o lleva `data-perilla` |
+
+Si un control nuevo no encaja, **se amplía una de las tres listas de arriba de
+`instalarDesliza`**, no se le pone una animación suelta. El peso del movimiento
+sale de `--dur-media` y `--curva`, así que cada mundo lo mueve a su manera, y
+con «menos movimiento» no se mueve nada.
+
 ## Las capas
 
 **Ningún `z-index` se escribe a mano:** salen de variables `--piso-*`
@@ -783,6 +811,44 @@ isotipo no la cambia nadie. En el menú de la app un mundo solo la RECOLOREA
 correos se quedan en menta, y un ambiente no la toca nunca. El reparto y el porqué, en «La marca, dentro de un mundo» de
 `apariencias/LEEME.md`.
 
+## Ni un cuadro con otro mundo
+
+**Regla de Eduardo, y es de las que no admiten matices (0.7.158 y 0.7.160):**
+nunca puede verse, ni un instante, un color, una letra o un diseño que no sea
+el del tema puesto. «Me molesta mucho verlo, se percibe mal y lo detesto… no
+quiero más brechas hoy ni futuras, aun cuando las pantallas de carga tengan que
+tardar más (sin exagerar)». Cualquier cambio en el arranque, las apariencias o
+las cargas se MIDE contra esto antes de subir.
+
+Lo que lo sostiene, y nada de esto se quita sin entender por qué está:
+
+| Pieza | Dónde | Qué impide |
+| --- | --- | --- |
+| El candado del primer cuadro | script de arriba de `index.html` y de `login/index.html` | `body` invisible y `html` de un color liso (`norata-fondo`) hasta que cargan la hoja del mundo, la de Arcade y las letras de `--tipo-titulo`, `--tipo-cifra` y `--sans`. Tope 2,5 s; MIRA `link.sheet` además de escuchar `load` (una hoja retirada no avisa) |
+| `norata-fondo` | lo apunta `pintarColorDeBarra`, y el candado lo corrige con el `--bg` real | el color liso y `theme-color` antes de que arranque el JS |
+| El aspecto por dispositivo en la cuenta | `settings.aspectos`, `conciliarAspecto` (`js/10i-apariencia.js`) | abrir con la casa en un dispositivo nuevo o donde entró otra cuenta |
+| `cambiarTapado` y `recargarApp` | `js/10i-apariencia.js`, `js/01-base.js` | cambiar de tema a la vista: siempre detrás de la cortina y con recarga |
+| `refrescarApariencia`, tapado | `js/10i-apariencia.js` | quitar a la vista un mundo que dejó de poderse usar |
+
+**Cada dispositivo manda sobre su tema** (también de Eduardo): la cuenta lo
+lleva apuntado por dispositivo y solo decide cuando el dispositivo no sabe. No
+convertirlo en un solo aspecto compartido: dos dispositivos abiertos se
+pelearían el tema.
+
+**Al añadir un mundo o un archivo de estilos que se pida en caliente:** su
+hoja tiene que pasar por el candado (las variables `lm` y `la` del script de
+arriba) y su huella sellarse en las DOS páginas. **Al añadir una forma nueva de
+cambiar el aspecto:** pasa por `cambiarTapado` y llama a `apuntarAspecto`.
+
+**Cómo se mide:** `window.__veloFuera` (ms hasta enseñar la página) contra el
+`responseEnd` de la hoja y el estado de `document.fonts`; y una foto de los
+estilos al irse la carga contra otra 2,5 s después, que tiene que dar cero
+diferencias.
+
+**Lo que sigue fuera:** la pantalla de arranque nativa del APK es un color
+fijo del sistema (cambiarla pide tocar lo nativo), y la marca de la puerta se
+queda en menta por la regla de marca.
+
 ## El material
 
 La paleta de arriba resuelve el COLOR. Desde 0.7.37 hay una segunda familia al
@@ -989,6 +1055,27 @@ del árbol cuelgan dos y salía repetida.
 `js/02b-expedicion.js`). Mide el camino entero hasta el objetivo y no lo que
 llevas del nivel en curso: quien va por el 2 camino del 3 puede tener el nivel
 actual al 5% y llevar media escalera. Sale del `ring()` que ya existía.
+
+## Las insignias
+
+**Toda insignia de un logro es UNA figura de los nodos de Ramas con UN símbolo
+dentro**, y nada más (Eduardo, 0.7.156: la medalla de la 1.0 llevaba cinta,
+«1.0» y una β diminuta, y pidió «solo el símbolo, con una forma de algún logro
+del módulo de talentos»). Se dibuja con `insigniaSVG(tipo, simbolo)`
+(`js/01-base.js`) y la figura dice qué clase de logro es, con el significado
+que ya tiene en el árbol:
+
+| Figura | Tipo de nodo | Para un logro que… |
+| --- | --- | --- |
+| hexágono | `hito` | pasó una vez y se cierra |
+| rombo | `meta` | se sostuvo en el tiempo |
+| triángulo | `acumular` | fue sumando |
+| círculo | `compra` | abre algo |
+
+El símbolo va en `--sans`, nunca en la letra del mundo. Los tonos los pone quien
+la pinta (`--ins-tono`, `--ins-fondo`, `--ins-tinta`). Hoy hay dos: la alpha
+(hexágono, α) y la beta (rombo, β). **Un logro nuevo no inventa otra forma de
+medalla**: elige figura por lo que significa y un símbolo.
 
 ## Cómo se le habla a quien usa la app
 

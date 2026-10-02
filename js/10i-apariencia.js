@@ -610,7 +610,7 @@ function pedirLosMundos() {
      ahí se queda el archivo viejo con el número de versión nuevo puesto.
      Reproducido, y es lo que pasó con la 0.7.55.3. Cambiando la dirección,
      una copia vieja ni siquiera es la misma cosa. */
-  l.href = "css/mundos.css?h=855195c514";
+  l.href = "css/mundos.css?h=019a2470dc";
   /* La franja del navegador, otra vez, cuando el archivo ya está. Se pinta
      leyendo `--bg`, y hasta que este `link` carga `--bg` sigue siendo el de la
      casa: sin esto, un mundo se quedaba con la ceja azul de la casa encima.
@@ -814,6 +814,8 @@ function elegirPaleta(mundo, pal) {
     return;
   }
   guardar();
+  /* La paleta de un mundo que no llevas también es tuya: queda apuntada. */
+  apuntarAspecto();
   if (apariencia() === mundo) {
     const raiz = document.documentElement;
     raiz.classList.add("cambiando-modo");
@@ -847,6 +849,18 @@ function pintarColorDeBarra() {
     if (c && !/rgba\(0, 0, 0, 0\)/.test(c)) color = c;
   }
   if (!color || color.indexOf("(") !== -1) return;
+
+  /* El mismo color, apuntado para la SIGUIENTE apertura (0.7.158): el script
+     de arriba de index.html lo pinta liso mientras cargan la hoja y las
+     letras del mundo, y lo pone en esta etiqueta antes de que arranque nada.
+     Sin él, la barra del sistema salía un instante en el color de la casa.
+     Solo cuando lo que se ve es lo que está GUARDADO: una vista previa (mirar
+     un mundo, el ambiente que estrena una celebración) no es tu apariencia y
+     no puede quedarse apuntada como si lo fuera. */
+  try {
+    const guardada = localStorage.getItem(APARIENCIA_LLAVE) || "casa";
+    if ((raiz.getAttribute("data-apariencia") || "casa") === guardada) localStorage.setItem("norata-fondo", color);
+  } catch (e) {}
 
   /* Y se REEMPLAZA la etiqueta en vez de cambiarle el atributo. Parece lo
      mismo y no lo es: Chrome en Android elige el color de los iconos del
@@ -950,18 +964,279 @@ function refrescarApariencia() {
      contestado el plan, «no puedes» no es una respuesta: es el «libre» de
      partida. Quitar el mundo en ese instante es lo que dejaba la app en la
      casa; se quita solo cuando el «no» es de verdad. */
-  if (!puedo && typeof PLAN_CONFIRMADO !== "undefined" && !PLAN_CONFIRMADO) return;
+  if (!puedo && !aparienciaSeSabe()) return;
   const ahora = raiz.getAttribute("data-apariencia") || "casa";
   const debe = puedo ? puesta : "casa";
   if (ahora === debe) return;
 
-  if (debe !== "casa" && esMundo(debe)) pedirLosMundos();
-  raiz.classList.add("cambiando-modo");
-  if (debe === "casa") raiz.removeAttribute("data-apariencia");
-  else raiz.setAttribute("data-apariencia", debe);
-  getComputedStyle(raiz).backgroundColor;
-  setTimeout(() => raiz.classList.remove("cambiando-modo"), 0);
-  pintarColorDeBarra();
+  /* Lo que toca se vuelve a calcular EN EL MOMENTO de cambiar, no se arrastra
+     desde que se pidió (0.7.160.1): entre una cosa y otra pasan 320 ms de
+     cortina, y en ese rato puede llegar la respuesta que lo cambia todo. */
+  const cambiar = () => {
+    const g = aparienciaGuardada();
+    const ok = g === "casa" || aparienciaDisponible(g) === true;
+    if (!ok && !aparienciaSeSabe()) return;
+    const toca = ok ? g : "casa";
+    if ((raiz.getAttribute("data-apariencia") || "casa") === toca) return;
+    if (toca !== "casa" && esMundo(toca)) pedirLosMundos();
+    raiz.classList.add("cambiando-modo");
+    if (toca === "casa") raiz.removeAttribute("data-apariencia");
+    else raiz.setAttribute("data-apariencia", toca);
+    aplicarPaleta();
+    getComputedStyle(raiz).backgroundColor;
+    setTimeout(() => raiz.classList.remove("cambiando-modo"), 0);
+    pintarColorDeBarra();
+  };
+  /* TAPADO (0.7.160). Esto es lo que pasa cuando un mundo deja de poderse
+     usar —venció el plan, entró una cuenta que no lo tiene— o cuando vuelve.
+     Antes se hacía a la vista: la app cambiaba de piel delante de quien la
+     miraba. Ahora entra la cortina, se cambia detrás y se retira. Con la
+     carga ya puesta (el arranque) se cambia sin más, que ya está tapado.
+     No recarga a propósito: lo guardado sigue siendo lo que la persona
+     ELIGIÓ, y el script de arriba volvería a ponerlo. */
+  /* La guarda va PRIMERO: una segunda llamada mientras la cortina está
+     entrando la vería «puesta» y cambiaría en ese instante, a media opacidad
+     —o sea, a la vista—. Medido al escribirlo.
+     Pero NO se descarta (0.7.160.1): se apunta, y al retirarse la cortina se
+     vuelve a preguntar. La 0.7.160 la tiraba sin más, y la llamada que se
+     perdía era justo la que devolvía el mundo: a Eduardo se le quitaba en la
+     PC en cada arranque y ya no volvía. */
+  if (refrescarApariencia.enMarcha) { refrescarApariencia.otra = true; return; }
+  const cortina = document.getElementById("carga");
+  const tapado = typeof cargaVisible === "function" && cargaVisible();
+  if (!cortina || tapado || typeof cargaMostrar !== "function" || typeof cargaCerrar !== "function") { cambiar(); return; }
+  refrescarApariencia.enMarcha = true;
+  cargaMostrar(tx("Cambiando tema…"));
+  cortina.classList.add("fuera");
+  cortina.getBoundingClientRect();
+  cortina.classList.remove("fuera");
+  setTimeout(() => {
+    cambiar();
+    setTimeout(() => {
+      refrescarApariencia.enMarcha = false;
+      cargaCerrar();
+      if (refrescarApariencia.otra) {
+        refrescarApariencia.otra = false;
+        setTimeout(refrescarApariencia, 360);
+      }
+    }, 320);
+  }, 320);
+}
+
+/* ¿Ya se sabe de verdad qué puede llevar esta cuenta? Hacen falta las DOS
+   respuestas del servidor: el plan y quién es. Con una sola, un «no puedes»
+   no es una respuesta — es el hueco entre las dos, y quitar el mundo ahí es
+   quitárselo a quien sí lo tiene (ver `adminConfirmado`, js/10e-panel.js). */
+function aparienciaSeSabe() {
+  if (typeof PLAN_CONFIRMADO !== "undefined" && !PLAN_CONFIRMADO) return false;
+  if (typeof adminConfirmado !== "undefined" && !adminConfirmado) return false;
+  return true;
+}
+
+/* ================= El aspecto, apuntado en la cuenta (0.7.160) =================
+
+   Eduardo: «si ya sabe el dato de la cuenta, debe saber su configuración
+   previa… siempre en su primera carga, venga de donde venga, tiene que tener
+   la capacidad de predecir qué mundo colocar y nunca más enseñar nada de otro
+   mundo si no lo cambias».
+
+   Hasta aquí el mundo, la paleta, el modo y Arcade vivían SOLO en el
+   dispositivo. Al entrar en uno nuevo la app no tenía de dónde saber cuál era
+   el tuyo: enseñaba la casa. Ahora la cuenta lo lleva apuntado.
+
+   ---- Cada dispositivo manda sobre su tema ----
+
+   También es de Eduardo: quien quiera un tema distinto en cada dispositivo
+   tiene que poder. Así que no es UN aspecto por cuenta sino uno POR
+   DISPOSITIVO (`settings.aspectos[idDelDispositivo]`), y el reparto es:
+
+     - el dispositivo es la autoridad de lo suyo: lo que eliges ahí se queda
+       ahí, y se apunta en la cuenta bajo su id;
+     - la cuenta solo DECIDE cuando el dispositivo no sabe: uno nuevo, o uno
+       donde lo guardado era de otra cuenta. Entonces se pone lo último que
+       usaste en este dispositivo o, si nunca entraste aquí, lo último que
+       usaste en cualquiera.
+
+   Con un solo aspecto compartido, dos dispositivos abiertos se pelearían el
+   tema y uno vería cambiar el suyo sin haber tocado nada, que es justo lo que
+   esto existe para impedir.
+
+   De quién es lo guardado en el dispositivo lo dice `norata-aspecto-de` (el
+   id de la cuenta, o «local» sin cuenta). Sin esa marca no hay forma de
+   distinguir «mi tema» de «el tema que dejó aquí la cuenta anterior». */
+const ASPECTO_DUENO = "norata-aspecto-de";
+const DISPOSITIVO_LLAVE = "norata-dispositivo";
+const ASPECTOS_TOPE = 12;
+
+/* Un id propio y fijo, no el nombre del dispositivo: el nombre se puede
+   cambiar en Ajustes y dos navegadores se llaman igual («Chrome en Windows»). */
+function dispositivoId() {
+  try {
+    let id = localStorage.getItem(DISPOSITIVO_LLAVE);
+    if (!id || !/^[a-z0-9]{8,20}$/.test(id)) {
+      id = Math.random().toString(36).slice(2, 12) + Date.now().toString(36).slice(-4);
+      localStorage.setItem(DISPOSITIVO_LLAVE, id);
+    }
+    return id;
+  } catch (e) { return "sinalmacen"; }
+}
+
+function aspectoCuenta() {
+  try {
+    const s = typeof sync !== "undefined" && sync && sync.cfg && sync.cfg.sesion;
+    if (typeof syncReady === "function" && syncReady() && s && s.uid) return String(s.uid);
+  } catch (e) {}
+  return "local";
+}
+
+/* Lo que este dispositivo tiene guardado, que es lo que el script de arriba
+   de index.html pone antes de pintar nada. */
+function aspectoLocal() {
+  const o = { a: "casa", pals: {}, tema: "oscuro", m: "" };
+  try {
+    o.a = localStorage.getItem(APARIENCIA_LLAVE) || "casa";
+    o.pals = JSON.parse(localStorage.getItem(PALETA_LLAVE) || "{}") || {};
+    o.tema = localStorage.getItem("norata-tema") === "claro" ? "claro" : "oscuro";
+    o.m = localStorage.getItem("norata-material") === "arcade" ? "arcade" : "";
+  } catch (e) {}
+  return o;
+}
+function aspectoHayLlaves() {
+  try {
+    return localStorage.getItem(APARIENCIA_LLAVE) !== null || localStorage.getItem("norata-tema") !== null ||
+           localStorage.getItem("norata-material") !== null;
+  } catch (e) { return false; }
+}
+function aspectoIgual(x, y) {
+  if (!x || !y) return false;
+  const px = (x.pals && x.pals[x.a]) || "", py = (y.pals && y.pals[y.a]) || "";
+  return x.a === y.a && x.tema === y.tema && (x.m || "") === (y.m || "") && px === py;
+}
+
+/* Apunta en la cuenta lo que ESTE dispositivo lleva. Se llama cuando la
+   persona cambia algo —mundo, ambiente, paleta, modo, Arcade— y al conciliar.
+   Nunca desde una vista previa ni dentro del ejemplo: ni una cosa ni la otra
+   son la elección de nadie. */
+function apuntarAspecto() {
+  if (typeof modoEjemplo !== "undefined" && modoEjemplo) return;
+  if (aparienciaDePrueba()) return;
+  if (typeof state === "undefined" || !state || !state.settings) return;
+  const local = aspectoLocal(), id = dispositivoId();
+  try { localStorage.setItem(ASPECTO_DUENO, aspectoCuenta()); } catch (e) {}
+  const mapa = (state.settings.aspectos && typeof state.settings.aspectos === "object") ? state.settings.aspectos : {};
+  const ya = mapa[id];
+  if (ya && aspectoIgual(ya, local) && JSON.stringify(ya.pals || {}) === JSON.stringify(local.pals)) return;
+  mapa[id] = { a: local.a, pals: local.pals, tema: local.tema, m: local.m, t: Date.now() };
+  /* Con tope: cada navegador y cada reinstalación es un «dispositivo» nuevo,
+     y esto viaja con el progreso en cada sincronía. Se quedan los más
+     recientes. */
+  const ids = Object.keys(mapa).sort((x, y) => (mapa[y].t || 0) - (mapa[x].t || 0));
+  ids.slice(ASPECTOS_TOPE).forEach(k => { delete mapa[k]; });
+  state.settings.aspectos = mapa;
+  if (typeof save === "function") save();
+}
+
+/* Lo que la cuenta sabe: lo de este dispositivo y, si nunca se entró aquí, lo
+   más reciente de cualquiera. */
+function aspectoDeLaCuenta() {
+  const mapa = state && state.settings && state.settings.aspectos;
+  if (!mapa || typeof mapa !== "object") return null;
+  const propio = mapa[dispositivoId()];
+  if (propio && propio.a) return propio;
+  let mejor = null;
+  Object.keys(mapa).forEach(k => {
+    const x = mapa[k];
+    if (x && x.a && (!mejor || (x.t || 0) > (mejor.t || 0))) mejor = x;
+  });
+  return mejor;
+}
+
+/* Lo que de verdad se puede poner. Un mundo que esta cuenta ya no tiene, o un
+   Arcade que no ha encontrado, no se ponen para quitarlos un segundo después. */
+function aspectoPermitido(t) {
+  const o = { a: "casa", pals: {}, tema: t && t.tema === "claro" ? "claro" : "oscuro", m: "" };
+  if (!t) return o;
+  if (t.pals && typeof t.pals === "object") o.pals = t.pals;
+  if (t.a && t.a !== "casa" && aparienciaPorId(t.a)) {
+    const puedo = aparienciaDisponible(t.a) === true;
+    /* Ante la duda, lo que tenía: sin el plan confirmado un «no» no es una
+       respuesta (ver `refrescarApariencia`). */
+    const dudoso = !aparienciaSeSabe();
+    if (puedo || dudoso) o.a = t.a;
+  }
+  if (t.m === "arcade" && typeof arcadeEncontrado === "function" && arcadeEncontrado() && !esMundo(o.a)) o.m = "arcade";
+  return o;
+}
+
+/* Escribe el aspecto en el dispositivo y lo pone detrás de la cortina. */
+function aspectoAplicar(t) {
+  try {
+    localStorage.setItem(APARIENCIA_LLAVE, t.a);
+    localStorage.setItem(PALETA_LLAVE, JSON.stringify(t.pals || {}));
+    if (t.m === "arcade") localStorage.setItem("norata-material", "arcade");
+    else localStorage.removeItem("norata-material");
+  } catch (e) {}
+  /* `ponerTema` guarda su llave y repinta; `ponerApariencia` engancha la hoja
+     del mundo, pone el atributo y la paleta. Arcade no se pone en caliente:
+     su llave ya quedó, y la recarga que viene lo trae entero. */
+  if (typeof ponerTema === "function") ponerTema(t.tema);
+  ponerApariencia(t.a, { forzar: true });
+  return true;
+}
+
+/* LA CONCILIACIÓN. Se llama con los datos de la cuenta ya en memoria y la
+   carga todavía puesta: al arrancar (después de la sincronía) y al entrar a
+   una cuenta. Devuelve `true` si lanzó el cambio —va a recargar, y quien
+   llama tiene que soltar lo que estuviera haciendo—.
+
+   Los casos, que son lo único que hay que entender aquí:
+     1. Lo guardado es de ESTA cuenta      → manda el dispositivo; se apunta.
+     2. No hay marca pero sí llaves        → un dispositivo de antes de esto:
+                                             lo suyo se da por bueno y se apunta.
+     3. Lo guardado es de OTRA cuenta, o
+        el dispositivo es nuevo            → manda la cuenta. Si lo que dice
+                                             no es lo que hay puesto, se cambia
+                                             detrás de la carga y se recarga.
+   Sin cuenta («local») siempre manda el dispositivo: no hay a quién preguntar. */
+function conciliarAspecto() {
+  if (typeof modoEjemplo !== "undefined" && modoEjemplo) return false;
+  if (aparienciaDePrueba()) return false;
+  if (typeof state === "undefined" || !state || !state.settings) return false;
+  const cuenta = aspectoCuenta();
+  let dueno = null;
+  try { dueno = localStorage.getItem(ASPECTO_DUENO); } catch (e) {}
+  const local = aspectoLocal();
+
+  if (cuenta === "local" || dueno === cuenta || (!dueno && aspectoHayLlaves())) {
+    apuntarAspecto();
+    return false;
+  }
+  const sabe = aspectoDeLaCuenta();
+  /* Un dispositivo nuevo con una cuenta que no trae nada apuntado: no hay
+     nada que predecir. Se queda lo que hay y se apunta. */
+  if (!sabe && !dueno) { apuntarAspecto(); return false; }
+  /* Lo guardado era de otra cuenta y esta no trae nada: la casa. Dejarle a
+     alguien el mundo del que entró antes sería enseñarle uno que no es suyo. */
+  const debe = aspectoPermitido(sabe || { a: "casa", tema: local.tema });
+  if (aspectoIgual(debe, local)) { apuntarAspecto(); return false; }
+  cambiarTapado(() => aspectoAplicar(debe), tx("Poniendo tu tema…"));
+  return true;
+}
+
+/* Espera a que la hoja de los mundos esté cargada, con tope. Quien cambia de
+   mundo desde Mi apariencia ya la tiene (la bajó al mirarlo); quien llega de
+   una conciliación, no, y sin ella el fondo que se apunta para la siguiente
+   apertura sería el de la casa. */
+function esperarLosMundos() {
+  return new Promise(listo => {
+    if (!esMundo(apariencia())) { listo(); return; }
+    const tope = Date.now() + 1800;
+    (function mirar() {
+      const l = document.querySelector('link[href^="css/mundos.css"]');
+      if ((l && l.sheet) || Date.now() > tope) { listo(); return; }
+      setTimeout(mirar, 50);
+    })();
+  });
 }
 
 /* ================= La pantalla de Apariencia =================
@@ -1969,7 +2244,7 @@ function elegirApariencia(id) {
    Recibe QUÉ cambiar como una función que devuelve si se pudo: la usan el
    mundo o ambiente (`ponerApariencia`) y la paleta del mundo puesto
    (`elegirPaleta`, desde la 0.7.148.5). */
-function cambiarTapado(aplicar) {
+function cambiarTapado(aplicar, mensaje) {
   const cortina = document.getElementById("carga");
   const raiz = document.documentElement;
   const fondoDe = () => {
@@ -1978,7 +2253,7 @@ function cambiarTapado(aplicar) {
   };
   /* Sin cortina —no debería pasar, vive en el marcado— se hace como antes. */
   if (!cortina || typeof cargaMostrar !== "function") {
-    if (aplicar()) setTimeout(() => recargarApp(), 60);
+    if (aplicar()) { apuntarAspecto(); setTimeout(() => recargarApp(), 60); }
     return;
   }
 
@@ -1989,11 +2264,18 @@ function cambiarTapado(aplicar) {
      cero, y quitarla en el turno siguiente es lo que dispara la transición. Si
      se quitara `oculta` y ya, aparecería de golpe, y un cambio de golpe en
      toda la pantalla se lee como un fallo. */
-  cargaMostrar(tx("Cambiando tema…"));
-  cortina.classList.add("fuera");
-  cortina.style.transition = "opacity 0.16s ease";
-  cortina.getBoundingClientRect();
-  cortina.classList.remove("fuera");
+  /* …salvo que la carga YA esté puesta (0.7.160): la conciliación llega con
+     ella delante —es el arranque, o la entrada a una cuenta—, y meterle el
+     fundido desde transparente la abriría un instante sobre la app de debajo,
+     que es exactamente lo que no puede verse. */
+  const yaTapado = typeof cargaVisible === "function" && cargaVisible();
+  cargaMostrar(mensaje || tx("Cambiando tema…"));
+  if (!yaTapado) {
+    cortina.classList.add("fuera");
+    cortina.style.transition = "opacity 0.16s ease";
+    cortina.getBoundingClientRect();
+    cortina.classList.remove("fuera");
+  }
 
   setTimeout(() => {
     /* Se CIERRA el fundido de entrada antes de tocar nada, pase lo que pase:
@@ -2011,10 +2293,15 @@ function cambiarTapado(aplicar) {
       return;
     }
     pintarSeleccion();
-    /* Un turno después y no en el acto: `ponerApariencia` apaga todas las
-       transiciones durante uno (`cambiando-modo`), y el fundido de la cortina
-       nacería apagado. */
-    setTimeout(() => {
+    /* Lo que se acaba de poner queda apuntado en la cuenta, bajo este
+       dispositivo (0.7.160). */
+    apuntarAspecto();
+    /* Con la hoja del mundo cargada, para que el fondo que se apunta para la
+       siguiente apertura sea el suyo. Y un turno después y no en el acto:
+       `ponerApariencia` apaga todas las transiciones durante uno
+       (`cambiando-modo`), y el fundido de la cortina nacería apagado. */
+    esperarLosMundos().then(() => setTimeout(() => {
+      pintarColorDeBarra();
       const despues = fondoDe();
       if (despues && despues !== antes) {
         cortina.style.transition = "background-color 0.3s ease";
@@ -2025,8 +2312,8 @@ function cambiarTapado(aplicar) {
          `location.reload()`: en el APK la carga dura un mínimo y después se
          pide el icono (ver js/01-base.js). */
       setTimeout(() => recargarApp(tapadoDesde), 320);
-    }, 30);
-  }, 200);
+    }, 30));
+  }, yaTapado ? 0 : 200);
 }
 
 /* El aviso antes de reiniciar el APK para cambiar el icono (0.7.146.2).

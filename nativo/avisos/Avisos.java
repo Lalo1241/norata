@@ -28,7 +28,7 @@ import org.json.JSONObject;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-/* Los avisos de Norata en la app de Android (0.7.154): las piezas que
+/* Los avisos de Norata en la app de Android (0.7.161): las piezas que
    comparten el complemento (`AvisosPlugin`, lo que habla con la página) y el
    receptor (`AvisosReceptor`, lo que contesta a los botones y a las alarmas).
 

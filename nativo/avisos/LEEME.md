@@ -1,6 +1,6 @@
 # Los avisos de Norata en el APK
 
-Desde la 0.7.154, en la app de Android el Pomodoro avisa con el sistema:
+Desde la 0.7.161, en la app de Android el Pomodoro avisa con el sistema:
 
 - **El reloj en la cortina.** Mientras corre un tramo hay un aviso fijo con la
   cuenta atrás y un botón de **Pausar** (y **Seguir** al pausar). Se pausa sin
