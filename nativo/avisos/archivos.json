@@ -1,0 +1,18 @@
+[
+ "drawable/aviso_aro.xml",
+ "drawable/aviso_boton.xml",
+ "drawable/aviso_boton_dentro.xml",
+ "drawable/aviso_chip.xml",
+ "drawable/aviso_ic_ok.xml",
+ "drawable/aviso_ic_pausa.xml",
+ "drawable/aviso_ic_play.xml",
+ "drawable/aviso_marco.xml",
+ "drawable/aviso_marco_dentro.xml",
+ "drawable/aviso_norata.xml",
+ "drawable/aviso_punto.xml",
+ "font/outfit_bold.ttf",
+ "font/outfit_medium.ttf",
+ "font/outfit_semibold.ttf",
+ "layout/aviso_corto.xml",
+ "layout/aviso_largo.xml"
+]

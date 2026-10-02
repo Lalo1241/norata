@@ -23,8 +23,10 @@ const path = require("path");
 
 const RAMAS = ["main", "claude/gifted-lamport-gjugyf"];
 const CRUDO = (rama) => `https://raw.githubusercontent.com/Lalo1241/norata/${rama}/nativo/avisos/`;
-const JAVA = ["Avisos.java", "AvisosPlugin.java", "AvisosReceptor.java"];
-const ICONO = "res/drawable/aviso_norata.xml";
+const JAVA = ["Avisos.java", "AvisosPlugin.java", "AvisosReceptor.java", "AvisosVista.java"];
+/* Lo de res/ (el isotipo, las letras, los moldes y sus dibujos) va en
+   archivos.json: es la lista que se baja de GitHub cuando esto corre suelto. */
+const LISTA = "archivos.json";
 const COPIA = ".antes-avisos";
 
 const PERMISOS = [
@@ -77,13 +79,16 @@ function respaldar(ruta) {
 async function fuente() {
   const aqui = __dirname;
   if (JAVA.every((f) => fs.existsSync(path.join(aqui, f)))) {
-    return { leer: async (rel) => fs.readFileSync(path.join(aqui, rel)), donde: "los archivos de al lado" };
+    return { leer: async (rel) => fs.readFileSync(path.join(aqui, rel)), donde: "los archivos de al lado",
+      lista: JSON.parse(fs.readFileSync(path.join(aqui, LISTA), "utf8")) };
   }
   if (typeof fetch !== "function") alto("Tu Node es muy viejo para bajar los archivos (hace falta la versión 18 o más).");
   for (const rama of RAMAS) {
-    const r = await fetch(CRUDO(rama) + JAVA[0]).catch(() => null);
+    const r = await fetch(CRUDO(rama) + LISTA).catch(() => null);
     if (!r || !r.ok) continue;
+    const lista = await r.json();
     return {
+      lista,
       leer: async (rel) => {
         const q = await fetch(CRUDO(rama) + rel);
         if (!q.ok) alto("No pude bajar " + rel + " de GitHub (" + q.status + "). Revisa tu conexión y vuelve a correrlo.");
@@ -113,7 +118,7 @@ async function instalar() {
     const txt = (await src.leer(f)).toString("utf8").replace(/^package\s+[\w.]+;/m, "package " + paquete + ";");
     fs.writeFileSync(path.join(path.dirname(actividad), f), txt);
   }
-  ok("Avisos, AvisosPlugin y AvisosReceptor puestos junto a MainActivity (paquete " + paquete + ")");
+  ok("Los " + JAVA.length + " archivos del complemento, junto a MainActivity (paquete " + paquete + ")");
 
   // 2. Registrarlo en MainActivity.
   const kotlin = actividad.endsWith(".kt");
@@ -142,11 +147,14 @@ async function instalar() {
     ok("MainActivity registra el complemento");
   }
 
-  // 3. El icono de la barra de arriba.
-  const destinoIcono = path.join(main, ...ICONO.split("/"));
-  fs.mkdirSync(path.dirname(destinoIcono), { recursive: true });
-  fs.writeFileSync(destinoIcono, await src.leer(ICONO));
-  ok("El isotipo de los avisos, en res/drawable");
+  // 3. Lo de res/: el isotipo, las letras (Outfit), los dos moldes y sus dibujos.
+  //    Todos se llaman aviso_* u outfit_*: se SUMAN a lo que hay y no pisan nada.
+  for (const rel of src.lista) {
+    const destino = path.join(main, "res", ...rel.split("/"));
+    fs.mkdirSync(path.dirname(destino), { recursive: true });
+    fs.writeFileSync(destino, await src.leer("res/" + rel));
+  }
+  ok(src.lista.length + " archivos en res/: el isotipo, las letras, los moldes y sus dibujos");
 
   // 4. El manifiesto: los permisos y el receptor.
   const rutaMan = path.join(main, "AndroidManifest.xml");
@@ -220,8 +228,19 @@ function deshacer() {
     const p = buscarArchivo(path.join(main, "java"), [f]) || buscarArchivo(path.join(main, "kotlin"), [f]);
     if (p) { fs.unlinkSync(p); ok("Quitado " + f); n++; }
   }
-  const icono = path.join(main, ...ICONO.split("/"));
-  if (fs.existsSync(icono)) { fs.unlinkSync(icono); ok("Quitado " + ICONO); n++; }
+  const aqui = __dirname;
+  const lista = fs.existsSync(path.join(aqui, LISTA)) ? JSON.parse(fs.readFileSync(path.join(aqui, LISTA), "utf8")) : [];
+  for (const rel of lista) {
+    const p = path.join(main, "res", ...rel.split("/"));
+    if (fs.existsSync(p)) { fs.unlinkSync(p); n++; }
+  }
+  // Corrido suelto no hay lista al lado: se reconocen por el nombre, que es solo nuestro.
+  for (const carpeta of ["drawable", "layout", "font"]) {
+    const d = path.join(main, "res", carpeta);
+    if (!fs.existsSync(d)) continue;
+    for (const f of fs.readdirSync(d)) if (/^(aviso_|outfit_)/.test(f)) { fs.unlinkSync(path.join(d, f)); n++; }
+  }
+  ok("Quitados los archivos de los avisos en res/");
   console.log(n ? "\nListo: el proyecto está como antes.\n" : "\nNo había nada que deshacer.\n");
 }
 

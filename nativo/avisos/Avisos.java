@@ -25,7 +25,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 /* Los avisos de Norata en la app de Android (0.7.161): las piezas que
@@ -70,6 +74,9 @@ final class Avisos {
     static final String ACCION = "app.norata.avisos.ACCION";
     static final String FIN = "app.norata.avisos.FIN";
     static final String AGENDA = "app.norata.avisos.AGENDA";
+    /* Vuelve a pintar el reloj: un tramo libre que cruza la hora pasa su cifra
+       de 36 a 28 (AvisosVista.conHoras), y eso solo se decide al pintar. */
+    static final String REPINTA = "app.norata.avisos.REPINTA";
 
     /* Quién está vivo. Los pone el complemento: con la app a la vista, el
        final de una fase lo dice la página (campana y aviso dentro) y aquí no
@@ -312,12 +319,20 @@ final class Avisos {
         PendingIntent fin = pendiente(c, alReceptor(c, FIN, "reloj"), 1);
         desprogramar(c, fin);
         if (e == null) {
+            desprogramar(c, pendiente(c, alReceptor(c, REPINTA, "reloj"), 2));
             guardar(c, "reloj", null);
             quitar(c, ID_RELOJ);
             return;
         }
         guardar(c, "reloj", e);
         pintarReloj(c, e);
+        PendingIntent repinta = pendiente(c, alReceptor(c, REPINTA, "reloj"), 2);
+        long inicio = e.optLong("inicio", 0);
+        if (inicio > 0 && !e.optBoolean("pausado") && System.currentTimeMillis() - inicio < 3600000L) {
+            programar(c, inicio + 3600000L, repinta);
+        } else {
+            desprogramar(c, repinta);
+        }
         long cuando = e.optLong("fin", 0);
         if (cuando > 0 && !e.optBoolean("pausado")) {
             Intent i = alReceptor(c, FIN, "reloj").putExtra("clave", e.optString("clave"));
@@ -326,6 +341,21 @@ final class Avisos {
     }
 
     static void pintarReloj(Context c, JSONObject e) {
+        PendingIntent pPausa = pendiente(c, alReceptor(c, ACCION, "pausa").putExtra("accion", "pausa"), 10);
+        PendingIntent pSeguir = pendiente(c, alReceptor(c, ACCION, "seguir").putExtra("accion", "seguir"), 11);
+        PendingIntent pIniciar = e.optJSONObject("siguiente") == null ? null
+                : pendiente(c, alReceptor(c, ACCION, "iniciar-reloj").putExtra("accion", "iniciar")
+                        .putExtra("inicio", e.optJSONObject("siguiente").toString()), 12);
+        Map<String, PendingIntent> acc = new HashMap<>();
+        acc.put("pausa", pPausa);
+        acc.put("seguir", pSeguir);
+        if (pIniciar != null) acc.put("iniciar", pIniciar);
+        acc.put("abrir", abrir(c, "jornada"));
+        /* La vista que toca: corriendo o en pausa, que la página mandó las dos
+           para que pausar con la app cerrada se vea bien. */
+        JSONObject vistas = e.optJSONObject("vistas");
+        JSONObject vista = vistas != null ? vistas.optJSONObject(e.optBoolean("pausado") ? "pausa" : "corre") : e.optJSONObject("vista");
+
         Notification.Builder b = constructor(c, CANAL_RELOJ)
                 .setContentTitle(e.optString("titulo"))
                 .setOngoing(true)
@@ -351,16 +381,62 @@ final class Avisos {
 
         // Los botones salen del estado, no de la página: así se cambian solos
         // al pausar con la app cerrada.
-        if (pausado) {
-            b.addAction(boton(c, tx(c, "seguir"), pendiente(c, alReceptor(c, ACCION, "seguir").putExtra("accion", "seguir"), 11)));
-        } else if (e.optBoolean("pausable") && (fin > 0 || inicio > 0)) {
-            b.addAction(boton(c, tx(c, "pausar"), pendiente(c, alReceptor(c, ACCION, "pausa").putExtra("accion", "pausa"), 10)));
-        } else if (e.optJSONObject("siguiente") != null) {
-            Intent i = alReceptor(c, ACCION, "iniciar-reloj").putExtra("accion", "iniciar")
-                    .putExtra("inicio", e.optJSONObject("siguiente").toString());
-            b.addAction(boton(c, tx(c, "iniciar"), pendiente(c, i, 12)));
+        List<Notification.Action> botones = new ArrayList<>();
+        if (pausado) botones.add(boton(c, tx(c, "seguir"), pSeguir));
+        else if (e.optBoolean("pausable") && (fin > 0 || inicio > 0)) botones.add(boton(c, tx(c, "pausar"), pPausa));
+        else if (pIniciar != null) botones.add(boton(c, tx(c, "iniciar"), pIniciar));
+        if (vestir(c, b, vista, e, acc, false, botones)) {
+            // Con molde, la cuenta va dentro, en grande: fuera sobraría.
+            b.setUsesChronometer(false);
+            b.setShowWhen(false);
+        } else {
+            for (Notification.Action a : botones) b.addAction(a);
         }
         notificar(c, ID_RELOJ, b.build());
+    }
+
+    /* ---------- Los moldes (0.7.161) ----------
+       Con moldes, los botones son los de Norata, dentro del aviso, y los de
+       Android se quedan solo para el reloj de pulsera (WearableExtender): ahí
+       el molde no se ve. Sin moldes (Android 6, o un APK a medias) devuelve
+       false y el que llama pone la plantilla de siempre. */
+    static boolean vestir(Context c, Notification.Builder b, JSONObject vista, JSONObject estado,
+                          Map<String, PendingIntent> acciones, boolean alerta, List<Notification.Action> pulsera) {
+        if (vista == null || Build.VERSION.SDK_INT < 24 || !AvisosVista.hayMoldes(c)) return false;
+        try {
+            b.setStyle(new Notification.DecoratedCustomViewStyle());
+            b.setCustomContentView(AvisosVista.corto(c, vista, estado, acciones));
+            b.setCustomBigContentView(AvisosVista.largo(c, vista, estado, acciones));
+            if (alerta) b.setCustomHeadsUpContentView(AvisosVista.corto(c, vista, estado, acciones));
+        } catch (RuntimeException e) {
+            return false; // un molde que no cuadra con este APK: mejor la plantilla que nada
+        }
+        if (pulsera != null && !pulsera.isEmpty()) {
+            Notification.WearableExtender w = new Notification.WearableExtender();
+            for (Notification.Action a : pulsera) w.addAction(a);
+            b.extend(w);
+        }
+        return true;
+    }
+
+    /** La vista sin los botones de una acción (Iniciar con un tramo ya corriendo). */
+    static JSONObject sinAccion(JSONObject vista, String accion) {
+        if (vista == null) return null;
+        try {
+            JSONObject v = new JSONObject(vista.toString());
+            JSONObject k = v.optJSONObject("corto");
+            if (k != null && k.optJSONObject("boton") != null && accion.equals(k.optJSONObject("boton").optString("accion"))) k.remove("boton");
+            JSONObject l = v.optJSONObject("largo");
+            JSONArray bs = l == null ? null : l.optJSONArray("botones");
+            if (bs != null) {
+                JSONArray n = new JSONArray();
+                for (int i = 0; i < bs.length(); i++) if (!accion.equals(bs.optJSONObject(i).optString("accion"))) n.put(bs.optJSONObject(i));
+                l.put("botones", n);
+            }
+            return v;
+        } catch (JSONException e) {
+            return vista;
+        }
     }
 
     static String mmss(long ms) {
@@ -372,6 +448,10 @@ final class Avisos {
 
     /* ---------- Un aviso suelto ---------- */
     static void avisar(Context c, String titulo, String texto, String icono, String ir) {
+        avisar(c, titulo, texto, icono, ir, null);
+    }
+
+    static void avisar(Context c, String titulo, String texto, String icono, String ir, JSONObject vista) {
         Notification.Builder b = constructor(c, CANAL_AVISOS)
                 .setContentTitle(titulo)
                 .setContentText(texto)
@@ -380,7 +460,11 @@ final class Avisos {
                 .setCategory(Notification.CATEGORY_REMINDER)
                 .setContentIntent(abrir(c, ir));
         Bitmap ic = iconoGrande(icono);
-        if (ic != null) b.setLargeIcon(ic);
+        Map<String, PendingIntent> acc = new HashMap<>();
+        acc.put("abrir", abrir(c, ir));
+        JSONObject conIcono = new JSONObject();
+        try { conIcono.put("icono", icono == null ? "" : icono); } catch (JSONException x) { /* sin icono */ }
+        if (!vestir(c, b, vista, conIcono, acc, true, null) && ic != null) b.setLargeIcon(ic);
         notificar(c, ID_AVISO, b.build());
     }
 
@@ -464,7 +548,9 @@ final class Avisos {
                 .setContentIntent(abrir(c, "jornada"));
         if (Build.VERSION.SDK_INT >= 26) b.setTimeoutAfter(60 * 60 * 1000L);
         Bitmap ic = iconoGrande(e.optString("icono"));
-        if (ic != null) b.setLargeIcon(ic);
+        Map<String, PendingIntent> acc = new HashMap<>();
+        acc.put("abrir", abrir(c, "jornada"));
+        List<Notification.Action> botones = new ArrayList<>();
 
         // Iniciar solo si no hay ya un tramo corriendo: con uno en marcha,
         // el botón empezaría otro encima.
@@ -478,11 +564,21 @@ final class Avisos {
             }
             Intent i = alReceptor(c, ACCION, "iniciar/" + id).putExtra("accion", "iniciar")
                     .putExtra("inicio", ini.toString()).putExtra("entrada", id);
-            b.addAction(boton(c, tx(c, "iniciar"), pendiente(c, i, 20)));
+            PendingIntent pi = pendiente(c, i, 20);
+            acc.put("iniciar", pi);
+            botones.add(boton(c, tx(c, "iniciar"), pi));
         }
         if (e.optBoolean("posponible", true)) {
             Intent i = alReceptor(c, ACCION, "posponer/" + id).putExtra("accion", "posponer").putExtra("entrada", id);
-            b.addAction(boton(c, tx(c, "posponer"), pendiente(c, i, 21)));
+            PendingIntent pi = pendiente(c, i, 21);
+            acc.put("posponer", pi);
+            botones.add(boton(c, tx(c, "posponer"), pi));
+        }
+        JSONObject vista = e.optJSONObject("vista");
+        if (corriendo) vista = sinAccion(vista, "iniciar");
+        if (!vestir(c, b, vista, e, acc, true, botones)) {
+            if (ic != null) b.setLargeIcon(ic);
+            for (Notification.Action a : botones) b.addAction(a);
         }
         notificar(c, ID_AGENDA, b.build());
     }

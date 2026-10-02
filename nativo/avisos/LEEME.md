@@ -15,6 +15,12 @@ Desde la 0.7.161, en la app de Android el Pomodoro avisa con el sistema:
 
 Tocar cualquiera abre la app en el Pomodoro.
 
+**Con el diseño de Norata (0.7.161).** Cada aviso tiene dos caras, las que
+Eduardo aprobó en la lámina «Avisos de Norata»: **plegado** (como llega: icono,
+dos renglones y la cifra o un botón) y **abierto** (al deslizarlo: el rótulo, el
+nombre, la cifra con su rótulo encima, los tramos y los botones). Un solo
+marco y la letra Outfit en todos los mundos; del mundo vienen los tonos.
+
 **Por qué hizo falta.** El Pomodoro avisaba con la API `Notification` del
 navegador, y el WebView de Android no la trae: en el APK no salía ningún aviso
 con la app de fondo. Y aunque la trajera, una página dormida no puede sonar a
@@ -81,9 +87,45 @@ suenan igual, pero el sistema puede retrasarlas con el teléfono dormido.
 | `Avisos.java` | las piezas compartidas: canales, alarmas, cómo se pinta cada aviso |
 | `AvisosPlugin.java` | lo que habla con la página (`AvisosNorata`) |
 | `AvisosReceptor.java` | lo que contesta a los botones, a las alarmas y al reinicio del teléfono |
-| `res/drawable/aviso_norata.xml` | el isotipo en blanco para la barra de arriba |
+| `AvisosVista.java` | llena los dos moldes de un aviso con lo que manda la página |
+| `res/layout/aviso_corto.xml`, `aviso_largo.xml` | los dos moldes: plegado y abierto |
+| `res/drawable/aviso_*.xml` | el isotipo de la barra, el marco, los botones, los puntos y sus iconos |
+| `res/font/outfit_*.ttf` | Outfit en tres pesos (500, 600, 700), cortada de la de la app |
+| `fuentes.py` | la que corta esas letras; se corre solo si cambia la de la app |
+| `archivos.json` | la lista de `res/`, para que el instalador sepa qué bajar |
 
 ## Lo que hay que saber antes de tocarlo
+
+- **Los moldes, y por qué están hechos así.** Un aviso de Android solo sabe
+  dibujar marcos, líneas, textos, imágenes y el cronómetro del sistema: nada
+  de texturas, letras de mundo ni variables de CSS. Por eso:
+  - **Cada color llega resuelto** de la página (`colores`, en `configurar`) y
+    cada forma es blanca y se tiñe (`setColorFilter`). Un marco con borde son
+    dos formas apiladas: la de fuera del color del borde, y la de dentro,
+    1,5 dp más chica, del color del fondo.
+  - **Las reglas de color las aplica la página**, no esto: el borde lleva el
+    acento del mundo; los rótulos también, salvo uno rojo (Catedral, Averno),
+    que pasa a la menta; los botones van en la menta de Norata en todos los
+    mundos, Pausa en amarillo; los estados son el verde y el amarillo de
+    Norata. Ningún botón es coral.
+  - **La vista la escribe la página** (`jVistaCorre`, `jVistaListo`,
+    `jVistaCierre`, `jVistaFin` y la agenda, en js/09d-jornada.js), en el
+    idioma de la app, con las dos caras de lo que corre (corriendo y en pausa)
+    para que pausar con la app cerrada se vea bien. Las horas que dependen de
+    la cuenta van como hueco (`{fin}`, `{inicio}`, `{resto}`) y las llena esto
+    al pintar, en la zona del perfil.
+  - **La cifra con horas baja de 36 a 28.** Un tramo libre que cruza la hora
+    con el aviso puesto se vuelve a pintar a los 60 minutos (`REPINTA`).
+  - **El plegado va en dp y no en sp**, centrado: el alto lo pone Android
+    (64 dp, o menos en algunos teléfonos), y con la letra del sistema
+    agrandada se saldría por abajo. El abierto sí va en sp: el alto sobra.
+  - **Los botones son de Norata, dentro del molde**; los de Android se quedan
+    solo para el reloj de pulsera (`WearableExtender`), que no ve el molde.
+  - **Sin moldes, la plantilla de siempre**: en Android 6 o con un APK al que
+    le falte un archivo de `res/`, el aviso sale con la plantilla de Android
+    (`vestir` devuelve `false`) y funciona igual.
+  - **La lámina «Avisos de Norata» es la referencia.** Un cambio de diseño se
+    prueba ahí primero, y luego se pasa a la vista y, si hace falta, al molde.
 
 - **La página decide y esto pinta.** Los textos, los iconos (se mandan ya
   hechos, en PNG) y lo que se dice al acabar cada fase salen de

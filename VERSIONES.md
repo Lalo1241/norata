@@ -334,7 +334,36 @@ actividad.
   la cuenta del mundo queda como propuesta: pide meter las letras en el APK y
   un molde por mundo. Las dos, en la lámina «Avisos de Norata».
 
-**Comprobado:** el Java compila contra Android 16 (`android-all` de
+- **Con el diseño de Norata: dos moldes por aviso.** Eduardo lo trabajó sobre
+  la lámina «Avisos de Norata» (un artefacto con cada aviso plegado y abierto,
+  a tamaño real, en cada mundo y modo) y lo aprobó así:
+  - **Un solo marco para todos los mundos**: relleno liso del fondo del mundo,
+    borde de 1,5 en su acento y esquinas de 16. Nada de texturas ni formas
+    raras: en la cortina se ven mal y en cada teléfono distinto.
+  - **La letra de la Norata clásica, Outfit**, en todos los mundos: las letras
+    de mundo cambiaban de medida y desbordaban. Va en el APK en tres pesos
+    (`nativo/avisos/fuentes.py`) y trae cifras de ancho fijo: la cuenta no baila.
+  - **Los botones hablan como Norata en todos los mundos**: primario menta,
+    Pausa en el amarillo de «en curso», Seguir menta suave, mirar de línea,
+    posponer neutro. Ninguno coral. **Y con un acento rojo ningún texto va en
+    rojo**: se leía como algo malo aunque dijera «En foco».
+  - **El plegado tiene aire** (64 dp, dos renglones y una sola cosa a la
+    derecha) y el abierto lleva la cifra con su rótulo ENCIMA, los tramos con
+    su texto al lado («Tramo 1 de 4») y el ritmo escrito entero.
+  - **Con horas la cifra baja de 36 a 28** y ocupa casi lo mismo.
+  - **Un renglón con un solo texto va centrado**.
+  Las piezas: `AvisosVista.java` y los moldes `res/layout/aviso_corto.xml` y
+  `aviso_largo.xml`; la página escribe cada vista (`jVistaCorre`,
+  `jVistaListo`, `jVistaCierre`, `jVistaFin` y la agenda) y los tonos
+  (`coloresDeAviso`, js/13b-avisos.js). Sin moldes (Android 6, o un APK a
+  medias) sale la plantilla de Android, como antes.
+
+**Comprobado:** el Java nuevo compila igual que el resto; un script cruza cada
+id y cada dibujo que pide contra los moldes y no falta ninguno; el instalador
+copia los 16 archivos de `res/` (las letras, idénticas byte a byte) y
+`--deshacer` los quita. En la página, cada aviso lleva sus dos vistas sin un
+texto roto, y en Averno el borde sale rojo y los rótulos y botones en menta.
+**De la primera parte:** el Java compila contra Android 16 (`android-all` de
 Robolectric) y Capacitor 8.5 sin advertencias propias; el instalador, contra
 un proyecto de mentira con saltos CRLF (instala, la segunda vez se salta todo,
 `--deshacer` lo devuelve); el cálculo de la próxima alarma, con cinco casos y

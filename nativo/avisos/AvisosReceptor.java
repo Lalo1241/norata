@@ -32,6 +32,12 @@ public class AvisosReceptor extends BroadcastReceiver {
             case Avisos.FIN:
                 finDeFase(c, i.getStringExtra("clave"));
                 break;
+            case Avisos.REPINTA: {
+                // Un tramo libre que acaba de cruzar la hora: la cifra baja a 28.
+                JSONObject r = Avisos.reloj(c);
+                if (r != null) Avisos.pintarReloj(c, r);
+                break;
+            }
             case Avisos.AGENDA:
                 agenda(c, i.getStringExtra("entrada"), i.getBooleanExtra("unaVez", false));
                 break;
@@ -75,12 +81,16 @@ public class AvisosReceptor extends BroadcastReceiver {
             quieto.put("titulo", titulo);
             quieto.put("texto", texto);
             quieto.remove("siguiente");
+            // El molde de lo que acaba de pasar (el de «Tramo listo»), sin cuenta.
+            quieto.remove("vistas");
+            if (fin != null && fin.optJSONObject("vista") != null) quieto.put("vista", fin.optJSONObject("vista"));
             Avisos.guardar(c, "reloj", quieto);
             Avisos.pintarReloj(c, quieto);
         } catch (JSONException e) { /* se queda el que había */ }
         /* Con la app a la vista lo dice ella: campana y aviso dentro. */
         if (Avisos.enPrimerPlano) return;
-        if (Avisos.primeraVez(c, clave)) Avisos.avisar(c, titulo, texto, r.optString("icono"), "jornada");
+        if (Avisos.primeraVez(c, clave)) Avisos.avisar(c, titulo, texto, r.optString("icono"), "jornada",
+                fin == null ? null : fin.optJSONObject("vista"));
     }
 
     private void agenda(Context c, String id, boolean unaVez) {
@@ -143,6 +153,8 @@ public class AvisosReceptor extends BroadcastReceiver {
                     nuevo.put("clave", fid + "|foco");
                     if (dur > 0) nuevo.put("fin", t + dur); else nuevo.put("inicio", t);
                     if (ini.has("alFinal")) nuevo.put("alFinal", ini.getJSONObject("alFinal"));
+                    // Las dos caras del tramo que empieza (corriendo y en pausa), ya escritas por la página.
+                    if (ini.has("vistas")) nuevo.put("vistas", ini.getJSONObject("vistas"));
                     Avisos.ponerReloj(c, nuevo);
                     Avisos.quitar(c, Avisos.ID_AGENDA);
                     ev.put("fid", fid);

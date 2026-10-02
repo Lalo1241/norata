@@ -538,6 +538,7 @@ function jFinFase() {
      lleva el reloj (`mio`). */
   const mio = jEsMio(run), clave = (run.fid || run.seg || "") + "|" + run.fase;
   const [titulo, texto] = jMensajeFin(run);
+  const vista = jNativo() ? jVistaFin(run) : null;
   if (run.lite) {
     const k = run.modo || "travesia", h = jHfCfg().hf[k] || {};
     if (run.fase === "foco") {
@@ -550,7 +551,7 @@ function jFinFase() {
         Object.assign(run, { fase: "listo", min, acum: 0, seg: null });
       }
       save();
-      jAvisar(titulo, texto, clave, mio);
+      jAvisar(titulo, texto, clave, mio, vista);
     } else if (run.fase === "descanso") {
       if (k === "respiro") {
         jApuntarRespiro(Math.round(run.dur / J_MS));
@@ -559,7 +560,7 @@ function jFinFase() {
         Object.assign(run, { fase: "foco", tramo: run.tramo + 1, dur: (h.foco || 25) * J_MS, acum: 0, seg: Date.now(), pausas: 0, fid: uid() });
       }
       save();
-      jAvisar(titulo, texto, clave, mio);
+      jAvisar(titulo, texto, clave, mio, vista);
     }
     jPintar();
     return;
@@ -568,11 +569,11 @@ function jFinFase() {
     run.min = Math.round(run.dur / J_MS);
     run.fase = "cierre"; run.seg = null;
     save();
-    jAvisar(titulo, texto, clave, mio);
+    jAvisar(titulo, texto, clave, mio, vista);
     if (document.querySelector("#view-jornada.active")) jAbrirHoja("cierre");
     jPintarControles();
   } else if (run.fase === "descanso") {
-    jAvisar(titulo, texto, clave, mio);
+    jAvisar(titulo, texto, clave, mio, vista);
     jSiguiente();
   }
 }
@@ -2178,7 +2179,7 @@ function jCampana() {
    lleva el reloj: ese no suena nunca. */
 const jSonados = new Set();
 let jPendientes = [];
-function jAvisar(titulo, texto, clave, mio) {
+function jAvisar(titulo, texto, clave, mio, vista) {
   if (mio === false) return;
   if (clave) { if (jSonados.has(clave)) return; jSonados.add(clave); }
   const t = tx("Pomodoro") + " · " + titulo;
@@ -2194,7 +2195,7 @@ function jAvisar(titulo, texto, clave, mio) {
      cerrada, este se calla. El de ir a dormir no se dice desde aquí, porque
      lo tiene su propia alarma a la hora justa (`jEntradasAgenda`). */
   if (jNativo() && cfg.notificar !== false) {
-    if (!(clave && String(clave).indexOf("sueno|") === 0)) jNativo().avisar(t, texto, clave);
+    if (!(clave && String(clave).indexOf("sueno|") === 0)) jNativo().avisar(t, texto, clave, vista, jNativoIcono());
     return;
   }
   if (cfg.notificar !== false && "Notification" in window && Notification.permission === "granted") {
@@ -2240,6 +2241,7 @@ function jMostrarPendientes() {
    con la sincronía, y una cuenta empezada en la computadora sonaría también
    en el teléfono — justo lo que la 0.7.105.1 quitó. */
 const jNativo = () => window.norataAvisos || null;
+function jNativoIcono() { const run = jDatos().run; return run ? jIconoAviso(run.ref, null) : { dibujo: J_ARENA, color: "var(--jor-libre)" }; }
 
 function jBuscarBloque(id) {
   for (const bs of jDatos().rutinas) {
@@ -2249,11 +2251,134 @@ function jBuscarBloque(id) {
   return null;
 }
 
-/* El icono grande del aviso: el de lo que se enfoca, sobre su color. */
-function jIconoAviso(ref, b) {
+/* El icono grande del aviso: el de lo que se enfoca, sobre su color. Los
+   descansos van en disco, como en la rueda. */
+function jIconoAviso(ref, b, disco) {
   const r = jRef(ref);
   const color = b ? jColorBloque(b) : r && r.o.color ? pinta(r.o.color) : "var(--jor-libre)";
-  return { dibujo: b ? jIconoBloque(b) : r ? jIconoDe(r.o) : J_ARENA, color };
+  return { dibujo: b ? jIconoBloque(b) : r ? jIconoDe(r.o) : J_ARENA, color, forma: disco ? "disco" : "" };
+}
+
+/* ---------- Las vistas de los moldes (0.7.161) ----------
+   Lo que se ve dentro de cada aviso, en sus dos estados: `corto` (plegado,
+   como llega) y `largo` (abierto). Es la lámina «Avisos de Norata» hecha
+   datos: lo aprobó Eduardo pieza por pieza, y el APK solo la pinta
+   (nativo/avisos/AvisosVista.java).
+
+   Las reglas que hay detrás, para no deshacerlas sin saber:
+     - Un renglón de texto con partes de colores: [texto, rol]. El rol es
+       `marca` (el acento del mundo, o la menta si es rojo), `curso`
+       (amarillo), `hecho` (verde) o `suave`. Nunca un color suelto.
+     - Los botones dicen su NIVEL y no su color: `primario` (lo que viniste a
+       hacer, uno como mucho), `pausa` (amarillo), `suave` (Seguir), `linea`
+       (mirar) y `neutro` (posponer). Ninguno es coral.
+     - La cifra lleva su rótulo ENCIMA («Quedan», «Llevas»…). Si corre, la
+       lleva el cronómetro del sistema; con horas baja de tamaño sola.
+     - Los puntos de los tramos van SIEMPRE con su texto al lado: solos no se
+       entendían.
+     - Las horas que dependen de cuándo corre la cuenta van como hueco —{fin},
+       {inicio}, {resto}— y las llena el APK al pintar: si se pausa con la app
+       cerrada, «Acaba a las…» tiene que moverse con la pausa. */
+const jBoton = (nivel, texto, icono, accion) => ({ nivel, texto, icono: icono || "", accion, nombre: texto || tx(accion === "pausa" ? "Pausa" : "Seguir") });
+const jParte = (texto, rol) => [texto, rol || "suave"];
+function jRitmoTexto(c) { return T`${c.foco} min de foco · ${c.desc} de descanso`; }
+
+/* La vista de lo que CORRE (foco o descanso), corriendo o en pausa. */
+function jVistaCorre(run, pausado) {
+  const j = jDatos(), c = j.cfg, r = jRef(run.ref);
+  const modo = run.modo || "travesia";
+  const nombre = run.lite ? jHfNombre(modo) : r ? r.nombre : tx("Sin vincular");
+  const sube = !run.dur;   // tramo libre: la cuenta va hacia arriba
+  const total = run.lite ? (run.rondas || 1) : c.ciclos;
+  const n = run.tramo || 1;
+  const conPuntos = !sube && total > 1 && total <= 4;
+  const t = (x) => run.lite ? T`Ronda ${x} de ${total}` : T`Tramo ${x} de ${total}`;
+  const pausa = pausado ? jBoton("suave", tx("Seguir"), "play", "seguir") : jBoton("pausa", tx("Pausa"), "pausa", "pausa");
+  const pausaIcono = Object.assign({}, pausa, { texto: "" });
+
+  if (run.fase === "descanso") {
+    const respiro = run.lite && modo === "respiro";
+    return {
+      corto: { crono: !pausado, r1: pausado ? "{resto}" : null, r1Quieto: pausado, r1b: tx("de descanso"),
+        r2: [respiro ? jParte(nombre, "marca") : jParte(T`Sigue el tramo ${n + 1} de ${total}`)] },
+      largo: { ceja: [respiro ? nombre : tx("Descanso"), "marca"], tit: tx("Respira un poco"),
+        sub: T`Vuelves a las ${"{fin}"}`, rot: tx("Quedan"), crono: !pausado, num: pausado ? "{resto}" : null,
+        puntos: respiro || !conPuntos ? null : [n, -1, total],
+        tramo: respiro || !conPuntos ? null : T`${n} de ${total} hechos · sigue el ${n + 1}` }
+    };
+  }
+  const ceja = run.lite ? jHfNombre(modo) : sube ? tx("Tramo libre") : tx("En foco");
+  const corto = {
+    crono: !pausado, r1: pausado ? "{resto}" : null, r1Quieto: pausado, r1b: sube ? tx("llevas") : tx("quedan"),
+    r2: pausado ? [jParte(tx("En pausa"), "curso"), jParte(" · " + nombre)]
+      : [jParte(run.lite ? jHfNombre(modo) : sube ? tx("Tramo libre") : tx("En foco"), "marca"),
+         jParte(" · " + (run.lite ? (conPuntos ? t(n).toLowerCase() : jHfResumen(modo)) : nombre))],
+    boton: pausaIcono
+  };
+  const largo = {
+    ceja: pausado ? null : [ceja, "marca"],
+    tit: run.lite ? (conPuntos ? t(n) : nombre) : nombre,
+    sub: pausado ? tx("Sigue cuando quieras") : sube ? T`Desde las ${"{inicio}"}` : T`Acaba a las ${"{fin}"}`,
+    rot: sube ? tx("Llevas") : tx("Quedan"),
+    crono: !pausado, num: pausado ? "{resto}" : null, numQuieto: pausado,
+    chip: pausado ? { tipo: "curso", texto: tx("En pausa"), icono: "pausa" } : null,
+    puntos: conPuntos ? [n - 1, n - 1, total] : null,
+    tramo: conPuntos ? t(n) : null,
+    dato: pausado ? null
+      : sube ? tx("Sin final: lo terminas tú cuando quieras")
+      : run.lite && modo === "inmersion" ? T`${Math.round(run.dur / J_MS)} min de corrido, sin descanso`
+      : run.lite ? T`${jHfCfg().hf.travesia.foco} min · ${jHfCfg().hf.travesia.desc} de descanso`
+      : jRitmoTexto(c),
+    botones: [pausa]
+  };
+  return { corto, largo };
+}
+
+/* Entre tramos: el siguiente espera tu toque. */
+function jVistaListo(run) {
+  const c = jDatos().cfg, r = jRef(run.ref), nombre = r ? r.nombre : tx("Sin vincular"), n = run.tramo, total = c.ciclos;
+  const iniciar = jBoton("primario", tx("Iniciar"), "play", "iniciar");
+  return {
+    corto: { r1: T`Tramo ${n} de ${total}`, r2: [jParte(nombre + " · "), jParte(tx("listo"), "marca")], boton: iniciar },
+    largo: { ceja: [tx("Listo para empezar"), "marca"], tit: nombre, sub: tx("Cuando quieras"),
+      rot: tx("Dura"), num: c.preset === "libre" ? tx("Libre") : `${c.foco}:00`, numQuieto: true,
+      puntos: total <= 4 ? [n - 1, n - 1, total] : null, tramo: T`Tramo ${n} de ${total}`, botones: [iniciar] }
+  };
+}
+
+/* Por cerrar: falta decir cómo te fue. Guardar abre la app en la hoja. */
+function jVistaCierre(run) {
+  const c = jDatos().cfg, r = jRef(run.ref), nombre = r ? r.nombre : tx("Sin vincular"), n = run.tramo, total = c.ciclos;
+  return {
+    corto: { r1: run.libre ? tx("Tramo libre listo") : T`Tramo ${n} de ${total} listo`,
+      r2: [jParte(tx("Hecho"), "hecho"), jParte(" · " + tx("¿cómo te fue?"))], boton: jBoton("primario", tx("Guardar"), "", "abrir") },
+    largo: { tit: nombre, sub: tx("¿Cómo te fue? Apúntalo y el avance sube."), rot: tx("Hiciste"), num: T`${run.min || 0} min`,
+      chip: { tipo: "hecho", texto: tx("Tramo listo"), icono: "ok" },
+      puntos: !run.libre && total <= 4 ? [n, -1, total] : null, tramo: run.libre ? null : T`${n} de ${total}`,
+      botones: [jBoton("primario", tx("Guardar el tramo"), "", "abrir")] }
+  };
+}
+
+/* Lo que se dice al ACABAR la fase que corre: el aviso que suena. Se calcula
+   antes de pasar a la siguiente, igual que `jMensajeFin`, del que saca el
+   título y el texto para que los dos digan lo mismo. */
+function jVistaFin(run) {
+  const c = jDatos().cfg, [titulo, texto] = jMensajeFin(run), r = jRef(run.ref);
+  const total = run.lite ? (run.rondas || 1) : c.ciclos, n = run.tramo || 1;
+  const conPuntos = total > 1 && total <= 4;
+  const termina = run.fase === "foco";
+  const respiro = run.lite && run.modo === "respiro";
+  const ceja = run.lite ? jHfNombre(run.modo || "travesia") : termina ? (r ? r.nombre : tx("Pomodoro")) : tx("Descanso");
+  return {
+    corto: { r1: titulo, r2: termina ? [jParte(tx("Hecho"), "hecho"), jParte(" · " + texto)] : [jParte(texto)],
+      num: respiro ? T`${Math.round(run.dur / J_MS)} min` : termina ? T`${Math.round(run.dur / J_MS)} min` : conPuntos ? `${n + 1}/${total}` : null },
+    largo: { ceja: [ceja, "marca"], tit: titulo, sub: texto,
+      rot: respiro ? tx("Duró") : null, num: respiro ? T`${Math.round(run.dur / J_MS)} min` : null,
+      dchip: termina ? { tipo: "hecho", texto: tx("Hecho"), icono: "ok" } : null,
+      puntos: conPuntos && !respiro ? (termina ? [n, -1, total] : [n, n, total]) : null,
+      tramo: conPuntos && !respiro ? (termina ? T`${n} de ${total} hechos` : T`Sigue el tramo ${n + 1} de ${total}`) : null,
+      dato: termina && !run.lite ? T`Descanso de ${c.desc} min` : null }
+  };
 }
 
 function jEstadoAviso(run) {
@@ -2263,15 +2388,18 @@ function jEstadoAviso(run) {
     ? ((run.modo || "travesia") === "travesia" && (run.rondas || 1) > 1 ? T`Ronda ${run.tramo} de ${run.rondas}` : jHfResumen(run.modo || "travesia"))
     : run.libre ? tx("Tramo libre") : T`Tramo ${run.tramo} de ${c.ciclos}`;
   const [ft, fx] = jMensajeFin(run);
+  const descanso = run.fase === "descanso";
   const e = {
     clave: (run.fid || run.seg || "") + "|" + run.fase,
     alFinal: { titulo: tx("Pomodoro") + " · " + ft, texto: fx },
     pausable: run.fase === "foco",
-    icono: jIconoAviso(run.ref, null)
+    icono: descanso ? { dibujo: J_ARENA, color: "var(--jor-brasa)", forma: "disco" } : jIconoAviso(run.ref, null)
   };
-  if (run.fase === "foco" || run.fase === "descanso") {
+  if (run.fase === "foco" || descanso) {
     e.titulo = run.fase === "foco" ? nombre : run.lite && run.modo === "respiro" ? nombre : tx("Descanso");
     e.texto = ronda;
+    e.vistas = { corre: jVistaCorre(run, false), pausa: jVistaCorre(run, true) };
+    e.alFinal.vista = jVistaFin(run);
     const dur = run.dur || 0;
     if (run.seg) {
       if (dur) e.fin = run.seg + dur - (run.acum || 0);
@@ -2286,14 +2414,19 @@ function jEstadoAviso(run) {
     const dur = c.preset === "libre" ? 0 : (run.dur || c.foco * J_MS);
     e.titulo = T`Tramo ${run.tramo} de ${c.ciclos}`;
     e.texto = tx("Listo para empezar");
+    e.vista = jVistaListo(run);
+    const sig = Object.assign({}, run, { fase: "foco", dur: dur || null, libre: !dur });
     e.siguiente = {
       titulo: nombre, texto: T`Tramo ${run.tramo} de ${c.ciclos}`, dur, bloque: run.bloque || "", icono: e.icono,
-      alFinal: { titulo: tx("Pomodoro") + " · " + T`Tramo ${run.tramo} de ${c.ciclos} listo`, texto: T`${Math.round(dur / J_MS)} min de foco. Toca descansar.` }
+      vistas: { corre: jVistaCorre(sig, false), pausa: jVistaCorre(sig, true) },
+      alFinal: { titulo: tx("Pomodoro") + " · " + T`Tramo ${run.tramo} de ${c.ciclos} listo`, texto: T`${Math.round(dur / J_MS)} min de foco. Toca descansar.`,
+        vista: jVistaFin(Object.assign({}, sig, { dur: dur || J_MS })) }
     };
   } else {
     // El cierre: lo que pide la hoja de «¿cómo te fue?», que vive en la app.
     e.titulo = run.libre ? tx("Tramo libre") : T`Tramo ${run.tramo} de ${c.ciclos} listo`;
     e.texto = tx("Toca para cerrarlo y apuntar tu avance");
+    e.vista = jVistaCierre(run);
   }
   return e;
 }
@@ -2306,23 +2439,38 @@ function jEntradasAgenda() {
   const dur = c.preset === "libre" ? 0 : c.foco * J_MS;
   j.rutinas.forEach((bs, d) => bs.forEach(b => {
     if (!b.descanso && c.alarmas !== false) {
-      const nombre = jNombreBloque(b), icono = jIconoAviso(b.ref, b);
+      const nombre = jNombreBloque(b), icono = jIconoAviso(b.ref, b), hora = jH12(b.ini);
+      /* El tramo que arrancaría desde la alarma, para escribir sus dos caras. */
+      const run = { fase: "foco", tramo: 1, dur: dur || null, libre: !dur, ref: b.ref || null, acum: 0, pausas: 0 };
+      const iniciar = jBoton("primario", tx("Iniciar"), "play", "iniciar");
       out.push({
         id: "i" + b.id, dia: d, min: Math.round(b.ini) % J_DIA,
         titulo: T`Empieza ${nombre}`, texto: jRango(b), icono, visible: true,
+        vista: {
+          corto: { r1: nombre, r2: [jParte(hora, "marca"), jParte(" · " + tx("empieza ahora"))], boton: iniciar },
+          largo: { ceja: [T`Tu día · ${jRango(b)}`, "marca"], tit: nombre,
+            sub: dur ? T`${c.ciclos} tramos de ${c.foco} min` : tx("Tramo libre"), rot: tx("Empieza"), num: hora,
+            botones: [iniciar, jBoton("neutro", tx("En 5 min"), "", "posponer")] }
+        },
         iniciar: {
           // Sin icono propio: lo nativo le pone el de la entrada (pesa ~6 KB).
           titulo: nombre, texto: c.preset === "libre" ? tx("Tramo libre") : T`Tramo ${1} de ${c.ciclos}`, dur, bloque: b.id,
-          alFinal: { titulo: tx("Pomodoro") + " · " + T`Tramo ${1} de ${c.ciclos} listo`, texto: T`${c.foco} min de foco. Toca descansar.` }
+          vistas: { corre: jVistaCorre(run, false), pausa: jVistaCorre(run, true) },
+          alFinal: { titulo: tx("Pomodoro") + " · " + T`Tramo ${1} de ${c.ciclos} listo`, texto: T`${c.foco} min de foco. Toca descansar.`,
+            vista: jVistaFin(Object.assign({}, run, { dur: dur || J_MS })) }
         }
       });
     } else if (b.descanso === "dormir" && c.notificar !== false) {
       let m = Math.round(b.ini) - 30, dd = d;
       if (m < 0) { m += J_DIA; dd = (d + 6) % 7; }
+      const titulo = T`En ${30} min toca dormir`, texto = T`Tu bloque de dormir empieza a las ${jH12(b.ini)}.`;
       out.push({
-        id: "s" + b.id, dia: dd, min: m, visible: false, posponible: false,
-        titulo: T`En ${30} min toca dormir`, texto: T`Tu bloque de dormir empieza a las ${jH12(b.ini)}.`,
-        icono: { dibujo: J_LUNA, color: "var(--jor-sueno)" }
+        id: "s" + b.id, dia: dd, min: m, visible: false, posponible: false, titulo, texto,
+        icono: { dibujo: J_LUNA, color: "var(--jor-sueno)", forma: "disco" },
+        vista: {
+          corto: { r1: titulo, r2: [jParte(T`Tu bloque empieza a las ${jH12(b.ini)}`)], num: T`${30} min` },
+          largo: { ceja: [tx("Dormir"), "marca"], tit: titulo, sub: texto, rot: tx("Falta"), num: T`${30} min` }
+        }
       });
     }
   }));

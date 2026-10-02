@@ -684,16 +684,16 @@
       "estado": "borrador",
       "clase": "expansion",
       "titulo": "El Pomodoro te avisa aunque la app esté cerrada",
-      "resumen": "En la app de Android, el Pomodoro vive también en la cortina de avisos, y cada actividad de tu día te llama a su hora.",
+      "resumen": "En la app de Android, el Pomodoro vive también en la cortina de avisos, con los tonos de tu mundo, y cada actividad de tu día te llama a su hora.",
       "puntos": [
-        "La cuenta atrás de tu tramo, en la cortina, con un botón para pausarla.",
+        "La cuenta de tu tramo, en la cortina, con un botón para pausarla.",
         "Al acabar cada fase suena aunque hayas cerrado la app.",
         "Cada actividad de tu rueda suena al empezar, y la inicias desde el aviso."
       ],
       "retoques": [],
       "en": {
         "titulo": "The Pomodoro reaches you even with the app closed",
-        "resumen": "In the Android app, the Pomodoro also lives in your notification shade, and each activity of your day calls you on time.",
+        "resumen": "In the Android app, the Pomodoro also lives in your notification shade, in your world's colors, and each activity of your day calls you on time.",
         "puntos": [
           "Your session's countdown in the shade, with a button to pause it.",
           "When each phase ends, it rings even if you closed the app.",

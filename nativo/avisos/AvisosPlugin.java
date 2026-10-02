@@ -95,6 +95,9 @@ public class AvisosPlugin extends Plugin {
         if (color != null) {
             try { ed.putInt("color", Color.parseColor(color)); } catch (IllegalArgumentException e) { /* el de siempre */ }
         }
+        // Los tonos de los moldes (0.7.161): ya resueltos por la página.
+        JSObject col = call.getObject("colores");
+        if (col != null) ed.putString("colores", col.toString());
         String zona = call.getString("zona");
         if (zona != null && !zona.isEmpty()) ed.putString("zona", zona);
         ed.commit();
@@ -157,7 +160,8 @@ public class AvisosPlugin extends Plugin {
             call.resolve(r);
             return;
         }
-        Avisos.avisar(c, call.getString("titulo", ""), call.getString("texto", ""), call.getString("icono"), call.getString("ir", "jornada"));
+        Avisos.avisar(c, call.getString("titulo", ""), call.getString("texto", ""), call.getString("icono"),
+                call.getString("ir", "jornada"), call.getObject("vista"));
         r.put("mostrado", true);
         call.resolve(r);
     }

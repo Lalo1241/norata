@@ -51,6 +51,7 @@
         enPausa: t("En pausa"),
       },
       color: colorDeMarca(),
+      colores: coloresDeAviso(),
       zona: typeof userTZ === "function" ? userTZ() : "",
     })).catch(() => null);
   }
@@ -95,14 +96,46 @@
     return (h <= 20 || h >= 340) && sat >= 0.45;
   }
 
-  /* Las esquinas del icono grande, las del mundo: `--r-factor` es el mismo
-     interruptor que endereza las tarjetas de Blueprint, Catedral, Averno y
-     Cyberpunk (0 es cuadrado, 1 es el redondeo de la casa). */
-  function factorEsquinas() {
-    try {
-      const v = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--r-factor"));
-      return isFinite(v) ? Math.max(0, Math.min(1, v)) : 1;
-    } catch (e) { return 1; }
+  /* ---- Los tonos de los moldes (0.7.161) ----
+     El APK no lee el CSS: se le manda cada tono ya resuelto, en el mundo y el
+     modo de la app. Aquí se aplican las reglas que aprobó Eduardo sobre la
+     lámina, y el APK no decide ninguna:
+       - el BORDE lleva el acento del mundo, también el rojo de Catedral y Averno;
+       - los RÓTULOS llevan el acento, salvo uno rojo: ahí, la menta (un texto
+         rojo se lee como algo malo aunque diga «En foco»);
+       - los BOTONES hablan como Norata en todos los mundos: menta, y Pausa en el
+         amarillo de «en curso»;
+       - los ESTADOS son los de Norata, verde y amarillo.
+     Los velos van mezclados con el fondo y opacos, porque un aviso no sabe de
+     transparencias sobre su propio fondo. */
+  function mezcla(a, b, t) {
+    const x = [1, 3, 5].map((i) => parseInt(a.slice(i, i + 2), 16)), y = [1, 3, 5].map((i) => parseInt(b.slice(i, i + 2), 16));
+    return "#" + x.map((v, i) => Math.round(v * t + y[i] * (1 - t)).toString(16).padStart(2, "0")).join("");
+  }
+  function coloresDeAviso() {
+    const claro = document.documentElement.classList.contains("claro");
+    const v = (n, porDefecto) => aHex(colorDe("var(" + n + ")")) || porDefecto;
+    const fondo = v("--card", claro ? "#f2f0f9" : "#1d2530");
+    const acento = v("--mint", claro ? "#007046" : "#5fe0b0");
+    const menta = claro ? "#007046" : "#5fe0b0", mentaMaciza = claro ? "#00cc7f" : "#5fe0b0";
+    const amarillo = claro ? "#f5c314" : "#f5d76e", amarilloTinta = claro ? "#755c05" : "#f5d76e";
+    const hecho = v("--estado-hecho", "#5fe0b0"), curso = v("--estado-curso", "#f5d76e");
+    const rojo = esRojo(v("--mint-macizo", acento));
+    const velo = mezcla(mentaMaciza, fondo, claro ? 0.16 : 0.14);
+    const veloPausa = mezcla(amarillo, fondo, claro ? 0.2 : 0.15);
+    return {
+      borde: acento, fondo, texto: v("--text", "#eaf1ef"), suave: v("--muted", "#9aa7b3"), carril: v("--carril", "#2a3441"),
+      marca: rojo ? menta : acento,
+      hecho, hechoTinta: v("--estado-hecho-tinta", hecho), hechoVelo: mezcla(hecho, fondo, 0.16),
+      curso, cursoTinta: v("--estado-curso-tinta", curso), cursoVelo: mezcla(curso, fondo, 0.16),
+      botones: {
+        primario: { borde: mentaMaciza, fondo: mentaMaciza, tinta: "#10151d" },
+        suave: { borde: velo, fondo: velo, tinta: menta },
+        pausa: { borde: veloPausa, fondo: veloPausa, tinta: amarilloTinta },
+        linea: { borde: menta, fondo, tinta: menta },
+        neutro: { borde: v("--line", "#2a3441"), fondo, tinta: v("--text", "#eaf1ef") }
+      }
+    };
   }
 
   /* ---- El icono de un aviso ----
@@ -125,13 +158,15 @@
   function iconoPNG(ic) {
     if (!ic || !ic.dibujo) return Promise.resolve("");
     const fondo = colorDe(ic.color);
-    const rx = +(6 * factorEsquinas()).toFixed(2);
-    const k = fondo + "|" + rx + "|" + ic.dibujo;
+    /* Un solo redondeo para todos los mundos (0.7.161, como el marco), o un
+       disco para los descansos, que en la rueda también son redondos. */
+    const disco = ic.forma === "disco";
+    const k = fondo + "|" + (disco ? "o" : "r") + "|" + ic.dibujo;
     if (hechos.has(k)) return hechos.get(k);
     const p = new Promise((listo) => {
       const n = 144;
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${n}" height="${n}" viewBox="0 0 24 24">` +
-        `<rect width="24" height="24" rx="${rx}" fill="${fondo}"/>` +
+        (disco ? `<circle cx="12" cy="12" r="12" fill="${fondo}"/>` : `<rect width="24" height="24" rx="6" fill="${fondo}"/>`) +
         `<g transform="translate(5 5) scale(0.5833)" fill="none" stroke="#10151d" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" color="#10151d">${ic.dibujo}</g></svg>`;
       const img = new Image();
       img.onload = () => {
@@ -204,7 +239,8 @@
     pedirExactas: () => Promise.resolve(av.pedirExactas()).catch(() => null),
     reloj: (estado) => enFila(async () => av.reloj({ estado: estado ? await conIconos(estado) : null })),
     agenda: (entradas) => enFila(async () => av.agenda({ entradas: await conIconos(entradas || []) })),
-    avisar: (titulo, texto, clave) => enFila(() => av.avisar({ titulo, texto, clave: clave || "" })),
+    avisar: (titulo, texto, clave, vista, icono) => enFila(async () => av.avisar({ titulo, texto, clave: clave || "",
+      vista: vista || null, icono: icono ? await iconoPNG(icono) : "" })),
   };
 
   try { Promise.resolve(av.addListener("acciones", () => repasar())).catch(() => {}); } catch (e) { /* sin oyente: se repasa al volver */ }
