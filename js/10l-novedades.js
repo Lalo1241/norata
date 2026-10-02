@@ -100,12 +100,31 @@ function cargarNovedades() {
   return cargarDocNovedades().then((d) => (Array.isArray(d.entradas) ? d.entradas : []));
 }
 
-/* Las que puede ver quien usa la app: publicadas, y no de una versión que
-   este dispositivo todavía no tiene. Con la prueba encendida, también los
-   borradores. De la más nueva a la más vieja. */
+/* ---- Qué se anuncia: lo destacado, igual que en el sitio (0.7.180) ----
+   Eduardo, con la lista de Ajustes delante: «tiene demasiadas notas
+   innecesarias, aplica las mismas reglas que usas para presentar las del
+   changelog». La regla es la de `va_al_sitio` en
+   herramientas/novedades-framer.py, y tiene que decir lo mismo que ella: si
+   no, la app y el sitio anunciarían cosas distintas. Una expansión y una
+   nueva etapa se anuncian siempre; una mejora o un arreglo, solo si su ficha
+   lleva `"sitio": true`; y `"sitio": false` calla una expansión. Lo que no
+   se anuncia sigue en la app, claro: solo no se le escribe una nota. Al
+   cambiar de versión sin nada que anunciar sale el aviso chico con el
+   número, como siempre. */
+function novedadDestacada(e) {
+  if (e && e.sitio != null) return !!e.sitio;
+  const c = novedadClase(e);
+  return c === "expansion" || c === "hito";
+}
+
+/* Las que puede ver quien usa la app: publicadas, destacadas, y no de una
+   versión que este dispositivo todavía no tiene. Con la prueba encendida,
+   todas: también lo que no se anuncia y lo que falta aprobar, que es lo que
+   se revisa ahí. De la más nueva a la más vieja. */
 function novedadesVisibles(entradas, conBorradores) {
   return entradas
     .filter((e) => e && e.version && (e.estado === "publicado" || (conBorradores && (e.estado === "borrador" || e.estado === "aprobado"))))
+    .filter((e) => conBorradores || novedadDestacada(e))
     .filter((e) => conBorradores || !versionMasNueva(e.version, VERSION))
     .sort((a, b) => (versionMasNueva(a.version, b.version) ? -1 : 1));
 }
@@ -272,6 +291,40 @@ function novedadGraficoHTML(g) {
   return (Array.isArray(g) ? g : [g]).map(novedadBloqueHTML).join("");
 }
 
+/* ---- El cuerpo con sus imágenes, como en el sitio (0.7.180) ----
+   Las mismas reglas que la tarjeta del changelog (`cuerpo()` en
+   herramientas/novedades-framer.py): cada imagen y cada bloque de gráfico
+   acompañan a un punto (`tras`: 1 es el primero; sin él, el último; 0, antes
+   de todos), van ARRIBA y el punto debajo, de pie. La `imagen` no se repite
+   aquí: ya sale arriba de la ficha. */
+function novedadCuerpoHTML(e, puntos) {
+  const medios = {};
+  const poner = (donde, html) => {
+    let n = Number(donde);
+    if (donde == null || !Number.isFinite(n)) n = puntos.length;
+    n = Math.max(0, Math.min(puntos.length, Math.round(n)));
+    (medios[n] = medios[n] || { figs: [], grafs: [] });
+    return medios[n];
+  };
+  (Array.isArray(e.imagenes) ? e.imagenes : []).forEach((i) => {
+    if (i && i.src) poner(i.tras).figs.push(`<figure class="nov-fig"><img src="${escapeAttr(i.src)}" alt="${escapeAttr(novedadCampo(i, "alt") || "")}" loading="lazy" onerror="this.parentNode.remove()"></figure>`);
+  });
+  (Array.isArray(e.grafico) ? e.grafico : e.grafico ? [e.grafico] : []).forEach((b) => {
+    const html = novedadBloqueHTML(b);
+    if (html) poner(b.tras).grafs.push(html);
+  });
+  const tramo = (m, pie) => `<div class="nov-tramo">${m.figs.length ? `<div class="nov-medios">${m.figs.join("")}</div>` : ""}${m.grafs.join("")}${pie}</div>`;
+  let html = medios[0] ? tramo(medios[0], "") : "", lista = [];
+  const cerrar = () => { if (lista.length) { html += `<ul class="nov-puntos">${lista.join("")}</ul>`; lista = []; } };
+  puntos.forEach((p, i) => {
+    const li = `<li>${escapeHtml(p)}</li>`;
+    if (medios[i + 1]) { cerrar(); html += tramo(medios[i + 1], `<ul class="nov-puntos nov-pie">${li}</ul>`); }
+    else lista.push(li);
+  });
+  cerrar();
+  return html;
+}
+
 /* `medios`: la imagen y el gráfico. Van en la ventana de una expansión y en
    Ajustes; no en la ventana de una mejora, que se lee de pie y en corto. La
    imagen, si no llega (sin red, o el APK sin ella), se quita sola y no deja un
@@ -294,8 +347,7 @@ function novedadHTML(e, medios) {
       </div>
       <h4 class="nov-tit">${escapeHtml(novedadCampo(e, "titulo") || "")}</h4>
       ${novedadCampo(e, "resumen") ? `<p class="nov-res">${escapeHtml(novedadCampo(e, "resumen"))}</p>` : ""}
-      ${puntos.length ? `<ul class="nov-puntos">${puntos.map((p) => `<li>${escapeHtml(p)}</li>`).join("")}</ul>` : ""}
-      ${medios ? novedadGraficoHTML(e.grafico) : ""}
+      ${medios ? novedadCuerpoHTML(e, puntos) : (puntos.length ? `<ul class="nov-puntos">${puntos.map((p) => `<li>${escapeHtml(p)}</li>`).join("")}</ul>` : "")}
       ${retoques.length ? `
         <details class="nov-ret">
           <summary>${escapeHtml(retoques.length === 1 ? tx("Y un retoque") : T`Y ${retoques.length} retoques`)}</summary>

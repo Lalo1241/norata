@@ -281,6 +281,10 @@ raya. Tres consecuencias:
 
 - **`framer.csv` solo lleva lo publicado**, así que aprobar una entrada sigue
   siendo lo único que la saca: en la app y en el sitio.
+- **La app anuncia lo mismo** (0.7.180): la lista de Ajustes → Novedades y la
+  ventana que sale al abrir siguen esta misma regla (`novedadDestacada`, que
+  tiene que decir lo mismo que `va_al_sitio`), y enseñan las imágenes y los
+  gráficos con su punto de pie, como la tarjeta del sitio.
 - **Y solo lo destacado** (Eduardo, 2 oct 2026): Framer admite 1000 filas por
   colección y la app llevaba más de cien versiones en seis semanas. Al sitio
   van las **expansiones y las nuevas etapas**; una mejora o un arreglo se

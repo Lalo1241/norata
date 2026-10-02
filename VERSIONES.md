@@ -315,6 +315,29 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.180 · 2 oct 2026
+
+**Novedades anuncia lo mismo que el changelog del sitio, y lo enseña igual.**
+Eduardo: «depura Novedades, tiene demasiadas notas innecesarias, aplica las
+mismas reglas que usas para presentar las del changelog».
+
+- **Qué se anuncia.** Solo lo destacado: expansiones y nuevas etapas, o lo
+  que lleve `"sitio": true` (`novedadDestacada`, js/10l-novedades.js, que dice
+  lo mismo que `va_al_sitio` del exportador). Vale para la lista de Ajustes y
+  para la ventana que sale al abrir. Medido: de 10 publicadas quedan 2, las
+  mismas dos que tiene el sitio. Las mejoras y los arreglos siguen en la app;
+  solo no llevan nota, y al cambiar de versión sale el aviso chico con el
+  número.
+- **Cómo se enseña.** Las imágenes de acompañamiento y cada bloque de gráfico
+  van con su punto (`tras`), arriba, y el punto debajo de pie, como en la
+  tarjeta del sitio (`novedadCuerpoHTML`). La imagen de arriba no se repite.
+  Antes la app no enseñaba las `imagenes` y ponía el gráfico entero al final.
+
+Con `?novedades=borrador` se ven todas, también las que no se anuncian. En el
+Puesto de mando, cada ficha dice si se anunciará al aprobarla.
+
+No lleva novedad: una mejora, por esta misma regla, no se anuncia.
+
 ### 0.7.179 · 2 oct 2026
 
 **Lo que está por aprobar ya no sale en Ajustes → Novedades, y la etiqueta

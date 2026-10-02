@@ -732,11 +732,11 @@ function dnFichaNovedad(e) {
   const imgs = [e.banner, e.imagen].concat(e.imagenes || []).filter(i => i && i.src);
   imgs.forEach((i, n) => filas.push(par("Imagen " + (n + 1), i.alt, i.en && i.en.alt)));
   const clase = typeof novedadClase === "function" ? novedadClase(e) : (e.clase || "mejora");
-  const alSitio = e.sitio != null ? !!e.sitio : (clase === "expansion" || clase === "hito");
+  const alSitio = typeof novedadDestacada === "function" ? novedadDestacada(e) : (e.sitio != null ? !!e.sitio : (clase === "expansion" || clase === "hito"));
   return `<div class="dn-nf">
       ${imgs.length ? `<div class="dn-nf-imgs">${imgs.map(i => `<a href="${escapeAttr(i.src)}" target="_blank" rel="noopener"><img src="${escapeAttr(i.src)}" alt="${escapeAttr(i.alt || "")}" loading="lazy"></a>`).join("")}</div>` : ""}
       <div class="dn-nf-tabla"><span></span><span class="dn-nf-cab">Español</span><span class="dn-nf-cab">English</span>${filas.join("")}</div>
-      <p class="dn-nota">${alSitio ? "Al aprobarla sale en la app y en el changelog del sitio." : "Al aprobarla sale en la app. Al sitio no va: solo llegan expansiones y nuevas etapas."}${bloques.length ? " El gráfico se ve dibujado en su ventana." : ""}</p>
+      <p class="dn-nota">${alSitio ? "Al aprobarla se anuncia en la app y en el changelog del sitio." : "No se anuncia aunque la apruebes: solo se anuncian las expansiones y las nuevas etapas, o lo que lleve «sitio: true» en su ficha."}${bloques.length ? " El gráfico se ve dibujado en su ventana." : ""}</p>
     </div>`;
 }
 
