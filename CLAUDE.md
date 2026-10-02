@@ -1001,9 +1001,20 @@ cambiar el aspecto:** pasa por `cambiarTapado` y llama a `apuntarAspecto`.
 estilos al irse la carga contra otra 2,5 s después, que tiene que dar cero
 diferencias.
 
-**Lo que sigue fuera:** la pantalla de arranque nativa del APK es un color
-fijo del sistema (cambiarla pide tocar lo nativo), y la marca de la puerta se
-queda en menta por la regla de marca.
+**Cambiar de cuenta (0.7.174) es el único sitio donde se ven DOS temas en la
+misma carga, y es a propósito:** el color se funde del tema de la cuenta que
+se deja al de la que entra mientras el aro corre (`cargaCuenta`,
+`js/10c-portada.js`). Para eso el tema de cada cuenta guardada se sabe antes
+de entrar —va apuntado junto a su permiso (`cuentaApuntar`) y, la primera vez,
+se pregunta al servidor (`sbAspectosDe`)—, y la página que entra abre ya con
+él. **Si no se pudo saber, no se adivina**: se deja lo puesto y decide
+`conciliarAspecto`. Al tocar `apuntarAspecto` o `cuentaApuntar`, las dos
+tienen que seguir escribiendo ese apunte, o el siguiente cambio de cuenta
+vuelve a costar dos recargas.
+
+**Lo que sigue fuera:** la marca de la puerta se queda en menta por la regla
+de marca, y la pantalla de arranque del APK solo sigue al tema desde Android
+13 (ver «La app de Android»).
 
 ## El material
 

@@ -249,6 +249,16 @@
       try { fondo = localStorage.getItem("norata-fondo") || ""; } catch (e) {}
       var guardado = /^(#[0-9a-f]{3,8}|rgba?\([\d\s.,%\/]+\))$/i.test(fondo);
       if (!guardado) fondo = raiz.classList.contains("claro") ? "#dcdef0" : "#10151d";
+      /* Viniendo de un cambio de cuenta (0.7.174), el color liso es el de la
+         carga de la que se viene, no el del tema que entra: la carga de aquí
+         nace con ese tono y se funde al nuevo mientras el aro corre. Con el
+         del tema nuevo habría un cuadro de su color ANTES del fundido. */
+      var deCuenta = false;
+      try {
+        var ct = JSON.parse(sessionStorage.getItem("norata-cuenta") || "null");
+        var cf = ct && ct.tonos && String(ct.tonos.fondo || "");
+        if (cf && /^(#[0-9a-f]{3,8}|(rgba?|color)\([\w\s.,%\/-]+\))$/i.test(cf)) { fondo = cf; guardado = true; deCuenta = true; }
+      } catch (e) {}
       if (guardado) {
         var mb = document.querySelector('meta[name="theme-color"]');
         if (mb) mb.setAttribute("content", fondo);
@@ -273,9 +283,13 @@
              cuenta que acaba de traer su tema a un dispositivo nuevo—. */
           var real = cs.getPropertyValue("--bg").trim();
           if (/^#[0-9a-f]{3,8}$/i.test(real) && real !== fondo) {
-            velo.textContent = "html{background:" + real + " !important}body{visibility:hidden !important}";
-            var mr = document.querySelector('meta[name="theme-color"]');
-            if (mr) mr.setAttribute("content", real);
+            /* Con un cambio de cuenta el liso se queda en el tono de antes
+               (ver arriba); el de verdad solo se apunta para la próxima. */
+            if (!deCuenta) {
+              velo.textContent = "html{background:" + real + " !important}body{visibility:hidden !important}";
+              var mr = document.querySelector('meta[name="theme-color"]');
+              if (mr) mr.setAttribute("content", real);
+            }
             try { if (!sessionStorage.getItem("norata-apariencia-prueba")) localStorage.setItem("norata-fondo", real); } catch (e) {}
           }
           ["--tipo-titulo", "--tipo-cifra", "--sans"].forEach(function (v) {
@@ -349,6 +363,20 @@
       window.__estrenoDe = sessionStorage.getItem("norata-estreno-de") || "";
       sessionStorage.removeItem("norata-estreno-de");
       document.documentElement.classList.add("carga-estreno");
+    }
+    /* Y venir de OTRA CUENTA tiene su propia carga (0.7.174): la deja
+       apuntada `entrarConCuentaGuardada` con de quién a quién y con qué tonos
+       estaba pintada la carga de la que se viene. */
+    var cta = sessionStorage.getItem("norata-cuenta");
+    if (cta) {
+      sessionStorage.removeItem("norata-cuenta");
+      try { window.__cuenta = JSON.parse(cta); } catch (e) { window.__cuenta = null; }
+      if (window.__cuenta && window.__cuenta.a) {
+        window.__carga = "cuenta";
+        document.documentElement.classList.remove("carga-estreno");
+        document.documentElement.classList.add("carga-cuenta");
+        if (window.__cuenta.sinHalo) document.documentElement.classList.add("carga-sin-halo");
+      }
     }
     sessionStorage.setItem("norata-abierta", "1");
   } catch (e) { window.__carga = "entrada"; }
@@ -529,6 +557,53 @@
      sin número. Sin `tx()`: aquí todavía no ha cargado nada. */
   (function () {
     try {
+      /* La carga del CAMBIO DE CUENTA (0.7.174): nace pintada con los tonos de
+         la carga de la que se viene (el CSS los funde a los del tema nuevo) y
+         con la ruleta de cuentas: la que se deja y, debajo, la que entra. Los
+         nombres van como TEXTO y los colores se comprueban: llegan de
+         sessionStorage, y lo que se mete en un `style` se mira antes. */
+      if (window.__carga === "cuenta") {
+        var c = window.__cuenta || {}, en2 = localStorage.getItem("norata-idioma") === "en";
+        var el = document.getElementById("carga"), caja2 = document.getElementById("carga-version");
+        var color = /^(#[0-9a-f]{3,8}|(rgba?|color)\([\w\s.,%\/-]+\))$/i;
+        var tn = c.tonos || {};
+        ["fondo", "logo", "suave", "apagado", "tinta", "acento"].forEach(function (k) {
+          if (color.test(String(tn[k] || ""))) el.style.setProperty("--cg-de-" + k, tn[k]);
+        });
+        document.getElementById("carga-msg").textContent = en2 ? "Switching accounts…" : "Cambiando de cuenta…";
+        caja2.firstElementChild.textContent = en2 ? "Account" : "Cuenta";
+        var ficha = function (fila, d) {
+          var av = document.createElement("u");
+          av.className = "cv-av";
+          av.textContent = String(d.i || "·").slice(0, 2);
+          if (/^#[0-9a-f]{6}$/i.test(String(d.c || ""))) av.style.background = d.c;
+          var nom = document.createElement("span");
+          nom.className = "cv-nom";
+          nom.textContent = String(d.n || "").slice(0, 40);
+          fila.textContent = "";
+          fila.appendChild(av); fila.appendChild(nom);
+        };
+        var nueva2 = caja2.querySelector(".cv-fila.nueva");
+        ficha(nueva2, c.a || {});
+        if (c.de && c.de.n) {
+          var vieja2 = document.createElement("b");
+          vieja2.className = "cv-fila vieja";
+          ficha(vieja2, c.de);
+          nueva2.parentNode.insertBefore(vieja2, nueva2);
+          caja2.classList.add("con-tic");
+        }
+        var frase = caja2.lastElementChild, saludo = en2 ? "Good to see you again" : "Hola de nuevo";
+        frase.textContent = saludo;
+        frase.setAttribute("data-saludo", saludo);
+        /* Si el aro ya se cerró y el progreso todavía no baja, se dice. Lo
+           quita `cargaCuenta` (js/10c-portada.js) al dar el tic. */
+        setTimeout(function () {
+          if (window.__cuentaLista || !document.documentElement.classList.contains("carga-cuenta")) return;
+          frase.textContent = en2 ? "Fetching your progress…" : "Trayendo tu progreso…";
+          frase.classList.add("espera");
+        }, 2900);
+        return;
+      }
       if (window.__carga !== "estreno") return;
       var m = document.getElementById("carga-msg"), v = String(window.__estreno || "");
       var en = localStorage.getItem("norata-idioma") === "en";

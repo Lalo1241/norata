@@ -324,6 +324,56 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.174 · 2 oct 2026
+
+**Cambiar de cuenta tiene su propia carga, y entra ya en el tema de la otra.**
+Eduardo, sobre el boceto: «crea una animación así de Actualizar con lo
+aprendido, pero para los cambios de sesión de cuenta… debe precargar el
+tema/mundo de esa cuenta… el cambio de color se debe presentar mientras se
+carga la animación de rueda». La aprobó («está perfecta») y pidió que funcione
+fluida y sin errores, purgando lo que estorbe.
+
+**Lo que se ve.** El logo llega como en Actualizar, en el tema de la cuenta que
+se deja. El aro se llena en 2,6 s y, mientras corre (del 15 al 70 %), el color
+entero se funde al tema de la otra. Al 50 % sale la cuenta de la que se viene
+—su círculo y su nombre, apagados—; cuando el progreso ya bajó da el tic y
+entra la nueva, con «Hola de nuevo». Un segundo y telón.
+
+**Lo que hubo que cambiar por dentro, que es la mitad del trabajo:**
+
+- **El tema de cada cuenta se sabe ANTES de entrar a ella.** Hasta hoy solo se
+  sabía al bajar su progreso, al otro lado de la recarga, y si no coincidía con
+  lo puesto había una SEGUNDA recarga («Poniendo tu tema…»). Ahora va apuntado
+  al lado de su permiso (`aspecto`, en `norata-cuentas-v1`; lo escribe
+  `cuentaApuntar`, y `apuntarAspecto` lo mantiene al día). La primera vez, que
+  no hay nada apuntado, se pregunta al servidor solo ese trozo
+  (`sbAspectosDe`, con tope de 2,5 s). Y si no se pudo saber, **no se
+  inventa**: se deja lo que hay y decide `conciliarAspecto`, como siempre —
+  adivinar «la casa» y marcarla como suya le pisaría el tema a una cuenta que
+  sí lo tenía.
+- **Una sola carga en vez de tres.** Antes: «Guardando lo último…», «Entrando,
+  X…», recarga, «Trayendo tu progreso…», quizá «Poniendo tu tema…» y otra
+  recarga, zoom y un aviso de «Hola de nuevo». Ahora es una pieza de principio
+  a fin, con una recarga, y el aviso de después ya no sale: el letrero saluda.
+- **El progreso baja MIENTRAS el aro corre**, no antes ni después. Si tarda más
+  que el aro, la carga lo dice («Trayendo tu progreso…») y el tic espera.
+- **El fundido son seis tonos propios de la carga** (`--cg-*`, registrados con
+  `@property`), no `--bg` ni `--mint`: registrar los de toda la app para pintar
+  una carga era tocar doscientas reglas. La página que entra nace pintada con
+  los tonos de la carga de la que se viene (`cargaTonos`, que viajan en
+  `norata-cuenta`) y se funde a los suyos. El color liso de antes del primer
+  cuadro también es el de la carga anterior, o habría un cuadro del tema nuevo
+  antes del fundido.
+- Vale igual desde la puerta: lo de leer y escribir el aspecto vive en
+  `js/10a-perfil.js`, que se carga en las dos páginas.
+
+**Cómo se probó.** Con una cuenta simulada en local (el permiso y el servidor
+imitados): la página nueva abrió en el tema de la otra cuenta, con la marca
+del dueño puesta, sin segunda recarga y sin un error. El fundido, cuadro a
+cuadro: de `rgb(16,21,29)` a `rgb(220,222,240)` pasando por un tono
+intermedio, y el logo igual. **Sin probar:** con dos cuentas de verdad, la
+consulta al servidor (`sbAspectosDe`) y el camino desde la puerta.
+
 ### 0.7.173 · 2 oct 2026
 
 **La barrera de subidas existe de verdad, y la sala de Subidas ya manda.** La

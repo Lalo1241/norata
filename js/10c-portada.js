@@ -198,7 +198,9 @@ function cargaSoltarZoom(el) {
   cargaTelonPintar = null;
   /* El dibujo del estreno es de UNA carga: la siguiente que se muestre
      («Cambiando tema…», «Guardando lo último…») vuelve al aro que gira. */
-  document.documentElement.classList.remove("carga-estreno");
+  document.documentElement.classList.remove("carga-estreno", "carga-cuenta", "carga-sin-halo");
+  const letrero = document.getElementById("carga-version");
+  if (letrero) letrero.classList.remove("tic");
 }
 
 /* Un rectángulo redondeado como trozo de trazado, para recortarlo del telón. */
@@ -266,6 +268,10 @@ function cargaEntrar(modo) {
       caja.classList.remove("con-tic");
     }
   }
+  /* El cambio de cuenta tiene su dibujo (0.7.174). Si algo lo quitó por el
+     camino —una carga de «Poniendo tu tema…» que tuvo que salir—, ya no hay
+     letrero que rematar: se entra con el zoom, como cualquier entrada. */
+  if (cual === "cuenta" && !document.documentElement.classList.contains("carga-cuenta")) cual = "entrada";
   if (!el || el.classList.contains("oculta")) return Promise.resolve();
   const mio = ++cargaTurno;
   const tras = (ms, hacer) => new Promise(listo => setTimeout(() => {
@@ -283,6 +289,7 @@ function cargaEntrar(modo) {
      la versión acaba a los 2 s, y después el letrero se queda un segundo a la
      vista (con segundo y medio «se alarga mucho», Eduardo, 0.7.172.1): se les deja terminar aunque la app haya arrancado antes. */
   if (cual === "estreno") return tras(Math.max(0, CARGA_ARO - performance.now()), () => cargaEstreno(el, mio));
+  if (cual === "cuenta") return tras(0, () => cargaCuenta(el, mio));
   /* Contado desde que se abrió la página y no desde aquí: el arranque ya tardó
      lo que tardó, y sumarle tres segundos enteros encima sería castigar a
      quien tiene la red lenta. Al entrar a una cuenta ya pasó de sobra. */
@@ -362,6 +369,92 @@ function cargaEstreno(el, mio) {
     cargaSoltarZoom(el);
   }, CARGA_TELON + 30);
   return CARGA_TELON + 30;
+}
+
+/* ================= CAMBIAR DE CUENTA (0.7.174) =================
+   La pieza de «Actualizar», con lo aprendido, para pasar de una cuenta a
+   otra. Eduardo la aprobó en el boceto y pidió tres cosas que la distinguen:
+   que el tema de la otra cuenta esté PRECARGADO, que el color cambie MIENTRAS
+   el aro se llena, y que se tome el tiempo que haga falta.
+
+   Cruza una recarga, igual que el estreno, y se reparte así:
+
+   ANTES de recargar (`entrarConCuentaGuardada`): el logo llega con el zoom al
+   revés (`cargaLlegar`), en el tema de la cuenta que se deja. Mientras llega
+   se sube lo pendiente, se renueva el permiso de la otra y se averigua su
+   tema (`aspectoDeCuentaGuardada`). Se apuntan los tonos de ESTA carga
+   (`cargaTonos`), se dejan puestas las llaves del tema de la otra y se
+   recarga.
+
+   DESPUÉS de recargar (CSS desde el primer cuadro, `html.carga-cuenta`): la
+   página ya abre con el tema de la cuenta nueva, pero la carga nace pintada
+   con los tonos de la ANTERIOR y se funde a los suyos mientras el aro se
+   llena (2,6 s; el fundido va del 15 al 70 %). Al 50 % sale la cuenta de la
+   que se viene. Mientras tanto `adoptarSesion` baja el progreso, por detrás.
+   Cuando todo está —y no antes de que el aro vaya a cerrarse— `cargaCuenta`
+   da el tic, entra la cuenta nueva con «Hola de nuevo», un segundo, y telón.
+
+   Si el progreso tarda más que el aro, la carga espera diciéndolo («Trayendo
+   tu progreso…», lo pone el marcado a los 2,9 s) y el tic llega cuando de
+   verdad está todo: no se entra a una cuenta a medias. */
+const CUENTA_TIC = 2140;      // 460 ms antes de que el aro (2,6 s) se cierre
+function cargaCuenta(el, mio) {
+  const quieto = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  /* Desde aquí el marcado ya no pone el aviso de espera. */
+  window.__cuentaLista = true;
+  if (quieto || typeof el.animate !== "function") { cargaCerrar(); return 300; }
+  const caja = document.getElementById("carga-version");
+  const frase = caja && caja.querySelector(".cv-frase");
+  let t = Math.max(0, CUENTA_TIC - performance.now());
+  const dar = (ms, hacer) => setTimeout(() => { if (cargaTurno === mio) hacer(); }, ms);
+  /* Si el aviso de espera llegó a salir, primero se va: la frase que entra
+     con el tic es otra. */
+  dar(t, () => {
+    if (frase && frase.classList.contains("espera")) {
+      cargaAnims.push(frase.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, easing: "ease-in", fill: "forwards" }));
+    }
+  });
+  const habiaEspera = !!(frase && frase.classList.contains("espera"));
+  if (habiaEspera) t += 170;
+  dar(t, () => {
+    if (frase && frase.classList.contains("espera")) {
+      frase.getAnimations().forEach(a => { try { a.cancel(); } catch (e) {} });
+      frase.classList.remove("espera");
+      frase.textContent = frase.getAttribute("data-saludo") || "";
+    }
+    if (caja) caja.classList.add("tic");
+  });
+  /* El tic (0,56 s) y un segundo para leerlo. Después, el telón. */
+  t += 560 + 1000;
+  dar(t, () => {
+    cargaAnims.push(el.animate(
+      [{ transform: "translateY(0)" }, { transform: "translateY(-101%)" }],
+      { duration: CARGA_TELON, easing: "cubic-bezier(.7,0,.3,1)", fill: "forwards" }));
+    el.classList.add("corta");
+  });
+  t += CARGA_TELON + 30;
+  dar(t, () => { el.classList.add("oculta"); cargaSoltarZoom(el); });
+  return t;
+}
+
+/* Los tonos con los que está pintada la carga AHORA, para que la página que
+   viene pueda nacer con ellos y fundirlos a los suyos. Se leen con una sonda
+   y no de los elementos: durante la llegada la carga va transparente y lo que
+   tiene el color es el telón. Una variable se resuelve a su color de verdad
+   al ponerla en `color`. */
+function cargaTonos() {
+  const el = document.getElementById("carga");
+  if (!el) return null;
+  const sonda = document.createElement("span");
+  sonda.style.cssText = "position:absolute;width:0;height:0;overflow:hidden;";
+  el.appendChild(sonda);
+  const leer = (v) => { sonda.style.color = ""; sonda.style.color = "var(" + v + ")"; return getComputedStyle(sonda).color; };
+  const t = {
+    fondo: leer("--bg"), logo: leer("--mint-macizo"), suave: leer("--mint-soft"),
+    apagado: leer("--muted"), tinta: leer("--text"), acento: leer("--mint")
+  };
+  sonda.remove();
+  return t;
 }
 
 /* La primera mitad del estreno: la carga LLEGA con el zoom al revés. Devuelve
@@ -1547,7 +1640,10 @@ async function adoptarSesion(mensaje) {
      confirmar su cuenta por un correo de cortesía sería justo al revés. */
   avisarBienvenida();
 
-  cargaMostrar(tx("Trayendo tu progreso…"));
+  /* Viniendo de un cambio de cuenta la carga ya está puesta, con su aro y su
+     letrero corriendo (0.7.174): ponerla otra vez los borraría. */
+  const deCuenta = window.__carga === "cuenta" && document.documentElement.classList.contains("carga-cuenta");
+  if (!deCuenta) cargaMostrar(tx("Trayendo tu progreso…"));
   pintarAvisoPruebas();
   renderSync();
 
@@ -1569,9 +1665,11 @@ async function adoptarSesion(mensaje) {
 
   // La app ya está pintada con lo que toca: recién ahora se destapa
   cerrarPortada(true);
-  /* Entrar a una cuenta es una ENTRADA aunque la pestaña ya estuviera abierta. */
-  await cargaEntrar("entrada");
-  toast(mensaje || (tx("Hola de nuevo") + coma()), "logro");
+  /* Entrar a una cuenta es una ENTRADA aunque la pestaña ya estuviera abierta.
+     Y viniendo de otra cuenta, su carga propia: el letrero ya saluda, así que
+     el aviso de después sobraría. */
+  await cargaEntrar(deCuenta ? "cuenta" : "entrada");
+  if (!deCuenta) toast(mensaje || (tx("Hola de nuevo") + coma()), "logro");
   quizaTutorialDeEntrada();
 }
 
@@ -1609,8 +1707,19 @@ async function entrarConCuentaGuardada(uid) {
 
      En la puerta no se intenta siquiera: allí no existe `state`, y si se llegó
      desde «Entrar con otra cuenta» la app ya subió lo suyo antes de mandar. */
+  /* Quién se va, para la ficha de la carga. Y su tema, apuntado al día antes
+     de tocar nada: la próxima vez que se vuelva a ella hay que saberlo. */
+  const yo = (sync.cfg || {}).sesion || {};
+  const antes = (yo.uid && yo.uid !== c.uid && typeof perfilActual === "function")
+    ? cuentaFichaDe(yo.uid, perfilActual().saludo, (sync.cfg || {}).correo, perfilActual().color) : null;
+  cuentaApuntar();
+
+  /* LA CARGA LLEGA (0.7.174): el logo viene desde enorme mientras se hace el
+     trabajo de abajo. Antes eran dos cargas con dos textos —«Guardando lo
+     último…», «Entrando…»—; ahora es una sola pieza de principio a fin. */
+  const llegada = cargaLlegar(tx("Cambiando de cuenta…"));
+
   if (!enLaPuerta() && syncReady() && sync.dirty) {
-    cargaMostrar(tx("Guardando lo último…"));
     await syncRun({ silent: true });
     if (sync.dirty) {
       cargaCerrar();
@@ -1628,7 +1737,6 @@ async function entrarConCuentaGuardada(uid) {
      la contraseña o pedir «cerrar las otras sesiones», y eso puede haber
      pasado desde otro dispositivo. Sin preguntarlo, la app entraba igual y se
      quedaba dentro de una cuenta que no podía sincronizar nada. */
-  cargaMostrar("Entrando" + coma(saludo) + "…");
   const viva = await sbRevivir(c.sesion.refresh);
   if (!viva) {
     cargaCerrar();
@@ -1643,7 +1751,19 @@ async function entrarConCuentaGuardada(uid) {
   }
   c.sesion = viva.uid ? viva : Object.assign({}, viva, { uid: c.uid });
 
+  /* EL TEMA DE LA QUE ENTRA, sabido antes de recargar. Con él puesto, la
+     página que viene abre ya en su mundo y la carga puede fundir el color
+     mientras el aro corre. Si no se pudo saber, no se inventa: se deja lo que
+     hay y la conciliación decide al otro lado, como antes. */
+  const destino = await aspectoDeCuentaGuardada(c);
+  /* La llegada del logo termina antes de recargar: cortarla a medias sería
+     justo el salto que esta carga existe para no dar. */
+  await llegada;
+  const tonos = cargaTonos();
+  const eraClaro = document.documentElement.classList.contains("claro");
+
   cuentaPonerSesion(c);
+  if (destino) aspectoPonerLlaves(destino, c.uid);
   /* El permiso recién renovado, guardado. El servidor gastó el viejo al
      contestar: sin esto la lista se quedaría con uno que ya no sirve y el
      atajo fallaría la próxima vez. */
@@ -1652,6 +1772,16 @@ async function entrarConCuentaGuardada(uid) {
     sessionStorage.setItem("norata-recien", "1");
     sessionStorage.setItem("norata-recien-aviso", "Hola de nuevo" + coma(saludo));
     sessionStorage.removeItem("norata-agregar");
+    /* Lo que la carga de la otra página necesita para seguir donde esta se
+       queda: de quién a quién, y con qué tonos estaba pintada. */
+    sessionStorage.setItem("norata-cuenta", JSON.stringify({
+      de: antes,
+      a: cuentaFichaDe(c.uid, saludo, c.correo, (c.perfil || {}).color),
+      tonos: tonos,
+      /* De día no hay resplandor, y viniendo de un tema claro tampoco: nacería
+         a medio fundido, todavía sobre papel. */
+      sinHalo: eraClaro
+    }));
   } catch (e) { /* sin esto solo se pierde el saludo, no el cambio */ }
   /* `replace` y no `assign`: el botón de atrás no puede devolver a la pantalla
      de una cuenta en la que ya no se está. */

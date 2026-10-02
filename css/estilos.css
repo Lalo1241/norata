@@ -10730,6 +10730,91 @@
      halo es una mancha. Queda el letrero, que es lo que dice algo. */
   html.claro .carga-halo { display: none; }
 
+  /* ---- Cambiar de cuenta (0.7.174) ----
+     La explicación larga está en `cargaCuenta` (js/10c-portada.js). Es la
+     carga del estreno con tres diferencias: el aro tarda 2,6 s, la ruleta
+     gira cuentas y **el color se funde mientras el aro corre**.
+
+     El fundido son seis tonos PROPIOS de la carga (`--cg-*`), registrados
+     como colores para que el navegador sepa mezclarlos: salen de los tonos de
+     la carga de la que se viene (`--cg-de-*`, los pone el marcado) y llegan a
+     los del tema que ya está puesto. No se registran `--bg` ni `--mint`: son
+     de toda la app, y cambiarles la naturaleza por una carga sería tocar
+     doscientas reglas para pintar una.
+     En un navegador que no sepa animar variables el fundido no existe: el
+     color cambia de golpe a la mitad. Se ve peor, pero no se rompe nada.
+
+       0 – 2,6 s    el aro se llena
+       0,39 – 1,82 s  el color se funde (del 15 al 70 % del aro)
+       1,3 s        se va «Cambiando de cuenta…» y sale la cuenta que se deja
+       1,42 s       nace el resplandor, y desde 2,12 s respira
+       desde 2,14 s el tic y la cuenta nueva, cuando el progreso ya bajó
+                    (lo da `cargaCuenta` con la clase `tic`) */
+  @property --cg-fondo   { syntax: "<color>"; inherits: true; initial-value: transparent; }
+  @property --cg-logo    { syntax: "<color>"; inherits: true; initial-value: transparent; }
+  @property --cg-suave   { syntax: "<color>"; inherits: true; initial-value: transparent; }
+  @property --cg-apagado { syntax: "<color>"; inherits: true; initial-value: transparent; }
+  @property --cg-tinta   { syntax: "<color>"; inherits: true; initial-value: transparent; }
+  @property --cg-acento  { syntax: "<color>"; inherits: true; initial-value: transparent; }
+  html.carga-cuenta #carga {
+    background: var(--cg-fondo);
+    animation: cargaFunde 1.43s cubic-bezier(0.45, 0, 0.55, 1) 0.39s both;
+  }
+  @keyframes cargaFunde {
+    from {
+      --cg-fondo: var(--cg-de-fondo, var(--bg)); --cg-logo: var(--cg-de-logo, var(--mint-macizo));
+      --cg-suave: var(--cg-de-suave, var(--mint-soft)); --cg-apagado: var(--cg-de-apagado, var(--muted));
+      --cg-tinta: var(--cg-de-tinta, var(--text)); --cg-acento: var(--cg-de-acento, var(--mint));
+    }
+    to {
+      --cg-fondo: var(--bg); --cg-logo: var(--mint-macizo); --cg-suave: var(--mint-soft);
+      --cg-apagado: var(--muted); --cg-tinta: var(--text); --cg-acento: var(--mint);
+    }
+  }
+  html.carga-cuenta .carga-marca svg:not(.carga-aro) { fill: var(--cg-logo); animation: none; }
+  html.carga-cuenta .carga-marca svg.carga-aro { display: block; }
+  html.carga-cuenta .carga-aro circle { stroke: var(--cg-logo); animation: cargaAro 2.6s cubic-bezier(0.65, 0, 0.35, 1) forwards; }
+  html.carga-cuenta .carga-anillo { animation: none; border-color: var(--cg-suave); }
+  html.carga-cuenta .carga-msg { color: var(--cg-apagado); animation: cargaMsgSeVa 0.2s ease-in 1.3s forwards; }
+  html.carga-cuenta .carga-version { animation: cargaLetrero 0.4s cubic-bezier(0.22, 1, 0.36, 1) 1.36s forwards; }
+  html.carga-cuenta .carga-version i,
+  html.carga-cuenta .cv-fila.vieja { color: var(--cg-apagado); }
+  html.carga-cuenta .cv-fila.nueva { color: var(--cg-acento); }
+  html.carga-cuenta .cv-frase { color: var(--cg-tinta); }
+  html.carga-cuenta .cv-frase.espera { color: var(--cg-apagado); animation: cargaFrase 0.3s ease-out forwards; }
+  html.carga-cuenta .carga-version.con-tic.tic .cv-tira { animation: cargaTic 0.56s forwards; }
+  html.carga-cuenta .carga-version.con-tic.tic .cv-fila.nueva { animation: cargaTicNueva 0.56s both; }
+  html.carga-cuenta .carga-version.tic .cv-frase { animation: cargaFrase 0.34s cubic-bezier(0.22, 1, 0.36, 1) 0.26s forwards; }
+  html.carga-cuenta .carga-halo {
+    background: radial-gradient(circle,
+      color-mix(in srgb, var(--cg-acento) 38%, transparent) 0%,
+      color-mix(in srgb, var(--cg-acento) 10%, transparent) 45%,
+      transparent 70%);
+    animation: cargaHaloNace 0.7s cubic-bezier(0.22, 1, 0.36, 1) 1.42s forwards,
+               cargaHaloRespira 1.8s ease-in-out 2.12s infinite alternate;
+  }
+  html.carga-sin-halo .carga-halo { display: none; }
+  /* La ficha de cada cuenta en la ruleta: su círculo y su nombre. El círculo
+     lleva el color que la persona eligió, que es de la paleta de ocho y es
+     claro en los dos modos: por eso su letra va en `--sobre-vivo`. */
+  .cv-av {
+    flex: none; width: 20px; height: 20px; margin-right: 8px; border-radius: var(--r-redondo);
+    display: inline-grid; place-items: center; text-decoration: none;
+    font-size: 11px; font-weight: 800; letter-spacing: 0; color: var(--sobre-vivo); background: var(--carril);
+  }
+  .cv-fila.vieja .cv-av { opacity: 0.55; }
+  .cv-nom { min-width: 0; max-width: min(240px, 62vw); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  @media (prefers-reduced-motion: reduce) {
+    html.carga-cuenta #carga { animation: none; --cg-fondo: var(--bg); --cg-logo: var(--mint-macizo); --cg-suave: var(--mint-soft); --cg-apagado: var(--muted); --cg-tinta: var(--text); --cg-acento: var(--mint); }
+    html.carga-cuenta .carga-aro circle { animation: none; stroke-dashoffset: 0; opacity: 1; }
+    html.carga-cuenta .carga-msg { animation: none; opacity: 0; }
+    html.carga-cuenta .carga-version { animation: none; opacity: 1; }
+    html.carga-cuenta .carga-version.con-tic .cv-tira { animation: none; transform: translateY(calc(var(--fila) * -1)); }
+    html.carga-cuenta .carga-version.con-tic .cv-fila.nueva { animation: none; }
+    html.carga-cuenta .cv-frase { animation: none; opacity: 1; }
+    html.carga-cuenta .carga-halo { animation: none; }
+  }
+
   /* Sin movimiento, la carga de estreno nace ya terminada: aro cerrado,
      letrero puesto y sin resplandor. */
   @media (prefers-reduced-motion: reduce) {

@@ -376,12 +376,118 @@ function cuentaApuntar() {
   const cfg = sync.cfg || {};
   const s = cfg.sesion || {};
   if (!s.uid || !s.refresh || !cfg.correo) return;
-  const lista = cuentasLeer().filter(c => c.uid !== s.uid);
+  const todas = cuentasLeer();
+  /* EL TEMA DE ESTA CUENTA EN ESTE DISPOSITIVO, al lado de su permiso
+     (0.7.174). Es lo que deja cambiar de cuenta enseñando ya su mundo: sin
+     esto, el tema de la otra cuenta no se sabía hasta bajar su progreso, al
+     otro lado de una recarga, y a veces costaba una segunda.
+     Solo se apunta cuando lo que hay puesto es de ESTA cuenta (la marca
+     `norata-aspecto-de`); si no, se conserva lo que ya se sabía. Esta función
+     corre también justo al entrar, cuando lo puesto todavía puede ser de la
+     cuenta anterior: copiarlo ahí sería guardarle a una el tema de la otra. */
+  const previa = todas.filter(c => c.uid === s.uid)[0];
+  let aspecto = aspectoLimpio(previa && previa.aspecto);
+  try {
+    if (localStorage.getItem("norata-aspecto-de") === String(s.uid)) aspecto = aspectoLlaves();
+  } catch (e) { /* sin almacén: se queda lo que había */ }
+  const lista = todas.filter(c => c.uid !== s.uid);
   lista.unshift({
     uid: s.uid, correo: cfg.correo,
-    perfil: cfg.perfil || null, sesion: s, visto: Date.now()
+    perfil: cfg.perfil || null, sesion: s, visto: Date.now(), aspecto: aspecto
   });
   cuentasEscribir(lista.slice(0, CUENTAS_MAX));
+}
+
+/* ---- El aspecto, sin depender de la app (0.7.174) ----
+   `js/10i-apariencia.js` tiene su `aspectoLocal` y su `aspectoAplicar`, pero
+   ese archivo no se carga en la puerta, y desde la puerta también se cambia
+   de cuenta. Esto es lo mínimo que hace falta en los dos sitios: leer y
+   escribir las cuatro llaves que el script de arriba de index.html pone antes
+   de pintar nada. Los nombres van escritos y no por constante porque las
+   constantes viven en aquel archivo; si una llave cambia de nombre, cambia en
+   los dos. */
+function aspectoLlaves() {
+  const o = { a: "casa", pals: {}, tema: "oscuro", m: "" };
+  try {
+    o.a = localStorage.getItem("norata-apariencia") || "casa";
+    o.pals = JSON.parse(localStorage.getItem("norata-paletas") || "{}") || {};
+    o.tema = localStorage.getItem("norata-tema") === "claro" ? "claro" : "oscuro";
+    o.m = localStorage.getItem("norata-material") === "arcade" ? "arcade" : "";
+  } catch (e) {}
+  return aspectoLimpio(o) || { a: "casa", pals: {}, tema: "oscuro", m: "" };
+}
+
+/* Lo que entra de fuera se valida por CARÁCTER (ver «Lo que entra de fuera»
+   en CLAUDE.md): esto llega del servidor o de una lista guardada, y acaba en
+   un atributo de `<html>`. Devuelve null si no hay nada que valga. */
+function aspectoLimpio(x) {
+  if (!x || typeof x !== "object") return null;
+  const id = /^[a-z0-9_-]{1,24}$/;
+  const a = String(x.a || "");
+  if (!id.test(a)) return null;
+  const pals = {};
+  if (x.pals && typeof x.pals === "object") {
+    Object.keys(x.pals).slice(0, 30).forEach(k => {
+      const v = String(x.pals[k] || "");
+      if (id.test(k) && id.test(v)) pals[k] = v;
+    });
+  }
+  return { a: a, pals: pals, tema: x.tema === "claro" ? "claro" : "oscuro", m: x.m === "arcade" ? "arcade" : "" };
+}
+
+/* Deja puesto en el dispositivo el aspecto de una cuenta, para que la página
+   que viene abra ya con él. Solo las llaves: nada se repinta aquí, porque lo
+   que se ve en este momento es la carga y la recarga está a una línea.
+   La marca del dueño es lo que le dice a `conciliarAspecto`, al otro lado,
+   que esto ya es de esa cuenta y no hay nada que cambiar. */
+function aspectoPonerLlaves(t, uid) {
+  try {
+    localStorage.setItem("norata-apariencia", t.a);
+    localStorage.setItem("norata-paletas", JSON.stringify(t.pals || {}));
+    localStorage.setItem("norata-tema", t.tema === "claro" ? "claro" : "oscuro");
+    if (t.m === "arcade") localStorage.setItem("norata-material", "arcade");
+    else localStorage.removeItem("norata-material");
+    localStorage.setItem("norata-aspecto-de", String(uid));
+  } catch (e) { /* sin almacén: abrirá con lo que había y lo arreglará la conciliación */ }
+}
+
+/* Qué tema lleva una cuenta guardada EN ESTE DISPOSITIVO, sabido antes de
+   entrar a ella. Tres fuentes, por orden:
+     1. lo apuntado al lado de su permiso (lo normal: ya se usó aquí);
+     2. lo que dice su progreso en el servidor —lo de este dispositivo y, si
+        nunca se entró aquí, lo más reciente de cualquiera—. Es UNA consulta
+        diminuta, con tope, y solo ocurre la primera vez;
+     3. nada: devuelve null. Quien llama NO inventa un tema: deja lo que hay y
+        la conciliación decide al otro lado, como siempre. Adivinar «la casa»
+        y marcarla como suya le pisaría el tema a una cuenta que sí lo tenía. */
+async function aspectoDeCuentaGuardada(c) {
+  const espejo = aspectoLimpio(c && c.aspecto);
+  if (espejo) return espejo;
+  if (typeof sbAspectosDe !== "function") return null;
+  const mapa = await Promise.race([
+    sbAspectosDe(c.sesion),
+    new Promise(listo => setTimeout(() => listo(null), 2500))
+  ]);
+  if (!mapa || typeof mapa !== "object") return null;
+  let id = "";
+  try { id = localStorage.getItem("norata-dispositivo") || ""; } catch (e) {}
+  let mejor = id && mapa[id] && mapa[id].a ? mapa[id] : null;
+  if (!mejor) {
+    Object.keys(mapa).forEach(k => {
+      const x = mapa[k];
+      if (x && x.a && (!mejor || (Number(x.t) || 0) > (Number(mejor.t) || 0))) mejor = x;
+    });
+  }
+  return aspectoLimpio(mejor);
+}
+
+/* Quién está dentro ahora, con lo justo para dibujar su ficha en la carga. */
+function cuentaFichaDe(uid, saludo, correo, color) {
+  return {
+    n: String(saludo || correo || "").slice(0, 40),
+    i: avatarInicial(saludo, correo),
+    c: avatarColor(uid || correo, color)
+  };
 }
 
 function cuentaOlvidar(uid) {

@@ -679,6 +679,27 @@
       }
     },
     {
+      "version": "0.7.174",
+      "fecha": "2026-10-02",
+      "estado": "borrador",
+      "clase": "mejora",
+      "titulo": "Cambiar de cuenta, de un solo movimiento",
+      "resumen": "Al pasar de una cuenta a otra, el color se funde al tema de la que entra mientras se llena el aro, y ves de cuál vienes y a cuál llegas.",
+      "puntos": [
+        "La app ya abre en el mundo de esa cuenta, sin recargar dos veces.",
+        "Una sola pantalla de carga en lugar de varias seguidas."
+      ],
+      "retoques": [],
+      "en": {
+        "titulo": "Switching accounts, in one move",
+        "resumen": "When you go from one account to another, the color blends into the incoming account's theme while the ring fills, and you see which one you're leaving and which one you're entering.",
+        "puntos": [
+          "The app opens already in that account's world, without reloading twice.",
+          "One loading screen instead of several in a row."
+        ]
+      }
+    },
+    {
       "version": "0.7.172",
       "fecha": "2026-10-02",
       "estado": "borrador",

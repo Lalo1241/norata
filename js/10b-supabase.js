@@ -251,6 +251,22 @@ async function sbRevivir(refresh) {
   return r.ok ? sbSesionDe(r.body) : null;
 }
 
+/* Lo que una cuenta sabe del tema de cada dispositivo, SIN bajar su progreso
+   (0.7.174). Se pide con la sesión que se le pasa y no con la que está dentro:
+   se usa justo antes de cambiar de cuenta, cuando la de dentro es otra. Trae
+   solo ese trozo del progreso, no el progreso entero. Nunca lanza: devuelve
+   null y quien llama sigue sin el dato. */
+async function sbAspectosDe(sesion) {
+  if (!sesion || !sesion.access || !sesion.uid) return null;
+  try {
+    const r = await sbFetch("/rest/v1/perfiles?select=aspectos:estado->state->settings->aspectos&user_id=eq." +
+      encodeURIComponent(sesion.uid), { headers: { "Authorization": "Bearer " + sesion.access } });
+    if (!r.ok || !Array.isArray(r.body) || !r.body.length) return null;
+    const m = r.body[0].aspectos;
+    return m && typeof m === "object" ? m : null;
+  } catch (e) { return null; }
+}
+
 /* El token de acceso caduca en una hora. Esto lo renueva solo con el de
    refresco, para que una sesión larga no se corte a media tarde.
 

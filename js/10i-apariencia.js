@@ -1123,6 +1123,11 @@ function apuntarAspecto() {
   if (typeof state === "undefined" || !state || !state.settings) return;
   const local = aspectoLocal(), id = dispositivoId();
   try { localStorage.setItem(ASPECTO_DUENO, aspectoCuenta()); } catch (e) {}
+  /* Y al lado del permiso de la cuenta, para saberlo ANTES de entrar a ella
+     la próxima vez (0.7.174, ver `cuentaApuntar`). Va antes del `return` de
+     abajo: una cuenta que nunca cambia de tema también tiene que quedar
+     apuntada. */
+  if (aspectoCuenta() !== "local" && typeof cuentaApuntar === "function") cuentaApuntar();
   const mapa = (state.settings.aspectos && typeof state.settings.aspectos === "object") ? state.settings.aspectos : {};
   const ya = mapa[id];
   if (ya && aspectoIgual(ya, local) && JSON.stringify(ya.pals || {}) === JSON.stringify(local.pals)) return;
