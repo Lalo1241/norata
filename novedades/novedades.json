@@ -686,16 +686,14 @@
       "titulo": "Al actualizar ves de qué versión vienes",
       "resumen": "El número de versión da un tic hacia arriba: sale la que tenías y entra la nueva justo cuando el aro se cierra.",
       "puntos": [
-        "El logo llega más suave antes de que empiece el aro.",
-        "El letrero se queda medio segundo más para que alcances a leerlo."
+        "El logo llega más suave antes de que empiece el aro."
       ],
       "retoques": [],
       "en": {
         "titulo": "Updating shows which version you're coming from",
         "resumen": "The version number ticks upward: the one you had goes out and the new one comes in right as the ring closes.",
         "puntos": [
-          "The logo lands more smoothly before the ring starts.",
-          "The label stays half a second longer so you can read it."
+          "The logo lands more smoothly before the ring starts."
         ]
       }
     },

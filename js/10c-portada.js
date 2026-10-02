@@ -280,8 +280,8 @@ function cargaEntrar(modo) {
      arranque no se le suma nada. */
   if (cual === "refresco") return tras(Math.max(0, CARGA_REFRESCO - performance.now()), () => cargaCorta(el, mio));
   /* El aro tarda 1,9 s en llenarse y empezó con el primer cuadro; el tic de
-     la versión acaba a los 2 s, y después el letrero se queda segundo y medio
-     a la vista: se les deja terminar aunque la app haya arrancado antes. */
+     la versión acaba a los 2 s, y después el letrero se queda un segundo a la
+     vista (con segundo y medio «se alarga mucho», Eduardo, 0.7.172.1): se les deja terminar aunque la app haya arrancado antes. */
   if (cual === "estreno") return tras(Math.max(0, CARGA_ARO - performance.now()), () => cargaEstreno(el, mio));
   /* Contado desde que se abrió la página y no desde aquí: el arranque ya tardó
      lo que tardó, y sumarle tres segundos enteros encima sería castigar a
@@ -295,7 +295,7 @@ function cargaEntrar(modo) {
    Devuelve cuánto tarda, como `cargaZoom`. */
 const CARGA_REFRESCO = 2000;  // lo mínimo que se ve la carga al refrescar
 const CARGA_CORTA = 400;
-const CARGA_ARO = 3500;       // el tic de la versión acaba a los 2 s + 1,5 s para leerla
+const CARGA_ARO = 3000;       // el tic de la versión acaba a los 2 s + 1 s para leerla
 const CARGA_TELON = 560;
 const CARGA_INVERSO = 1.25;   // la llegada va algo más rápida que la entrada
 function cargaCorta(el, mio) {
@@ -337,7 +337,7 @@ function cargaCorta(el, mio) {
    50 % sale el letrero con la versión que había y un resplandor leve detrás
    del logo, que respira; mientras el aro se cierra el número da un tic hacia
    arriba y entra la versión nueva, con «Lista para ti» (0.7.172); todo se
-   queda segundo y medio. Y aquí, al final, la carga SUBE como un telón.
+   queda un segundo. Y aquí, al final, la carga SUBE como un telón.
 
    Lo que Eduardo fue quitando, para no volver a ponerlo:
      - el LATIDO del logo al cerrarse el aro: con el resplandor ya sobraba, y

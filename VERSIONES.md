@@ -315,6 +315,15 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.172.1 · 2 oct 2026
+
+**El cierre de «Actualizar», medio segundo más corto.** Eduardo, ya con la
+0.7.172 en vivo: «es después de que se ve el número de versión… siento que se
+alarga mucho». El letrero se queda un segundo a la vista en vez de segundo y
+medio (`CARGA_ARO` de 3500 a 3000). Es un 4º: pule lo que trajo la 0.7.172.
+Su novedad sigue en borrador y se le quitó el punto que hablaba del medio
+segundo de más, que ya no es verdad.
+
 ### 0.7.172 · 2 oct 2026
 
 **Actualizar enseña de qué versión vienes y a cuál llegas, con un tic.**
