@@ -641,6 +641,12 @@ puso Eduardo sobre el boceto y valen para cualquier cosa que se añada:
 - **El color es un juicio y sale de `--casa-*`**: oro lo que hay que mirar,
   coral lo que se pierde, menta lo que llega a la vara. Lo demás, tinta normal.
 
+**Las novedades por aprobar se leen enteras en Subidas (0.7.178)**:
+`dnFichaNovedad` pone cada texto en español y en inglés lado a lado —también
+los de dentro del gráfico y el pie de cada imagen— y marca lo que falta
+traducir. Un campo de texto nuevo en una ficha se añade ahí, o Eduardo lo
+aprobaría sin haberlo leído.
+
 Al añadir una prueba con enlace a la app, **su fila va en `DN_PRUEBAS`**, con
 cómo saber si está encendida. Y un tipo de reporte nuevo son DOS filas: una en
 `REP_TIPOS` (`js/09-inicio.js`), que es el formulario, y otra en `DN_TIPOS`,

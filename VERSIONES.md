@@ -324,6 +324,30 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.178 · 2 oct 2026
+
+**En el Puesto de mando, cada novedad por aprobar se abre entera.** Eduardo
+preguntó dónde encontrar una ficha en borrador y pidió tenerla ahí, «con su
+imagen y todo», porque es donde revisa los parches. Venía de otra pregunta:
+si habría un momento en que él revisara los textos antes de que salieran.
+
+En Subidas → Novedades por aprobar, cada fila tiene ahora «Ver la ficha» y
+«Verla en su ventana». La ficha enseña sus imágenes y, debajo, **cada texto en
+español y en inglés, renglón contra renglón**: título, resumen, puntos, los
+textos de dentro de cada gráfico, los retoques y el pie de cada imagen. Lo que
+falta en inglés se marca en oro, porque la app lo sustituye por el español sin
+avisar. Dice además si esa ficha irá al changelog del sitio o solo a la app.
+
+El gráfico va en texto y no dibujado: ahí se revisan las palabras, y el dibujo
+se ve tal cual con «Verla en su ventana», que abre la ventana de verdad (o la
+escena, si es una nueva etapa). Nada usa una clase de la app, como todo lo de
+esa capa.
+
+No lleva novedad: solo lo ve quien administra. **Medido** en computadora, de
+noche y de día: 13 borradores con sus dos botones, la ficha de la 0.7.147 —la
+más larga— sin nada fuera de su caja. **Sin medir:** en teléfono, y con un
+mundo puesto.
+
 ### 0.7.177 · 2 oct 2026
 
 **Pasar de noche a día se atenúa, en cualquier mundo.** Eduardo: «una

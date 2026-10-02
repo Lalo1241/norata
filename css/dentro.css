@@ -257,6 +257,21 @@ html.claro #dentro {
 #dentro .dn-prueba .ojo { color: var(--dn-oro); font-size: 13px; font-weight: 700; }
 #dentro .dn-prueba .pie { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 #dentro .dn-sobre-t { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+/* La ficha entera de una novedad: sus imágenes y, debajo, cada texto en sus
+   dos idiomas, renglón contra renglón. Ocupa la fila entera aunque la fila
+   tenga los botones a un lado. */
+#dentro .dn-nf { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 14px; padding: 16px; border-radius: 16px; background: var(--bg2); min-width: 0; }
+#dentro .dn-nf-imgs { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+#dentro .dn-nf-imgs a { display: block; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; background: var(--bg); border: 1px solid var(--line); }
+#dentro .dn-nf-imgs img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+#dentro .dn-nf-tabla { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px 16px; font-size: 13.5px; line-height: 1.45; }
+#dentro .dn-nf-tabla > span:first-child, #dentro .dn-nf-cab { display: none; }
+#dentro .dn-nf-rot { margin-top: 8px; font-size: 11px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--faint); }
+#dentro .dn-nf-rot:empty { display: none; }
+#dentro .dn-nf-es, #dentro .dn-nf-en { overflow-wrap: anywhere; min-width: 0; }
+#dentro .dn-nf-en { color: var(--muted); }
+#dentro .dn-nf-es.tit, #dentro .dn-nf-en.tit { font-weight: 700; }
+#dentro .dn-nf-falta { color: var(--dn-oro); font-weight: 700; font-size: 12.5px; }
 /* Las etiquetas del changelog. «Nueva etapa» va en lila, no en oro: lo decidió
    Eduardo para el changelog, y aquí el oro ya significa «hay que mirarlo». */
 #dentro .dn-etq { border-radius: 999px; padding: 3px 11px; font-size: 12px; font-weight: 800; white-space: nowrap; }
@@ -373,4 +388,9 @@ html.claro #dentro .dn-velo { background: rgba(16, 24, 34, 0.42); }
   #dentro .dn-bz[data-abierto] .dn-lista { display: flex; } #dentro .dn-bz[data-abierto] .dn-det { display: flex; }
   #dentro .dn-volver { display: none; }
   #dentro .dn-prueba { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+  #dentro .dn-nf-tabla { grid-template-columns: 92px minmax(0, 1fr) minmax(0, 1fr); gap: 7px 18px; align-items: start; }
+  #dentro .dn-nf-tabla > span:first-child, #dentro .dn-nf-cab { display: block; }
+  #dentro .dn-nf-cab { font-size: 11px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--faint); padding-bottom: 4px; border-bottom: 1px solid var(--line); }
+  #dentro .dn-nf-rot { margin-top: 2px; }
+  #dentro .dn-nf-rot:empty { display: block; }
 }

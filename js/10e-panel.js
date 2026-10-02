@@ -693,6 +693,54 @@ async function dnMandaBarrera(accion, datos, dicho) {
   }
 }
 
+/* ---- La ficha entera de una novedad, para revisarla antes de aprobarla ----
+   Eduardo lo pidió el 2 oct 2026: aquí revisa los parches, así que aquí tiene
+   que poder leer lo que se va a publicar, «con su imagen y todo». Antes la
+   fila enseñaba el título y el resumen, y lo demás —los puntos, los textos de
+   dentro del gráfico, el inglés, el pie de cada imagen— salía sin que nadie
+   lo hubiera leído en un solo sitio.
+
+   Los dos idiomas van LADO A LADO, renglón contra renglón: una traducción que
+   falta o que dice otra cosa se ve al compararlas, no leyéndolas por
+   separado. Lo que falta en inglés se marca, porque la app lo sustituye por
+   el español sin avisar.
+
+   El gráfico va en TEXTO y no dibujado: lo que se revisa son las palabras, y
+   el dibujo se ve tal como saldrá con «Verla en su ventana». Y nada de esto
+   usa una clase de la app, como todo lo de esta capa. */
+function dnDatoTx(b, d, ing) {
+  const de = k => ing ? ((d.en && d.en[k]) || "") : (d[k] == null ? "" : String(d[k]));
+  const cola = [de("detalle"), de("nota")].filter(Boolean).join(" · ");
+  const cabeza = b.tipo === "comparar" ? de("texto") + ": " + d.antes + " → " + d.ahora
+    : b.tipo === "colores" ? de("nombre")
+    : String(d.valor == null ? "" : d.valor) + " " + de("texto");
+  /* Un dato cuyo único texto es un número no tiene nada que traducir. */
+  const falta = ing && !(d.en && (d.en.texto || d.en.nombre));
+  return { tx: cabeza.trim() + (cola ? " — " + cola : ""), falta: falta };
+}
+function dnFichaNovedad(e) {
+  const falta = `<span class="dn-nf-falta">Falta en inglés</span>`;
+  const par = (rot, es, en, clase) => `<span class="dn-nf-rot">${rot}</span><div class="dn-nf-es${clase ? " " + clase : ""}">${dnE(es)}</div><div class="dn-nf-en${clase ? " " + clase : ""}">${en ? dnE(en) : (es ? falta : "")}</div>`;
+  const en = e.en || {};
+  const filas = [par("Título", e.titulo, en.titulo, "tit"), par("Resumen", e.resumen, en.resumen)];
+  (e.puntos || []).forEach((p, i) => filas.push(par("Punto " + (i + 1), p, (en.puntos || [])[i])));
+  const bloques = (Array.isArray(e.grafico) ? e.grafico : e.grafico ? [e.grafico] : []).filter(b => b && Array.isArray(b.datos));
+  bloques.forEach((b, n) => {
+    filas.push(par("Gráfico " + (n + 1), b.titulo, b.en && b.en.titulo, "tit"));
+    b.datos.forEach(d => { const es = dnDatoTx(b, d, false), ing = dnDatoTx(b, d, true); filas.push(par("", es.tx, ing.falta ? "" : ing.tx)); });
+  });
+  (e.retoques || []).forEach(r => filas.push(par("Retoque " + dnE(r.version || ""), r.texto, r.en && r.en.texto)));
+  const imgs = [e.banner, e.imagen].concat(e.imagenes || []).filter(i => i && i.src);
+  imgs.forEach((i, n) => filas.push(par("Imagen " + (n + 1), i.alt, i.en && i.en.alt)));
+  const clase = typeof novedadClase === "function" ? novedadClase(e) : (e.clase || "mejora");
+  const alSitio = e.sitio != null ? !!e.sitio : (clase === "expansion" || clase === "hito");
+  return `<div class="dn-nf">
+      ${imgs.length ? `<div class="dn-nf-imgs">${imgs.map(i => `<a href="${escapeAttr(i.src)}" target="_blank" rel="noopener"><img src="${escapeAttr(i.src)}" alt="${escapeAttr(i.alt || "")}" loading="lazy"></a>`).join("")}</div>` : ""}
+      <div class="dn-nf-tabla"><span></span><span class="dn-nf-cab">Español</span><span class="dn-nf-cab">English</span>${filas.join("")}</div>
+      <p class="dn-nota">${alSitio ? "Al aprobarla sale en la app y en el changelog del sitio." : "Al aprobarla sale en la app. Al sitio no va: solo llegan expansiones y nuevas etapas."}${bloques.length ? " El gráfico se ve dibujado en su ventana." : ""}</p>
+    </div>`;
+}
+
 function dnSalaSubidas() {
   const m = metricasCache, vs = (m && m.versiones) || [];
   const activas = v => (Number(v.personas) || 0) - (Number(v.dormidas) || 0);
@@ -701,6 +749,7 @@ function dnSalaSubidas() {
   const conLa = dnSuma(vs.filter(v => v.version === enVivo).map(activas));
   const bor = dnBorradores().slice().sort((a, x) => String(x.fecha || "").localeCompare(String(a.fecha || "")));
   const cola = (b && b.cola) || [];
+  const llave = e => typeof novedadLlave === "function" ? novedadLlave(e) : String(e.id || e.version);
   return `
     <div class="dn-cab"><h2>Subidas</h2></div>
     <div class="dn-kpis tres">
@@ -712,13 +761,15 @@ function dnSalaSubidas() {
     ${!b ? (DN.barError ? dnBarreraFaltaHTML() : `<div class="dn-panel"><div class="dn-vacio">Preguntando por la barrera…</div></div>`)
       : (b.grifo ? dnGrifoHTML() : `<div class="dn-panel"><h3>Falta el grifo</h3><p class="dn-nota">Pega <code>supabase/barrera.sql</code> en Supabase y vuelve a preguntar.</p><div class="dn-acciones"><button class="dn-btn b-linea mini" data-a="barrera">Volver a preguntar</button></div></div>`) + dnColaHTML() + dnCorridasHTML()}
     <div class="dn-panel"><div class="dn-pcab"><h3>Novedades por aprobar</h3><span class="dn-chip">${DN.nov ? bor.length : "…"}</span><div class="dn-der"><button class="dn-btn b-linea mini" data-a="novedades">Leerlas en Novedades</button></div></div>
-      <p class="dn-nota">Ninguna sale en la ventana de la app hasta que su estado pase a «publicado» en <code>novedades/novedades.json</code>.</p>
+      <p class="dn-nota">Ninguna sale en la app ni en el sitio hasta que su estado pase a «publicado» en <code>novedades/novedades.json</code>. Para aprobar una, o cambiarle un texto, pídeselo a una sesión.</p>
       ${!DN.nov ? `<div class="dn-vacio">Leyendo las novedades…</div>` : !bor.length ? `<div class="dn-vacio">No hay ninguna en borrador.</div>` : bor.map(e => {
         const h = dnHace(e.fecha), clase = typeof novedadClase === "function" ? novedadClase(e) : (e.clase || "mejora");
         return `<div class="dn-prueba"><div>
             <div class="dn-sobre-t">${dnEtq(clase)}<span class="dn-estado ${h !== null && h >= 5 ? "e-espera" : "e-no"}">${dnIc("reloj")}${h === null ? "Sin fecha" : h >= 5 ? "Lleva " + h + " días sin aprobar" : "En borrador, " + dnHaceTx(h)}</span></div>
             <h4>${dnE(e.titulo || "Sin título")}<span class="dn-chip">${dnE(e.version || "")}</span></h4>
-            <p>${dnE(e.resumen || "")}</p></div></div>`;
+            <p>${dnE(e.resumen || "")}</p></div>
+          <div class="dn-acciones"><button class="dn-btn b-soft mini" data-a="ficha:${dnE(llave(e))}" aria-expanded="${DN.ficha === llave(e)}">${DN.ficha === llave(e) ? "Cerrar la ficha" : "Ver la ficha"}</button><button class="dn-btn b-linea mini" data-a="ventananov:${dnE(llave(e))}">Verla en su ventana</button></div>
+          ${DN.ficha === llave(e) ? dnFichaNovedad(e) : ""}</div>`;
       }).join("")}
     </div>`;
 }
@@ -1089,6 +1140,18 @@ function dnClic(ev) {
     case "num": DN.num = v; break;
     case "lab": DN.lab = v; break;
     case "novedades": cerrarDentro(); if (typeof mostrarAjuste === "function") mostrarAjuste("novedades"); return;
+    /* La llave de una ficha es su `id` o su versión: se toma entera del
+       atributo, que una versión no lleva dos puntos pero un `id` podría. */
+    case "ficha": { const k = el.dataset.a.slice(6); DN.ficha = DN.ficha === k ? null : k; break; }
+    case "ventananov": {
+      const k = el.dataset.a.slice(11), e = (DN.nov || []).find(x => (typeof novedadLlave === "function" ? novedadLlave(x) : String(x.id || x.version)) === k);
+      if (!e || typeof ventanaNovedades !== "function") return;
+      /* Como las fiestas: se sale de la capa, que la ventana vive en un piso
+         de más abajo y aquí se dibujaría detrás. */
+      cerrarDentro();
+      if (typeof novedadClase === "function" && novedadClase(e) === "hito" && typeof abrirHito === "function") abrirHito(e, { prueba: true });
+      else ventanaNovedades([e]);
+      return; }
     case "cuenta": if (typeof marcarCuentaDePruebas === "function") marcarCuentaDePruebas(v === "1"); break;
     case "plan": if (typeof planSimular === "function") planSimular(v || ""); break;
     case "fiesta": verLaFiesta(v); return;
