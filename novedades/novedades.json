@@ -693,6 +693,13 @@
           "en": {
             "texto": "In the app, an update's chart sits next to its image, side by side."
           }
+        },
+        {
+          "version": "0.7.191.2",
+          "texto": "El punto que va antes de las imágenes se queda encima de ellas.",
+          "en": {
+            "texto": "The point that comes before the images stays above them."
+          }
         }
       ],
       "en": {

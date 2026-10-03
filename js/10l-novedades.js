@@ -375,9 +375,13 @@ function novedadCuerpoHTML(e, puntos) {
       : [];
     return m.figs.concat(graf);
   });
-  let html = piezas.length ? `<div class="nov-medios${piezas.length % 2 ? " impar" : ""}">${piezas.join("")}</div>` : "";
-  const sueltos = puntos.filter((p, i) => !medios[i + 1]);
-  if (sueltos.length) html += `<ul class="nov-puntos">${sueltos.map((p) => `<li>${escapeHtml(p)}</li>`).join("")}</ul>`;
+  /* Los puntos sin imagen de ANTES de la primera se quedan encima de la
+     rejilla, y los de después, debajo: como en la tarjeta de Cyberpunk. */
+  const primera = orden.find((n) => n > 0) || 0;
+  const lista = (ps) => ps.length ? `<ul class="nov-puntos">${ps.map((p) => `<li>${escapeHtml(p)}</li>`).join("")}</ul>` : "";
+  let html = lista(puntos.filter((p, i) => !medios[i + 1] && i + 1 < primera));
+  html += piezas.length ? `<div class="nov-medios${piezas.length % 2 ? " impar" : ""}">${piezas.join("")}</div>` : "";
+  html += lista(puntos.filter((p, i) => !medios[i + 1] && i + 1 >= primera));
   return html;
 }
 

@@ -8588,6 +8588,7 @@
   .nov-medios { display: grid; grid-template-columns: repeat(auto-fit, minmax(max(210px, 34%), 1fr)); gap: 14px 10px; margin-top: 14px; }
   .nov-medios.impar > .nov-pieza:last-child { grid-column: 1 / -1; }
   .nov-medios + .nov-graf, .nov-medios + .nov-puntos { margin-top: 14px; }
+  .nov-puntos + .nov-medios { margin-top: 12px; }
   /* El gráfico como pieza de la rejilla: sus bloques, uno debajo de otro,
      llenan la celda. */
   .nov-lamina { display: grid; gap: 8px; align-content: start; }

@@ -414,15 +414,22 @@ def cuerpo(e, en=False):
     # La rejilla lleva sus columnas EN LÍNEA: el componente de Framer se pega a
     # mano, y así no depende de que alguien lo vuelva a pegar. `max(240px,
     # 34%)` son dos columnas como mucho, y una sola cuando no caben (teléfono).
+    # Los puntos sin imagen que van ANTES de la primera se quedan arriba de la
+    # rejilla, y los de después, debajo: así la tarjeta de Cyberpunk, que es
+    # la referencia de Eduardo para el acomodo, conserva su punto encima.
     trozos = []
     todos = [t for n in sorted(medios) for t in medios[n]]
+    primera = min([n for n in medios if n > 0], default=0)
+    antes = [f"<li>{esc(p)}</li>" for i, p in enumerate(puntos, 1) if i not in medios and i < primera]
+    if antes:
+        trozos.append('<ul class="nv-puntos">' + "".join(antes) + "</ul>")
     if todos:
         if len(todos) % 2:
             print(f"  ¡OJO! {e.get('id') or e['version']}: {len(todos)} imágenes, número impar. "
                   "Van de dos en dos: falta una para que la rejilla quede pareja.", file=sys.stderr)
         trozos.append('<div class="nv-medios" style="display:grid;gap:20px 14px;margin:4px 0;'
                       'grid-template-columns:repeat(auto-fit,minmax(max(240px,34%),1fr))">' + "".join(todos) + "</div>")
-    sueltos = [f"<li>{esc(p)}</li>" for i, p in enumerate(puntos, 1) if i not in medios]
+    sueltos = [f"<li>{esc(p)}</li>" for i, p in enumerate(puntos, 1) if i not in medios and i >= primera]
     if sueltos:
         trozos.append('<ul class="nv-puntos">' + "".join(sueltos) + "</ul>")
     ret = e.get("retoques") or []

@@ -318,6 +318,13 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.191.2 · 3 oct 2026
+
+**Un punto sin imagen que va antes de la primera imagen se queda encima de la
+rejilla.** La 0.7.191 mandaba todos los puntos sueltos debajo, y con eso la
+tarjeta de Cyberpunk —la referencia de Eduardo para el acomodo— perdía su
+punto de arriba. En el sitio (`cuerpo()`) y en la app (`novedadCuerpoHTML`).
+
 ### 0.7.191.1 · 3 oct 2026
 
 **En la app, el gráfico de una novedad es una pieza más de la rejilla.** La
