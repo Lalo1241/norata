@@ -291,6 +291,20 @@ function novedadGraficoHTML(g) {
   return (Array.isArray(g) ? g : [g]).map(novedadBloqueHTML).join("");
 }
 
+/* ---- Las imágenes, también en la app de Android (0.7.182) ----
+   El APK lleva dentro el JSON de las novedades pero no sus imágenes: meterlas
+   haría crecer el paquete con cada expansión. Hasta la 0.7.181 eso quería
+   decir que allí no salía ninguna. Ahora las pide al sitio cuando hay red
+   —son las mismas que sirve mi.norata.app— y, sin red, se quitan solas sin
+   dejar hueco, como antes. En la web la dirección se queda como está: es su
+   propio sitio y las tiene en la copia. */
+const NOVEDADES_IMG_RED = "https://mi.norata.app/";
+function novedadImgSrc(src) {
+  src = String(src || "");
+  const nativa = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+  return nativa && src && !/^[a-z]+:/i.test(src) ? NOVEDADES_IMG_RED + src.replace(/^\.?\//, "") : src;
+}
+
 /* ---- El cuerpo con sus imágenes, como en el sitio (0.7.180) ----
    Las mismas reglas que la tarjeta del changelog (`cuerpo()` en
    herramientas/novedades-framer.py): cada imagen y cada bloque de gráfico
@@ -307,7 +321,7 @@ function novedadCuerpoHTML(e, puntos) {
     return medios[n];
   };
   (Array.isArray(e.imagenes) ? e.imagenes : []).forEach((i) => {
-    if (i && i.src) poner(i.tras).figs.push(`<figure class="nov-fig"><img src="${escapeAttr(i.src)}" alt="${escapeAttr(novedadCampo(i, "alt") || "")}" loading="lazy" onerror="this.parentNode.remove()"></figure>`);
+    if (i && i.src) poner(i.tras).figs.push(`<figure class="nov-fig"><img src="${escapeAttr(novedadImgSrc(i.src))}" alt="${escapeAttr(novedadCampo(i, "alt") || "")}" loading="lazy" onerror="this.parentNode.remove()"></figure>`);
   });
   (Array.isArray(e.grafico) ? e.grafico : e.grafico ? [e.grafico] : []).forEach((b) => {
     const html = novedadBloqueHTML(b);
@@ -334,7 +348,7 @@ function novedadHTML(e, medios) {
   const retoques = Array.isArray(e.retoques) ? e.retoques : [];
   const clase = novedadClase(e);
   const img = medios && e.imagen && e.imagen.src ? `
-      <figure class="nov-img"><img src="${escapeAttr(e.imagen.src)}" alt="${escapeAttr(novedadCampo(e.imagen, "alt") || "")}" loading="lazy" onerror="this.parentNode.remove()"></figure>` : "";
+      <figure class="nov-img"><img src="${escapeAttr(novedadImgSrc(e.imagen.src))}" alt="${escapeAttr(novedadCampo(e.imagen, "alt") || "")}" loading="lazy" onerror="this.parentNode.remove()"></figure>` : "";
   return `
     <article class="nov-ent nov-${clase}">
       ${img}

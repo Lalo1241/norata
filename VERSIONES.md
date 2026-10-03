@@ -315,6 +315,23 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.182 · 2 oct 2026
+
+**Las imágenes de Novedades salen también en la app de Android.** Eduardo
+preguntó si en Novedades se ven imágenes: en la web sí, en el APK no. El
+paquete lleva el JSON de las novedades pero no la carpeta de sus imágenes, y
+cada imagen se quitaba sola al no encontrarse.
+
+Ahora, dentro del APK, una imagen de novedad se pide a mi.norata.app
+(`novedadImgSrc`, js/10l-novedades.js). Con red sale; sin red se quita sola,
+como antes. En la web nada cambia. La CSP de `index.html` admite por eso
+imágenes de mi.norata.app: es nuestro propio sitio. Vale también para las
+fichas del Puesto de mando.
+
+**Medido:** simulando el APK en el navegador, las direcciones pasan a
+mi.norata.app y las imágenes cargan con la CSP nueva. **Sin probar en el
+teléfono**: hace falta que el APK tome esta versión.
+
 ### 0.7.181 · 2 oct 2026
 
 **Un servidor lento ya no atasca la carga ni le quita el plan a nadie, y

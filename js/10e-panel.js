@@ -734,7 +734,7 @@ function dnFichaNovedad(e) {
   const clase = typeof novedadClase === "function" ? novedadClase(e) : (e.clase || "mejora");
   const alSitio = typeof novedadDestacada === "function" ? novedadDestacada(e) : (e.sitio != null ? !!e.sitio : (clase === "expansion" || clase === "hito"));
   return `<div class="dn-nf">
-      ${imgs.length ? `<div class="dn-nf-imgs">${imgs.map(i => `<a href="${escapeAttr(i.src)}" target="_blank" rel="noopener"><img src="${escapeAttr(i.src)}" alt="${escapeAttr(i.alt || "")}" loading="lazy"></a>`).join("")}</div>` : ""}
+      ${imgs.length ? `<div class="dn-nf-imgs">${imgs.map(i => { const s = typeof novedadImgSrc === "function" ? novedadImgSrc(i.src) : i.src; return `<a href="${escapeAttr(s)}" target="_blank" rel="noopener"><img src="${escapeAttr(s)}" alt="${escapeAttr(i.alt || "")}" loading="lazy" onerror="this.parentNode.remove()"></a>`; }).join("")}</div>` : ""}
       <div class="dn-nf-tabla"><span></span><span class="dn-nf-cab">Español</span><span class="dn-nf-cab">English</span>${filas.join("")}</div>
       <p class="dn-nota">${alSitio ? "Al aprobarla se anuncia en la app y en el changelog del sitio." : "No se anuncia aunque la apruebes: solo se anuncian las expansiones y las nuevas etapas, o lo que lleve «sitio: true» en su ficha."}${bloques.length ? " El gráfico se ve dibujado en su ventana." : ""}</p>
     </div>`;

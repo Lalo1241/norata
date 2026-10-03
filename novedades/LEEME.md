@@ -155,9 +155,10 @@ Para las que lo merecen, que casi siempre son expansiones.
   `herramientas/novedades-framer.py` como SVG, que se rehace al correrlo
   —mientras la entrada sea borrador da igual; publicada, si cambia el gráfico
   cambia su nombre, como las imágenes—.
-- **En la app de Android no sale la imagen** (sí el gráfico): solo puede
-  enseñar lo que viaja dentro del paquete, y meter todas las imágenes lo haría
-  crecer con cada expansión. Se quita sola, sin dejar hueco.
+- **En la app de Android las imágenes llegan de la red** (0.7.182): el paquete
+  lleva el JSON pero no las imágenes —meterlas lo haría crecer con cada
+  expansión—, así que las pide a mi.norata.app (`novedadImgSrc`). Sin red se
+  quitan solas, sin dejar hueco; el gráfico sale siempre, porque es HTML.
 
 ### Para la tarjeta del sitio: el banner y dónde cae cada imagen
 

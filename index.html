@@ -17,12 +17,15 @@
      código ajeno, solo podría hablar con este sitio y con nuestro servidor.
      No podría mandarle a nadie la sesión ni el progreso de nadie, que es
      exactamente lo que haría un atacante que consiguiera ejecutar algo.
-     `object-src` y `base-uri` cierran dos vías clásicas de secuestro. -->
+     `object-src` y `base-uri` cierran dos vías clásicas de secuestro.
+     `img-src` admite además mi.norata.app (0.7.182): la app de Android no
+     lleva dentro las imágenes de las novedades y las pide ahí. Es nuestro
+     propio sitio, así que no abre una salida hacia nadie más. -->
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
   script-src 'self' 'unsafe-inline';
   style-src 'self' 'unsafe-inline';
-  img-src 'self' data: blob:;
+  img-src 'self' data: blob: https://mi.norata.app;
   font-src 'self' data:;
   connect-src 'self' https://wifffghnyrqfuwqlatci.supabase.co;
   form-action 'self';
