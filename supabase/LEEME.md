@@ -27,24 +27,7 @@ cierra.
 
 Lo de abajo está escrito por orden: lo de más arriba es lo más antiguo.
 
-### 1. Las respuestas del buzón — 3 oct 2026
-
-**Qué**: el bloque de la 0.7.190, que sale de `administracion.sql`: las columnas
-`respuesta` y `respondido`, la tabla `reportes_de`, y las funciones
-`apuntar_tropiezo`, `metricas`, `tropiezo_estado`, `mis_reportes` y
-`mis_reportes_leidos`. **Incluye el `apuntar_tropiezo` que estaba pendiente
-desde el 25 de septiembre** (los dos cupos del buzón): pegando esto queda puesto
-también aquello.
-
-**Se puede pegar dos veces sin consecuencias**, y no toca los datos que ya haya.
-
-**Después de pegarlo**: en el Puesto de mando → Subidas, el cambio de la 0.7.190
-está detenido en la cola porque trae SQL; se sube con «Ya lo pegué: subir».
-
-**No se probó contra una base de verdad.** Va en una transacción: si el editor
-da un error no se queda nada a medias. En ese caso, copiar el mensaje tal cual.
-
-**Dónde**: panel de Supabase → SQL Editor → pestaña nueva → pegar → Run.
+**Nada pendiente.** Lo último que se pegó fue el bloque de las respuestas del buzón (0.7.190), el 3 oct 2026; con él quedó puesto también el `apuntar_tropiezo` del 25 de septiembre.
 
 ---
 
