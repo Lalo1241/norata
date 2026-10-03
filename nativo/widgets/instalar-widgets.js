@@ -246,7 +246,7 @@ function deshacer() {
     if (fs.existsSync(p)) { fs.unlinkSync(p); n++; }
   }
   // Corrido suelto no hay lista al lado: se reconocen por el nombre, que es solo nuestro.
-  for (const carpeta of ["drawable", "layout", "xml"]) {
+  for (const carpeta of ["drawable", "drawable-nodpi", "layout", "xml"]) {
     const d = path.join(main, "res", carpeta);
     if (!fs.existsSync(d)) continue;
     for (const f of fs.readdirSync(d)) if (/^widget_/.test(f)) { fs.unlinkSync(path.join(d, f)); n++; }

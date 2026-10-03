@@ -8,4 +8,5 @@
     android:updatePeriodMillis="1800000"
     android:initialLayout="@layout/widget_hab"
     android:previewLayout="@layout/widget_hab"
+    android:previewImage="@drawable/widget_prev_hab"
     android:widgetCategory="home_screen" />

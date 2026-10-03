@@ -8,4 +8,5 @@
     android:updatePeriodMillis="1800000"
     android:initialLayout="@layout/widget_nodo"
     android:previewLayout="@layout/widget_nodo"
+    android:previewImage="@drawable/widget_prev_nodo"
     android:widgetCategory="home_screen" />

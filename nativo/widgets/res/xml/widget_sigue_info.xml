@@ -8,4 +8,5 @@
     android:updatePeriodMillis="1800000"
     android:initialLayout="@layout/widget_sigue"
     android:previewLayout="@layout/widget_sigue"
+    android:previewImage="@drawable/widget_prev_sigue"
     android:widgetCategory="home_screen" />

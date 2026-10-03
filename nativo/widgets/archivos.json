@@ -1,4 +1,13 @@
 [
+ "drawable-nodpi/widget_prev_apuntar.png",
+ "drawable-nodpi/widget_prev_exp.png",
+ "drawable-nodpi/widget_prev_hab.png",
+ "drawable-nodpi/widget_prev_hoy.png",
+ "drawable-nodpi/widget_prev_luc.png",
+ "drawable-nodpi/widget_prev_nodo.png",
+ "drawable-nodpi/widget_prev_pomo.png",
+ "drawable-nodpi/widget_prev_racha.png",
+ "drawable-nodpi/widget_prev_sigue.png",
  "drawable/widget_boton.xml",
  "drawable/widget_caja.xml",
  "drawable/widget_caja12.xml",

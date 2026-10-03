@@ -8,4 +8,5 @@
     android:updatePeriodMillis="1800000"
     android:initialLayout="@layout/widget_apuntar"
     android:previewLayout="@layout/widget_apuntar"
+    android:previewImage="@drawable/widget_prev_apuntar"
     android:widgetCategory="home_screen" />

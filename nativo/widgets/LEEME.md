@@ -159,6 +159,12 @@ estaba antes de ESE instalador.
 - **La lista de Hoy se desliza**, aunque en el Honor de Eduardo (MagicOS) el
   lanzador deforma el widget mientras hay un dedo arrastrando: se probó
   cambiarla a páginas (0.7.197.1) y la prefirió así.
+- **Cada widget lleva su imagen de muestra** (`res/drawable-nodpi/widget_prev_*.png`,
+  la `previewImage` de su ficha). Sin ella, el selector de widgets de MagicOS
+  enseña el icono de la app en vez del widget: no usa el molde (`previewLayout`)
+  como hace Android de fábrica. Salen del boceto «Widgets de Norata», con los
+  tonos de la casa de noche; **al cambiar el diseño de un widget hay que volver
+  a sacar la suya**, o el selector enseñará el de antes.
 - **En dp y no en sp.** El alto lo pone la cuadrícula del teléfono, y con la
   letra del sistema agrandada las filas se saldrían.
 - **Marcar y desmarcar seguido se anula aquí** y no llega a la app: aplicar

@@ -8,4 +8,5 @@
     android:updatePeriodMillis="1800000"
     android:initialLayout="@layout/widget_luc"
     android:previewLayout="@layout/widget_luc"
+    android:previewImage="@drawable/widget_prev_luc"
     android:widgetCategory="home_screen" />
