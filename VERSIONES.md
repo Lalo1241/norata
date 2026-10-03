@@ -314,6 +314,23 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.187 · 3 oct 2026
+
+**La ventana de Novedades, el doble de ancha en la computadora, con su letrero
+en verde Norata; y las destacadas, con etiqueta.** Tres cosas de Eduardo sobre
+capturas de Averno:
+
+- **El letrero** —la estrella y «Novedades de Norata»— va en `--casa-menta` en
+  todos los temas: salía en el rojo del mundo, y ahí habla Norata.
+- **La ventana** medía los 460 px de todo cuadro, «dimensiones de móvil en
+  PC»: desde 900 px de pantalla mide 920 (`.modal-card.novedades`).
+- **«Destacada»**, con su estrella, montada sobre el marco de cada expansión
+  de la lista, cerca de la esquina de arriba a la izquierda (`.nov-sello`): el
+  marco solo no decía nada. Marco y etiqueta en verde Norata y en `--sans`.
+
+Medido en Averno, Cyberpunk y la casa: letrero `rgb(95, 224, 176)`, ventana de
+920 px sin desbordar, y la etiqueta de −10 a 12 px sobre el borde.
+
 ### 0.7.186 · 3 oct 2026
 
 **Ajustes → Novedades enseña solo lo publicado, siempre, también con la prueba

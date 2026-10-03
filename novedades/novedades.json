@@ -679,6 +679,20 @@
       }
     },
     {
+      "version": "0.7.187",
+      "fecha": "2026-10-03",
+      "estado": "borrador",
+      "clase": "mejora",
+      "titulo": "Novedades, más fácil de leer en la computadora",
+      "resumen": "La ventana de novedades es el doble de ancha en la computadora, su letrero va en el verde de Norata en todos los temas y las destacadas llevan su etiqueta.",
+      "puntos": [],
+      "retoques": [],
+      "en": {
+        "titulo": "What's new, easier to read on a computer",
+        "resumen": "The What's new window is twice as wide on a computer, its header is Norata green in every theme, and featured updates carry their own tag."
+      }
+    },
+    {
       "version": "0.7.186",
       "fecha": "2026-10-03",
       "estado": "borrador",

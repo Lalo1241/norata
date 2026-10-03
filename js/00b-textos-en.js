@@ -2753,6 +2753,7 @@ const TEXTOS_EN = {
  "Hay {0} novedades más que no habías visto.": "There are {0} more updates you hadn't seen.",
  "Ver todas las novedades": "See everything new",
  "Herramientas de prueba": "Test tools",
+ "Destacada": "Featured",
  "Solo en esta pestaña. Lo que está por aprobar se revisa en el Puesto de mando, nunca aquí.": "Only in this tab. What awaits approval is reviewed in the Command post, never here.",
  "Ver la ventana de la más reciente": "Preview the latest window",
  "Lo que ha ido cambiando en Norata, de lo más nuevo a lo más viejo.": "What has been changing in Norata, newest first.",

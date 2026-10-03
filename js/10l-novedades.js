@@ -378,6 +378,7 @@ function novedadHTML(e, medios) {
       <figure class="nov-img"><img src="${escapeAttr(novedadImgSrc(e.imagen.src))}" alt="${escapeAttr(novedadCampo(e.imagen, "alt") || "")}" loading="lazy" onerror="this.parentNode.remove()"></figure>` : "";
   return `
     <article class="nov-ent nov-${clase}">
+      ${clase === "expansion" ? `<span class="nov-sello">${icon("star", 12)}${escapeHtml(tx("Destacada"))}</span>` : ""}
       ${img}
       <div class="nov-cab">
         <span class="nov-clase c-${clase}">${escapeHtml(tx(NOVEDAD_CLASES[clase].nombre))}</span>

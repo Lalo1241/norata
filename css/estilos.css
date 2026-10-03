@@ -8531,7 +8531,26 @@
   .nov-clase.c-hito { color: var(--casa-lila); background: var(--casa-lila-soft); }
   /* La expansión pesa más también en la lista: su tarjeta lleva el filo del
      acento y el título más grande. */
-  .nov-lista .nov-expansion { border-color: color-mix(in srgb, var(--mint) 45%, var(--line)); }
+  /* La destacada: su marco y, montada sobre él cerca de la esquina de arriba
+     a la izquierda, una etiqueta que lo dice (0.7.187). Eduardo: «ya las
+     destacas con un marco, pero agrega un tag en el marco… algo que haga
+     mención de ser relevante». El marco solo, sin palabra, se leía como una
+     tarjeta más. Los dos van en el verde de Norata y no en el acento del
+     mundo, como el letrero de la ventana: quien destaca es Norata. Y la
+     etiqueta va en `--sans`, que en Arcade y Averno la letra del mundo a este
+     tamaño no se lee. `border-image: none`, o el marco forjado de un mundo
+     taparía el color del borde. */
+  .nov-sello { display: none; }
+  .nov-lista .nov-expansion { position: relative; border-color: var(--casa-menta); border-image: none; margin-top: 8px; }
+  .nov-lista .nov-expansion .nov-sello {
+    display: inline-flex; align-items: center; gap: 5px;
+    position: absolute; top: 0; left: 14px; transform: translateY(-55%);
+    font-family: var(--sans); font-size: 11px; font-weight: 700; line-height: 1;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 5px 10px 5px 8px; border-radius: var(--r-pastilla);
+    background: var(--casa-menta-macizo); color: var(--sobre-casa);
+  }
+  .nov-sello svg { width: 12px; height: 12px; }
   .nov-expansion .nov-tit { font-size: 18px; }
   .nov-lista .nov-arreglo .nov-tit { font-size: 14.5px; }
   .nov-img { margin: 0 0 12px; border-radius: var(--r-chico); overflow: hidden; background: var(--sup-hondo); }
@@ -8620,6 +8639,20 @@
      novedad más…», que va fuera, sigue centrado como el resto del cuadro. */
   .modal-card .nov-ent, .modal-card .nov-ent p { text-align: left; }
   .nov-ventana { max-height: min(58vh, 520px); overflow-y: auto; }
+  /* El letrero de la ventana —la estrella y «Novedades de Norata»— va en el
+     verde de Norata en TODOS los temas (Eduardo, 0.7.187): quien habla ahí es
+     Norata, no el mundo, y en Averno salía en rojo sangre. `--casa-menta` es
+     el tono que ningún mundo cambia. Debajo del bloque `.menta` del modal y
+     no junto a él: con la misma fuerza gana la regla que va después. */
+  .modal-card.novedades .modal-titulo { color: var(--casa-menta); }
+  .modal-card.novedades .modal-ic { background: var(--casa-menta-soft); color: var(--casa-menta); }
+  /* En la computadora, el doble de ancha (0.7.187): con los 460 px de todo
+     cuadro, una ficha con banner e imágenes se leía por una rendija con
+     medidas de teléfono. */
+  @media (min-width: 900px) {
+    .modal-card.novedades { max-width: 920px; }
+    .modal-card.novedades .nov-ventana { max-height: min(64vh, 680px); }
+  }
   .nov-mas { margin: 12px 0 0; font-size: 12px; color: var(--muted); }
   .nov-todas { margin-top: 12px; }
   .nov-vacio { margin: 12px 0 0; font-size: 13px; color: var(--muted); }
