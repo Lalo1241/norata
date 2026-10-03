@@ -198,9 +198,13 @@ function cargaSoltarZoom(el) {
   cargaTelonPintar = null;
   /* El dibujo del estreno es de UNA carga: la siguiente que se muestre
      («Cambiando tema…», «Guardando lo último…») vuelve al aro que gira. */
-  document.documentElement.classList.remove("carga-estreno", "carga-cuenta", "carga-sin-halo");
+  document.documentElement.classList.remove("carga-estreno", "carga-cuenta", "carga-mundo", "carga-renace", "carga-sin-halo");
   const letrero = document.getElementById("carga-version");
   if (letrero) letrero.classList.remove("tic");
+  /* El cambio de mundo y la vuelta de su reinicio esconden el texto para
+     salir con el zoom (`cargaMundo`, `cargaEntrar`). */
+  const texto = document.getElementById("carga-msg");
+  if (texto) texto.style.visibility = "";
 }
 
 /* Un rectángulo redondeado como trozo de trazado, para recortarlo del telón. */
@@ -271,7 +275,7 @@ function cargaEntrar(modo) {
   /* El cambio de cuenta tiene su dibujo (0.7.174). Si algo lo quitó por el
      camino —una carga de «Poniendo tu tema…» que tuvo que salir—, ya no hay
      letrero que rematar: se entra con el zoom, como cualquier entrada. */
-  if (cual === "cuenta" && !document.documentElement.classList.contains("carga-cuenta")) cual = "entrada";
+  if ((cual === "cuenta" || cual === "mundo") && !document.documentElement.classList.contains("carga-cuenta")) cual = "entrada";
   if (!el || el.classList.contains("oculta")) return Promise.resolve();
   const mio = ++cargaTurno;
   const tras = (ms, hacer) => new Promise(listo => setTimeout(() => {
@@ -290,6 +294,21 @@ function cargaEntrar(modo) {
      vista (con segundo y medio «se alarga mucho», Eduardo, 0.7.172.1): se les deja terminar aunque la app haya arrancado antes. */
   if (cual === "estreno") return tras(Math.max(0, CARGA_ARO - performance.now()), () => cargaEstreno(el, mio));
   if (cual === "cuenta") return tras(0, () => cargaCuenta(el, mio));
+  if (cual === "mundo") return new Promise(listo => cargaMundo(el, mio, listo));
+  /* DE VUELTA DEL REINICIO de un cambio de mundo (0.7.194): la app se cerró
+     con el logo quieto y sin texto, y así sigue al abrir; no hay nada nuevo
+     que leer, así que no espera los tres segundos de una entrada: el zoom, y
+     adentro. La marca la pone el script de arriba de index.html. */
+  if (window.__renacido) {
+    window.__renacido = false;
+    const msg = document.getElementById("carga-msg");
+    if (msg) msg.style.visibility = "hidden";
+    return tras(Math.max(0, CARGA_RENACE - performance.now()), () => {
+      const ms = cargaZoom(el, mio);
+      setTimeout(() => document.documentElement.classList.remove("carga-llega"), ms);
+      return ms;
+    });
+  }
   /* Contado desde que se abrió la página y no desde aquí: el arranque ya tardó
      lo que tardó, y sumarle tres segundos enteros encima sería castigar a
      quien tiene la red lenta. Al entrar a una cuenta ya pasó de sobra. */
@@ -305,6 +324,7 @@ const CARGA_CORTA = 400;
 const CARGA_ARO = 3000;       // el tic de la versión acaba a los 2 s + 1 s para leerla
 const CARGA_TELON = 560;
 const CARGA_INVERSO = 1.25;   // la llegada va algo más rápida que la entrada
+const CARGA_RENACE = 900;     // lo que se ve la carga al volver del reinicio de un cambio de mundo
 function cargaCorta(el, mio) {
   const quieto = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (quieto || typeof el.animate !== "function") { cargaCerrar(); return 300; }
@@ -435,6 +455,128 @@ function cargaCuenta(el, mio) {
   t += CARGA_TELON + 30;
   dar(t, () => { el.classList.add("oculta"); cargaSoltarZoom(el); });
   return t;
+}
+
+/* ================= CAMBIAR DE MUNDO (0.7.194) =================
+   La segunda mitad de `cambiarDeMundo` (js/10i-apariencia.js, que cuenta la
+   pieza entera). Llega aquí con el dibujo de «Cambiar de cuenta» ya
+   corriendo por CSS: el aro llenándose, el color fundiéndose al mundo nuevo y
+   el letrero con el mundo que se deja.
+
+   Dos finales:
+
+   SIN REINICIO (la web, o un mundo con el mismo icono): el tic, un segundo
+   para leerlo y el zoom de siempre.
+
+   CON REINICIO (el APK, cuando el icono cambia): el tic y, debajo, el aviso
+   con su cuenta atrás —«Se reinicia en 4, 3, 2, 1»—, con el aro vaciándose al
+   mismo ritmo. Al llegar a cero el texto se apaga y la app se reinicia con el
+   logo quieto. Lo pidió Eduardo dos veces: primero que el reinicio fuera
+   DENTRO de la animación y no una ventana después, y luego que se anunciara,
+   porque sin aviso «no le explica por qué demonios se reinició la app».
+
+   La cuenta atrás no es solo cortesía: el WebView escribe `localStorage` al
+   disco segundos después, y reiniciar pronto dejaba el mundo a medias
+   (0.7.146.1). Entre guardar el mundo y reiniciar pasan aquí más de ocho.
+
+   Si el reinicio no llega a ocurrir —el complemento dice que no cambió nada,
+   o falla—, se entra con el zoom: nadie se queda mirando una carga. */
+const MUNDO_CUENTA = 4;
+function cargaMundo(el, mio, avisar) {
+  /* `cargaEntrar` espera a que esto termine, y lo que se abre al entrar
+     espera a `cargaEntrar`: tiene que avisar SIEMPRE, también si otra carga
+     se cruza a medias y deja estos pasos sin correr. */
+  let avisado = false;
+  const vigia = setInterval(() => { if (cargaTurno !== mio) listo(); }, 400);
+  const listo = () => {
+    if (avisado) return;
+    avisado = true;
+    clearInterval(vigia);
+    avisar();
+  };
+  const quieto = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const puede = !quieto && typeof el.animate === "function";
+  window.__cuentaLista = true;
+  const raiz = document.documentElement;
+  const caja = document.getElementById("carga-version");
+  const frase = caja && caja.querySelector(".cv-frase");
+  const num = frase && frase.querySelector(".cv-cuenta b");
+  const aro = el.querySelector(".carga-aro circle");
+  const halo = el.querySelector(".carga-halo");
+  const msg = document.getElementById("carga-msg");
+  const dar = (ms, hacer) => setTimeout(() => { if (cargaTurno === mio) hacer(); }, ms);
+  const apagar = (nodos, ms) => {
+    if (!puede) return;
+    nodos.forEach(n => {
+      if (n) cargaAnims.push(n.animate([{ opacity: getComputedStyle(n).opacity }, { opacity: 0 }],
+        { duration: ms, easing: "ease-in", fill: "forwards" }));
+    });
+  };
+  let salio = false;
+  /* El zoom de siempre. Antes se apaga lo que es solo de esta carga, y el
+     dibujo pasa al de la llegada (isotipo quieto, anillo tenue), que es el
+     mismo sin el fondo propio: con él la ventana del zoom no dejaría ver la
+     app. */
+  const salir = () => {
+    if (salio) return;
+    salio = true;
+    if (cargaTurno !== mio) { listo(); return; }
+    apagar([caja, aro && aro.parentNode, halo], 200);
+    setTimeout(() => {
+      if (cargaTurno !== mio) { listo(); return; }
+      if (msg) msg.style.visibility = "hidden";
+      raiz.classList.add("carga-llega");
+      raiz.classList.remove("carga-cuenta", "carga-mundo", "carga-sin-halo");
+      const ms = cargaZoom(el, mio);
+      setTimeout(() => { raiz.classList.remove("carga-llega"); listo(); }, ms);
+    }, puede ? 220 : 0);
+  };
+
+  let t = Math.max(0, CUENTA_TIC - performance.now());
+  dar(t, () => { if (caja) caja.classList.add("tic"); });
+
+  const conReinicio = !!num && typeof window.norataIconoPendiente === "function" &&
+                      typeof window.norataIconoReiniciar === "function";
+  if (!conReinicio) {
+    /* El tic (0,56 s) y un segundo para leerlo. */
+    t += 560 + 1000;
+    dar(t, salir);
+    return;
+  }
+
+  /* El tic, un respiro para leer el aviso, y la cuenta. */
+  t += 560 + 400;
+  dar(t, () => {
+    if (puede && aro) cargaAnims.push(aro.animate([{ strokeDashoffset: 0 }, { strokeDashoffset: -295.3 }],
+      { duration: MUNDO_CUENTA * 1000, easing: "linear", fill: "forwards" }));
+  });
+  for (let n = MUNDO_CUENTA; n >= 1; n--) {
+    dar(t + (MUNDO_CUENTA - n) * 1000, () => {
+      num.textContent = n;
+      if (puede) cargaAnims.push(num.animate([{ transform: "scale(1.35)" }, { transform: "scale(1)" }],
+        { duration: 260, easing: "cubic-bezier(.22,1,.36,1)" }));
+    });
+  }
+  /* El texto no cruza el reinicio: se apaga en el último cuarto de segundo. */
+  t += MUNDO_CUENTA * 1000 - 240;
+  dar(t, () => apagar([caja, halo], 220));
+  t += 240;
+  dar(t, () => {
+    /* Para la apertura que viene: que la carga nazca como se queda esta —el
+       logo quieto, sin texto, en estos tonos— y entre sin esperar. Va en
+       `localStorage` porque el reinicio se lleva `sessionStorage`. Si el
+       disco no alcanza a guardarlo, abre con la entrada de siempre. */
+    try { localStorage.setItem("norata-renacido", JSON.stringify({ t: Date.now(), tonos: cargaTonos() })); } catch (e) {}
+    Promise.resolve(window.norataIconoPendiente())
+      .then((id) => (id ? window.norataIconoReiniciar(id) : null))
+      .then((p) => { if (!(p && p.cambiado)) salir(); })
+      .catch(() => salir());
+    /* Y si en seis segundos la app sigue aquí, es que no se reinició. */
+    dar(6000, () => {
+      try { localStorage.removeItem("norata-renacido"); } catch (e) {}
+      salir();
+    });
+  });
 }
 
 /* LO ÚLTIMO ANTES DE RECARGAR con la carga puesta (0.7.176). Dos cosas, y las

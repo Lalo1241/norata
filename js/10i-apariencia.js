@@ -2215,7 +2215,99 @@ function elegirApariencia(id) {
     renderPanelApariencia();
     return;
   }
-  cambiarTapado(() => ponerApariencia(id));
+  cambiarDeMundo(id);
+}
+
+/* CAMBIAR DE MUNDO, DE UNA PIEZA (0.7.194).
+
+   Hasta aquí, en el teléfono, elegir un mundo eran TRES piezas: la carga con
+   su zoom, una ventana con diez segundos de cuenta atrás («Norata necesita
+   reiniciarse», `avisarRenacer`) y otra carga entera al volver. Eduardo: el
+   reinicio «no debería pedirlo después, debería hacerlo durante esa misma
+   animación». Lo aprobó en el boceto, paso a paso.
+
+   Es la pieza de «Cambiar de cuenta» (`cargaCuenta`, js/10c-portada.js) con
+   otro final, y como aquella cruza una recarga:
+
+   ANTES de recargar (aquí): el logo llega con el zoom al revés, en el mundo
+   que se deja. Se apuntan los tonos de ESA carga, se apaga el texto y,
+   detrás, se pone el mundo nuevo. La carga no cambia de color en ese
+   momento: sus tonos se le fijan a mano para que el fundido sea el de
+   después, mientras el aro corre, y no un salto aquí.
+
+   DESPUÉS de recargar (`html.carga-cuenta.carga-mundo` y `cargaMundo`): el
+   aro se llena, el color se funde al mundo nuevo y la ruleta da el tic de un
+   nombre al otro. Si hay icono que cambiar (el APK), debajo sale el aviso con
+   su cuenta atrás y al llegar a cero la app se reinicia; si no, se entra con
+   el zoom.
+
+   Si la carga ya está puesta, o falta alguna pieza, se hace como siempre
+   (`cambiarTapado`). La paleta de un mundo, la conciliación del arranque y
+   Arcade siguen por ahí. */
+async function cambiarDeMundo(id) {
+  const cortina = document.getElementById("carga");
+  const raiz = document.documentElement;
+  const tapado = typeof cargaVisible === "function" && cargaVisible();
+  if (!cortina || tapado || typeof cargaLlegar !== "function" || typeof cargaTonos !== "function" ||
+      typeof cargaDespedir !== "function") {
+    cambiarTapado(() => ponerApariencia(id));
+    return;
+  }
+  const idDe = apariencia();
+  const de = aparienciaPorId(idDe), a = aparienciaPorId(id);
+  const hayMundo = esMundo(id) || esMundo(idDe);
+
+  await cargaLlegar(hayMundo ? tx("Cambiando de mundo…") : tx("Cambiando tema…"));
+  const tonos = cargaTonos();
+  /* Los tonos de la carga, FIJOS en ella: lo que viene cambia las variables
+     de toda la app, y sin esto la carga saltaría de color aquí mismo. */
+  const FIJOS = { "--bg": "fondo", "--mint-macizo": "logo", "--mint-soft": "suave", "--muted": "apagado", "--text": "tinta", "--mint": "acento" };
+  if (tonos) Object.keys(FIJOS).forEach((v) => { if (tonos[FIJOS[v]]) cortina.style.setProperty(v, tonos[FIJOS[v]]); });
+  const soltar = () => Object.keys(FIJOS).forEach((v) => cortina.style.removeProperty(v));
+  /* El texto se apaga antes: el mundo nuevo puede traer otra letra, y se
+     vería cambiar. Al otro lado de la recarga no vuelve. */
+  await cargaDespedir();
+
+  if (!ponerApariencia(id)) {
+    soltar();
+    if (typeof cargaCerrar === "function") cargaCerrar();
+    return;
+  }
+  pintarSeleccion();
+  apuntarAspecto();
+  /* Con la hoja del mundo cargada: el fondo que se apunta para la siguiente
+     apertura —y el que se le manda al APK para su pantalla de arranque— tiene
+     que ser el suyo. */
+  try { await esperarLosMundos(); } catch (e) {}
+  pintarColorDeBarra();
+
+  /* ¿Hay icono que cambiar? Solo en el APK con el complemento, y solo si el
+     del mundo nuevo es otro. El pedido queda apuntado como siempre: si algo
+     de lo de después falla, `revisarIconoPedido` lo recoge con su aviso. */
+  let reinicio = false;
+  if (typeof window.norataIcono === "function") {
+    try { localStorage.setItem(ICONO_PEDIDO_LLAVE, "1"); } catch (e) {}
+    if (typeof window.norataIconoPendiente === "function") {
+      try { reinicio = !!(await window.norataIconoPendiente()); } catch (e) { reinicio = false; }
+    }
+  }
+  try {
+    /* Si lo de abajo no llegara a leerse, que al menos sea una entrada. */
+    sessionStorage.setItem("norata-entrada", "1");
+    /* Los textos van ya en su idioma: el marcado que los pinta corre antes
+       que `tx()`. */
+    sessionStorage.setItem("norata-cuenta", JSON.stringify({
+      mundo: true,
+      rot: hayMundo ? tx("Mundo") : tx("Tema"),
+      de: { n: de ? tx(de.nombre) : "" },
+      a: { n: a ? tx(a.nombre) : "" },
+      tonos: tonos,
+      sinHalo: raiz.classList.contains("claro"),
+      frase: reinicio ? tx("Norata se va a reiniciar para aplicar los ajustes finales") : tx("Listo"),
+      cuenta: reinicio ? tx("Se reinicia en") : ""
+    }));
+  } catch (e) { /* sin esto la carga de después es la entrada de siempre */ }
+  location.reload();
 }
 
 /* Cambiar de apariencia DETRÁS de la pantalla de carga, y no delante.

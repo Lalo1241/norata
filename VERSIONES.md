@@ -318,6 +318,37 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.194 · 3 oct 2026
+
+**Cambiar de mundo es una sola pieza, y el reinicio del APK va dentro, con su
+aviso.** Eduardo: en el teléfono, elegir un mundo acababa en una ventana aparte
+(«Norata necesita reiniciarse», diez segundos) y otra carga entera; «no
+debería pedirlo después, debería hacerlo durante esa misma animación». Se
+trabajó en el boceto de las cargas hasta que lo aprobó.
+
+- **Antes de recargar** (`cambiarDeMundo`, `js/10i-apariencia.js`): el logo
+  llega con el zoom al revés en el mundo que se deja, se apaga el texto y el
+  mundo nuevo se pone detrás, con los tonos de la carga fijados a mano para
+  que no salte de color ahí.
+- **Después de recargar** (`cargaMundo`, `js/10c-portada.js`): el dibujo de
+  «Cambiar de cuenta» —aro de 2,6 s, color fundiéndose— con la ruleta girando
+  de un mundo al otro. En la web, «Listo» y el zoom.
+- **En el APK, si el icono cambia**: bajo el nombre sale «Norata se va a
+  reiniciar para aplicar los ajustes finales» y «Se reinicia en 4, 3, 2, 1»,
+  con el aro vaciándose. Al llegar a cero la app se reinicia. El aviso lo
+  pidió Eduardo al ver la primera versión, que reiniciaba callada: «no le
+  explica por qué demonios se reinició la app».
+- **Al volver**, la carga nace con el logo quieto y sin texto, en los tonos
+  del mundo (`norata-renacido`, en `localStorage`), y entra con el zoom a los
+  0,9 s en vez de a los 3.
+- **Lo de antes sigue** para Arcade, la paleta y la conciliación del
+  arranque: `recargarApp` y, si cambia el icono, `avisarRenacer`.
+
+**Sin probar en el teléfono.** En local se midió la secuencia entera con un
+complemento de mentira. **Y falta lo nativo**: durante el reinicio la pantalla
+de arranque de Android pinta solo el color del mundo, sin logo; que pinte la
+marca en su sitio pide tocar el instalador y un APK nuevo.
+
 ### 0.7.193 · 3 oct 2026
 
 **El cobro tiene historia: las ventas por fecha.** El servidor solo sabía cómo

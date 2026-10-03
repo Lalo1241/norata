@@ -290,6 +290,15 @@
       try {
         var sigue = sessionStorage.getItem("norata-estreno") || sessionStorage.getItem("norata-cuenta");
         var tc = (ct && ct.tonos) || JSON.parse(sessionStorage.getItem("norata-carga-tonos") || "null");
+        /* Y al volver del REINICIO de un cambio de mundo (0.7.194): la app se
+           cerró con el logo quieto, y al abrir tiene que seguir ahí desde el
+           primer cuadro. Los tonos los dejó `cargaMundo` en `localStorage`,
+           que es lo único que sobrevive a un reinicio. Solo si es reciente:
+           una marca vieja no puede vestir una apertura cualquiera. */
+        if (!sigue) {
+          var rn = JSON.parse(localStorage.getItem("norata-renacido") || "null");
+          if (rn && rn.tonos && Date.now() - Number(rn.t || 0) < 30000) { sigue = "1"; tc = rn.tonos; }
+        }
         var esColor = /^(#[0-9a-f]{3,8}|(rgba?|color)\([\w\s.,%\/-]+\))$/i;
         if (sigue && tc && esColor.test(String(tc.fondo || "")) && esColor.test(String(tc.logo || "")) && esColor.test(String(tc.suave || ""))) {
           critico = "#carga{visibility:visible !important;position:fixed;inset:0;display:flex;flex-direction:column;" +
@@ -413,14 +422,30 @@
       sessionStorage.removeItem("norata-cuenta");
       try { window.__cuenta = JSON.parse(cta); } catch (e) { window.__cuenta = null; }
       if (window.__cuenta && window.__cuenta.a) {
-        window.__carga = "cuenta";
+        /* El cambio de MUNDO (0.7.194) usa el mismo dibujo, con otro letrero
+           y otro final: lo deja apuntado `cambiarDeMundo`. */
+        window.__carga = window.__cuenta.mundo ? "mundo" : "cuenta";
         document.documentElement.classList.remove("carga-estreno");
         document.documentElement.classList.add("carga-cuenta");
+        if (window.__cuenta.mundo) document.documentElement.classList.add("carga-mundo");
         if (window.__cuenta.sinHalo) document.documentElement.classList.add("carga-sin-halo");
       }
     }
     sessionStorage.setItem("norata-abierta", "1");
   } catch (e) { window.__carga = "entrada"; }
+  /* De vuelta del reinicio de un cambio de mundo (0.7.194): la carga nace
+     quieta y sin texto, y `cargaEntrar` entra sin esperar. La marca vale para
+     UNA apertura y solo si es reciente. */
+  try {
+    var rnc = JSON.parse(localStorage.getItem("norata-renacido") || "null");
+    if (rnc) {
+      localStorage.removeItem("norata-renacido");
+      if (window.__carga === "entrada" && Date.now() - Number(rnc.t || 0) < 30000) {
+        window.__renacido = true;
+        document.documentElement.classList.add("carga-llega", "carga-renace");
+      }
+    }
+  } catch (e) {}
 
   /* ---- El escaparate: `?informes=demo` ----
      Aquí vivía el interruptor de la reforma de los paneles (0.7.20 a 0.7.27),
@@ -603,8 +628,9 @@
          con la ruleta de cuentas: la que se deja y, debajo, la que entra. Los
          nombres van como TEXTO y los colores se comprueban: llegan de
          sessionStorage, y lo que se mete en un `style` se mira antes. */
-      if (window.__carga === "cuenta") {
+      if (window.__carga === "cuenta" || window.__carga === "mundo") {
         var c = window.__cuenta || {}, en2 = localStorage.getItem("norata-idioma") === "en";
+        var deMundo = window.__carga === "mundo";
         var el = document.getElementById("carga"), caja2 = document.getElementById("carga-version");
         var color = /^(#[0-9a-f]{3,8}|(rgba?|color)\([\w\s.,%\/-]+\))$/i;
         var tn = c.tonos || {};
@@ -612,8 +638,10 @@
           if (color.test(String(tn[k] || ""))) el.style.setProperty("--cg-de-" + k, tn[k]);
         });
         document.getElementById("carga-msg").textContent = en2 ? "Switching accounts…" : "Cambiando de cuenta…";
-        caja2.firstElementChild.textContent = en2 ? "Account" : "Cuenta";
+        caja2.firstElementChild.textContent = deMundo ? String(c.rot || "").slice(0, 24) : (en2 ? "Account" : "Cuenta");
         var ficha = function (fila, d) {
+          /* Un mundo es solo su nombre: no tiene círculo con inicial. */
+          if (deMundo) { fila.textContent = String(d.n || "").slice(0, 40); return; }
           var av = document.createElement("u");
           av.className = "cv-av";
           av.textContent = String(d.i || "·").slice(0, 2);
@@ -626,7 +654,7 @@
         };
         var nueva2 = caja2.querySelector(".cv-fila.nueva");
         ficha(nueva2, c.a || {});
-        if (c.de && c.de.n) {
+        if (c.de && c.de.n && !(deMundo && c.de.n === (c.a || {}).n)) {
           var vieja2 = document.createElement("b");
           vieja2.className = "cv-fila vieja";
           ficha(vieja2, c.de);
@@ -634,6 +662,22 @@
           caja2.classList.add("con-tic");
         }
         var frase = caja2.lastElementChild, saludo = en2 ? "Good to see you again" : "Hola de nuevo";
+        /* El cambio de mundo (0.7.194) dice otra cosa: «Listo», o el aviso
+           del reinicio con su cuenta atrás, que mueve `cargaMundo`. Los dos
+           textos llegan ya en su idioma y se ponen como TEXTO. */
+        if (deMundo) {
+          frase.textContent = String(c.frase || "").slice(0, 140);
+          if (c.cuenta) {
+            var cu = document.createElement("span");
+            cu.className = "cv-cuenta";
+            cu.textContent = String(c.cuenta).slice(0, 40) + " ";
+            var nu = document.createElement("b");
+            nu.textContent = "4";
+            cu.appendChild(nu);
+            frase.appendChild(cu);
+          }
+          return;
+        }
         frase.textContent = saludo;
         frase.setAttribute("data-saludo", saludo);
         /* Si el aro ya se cerró y el progreso todavía no baja, se dice. Lo

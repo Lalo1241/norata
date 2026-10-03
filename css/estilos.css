@@ -10898,6 +10898,19 @@
                cargaHaloRespira 1.8s ease-in-out 2.12s infinite alternate;
   }
   html.carga-sin-halo .carga-halo { display: none; }
+  /* ---- Cambiar de mundo (0.7.194) ----
+     El dibujo es el de «Cambiar de cuenta» (`html.carga-cuenta`), y aquí solo
+     va lo suyo: el aviso del reinicio cabe en dos renglones y lleva debajo
+     su cuenta atrás. La mueve `cargaMundo` (js/10c-portada.js). */
+  html.carga-mundo .cv-frase { max-width: 290px; }
+  .cv-cuenta { display: block; margin-top: 8px; font-size: 13px; font-weight: 500; color: var(--cg-apagado); }
+  .cv-cuenta b {
+    display: inline-block; min-width: 1ch; margin-left: 5px;
+    font-size: 22px; font-weight: 800; line-height: 1; vertical-align: -2px;
+    color: var(--cg-acento); font-variant-numeric: tabular-nums;
+  }
+  /* De vuelta del reinicio: la carga nace sin texto, como se quedó. */
+  html.carga-renace .carga-msg { opacity: 0; }
   /* La ficha de cada cuenta en la ruleta: su círculo y su nombre. El círculo
      lleva el color que la persona eligió, que es de la paleta de ocho y es
      claro en los dos modos: por eso su letra va en `--sobre-vivo`. */

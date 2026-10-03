@@ -94,12 +94,18 @@ que abre sin red y sin pasar por Chrome. Lo que eso cambia aquí:
   rojo. La referencia es la lámina «Avisos de Norata»; las reglas, en el
   `LEEME.md` de `nativo/avisos/`.
 - **El icono de la pantalla de inicio sigue al mundo (0.7.145), y solo en el
-  APK.** Elegir un mundo o Arcade tapa con la carga (2,5 s mínimo), recarga
-  ya con el mundo puesto, avisa (`avisarRenacer`: sin saltarse, cuenta de
-  10 s) y reinicia la app con su icono
-  (`recargarApp` → `revisarIconoPedido` → el complemento `IconoNorata`). **No
-  se reinicia antes de ese aviso**: el WebView escribe `localStorage` al disco
-  segundos después, y reiniciar pronto dejaba el mundo a medias (0.7.146.1).
+  APK.** **Elegir un mundo es una sola pieza (0.7.194)**: el logo llega, se
+  recarga, el aro se llena con el color fundiéndose al mundo nuevo, la ruleta
+  da el tic de un nombre al otro y, si el icono cambia, el mismo letrero avisa
+  («Norata se va a reiniciar…», «Se reinicia en 4, 3, 2, 1») y la app se
+  reinicia ahí, sin ventana aparte (`cambiarDeMundo` → `cargaMundo` → el
+  complemento `IconoNorata`). Al volver abre con el logo quieto y entra con el
+  zoom. Arcade, la paleta y la conciliación del arranque siguen por el camino
+  de antes (`recargarApp` → `revisarIconoPedido` → `avisarRenacer`, con su
+  cuenta de 10 s). **Nunca se reinicia antes de unos segundos**: el WebView
+  escribe `localStorage` al disco segundos después, y reiniciar pronto dejaba
+  el mundo a medias (0.7.146.1). El reinicio SE ANUNCIA siempre: sin aviso,
+  Eduardo lo leyó como un fallo.
   El mismo instalador deja la pantalla de arranque de Android sin icono: el
   sistema ponía el de siempre en medio al abrir, y rompía la entrada. Lo
   nativo —el complemento, los dieciocho iconos y el trozo de manifiesto— lo
