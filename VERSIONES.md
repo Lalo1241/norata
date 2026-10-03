@@ -318,6 +318,13 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.187.1 · 3 oct 2026
+
+**El botón «Cierre de emergencia» lleva marco coral y crece un poco al pasarle
+el cursor.** Lo pidió Eduardo: un marco fino (1,5 px) y un 5 % de agrandamiento.
+La transición va declarada aparte, porque el Puesto de mando las apaga todas
+para que ningún mundo le cuele las suyas.
+
 ### 0.7.187 · 3 oct 2026
 
 **Dos retoques del regreso de emergencia (0.7.184).** Lleva número de 3º y no

@@ -148,7 +148,8 @@ html.claro #dentro {
 /* Encima de las rayas del grifo abierto el tenue se transparenta y el botón
    parece salir por detrás de la animación (Eduardo, dos veces): el mismo
    tono, pero puesto sobre la tarjeta, que es maciza. */
-#dentro .dn-grifo .dn-btn.b-coral { background: linear-gradient(var(--dn-coral-s), var(--dn-coral-s)), var(--card); }
+#dentro .dn-grifo .dn-btn.b-coral { background: linear-gradient(var(--dn-coral-s), var(--dn-coral-s)), var(--card); border: 1.5px solid var(--dn-coral); }
+#dentro .dn-grifo .dn-btn.b-coral:hover { transform: scale(1.05); }
 #dentro .dn-btn:active { transform: scale(.97); }
 #dentro .dn-btn[disabled] { opacity: .45; cursor: not-allowed; }
 
@@ -336,6 +337,7 @@ html.claro #dentro .dn-velo { background: rgba(16, 24, 34, 0.42); }
    la capa —es lo que impide que un mundo meta las suyas—, así que estas se
    vuelven a encender una por una. De día, el botón no lleva halo. */
 @media (prefers-reduced-motion: no-preference) {
+  #dentro .dn-grifo .dn-btn.b-coral { transition: transform .16s ease-out; }
   #dentro .dn-llave { animation: dn-menea 2.2s ease-in-out infinite; }
   #dentro .dn-llave.arrastra, #dentro .dn-llave.vuelve { animation: none; }
   #dentro .dn-llave.vuelve { transition: transform .25s ease-out; }
