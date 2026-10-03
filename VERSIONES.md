@@ -318,18 +318,20 @@ en que conviene hacerlo:
 
 ## La lista
 
-### 0.7.193 · 3 oct 2026
+### 0.7.200 · 3 oct 2026
 
 **La burbuja de la computadora, en prueba.** Lo pidió Eduardo: algo que te siga
 en la PC como la burbuja de Messenger, sin la barra del navegador encima y que
 se sienta parte de Norata; en el teléfono y la tableta se quedan los avisos del
 sistema. Un botón «Flotar» en la barra lateral abre una ventanita que se queda
 encima de todo, con el Pomodoro (la cuenta, Iniciar, Pausa en amarillo y
-Seguir), lo que sigue en la rueda y las misiones de hoy para tacharlas ahí.
+Seguir), lo que sigue en la rueda y las misiones de hoy para tacharlas ahí. Se escribió como 0.7.193 en `js/13c-flotante.js`; al fusionar, otras sesiones ya
+habían llegado a la 0.7.199 y estrenado `13c-widgets.js`, así que pasó a ser
+la 0.7.200 y el archivo `13d-flotante.js`.
 
 - **Es Picture-in-Picture de documento** (`documentPictureInPicture`, Chrome y
   Edge de escritorio). Tres límites que no se pueden cambiar desde una página y
-  están escritos arriba de `js/13c-flotante.js`: lleva una tira mínima del
+  están escritos arriba de `js/13d-flotante.js`: lleva una tira mínima del
   navegador arriba, solo se abre con un clic y vive mientras Norata esté
   abierta. Quitar la tira del todo pide una app de escritorio (Tauri): se habló
   y se dejó para después de ver si la burbuja se usa.
@@ -353,7 +355,7 @@ en el Puesto de mando → Laboratorio. **Para encenderla para todos, se borra
 por nombre:** la clase `flotante-prueba` y su bloque en el script de arriba de
 `index.html`, el `<div id="rotulo-flotante">`, `html.flotante-prueba
 #rotulo-flotante` en las cuatro reglas de `css/estilos.css`, `fltEnPrueba()`
-en `js/13c-flotante.js` (y su uso en `fltPintarBoton`) y la fila `flotante` de
+en `js/13d-flotante.js` (y su uso en `fltPintarBoton`) y la fila `flotante` de
 `DN_PRUEBAS`. Y se aprueba su novedad, que está en borrador.
 
 **Comprobado en Chromium**, con el ejemplo sembrado: la burbuja abre con el
@@ -362,6 +364,244 @@ cambian el tramo de la app; tachar una misión pasa de «0 de 4» a «1 de 4»; 
 modo claro toma los tonos de día; en un teléfono el botón no sale. Sin errores
 en la consola. **Sin probar:** el tamaño de la ventana (sin pantalla, Chromium
 la abre del tamaño de la página) y cómo se ve en cada mundo.
+### 0.7.199 · 3 oct 2026
+
+**El paquete de la semana.** Lo pidió Eduardo con la barrera: que las subidas
+no sean «spam de mini updates». Con el grifo cerrado, la cola pasa a llamarse
+así y dice cuándo sale: lo terminado se junta y sube de una vez, y para quien
+usa la app es una sola versión —la última de la tanda—.
+
+- **El día es un recordatorio, no un reloj.** Nada sube sin su aprobación; el
+  día del paquete (jueves de partida, se elige ahí mismo) solo avisa: «sale el
+  jueves 8», y el día que toca, «Hoy toca el paquete» en Subidas y en Hoy. Se
+  guarda en el dispositivo: es una preferencia de quien administra.
+- **Dice cuántas versiones llegaron al vivo en siete días**, que es la medida
+  de lo que el paquete evita.
+- **Lo que el boceto tenía y aquí no existe, porque no puede:** meter y sacar
+  cambios sueltos del paquete. `main` es la cola y `vivo` avanza en orden.
+
+Con el grifo abierto nada de esto sale: ahí no hay paquete.
+
+**Y `herramientas/comprobar-publicado.py` lee la lista de la rama `vivo`**, que
+es lo publicado desde la barrera, y no de la carpeta: con cambios en la cola
+habría dado por roto un sitio que estaba bien. Corrida hoy contra el sitio: 70
+archivos, ninguno falla; 13 documentos, ninguno abierto.
+
+### 0.7.198 · 3 oct 2026
+
+**El aviso del cambio de mundo dice «cerrar», y Arcade entra en la familia de
+los mundos.** Eduardo probó la 0.7.194 en su teléfono: la app no se reinicia,
+se cierra y hay que abrirla. No le parece mal, pero «el texto dice una cosa y
+el APK hace otra».
+
+- **El aviso**: «Norata se va a cerrar para aplicar los ajustes finales. Vuelve a abrirla cuando se cierre.» y «Se cierra en 4, 3, 2, 1». La ventana vieja
+  (`avisarRenacer`) también: «Norata necesita cerrarse», «Cerrar ahora», y su
+  texto dice que hay que volver a abrirla. «Reiniciando…» pasa a «Cerrando…».
+- **Al volver a abrirla**, la carga de vuelta (logo quieto, zoom a los 0,9 s)
+  vale diez minutos y no treinta segundos: ya no la abre el sistema en el
+  acto, la abre la persona.
+- **Arcade usa la misma pieza** que un mundo: `cambiarDeMundo` pasó a ser
+  `cambiarDeUnaPieza`, que recibe qué aplicar y los dos nombres, y
+  `arcadeAlternar` la llama. Antes se quedaba con la carga suelta y la
+  ventana aparte.
+- **En Mi apariencia, Arcade es un renglón más de la lista de mundos**, con
+  su plegable, debajo de un rótulo: «Secretos». Se fueron la sección aparte,
+  su párrafo y la tarjeta de borde punteado. Con Arcade puesto, la palomita
+  de la lista es la suya y no la del mundo de partida.
+
+**Por qué no se reabre sola no se investigó**: Eduardo prefirió ajustar el
+texto. Sin probar en el teléfono lo de Arcade.
+
+### 0.7.197.1 · 3 oct 2026
+
+**El widget Hoy va por páginas, y con las esquinas menos redondas.** Eduardo lo
+puso en su teléfono —la primera vez que se veía pintado— y salieron dos cosas.
+
+- **La lista ya no se desliza.** Su lanzador inclina y deforma el widget entero
+  mientras hay un dedo arrastrando encima, y ese es justo el gesto de deslizar
+  una lista: «se mueve tan tosco». Esa animación es del lanzador y desde un
+  widget no se apaga. Ahora cada widget enseña las filas que le caben y un pie
+  que pasa a las siguientes con un toque: «3 más», y al final «Volver arriba».
+  Cuántas caben sale del alto que Android dice que mide el widget
+  (`OPTION_APPWIDGET_MAX_HEIGHT`) y de las medidas del molde, y se vuelve a
+  contar al estirarlo.
+- **Las esquinas bajan de 28 a 20 dp**: al lado de otros widgets se veían de más.
+
+Dos textos nuevos viajan en la foto, y por eso sube el número: lo demás es
+nativo y pide volver a armar el APK. **Sin probar en el teléfono**: que el alto
+que da su lanzador cuadre con lo que de verdad cabe.
+
+### 0.7.197 · 3 oct 2026
+
+**El primer widget de la pantalla de inicio: Hoy.** En la app de Android, las
+misiones del día se marcan sin abrir la app. Lo pidió Eduardo, sobre un boceto
+con nueve widgets; este es el primero que se construye.
+
+**La regla que lo ordena todo: el widget apunta, la app aplica.** Un widget
+vive fuera de la página y no puede sumar XP, mover la racha ni sincronizar. Lo
+que se marca queda en una cola con su día y su hora, y la app lo aplica al
+abrirse —o al momento, si estaba viva de fondo—. Es el mecanismo de los avisos
+del Pomodoro (`jAplicarAvisos`).
+
+- **Lo nativo, en `nativo/widgets/`**: el complemento `WidgetsNorata` (cuatro
+  archivos Java), los moldes, el instalador y su `LEEME.md`. No depende de los
+  avisos; solo comparten las letras. **No llega solo: pide reinstalar el APK
+  una vez.** Sin él, `js/13c-widgets.js` se sale en su primera línea.
+- **La página manda una «foto»** cada vez que pasa por `save()`: siete días
+  con sus misiones y las actividades de la rueda del Pomodoro, los textos en el
+  idioma de la app y cada color leído del CSS de verdad. Siete días y no uno
+  porque a medianoche el widget cambia de día sin que nadie abra la app. La
+  rueda se lee SIN `jDatos()`, que la sembraría en quien nunca la abrió.
+- **`logMission` acepta `dia`, `hora` y `mudo`.** Una marca de anoche a las
+  23:50 es de ayer aunque la app se abra hoy; apuntarla en la hora de la
+  apertura le mentiría a la racha de la misión y al informe de horas. `mudo`
+  calla el sonido y la moneda de Arcade: suenan a lo que ves pasar. Así el
+  widget entra por la misma puerta que un toque dentro y no hay un segundo
+  camino para cumplir una misión.
+- **Se dice una vez**: «Se aplicaron 3 marcas del widget», y entonces se
+  pregunta por la racha y el nivel. Una celebración que salga al abrir tiene al
+  lado el aviso que explica de dónde vino.
+- **Marcar y desmarcar seguido se anula en el widget** y no llega a la app:
+  aplicar las dos daría y quitaría el XP por algo que no pasó.
+- **`pendientes` vacía la cola**, así que no se pide hasta que la app está en
+  pie: pedirla sobre la pantalla de carga sería perder las marcas.
+
+**Cómo se probó.** El Java compila con `javac` contra Android 16 y Capacitor 8.
+La página, con un complemento de mentira: seis marcas, cuatro aplicadas con su
+día y su hora y las dos inválidas —una misión que no existe y una fecha
+futura— descartadas; el XP entró y marcar dentro de la app sigue igual.
+**Sin probar:** el widget pintado en un teléfono, el instalador contra el
+proyecto de Android y las actividades de la rueda con datos reales.
+
+**Lo que no hace:** la tira de «Ahora» puede ir hasta media hora atrasada (es
+lo mínimo que Android deja repintar sin una alarma propia), y una marca del
+widget no llega a otros dispositivos hasta abrir la app en este. Todos los
+widgets son gratis de momento; qué pide Pro lo decide Eduardo después.
+
+### 0.7.196 · 3 oct 2026
+
+**La sala de Subidas dice que está subiendo, y se refresca sola.** Después de
+aprobar algo la sala se quedaba igual hasta volver a entrar: la subida tarda
+uno o dos minutos en GitHub y aquí no se movía nada. Lo pidió Eduardo.
+
+- **«Subiendo al vivo…»**: una tira arriba, con su rueda, desde que se manda la
+  orden hasta que GitHub termina. Mientras dura, los botones de subir se apagan
+  —un segundo toque mandaría otra subida detrás—.
+- **Un latido** mientras la sala está a la vista: cada 6 segundos con una
+  subida en marcha, cada 30 sin ella. No late con la sala cerrada, con otra
+  sala abierta ni con la pestaña escondida: cada pregunta son varias llamadas
+  a GitHub con la llave, y la llave tiene cupo.
+- **Solo se repinta si algo cambió**, y nunca con la llave del grifo en la mano.
+- **Al terminar avisa**: «Ya está en vivo», o que no terminó bien, y vuelve a
+  leer las novedades por si lo aprobado las cambió.
+
+GitHub tarda unos segundos en dar de alta una corrida, así que recién mandada
+la orden no se da por terminada hasta pasados veinte segundos sin ninguna en
+marcha; a los cinco minutos se suelta pase lo que pase.
+
+**Cómo se probó.** Con el servidor imitado: mandar una subida, ver la tira y
+los botones apagados, que pregunte solo a los seis segundos, y que al terminar
+quite la tira, vacíe la cola y avise. Dos fallos salieron ahí y se corrigieron:
+el latido lento que ya esperaba no se aceleraba al empezar la subida, y una
+pregunta suelta no sabía dar la subida por terminada.
+
+### 0.7.195 · 3 oct 2026
+
+**Una novedad de una versión que todavía no existe no se puede publicar.**
+«Aprobar todas» (0.7.192) aprobó de un jalón las dieciocho fichas en borrador,
+y entre ellas iban la de la beta (0.8) y la del lanzamiento (1.0): anuncios de
+dos etapas a las que les falta mucho, escritos de antemano. **No llegaron al
+vivo**, y fue de milagro: la cola estaba detenida por el SQL de la 0.7.193.
+Eduardo: «imposibilita que se suban y que no se suban jamás ni con ese botón».
+El fallo fue mío: el botón trataba igual todo lo que estuviera en borrador.
+
+Esta versión las devuelve a borrador y pone tres candados, con una regla que
+no depende de acordarse de dos números: **una ficha cuya versión es mayor que
+`VERSION` no se publica.** El día que la app llegue a la 0.8, la suya deja de
+ser futura sola.
+
+- **La barrera** (`herramientas/novedades-futuras.py`, dentro de la 4ª
+  comprobación): no sube nada al vivo si hay una publicada. Es el que de verdad
+  lo impide, pase lo que pase en los otros dos.
+- **`aprobar-novedad.py`** se niega a aprobarla, y el trabajo de GitHub la
+  salta y sigue con las demás.
+- **El Puesto de mando** no las enseña entre las que se pueden aprobar: salen
+  en una línea aparte, «guardadas para su versión».
+
+**Cómo se probó.** El guion, contra la cola tal como estaba (se niega y nombra
+las dos) y contra el arreglo (pasa); aprobar la 1.0 a mano sale rechazado. En
+vivo se comprobó que las dos seguían en borrador antes de tocar nada.
+
+### 0.7.194 · 3 oct 2026
+
+**Cambiar de mundo es una sola pieza, y el reinicio del APK va dentro, con su
+aviso.** Eduardo: en el teléfono, elegir un mundo acababa en una ventana aparte
+(«Norata necesita reiniciarse», diez segundos) y otra carga entera; «no
+debería pedirlo después, debería hacerlo durante esa misma animación». Se
+trabajó en el boceto de las cargas hasta que lo aprobó.
+
+- **Antes de recargar** (`cambiarDeMundo`, `js/10i-apariencia.js`): el logo
+  llega con el zoom al revés en el mundo que se deja, se apaga el texto y el
+  mundo nuevo se pone detrás, con los tonos de la carga fijados a mano para
+  que no salte de color ahí.
+- **Después de recargar** (`cargaMundo`, `js/10c-portada.js`): el dibujo de
+  «Cambiar de cuenta» —aro de 2,6 s, color fundiéndose— con la ruleta girando
+  de un mundo al otro. En la web, «Listo» y el zoom.
+- **En el APK, si el icono cambia**: bajo el nombre sale «Norata se va a
+  reiniciar para aplicar los ajustes finales» y «Se reinicia en 4, 3, 2, 1»,
+  con el aro vaciándose. Al llegar a cero la app se reinicia. El aviso lo
+  pidió Eduardo al ver la primera versión, que reiniciaba callada: «no le
+  explica por qué demonios se reinició la app».
+- **Al volver**, la carga nace con el logo quieto y sin texto, en los tonos
+  del mundo (`norata-renacido`, en `localStorage`), y entra con el zoom a los
+  0,9 s en vez de a los 3.
+- **Lo de antes sigue** para Arcade, la paleta y la conciliación del
+  arranque: `recargarApp` y, si cambia el icono, `avisarRenacer`.
+
+**Sin probar en el teléfono.** En local se midió la secuencia entera con un
+complemento de mentira. **Y falta lo nativo**: durante el reinicio la pantalla
+de arranque de Android pinta solo el color del mundo, sin logo; que pinte la
+marca en su sitio pide tocar el instalador y un APK nuevo.
+
+### 0.7.193 · 3 oct 2026
+
+**El cobro tiene historia: las ventas por fecha.** El servidor solo sabía cómo
+está cada suscripción AHORA; no se podía saber cuánto entró en un mes, ni
+cuánto fue Fundador y cuánto suscripción, ni cuánto se devolvió. Lo pidió
+Eduardo al rehacer el panel.
+
+**El libro de pagos** (`pagos`, en `supabase/planes.sql`): una fila por cobro y
+una por cargo devuelto, escritas por la función `cobro` con cada aviso de
+Stripe. Tres decisiones que no se deshacen sin saber por qué están:
+
+- **Apuntar un pago nunca puede tumbar un aviso.** Lo que importa de `cobro` es
+  que quien pagó tenga su plan. El apunte va en su propio `try`, no lanza, y si
+  la tabla no existe o la base no contesta deja una línea en el registro y ya.
+- **Sin dueño.** No guarda de quién fue: para dibujar las ventas no hace falta.
+- **El id es el del objeto de Stripe**, así que un aviso repetido reescribe la
+  misma fila. En una devolución, el importe es lo devuelto en total de ese
+  cargo: dos reembolsos parciales son una fila que crece.
+
+Mensual o anual se decide por lo que dura el periodo de la factura, no por el
+precio: dónde vive el intervalo ha cambiado entre versiones de la API de
+Stripe, y el periodo no.
+
+**En Números → Cobro**: los periodos de 15, 30, 60, 90 y 180 días, dos fechas a
+gusto, lo que entró, suscripciones contra Fundador —lo que se repite y lo que
+entra una vez—, lo devuelto y lo que queda, y una gráfica con las tres líneas.
+`metricas()` manda la historia entera sumada por día y el panel recorta: cambiar
+de periodo no vuelve a preguntar. Pasado de 200 días va semana a semana.
+
+**El libro empieza vacío**: lo cobrado antes de pegar el SQL no está, y la sala
+lo dice con la fecha del primer apunte. Traerlo de Stripe es otra tanda.
+
+**Trae SQL**, en «Pendiente de pegar». La función `cobro` ya está desplegada
+(3 oct 2026): sin firma sigue contestando 400, que es lo que hacía.
+
+**Cómo se probó.** La sala, con un libro imitado: los cinco periodos, las
+fechas a gusto, el libro vacío y el servidor sin la tabla; las sumas se
+contaron a mano. La función se comprobó de sintaxis y de que arranca. **Un
+cobro de verdad no ha pasado por aquí, y el SQL no se probó contra una base.**
 
 ### 0.7.192.1 · 3 oct 2026
 

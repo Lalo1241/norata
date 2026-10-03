@@ -175,6 +175,44 @@ $fn$;
 grant execute on function public.lugares_fundador() to anon, authenticated;
 
 
+-- ---- El libro de pagos (3 oct 2026) ----
+-- `suscripciones` dice cómo está cada cuenta AHORA, y nada de cómo llegó ahí:
+-- no se puede saber cuánto entró en septiembre, ni cuántas ventas fueron de
+-- Fundador y cuántas de suscripción, ni cuánto se devolvió. Eduardo pidió
+-- verlo por fechas en el Puesto de mando, y para eso hay que apuntar cada
+-- cobro en el momento en que pasa: Stripe lo sabe, pero el panel no habla con
+-- Stripe.
+--
+-- Una fila por cobro y una por cargo devuelto. La escribe la función `cobro`
+-- con cada aviso de Stripe, y solo ella: sin políticas, nadie la toca desde la
+-- app. La lee `metricas()`, ya sumada por día.
+--
+-- **Sin dueño a propósito.** No guarda de quién fue el pago: para dibujar las
+-- ventas no hace falta, y lo que no se guarda no se puede filtrar.
+--
+-- El `id` es el del objeto de Stripe (la factura, el pago de Fundador, o
+-- `dev_` más el cargo devuelto), así que un aviso repetido reescribe la misma
+-- fila en vez de contar dos veces. En una devolución el importe es lo devuelto
+-- EN TOTAL de ese cargo: dos reembolsos parciales son una fila que crece.
+--
+-- **Empieza vacío**: lo cobrado antes de pegar esto no está.
+create table if not exists public.pagos (
+  id        text primary key,
+  cuando    timestamptz not null default now(),
+  clase     text not null check (clase in ('pago', 'devolucion')),
+  -- 'mensual' | 'anual' | 'fundador'. En una devolución de suscripción no se
+  -- sabe cuál de las dos era sin otra llamada a Stripe: va 'suscripcion'.
+  producto  text not null default 'otro',
+  -- En centavos, siempre positivo. La clase dice si entra o sale.
+  importe   integer not null default 0,
+  moneda    text not null default 'mxn'
+);
+create index if not exists pagos_cuando on public.pagos (cuando);
+
+alter table public.pagos enable row level security;
+revoke all on table public.pagos from anon, authenticated;
+
+
 -- ---- Consultas para mirar el negocio ----
 -- En el SQL Editor, igual que las de medicion.sql. Con veinte o trescientas
 -- personas esto sobra; el día que estorbe, ese día se construye un panel.

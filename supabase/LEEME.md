@@ -27,7 +27,10 @@ cierra.
 
 Lo de abajo está escrito por orden: lo de más arriba es lo más antiguo.
 
-**Nada pendiente.** Lo último que se pegó fue el bloque de las respuestas del buzón (0.7.190), el 3 oct 2026; con él quedó puesto también el `apuntar_tropiezo` del 25 de septiembre.
+**Nada pendiente.** Lo último que se pegó fue el libro de pagos (0.7.193), el 3 oct 2026.
+
+Al volver a desplegar `cobro`, siempre con `--no-verify-jwt`:
+`supabase functions deploy cobro --no-verify-jwt --project-ref wifffghnyrqfuwqlatci`
 
 ---
 

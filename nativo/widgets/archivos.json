@@ -1,0 +1,16 @@
+[
+ "drawable/widget_boton.xml",
+ "drawable/widget_ic_abajo.xml",
+ "drawable/widget_ic_hoy.xml",
+ "drawable/widget_marco.xml",
+ "drawable/widget_marco_dentro.xml",
+ "drawable/widget_punto.xml",
+ "drawable/widget_raya.xml",
+ "drawable/widget_tira.xml",
+ "font/outfit_bold.ttf",
+ "font/outfit_medium.ttf",
+ "font/outfit_semibold.ttf",
+ "layout/widget_hoy.xml",
+ "layout/widget_hoy_fila.xml",
+ "xml/widget_hoy_info.xml"
+]

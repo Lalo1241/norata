@@ -219,6 +219,27 @@ function arcadeAlternar(si) {
     arcadeEnCaliente(si);
     return;
   }
+  /* LA MISMA PIEZA QUE UN MUNDO (0.7.198): el logo llega, el color se funde,
+     la ruleta gira de un nombre al otro y, en el APK, el aviso con su cuenta
+     atrás va dentro. Antes Arcade se quedaba con la carga suelta y la ventana
+     aparte; Eduardo: «pertenecen a la misma familia». Lo de abajo es el
+     respaldo, para cuando la carga ya está puesta. */
+  if (typeof cambiarDeUnaPieza === "function" && typeof aparienciaPorId === "function") {
+    const amb = aparienciaPorId(esMundo(apariencia()) ? "casa" : apariencia());
+    const ambiente = amb ? tx(amb.nombre) : "";
+    const llevas = aparienciaPorId(apariencia());
+    cambiarDeUnaPieza({
+      aplicar: () => { guardar(); return true; },
+      de: si ? (llevas ? tx(llevas.nombre) : "") : "Arcade",
+      a: si ? "Arcade" : ambiente,
+      hayMundo: true,
+      respaldo: () => arcadeAlternarTapado(si, guardar)
+    });
+    return;
+  }
+  arcadeAlternarTapado(si, guardar);
+}
+function arcadeAlternarTapado(si, guardar) {
   if (typeof cargaMostrar === "function") cargaMostrar(si ? tx("Cargando Arcade…") : tx("Cambiando tema…"));
   /* `recargarApp`: en el APK, Arcade también trae su icono, y cambiarlo
      reinicia la app entera después de un aviso (ver js/01-base.js). */
@@ -257,22 +278,55 @@ function arcadeDireccion() {
   return m ? m[0] : "css/arcade.css";
 }
 
-/* La fila de Mi apariencia. Solo existe para quien lo encontró: a los demás
-   la pantalla no les dice que haya nada más. */
+/* El renglón de Mi apariencia. Solo existe para quien lo encontró: a los
+   demás la pantalla no les dice que haya nada más.
+
+   ES UN RENGLÓN DE LA LISTA DE MUNDOS (0.7.198), con su misma forma —icono,
+   nombre, frase, palomita si lo llevas— y su plegable, separado de los demás
+   solo por un rótulo: «Secretos». Antes era una sección aparte, con su
+   título, su párrafo y una tarjeta de borde punteado, y Eduardo lo paró:
+   «pertenecen a la misma familia, en el mismo menú». Lo que explicaba el
+   párrafo vive ahora en el plegable, que es donde se decide. */
+let arcadeDesplegado = false;
 function arcadeApariencia() {
   if (!arcadeEncontrado()) return "";
   const on = arcadePuesto();
   const conMundo = !on && typeof esMundo === "function" && esMundo(apariencia());
-  return `
-    <h3 class="amb-h2">${tx("Secreto")}</h3>
-    <p class="settings-note">${tx("Arcade no sale en ningún menú: está aquí porque lo encontraste. Va encima de tu ambiente: cambia la letra, las esquinas, el movimiento y los sonidos, y los colores siguen siendo los tuyos.")}${conMundo ? " " + tx("Llevas un mundo puesto: al ponerte Arcade, vuelves a tu ambiente.") : ""}</p>
-    <div class="arc-ap">
-      <div class="arc-ap-m">
-        <span class="arc-ap-ic">${arcDibujo(ARC_G.cruceta, 24)}</span>
-        <span class="arc-ap-tx"><b>Arcade</b><span>${escapeHtml(on ? tx("Lo llevas puesto") : tx("La cuadrícula manda"))}</span></span>
-        <button type="button" class="btn btn-sm ${on ? "btn-ghost" : "btn-soft"}" onclick="arcadeAlternar(${!on})">${escapeHtml(on ? tx("Quitar") : tx("Ponerlo"))}</button>
-      </div>
+  const pliegue = !arcadeDesplegado ? "" : `
+    <div class="ap-pliegue arc-pliegue" id="arc-pliegue">
+      <p class="settings-note">${tx("Va encima de tu ambiente: cambia la letra, las esquinas, el movimiento y los sonidos, y los colores siguen siendo los tuyos.")}${conMundo ? " " + tx("Llevas un mundo puesto: al ponerte Arcade, vuelves a tu ambiente.") : ""}</p>
+      <button type="button" class="btn btn-sm ${on ? "btn-ghost" : "btn-primary"}" onclick="arcadeAlternar(${!on})">${escapeHtml(on ? tx("Quitar") : tx("Ponerlo"))}</button>
     </div>`;
+  return `
+    <span class="mun-sep">${escapeHtml(tx("Secretos"))}</span>
+    <button type="button" class="mun-m mun-arcade${on ? " on" : ""}${arcadeDesplegado ? " mirando" : ""}"
+      aria-expanded="${arcadeDesplegado}" aria-pressed="${on}" onclick="arcadeDesplegar()" title="Arcade">
+      <span class="mun-ic">${arcDibujo(ARC_G.cruceta, 20)}</span>
+      <span class="mun-tx"><b>Arcade</b><span>${escapeHtml(tx("La cuadrícula manda"))}</span></span>
+      <span class="mun-ok" aria-hidden="true">${icon("check", 13)}</span>
+      <span class="mun-flecha" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 9l6 6 6-6"/></svg></span>
+    </button>${pliegue}`;
+}
+function arcadePintarFila() {
+  const caja = document.getElementById("ap-arcade");
+  if (caja) caja.innerHTML = arcadeApariencia();
+}
+/* Abrir el de Arcade cierra el de un mundo, y al revés (`desplegarMundo`):
+   un solo plegable abierto en la lista. */
+function arcadeDesplegar() {
+  arcadeDesplegado = !arcadeDesplegado;
+  if (arcadeDesplegado && typeof montarPliegue === "function" && mundoDesplegado) {
+    mundoDesplegado = null;
+    pliegueVista = null;
+    montarPliegue();
+    if (typeof pintarSeleccion === "function") pintarSeleccion();
+  }
+  arcadePintarFila();
+}
+function arcadePlegar() {
+  if (!arcadeDesplegado) return;
+  arcadeDesplegado = false;
+  arcadePintarFila();
 }
 
 /* ---------- El código ---------- */

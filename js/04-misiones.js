@@ -264,12 +264,21 @@ function missionStreak(m) {
    sin avisar ni sacudir la pantalla. Lo usa quien ya va a decir por su cuenta
    lo que pasó: sacar una misión de las terminadas deshace lo cumplido, pero
    eso no es un error que merezca una sacudida, es exactamente lo que pediste
-   al arrastrarla. */
+   al arrastrarla.
+
+   `opciones.dia` y `opciones.hora` son para una marca que se hizo FUERA de la
+   app y se aplica después: el widget de la pantalla de inicio (js/13c-widgets.js).
+   Una marca de anoche a las 23:50 es de ayer aunque la app se abra hoy, y
+   apuntarla en el día y la hora de la apertura le mentiría a la racha de la
+   misión y al informe de «¿a qué hora cumples?». `opciones.mudo` calla además
+   el sonido y la moneda de Arcade: suenan a lo que ves pasar, y esto pasó en
+   otra pantalla. Así el widget entra por esta misma puerta y no hay un segundo
+   camino para cumplir una misión. */
 function logMission(id, delta, opciones) {
   const op = opciones || {};
   const m = state.missions.find(x => x.id === id);
   if (!m) return;
-  const key = todayKey();
+  const key = op.dia || todayKey();
   m.log = m.log || {};
   const target = missionTarget(m);
   const before = missionCount(m, key);
@@ -293,7 +302,7 @@ function logMission(id, delta, opciones) {
      lo que se guardó desde hoy. Las marcas viejas no la llevan y eso no es un
      fallo — se leen con `horaDeMarca`, que devuelve null y quien pregunta las
      deja fuera de la cuenta. */
-  while (marcas.length < after) marcas.push(uid() + "@" + hhmmNow());
+  while (marcas.length < after) marcas.push(uid() + "@" + (op.hora || hhmmNow()));
   if (marcas.length) m.log[key] = marcas; else delete m.log[key];
 
   const wasDone = before >= target;
@@ -301,10 +310,10 @@ function logMission(id, delta, opciones) {
   /* Arcade (0.7.131): con el mundo puesto, cumplir suelta una moneda donde
      estaba el dedo —`dondeCaja`, medida antes de repintar— y suena. Sin él
      no hace nada. */
-  if (typeof arcadeMision === "function") arcadeMision(dondeCaja, nowDone && !wasDone, !nowDone && wasDone, after > before);
+  if (!op.mudo && typeof arcadeMision === "function") arcadeMision(dondeCaja, nowDone && !wasDone, !nowDone && wasDone, after > before);
   /* El sonido (js/01c-sonido.js): cada misión del día un peldaño más arriba.
      Deshacer calla, salvo en Arcade, que tiene su nota. */
-  if (typeof sonidoMision === "function") sonidoMision(nowDone && !wasDone, !nowDone && wasDone, after > before);
+  if (!op.mudo && typeof sonidoMision === "function") sonidoMision(nowDone && !wasDone, !nowDone && wasDone, after > before);
 
   /* Los días que estuvo esperando se cobran aquí: al cumplirla. Es el
      "periodo donde corresponde" —el de verdad, no aquel en el que debía

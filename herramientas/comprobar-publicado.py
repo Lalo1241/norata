@@ -136,8 +136,24 @@ def comprobar_404():
 
 def lista_de_assets(raiz):
     """Lee ASSETS de sw.js. La lista vive allí, no aquí."""
-    with open(os.path.join(raiz, "sw.js"), encoding="utf-8") as f:
-        fuente = f.read()
+    # Desde la barrera (0.7.173) lo publicado es la rama `vivo`, no lo que hay
+    # en esta carpeta: con cambios en la cola, el `sw.js` de aquí puede listar
+    # un archivo que todavía no se ha subido, y saldría como roto un sitio que
+    # está bien. Se lee el de `vivo`; si no se puede —sin git, sin red—, el de
+    # la carpeta, que es lo que se hacía.
+    try:
+        import subprocess
+        subprocess.run(["git", "-C", raiz, "fetch", "-q", "origin", "+refs/heads/vivo:refs/remotes/origin/vivo"],
+                       check=True, timeout=40, capture_output=True)
+        fuente = subprocess.run(["git", "-C", raiz, "show", "origin/vivo:sw.js"],
+                                check=True, timeout=20, capture_output=True).stdout.decode("utf-8")
+        de_vivo = True
+    except Exception:
+        fuente, de_vivo = None, False
+    if fuente is None:
+        with open(os.path.join(raiz, "sw.js"), encoding="utf-8") as f:
+            fuente = f.read()
+    print("La lista sale de " + ("la rama vivo, que es lo publicado." if de_vivo else "esta carpeta: no pude leer la rama vivo."))
     bloque = re.search(r"ASSETS\s*=\s*\[(.*?)\]", fuente, re.S)
     if not bloque:
         print("No encuentro ASSETS en sw.js. ¿Cambió de forma?")

@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.193";
+const VERSION = "0.7.200";
 const VERSION_FECHA = "3 oct 2026";
 
 /* ---- La web de fuera, en UN solo sitio ----
@@ -501,6 +501,13 @@ function logotipoSrc() {
 }
 
 /* Recargar la app después de cambiar de apariencia.
+
+   DESDE LA 0.7.194 ESTE NO ES EL CAMINO DE ELEGIR UN MUNDO: eso es
+   `cambiarDeMundo` (js/10i-apariencia.js), que hace el reinicio dentro de su
+   propia carga, con el aviso y la cuenta atrás en el letrero; Arcade va por
+   ahí también (0.7.198). Por aquí siguen la paleta de un mundo y la
+   conciliación del arranque; si alguna cambia el icono, el aviso de abajo es
+   el que sale.
 
    En la web es `location.reload()` y nada más. En el APK, además, el icono
    de la pantalla de inicio es del mundo puesto (0.7.145), y cambiarlo pide
@@ -2272,6 +2279,10 @@ function save() {
   if (typeof expTocado === "function") expTocado();
   guardarLocal(state);
   syncTouch();
+  /* Los widgets de la pantalla de inicio (js/13c-widgets.js) enseñan una foto
+     del día, y aquí es donde cambia. Solo existe en la app de Android con el
+     complemento puesto; en lo demás no hay nada que llamar. */
+  if (typeof widgetsFoto === "function") widgetsFoto();
 }
 
 function uid() {

@@ -67,7 +67,16 @@ jobs:
             git reset -q --hard origin/main
             TITULO=""; N=0
             for K in $(echo "$LLAVE" | tr ',' ' '); do
-              UNO=$(python3 herramientas/aprobar-novedad.py "$K" | head -1) || { echo "::error::No se pudo aprobar «$K»."; exit 1; }
+              # Sin `| head -1`: con la tubería, lo que se vería es la salida de
+              # `head` y no la del guion, y hay que distinguir el 3.
+              COD=0; UNO=$(python3 herramientas/aprobar-novedad.py "$K") || COD=$?
+              if [ "$COD" = 3 ]; then
+                echo "::warning::«$K» es de una versión que todavía no existe: no se aprueba."
+                echo "«$K» no se aprobó: es de una versión que todavía no existe." >> "$GITHUB_STEP_SUMMARY"
+                continue
+              fi
+              [ "$COD" = 0 ] || { echo "::error::No se pudo aprobar «$K»."; exit 1; }
+              UNO=$(echo "$UNO" | head -1)
               N=$((N + 1)); TITULO="${TITULO:+$TITULO · }$UNO"
             done
             git add novedades/

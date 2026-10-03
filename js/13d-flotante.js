@@ -1,4 +1,4 @@
-/* ================= La burbuja de la computadora (0.7.193, en prueba) =================
+/* ================= La burbuja de la computadora (0.7.200, en prueba) =================
    Lo pidió Eduardo: algo que te siga en la computadora como la burbuja de
    Messenger, que se sienta parte de Norata y sin la barra del navegador
    encima. En el teléfono y la tableta no: ahí avisa el sistema.
@@ -29,7 +29,7 @@
 
    Nace apagada detrás de `?flotante=si` (y se apaga con `?flotante=no`),
    con su rótulo: lo que hay que borrar al encenderla para todos está en la
-   entrada de 0.7.193 de VERSIONES.md. */
+   entrada de 0.7.200 de VERSIONES.md. */
 
 function fltEnPrueba() {
   try { return sessionStorage.getItem("norata-prueba-flotante") === "si"; } catch (e) { return false; }

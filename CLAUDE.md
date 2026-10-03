@@ -93,13 +93,31 @@ que abre sin red y sin pasar por Chrome. Lo que eso cambia aquí:
   menta de Norata (Pausa en amarillo) y con un acento rojo ningún texto es
   rojo. La referencia es la lámina «Avisos de Norata»; las reglas, en el
   `LEEME.md` de `nativo/avisos/`.
+- **Los widgets de la pantalla de inicio son nativos, y el primero es Hoy.**
+  El complemento `WidgetsNorata` vive en `nativo/widgets/` (con su instalador
+  y su `LEEME.md`) y la página le habla desde `js/13c-widgets.js`. **El widget
+  apunta y la app aplica**: lo que se marca fuera queda en una cola con su día
+  y su hora, y entra al abrir por `logMission` (`dia`, `hora`, `mudo`), la
+  misma puerta que un toque dentro. La página le manda una «foto» de siete
+  días, con textos y colores ya resueltos, cada vez que pasa por `save()`. Un
+  widget nuevo sigue esas dos reglas y lleva su propio icono, nunca el logo.
 - **El icono de la pantalla de inicio sigue al mundo (0.7.145), y solo en el
-  APK.** Elegir un mundo o Arcade tapa con la carga (2,5 s mínimo), recarga
-  ya con el mundo puesto, avisa (`avisarRenacer`: sin saltarse, cuenta de
-  10 s) y reinicia la app con su icono
-  (`recargarApp` → `revisarIconoPedido` → el complemento `IconoNorata`). **No
-  se reinicia antes de ese aviso**: el WebView escribe `localStorage` al disco
-  segundos después, y reiniciar pronto dejaba el mundo a medias (0.7.146.1).
+  APK.** **Elegir un mundo es una sola pieza (0.7.194)**: el logo llega, se
+  recarga, el aro se llena con el color fundiéndose al mundo nuevo, la ruleta
+  da el tic de un nombre al otro y, si el icono cambia, el mismo letrero avisa
+  («Norata se va a cerrar…», «Se cierra en 4, 3, 2, 1») y la app se cierra
+  ahí, sin ventana aparte (`cambiarDeMundo` → `cargaMundo` → el complemento
+  `IconoNorata`). **Se dice «cerrar» y no «reiniciar» (0.7.198)**: en el teléfono
+  de Eduardo la app no vuelve a abrirse sola, y un texto que promete lo que el
+  APK no hace es peor que el cierre. Al volver a abrirla sale con el logo
+  quieto y entra con el zoom. **Arcade va por la misma pieza** (`arcadeAlternar`
+  → `cambiarDeUnaPieza`) y en Mi apariencia es un renglón más de la lista de
+  mundos, bajo el rótulo «Secretos»: son la misma familia. La paleta y la
+  conciliación del arranque siguen por el camino de antes (`recargarApp` →
+  `revisarIconoPedido` → `avisarRenacer`, con su cuenta de 10 s). **Nunca se reinicia antes de unos segundos**: el WebView
+  escribe `localStorage` al disco segundos después, y reiniciar pronto dejaba
+  el mundo a medias (0.7.146.1). El reinicio SE ANUNCIA siempre: sin aviso,
+  Eduardo lo leyó como un fallo.
   El mismo instalador deja la pantalla de arranque de Android sin icono: el
   sistema ponía el de siempre en medio al abrir, y rompía la entrada. Lo
   nativo —el complemento, los dieciocho iconos y el trozo de manifiesto— lo
@@ -250,6 +268,10 @@ una entrada por 3º, con sus 4º dentro como retoques. La lee la app —una
 ventana al estrenar una versión y Ajustes → Novedades (`js/10l-novedades.js`)—
 y la lee también el changelog del sitio.
 
+- **Una ficha de una versión que todavía no existe no se publica, nunca**
+  (0.7.195): la de la beta (0.8) y la de la 1.0 están escritas de antemano y
+  estuvieron a un clic de anunciarse. Lo impide la barrera
+  (`herramientas/novedades-futuras.py`); no se le busca excepción.
 - **Nada sale sin que Eduardo lo apruebe.** Las entradas nacen en
   `"borrador"` y la ventana que sale al abrir solo enseña `"publicado"`. Las
   reglas para escribirlas, en `novedades/LEEME.md`.

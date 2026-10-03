@@ -286,6 +286,7 @@ as $fn$
 declare
   r jsonb;
   cobro jsonb := jsonb_build_object('desplegado', false);
+  pagos jsonb;
 begin
   -- La primera línea, antes de tocar un solo dato. Todo lo que hay debajo
   -- depende de que esto pase.
@@ -327,6 +328,23 @@ begin
         'lugares_fundador', public.lugares_fundador()
       )
     $q$ into cobro;
+  end if;
+
+  -- El libro de pagos, sumado por día (3 oct 2026). Toda la historia y no un
+  -- rango: es una fila por día, producto y clase, así que diez años caben en
+  -- pocos KB, y el panel filtra las fechas sin volver a preguntar. El día es el
+  -- de México, que es donde se cuenta el negocio. Sin la tabla, la llave
+  -- `pagos` no viaja y el panel dice que falta, en vez de enseñar un cero que
+  -- parecería «no se vendió nada».
+  if to_regclass('public.pagos') is not null then
+    execute $q$
+      select coalesce(jsonb_agg(x order by x.dia), '[]'::jsonb)
+        from (select (cuando at time zone 'America/Mexico_City')::date as dia,
+                     producto, clase, count(*) as n, sum(importe) as centavos
+                from public.pagos
+               group by 1, 2, 3) x
+    $q$ into pagos;
+    cobro := cobro || jsonb_build_object('pagos', pagos);
   end if;
 
   with u as (

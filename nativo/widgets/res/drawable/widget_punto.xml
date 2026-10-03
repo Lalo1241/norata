@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Un punto. El color de verdad lo pone el código (setColorFilter), porque cambia con el
+     mundo y un widget no deja leer variables; el de aquí es el de la casa de noche, que es
+     lo que se ve en el selector de widgets antes de ponerlo. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <solid android:color="#FF93A0AB" />
+</shape>

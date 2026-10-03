@@ -267,7 +267,7 @@ function dnTexto(t) {
 
 /* El estado de la capa. En memoria y no en `state`: es dónde estabas mirando,
    no un dato de nadie. */
-const DN = { sala: "hoy", tipo: "todo", ver: "abiertos", q: "", sel: null, num: "gente", rango: 14, lab: "pruebas", cargando: false, error: "", nov: null,
+const DN = { sala: "hoy", tipo: "todo", ver: "abiertos", q: "", sel: null, num: "gente", rango: 14, lab: "pruebas", cobDias: 30, cobDesde: "", cobHasta: "", cargando: false, error: "", nov: null,
   /* La barrera: lo que contestó la función, el seguro del grifo y la ventana abierta. */
   bar: null, barError: null, seguro: true, cuenta: 15, ventana: null };
 
@@ -422,9 +422,16 @@ function dnDeCada(parte, total, vara) {
   return { val: pc, uni: " de cada 100", pie: `<span class="dn-vara ${tono}">${juicio}</span> de ${vara}` };
 }
 
+/* Las fichas de una versión que todavía no existe —la beta, la 1.0: sus
+   anuncios están escritos de antemano— NO son «por aprobar». El 3 oct 2026
+   «Aprobar todas» se las llevó con las demás y estuvieron a un clic de
+   anunciarse. Aquí dejan de verse; quien de verdad lo impide es la barrera
+   (`herramientas/novedades-futuras.py`). */
+const dnFutura = e => /^\d+(\.\d+){1,3}$/.test(String(e.version || "")) && versionMasNueva(String(e.version), VERSION);
 function dnBorradores() {
-  return (DN.nov || []).filter(e => e && e.estado !== "publicado");
+  return (DN.nov || []).filter(e => e && e.estado !== "publicado" && !dnFutura(e));
 }
+const dnReservadas = () => (DN.nov || []).filter(e => e && dnFutura(e));
 
 function dnSalaHoy() {
   const m = metricasCache, r = m.resumen || {}, c = m.cobro || {}, dias = m.dias || [];
@@ -437,7 +444,7 @@ function dnSalaHoy() {
   const colaVieja = Math.max(0, ...cola.map(c => dnHace(c.fecha) || 0));
   const filas = [
     cola.length ? [colaVieja >= 5 ? "ojo" : cerrado ? "ojo" : "dato", cola.length, cola.length === 1 ? "cambio espera en la cola" : "cambios esperan en la cola",
-      colaVieja >= 5 ? "El más viejo lleva " + colaVieja + " días sin subir" : cerrado ? "El grifo está cerrado: suben cuando los apruebes" : "Detenidos: traen SQL o no pasaron las comprobaciones", "ir:subidas"] : null,
+      colaVieja >= 5 ? "El más viejo lleva " + colaVieja + " días sin subir" : cerrado ? (dnProximoPaquete().faltan === 0 ? "Hoy toca el paquete: revísalos y súbelos" : "Es el paquete de la semana: sale " + dnProximoPaquete().texto) : "Detenidos: traen SQL o no pasaron las comprobaciones", "ir:subidas"] : null,
     gente ? ["ojo", gente, gente === 1 ? "reporte nuevo en el buzón" : "reportes nuevos en el buzón", "Lo que alguien se sentó a escribir", "ir:buzon"] : null,
     autos.length ? [enVivo ? "mal" : "ojo", autos.length, autos.length === 1 ? "error automático nuevo" : "errores automáticos nuevos",
       enVivo ? enVivo + (enVivo === 1 ? " se vio" : " se vieron") + " en la " + VERSION + ", la publicada" : "Ninguno en la " + VERSION + ", la publicada", "auto"] : null,
@@ -583,7 +590,7 @@ function dnRespuestaHTML(t, maq) {
    grifo que no mueve nada. */
 function dnCargaBarrera() {
   if (typeof sbBarrera !== "function") return Promise.resolve();
-  return sbBarrera("estado").then(b => { DN.bar = b; DN.barError = null; })
+  return sbBarrera("estado").then(b => { dnTomaEstado(b); })
     .catch(e => { DN.bar = null; DN.barError = { texto: e.message || String(e), falta: e.falta || "" }; })
     .then(() => { if (dnAbierta()) dnPinta(); });
 }
@@ -591,6 +598,65 @@ function dnCargaBarrera() {
    se vuelve a preguntar un par de veces en vez de dejar la sala con lo viejo. */
 function dnRepreguntaBarrera() {
   [4000, 20000, 60000, 120000].forEach(ms => setTimeout(() => { if (dnAbierta()) dnCargaBarrera(); }, ms));
+}
+/* ---- La sala de Subidas se refresca sola (0.7.196) ----
+   Después de aprobar algo, la sala se quedaba igual hasta que uno volvía a
+   entrar: la subida tarda uno o dos minutos en GitHub y aquí no se veía nada
+   moverse. Eduardo lo pidió con esas palabras: «una animación de cargando y
+   que se refresque solo».
+
+   Un solo latido mientras la sala está a la vista: cada 6 segundos si hay una
+   subida en marcha, cada 30 si no. Lo de GitHub tiene cupo —cada pregunta son
+   varias llamadas con la llave—, y por eso no late con la sala cerrada, con la
+   pestaña escondida ni con otra sala abierta.
+
+   Solo se repinta si lo que contestó el servidor CAMBIÓ: repintar cada seis
+   segundos lo mismo reiniciaba las animaciones y le quitaba el sitio a quien
+   estuviera leyendo. Y no se repinta con la llave en la mano ni con el seguro
+   quitado, que el repintado se llevaría el gesto. */
+const dnEnMarcha = () => !!DN.subiendo || ((DN.bar && DN.bar.corridas) || []).some(c => c.estado !== "completed");
+function dnLatido() {
+  clearTimeout(DN.latido);
+  DN.latido = null;
+  if (!dnAbierta() || DN.sala !== "subidas") return;
+  DN.latido = setTimeout(async () => {
+    DN.latido = null;
+    if (!dnAbierta() || DN.sala !== "subidas") return;
+    if (document.hidden || dnArr || !DN.seguro || DN.grifoPend || typeof sbBarrera !== "function") { dnLatido(); return; }
+    try {
+      if (dnTomaEstado(await sbBarrera("estado"))) dnPinta();
+    } catch (e) { /* un latido que falla no dice nada: el siguiente vuelve a preguntar */ }
+    dnLatido();
+  }, dnEnMarcha() ? 6000 : 30000);
+}
+/* Lo que contestó el servidor, venga del latido o de una pregunta suelta: se
+   guarda, se decide si la subida ya terminó y se avisa. Devuelve si cambió
+   algo que haya que repintar. */
+function dnTomaEstado(b) {
+  const antes = JSON.stringify(DN.bar || null), estaba = dnEnMarcha(), colaAntes = ((DN.bar && DN.bar.cola) || []).length;
+  const corriendo = (b.corridas || []).some(c => c.estado !== "completed");
+  /* GitHub tarda unos segundos en dar de alta la corrida: recién mandada la
+     orden, que todavía no salga ninguna en marcha no quiere decir que haya
+     terminado. A los cinco minutos se suelta pase lo que pase. */
+  if (DN.subiendo) {
+    const lleva = Date.now() - DN.subiendo;
+    if ((!corriendo && lleva > 20000) || lleva > 300000) DN.subiendo = 0;
+  }
+  DN.bar = b; DN.barError = null;
+  const sigue = dnEnMarcha();
+  if (estaba && !sigue) {
+    const u = (b.corridas || [])[0], cola = (b.cola || []).length;
+    if (u && u.resultado && u.resultado !== "success") toast("La subida no terminó bien: mira «Las últimas veces».", "atencion");
+    else if (cola < colaAntes || !cola) toast("Ya está en vivo.", "hecho");
+    /* Lo que se aprobó pudo cambiar las novedades: se vuelven a leer. */
+    if (typeof cargarNovedades === "function") cargarNovedades().then(es => { DN.nov = es || []; if (dnAbierta()) dnPinta(); }).catch(() => {});
+  }
+  return JSON.stringify(b) !== antes || estaba !== sigue;
+}
+/* La tira de «está subiendo», arriba de la cola. */
+function dnSubiendoHTML() {
+  if (!dnEnMarcha()) return "";
+  return `<div class="dn-subiendo" role="status"><span class="dn-giro" aria-hidden="true"></span><div><b>Subiendo al vivo…</b><span>Tarda uno o dos minutos. Esta sala se actualiza sola.</span></div><i class="dn-corre" aria-hidden="true"></i></div>`;
 }
 const dnGrifoAbierto = () => !!(DN.bar && DN.bar.grifo && DN.bar.grifo.grifo === "abierto");
 
@@ -629,6 +695,43 @@ function dnBarreraFaltaHTML() {
       <div class="dn-acciones"><button class="dn-btn b-linea mini" data-a="barrera">Volver a preguntar</button></div></div>`;
 }
 
+/* ---- El paquete de la semana (0.7.199) ----
+   Eduardo, al pedir la barrera: que las subidas «sean más consistentes, y no
+   sean spam de mini updates». Con el grifo CERRADO, lo terminado se junta en
+   la cola y sube de una vez: eso es el paquete. Para quien usa la app es una
+   sola versión —la última de la tanda—, por muchos cambios que traiga.
+
+   Lo que el boceto tenía y aquí NO existe, porque no puede: meter y sacar
+   cambios sueltos del paquete. `main` es la cola y `vivo` solo avanza en
+   orden; un cambio no se salta, se revierte.
+
+   El día es un RECORDATORIO, no un reloj: nada sube sin su aprobación. Se
+   elige aquí y se guarda en este dispositivo (`localStorage`): es una
+   preferencia de quien administra, no un dato de la app. */
+const DN_DIAS_SEM = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+function dnDiaPaquete() {
+  try { const v = Number(localStorage.getItem("norata-paquete-dia")); return v >= 0 && v <= 6 && localStorage.getItem("norata-paquete-dia") !== null ? v : 4; } catch (e) { return 4; }
+}
+/* Cuántos días faltan para el día del paquete (0 = hoy), y esa fecha. */
+function dnProximoPaquete() {
+  const hoy = new Date(), faltan = (dnDiaPaquete() - hoy.getDay() + 7) % 7;
+  const f = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + faltan);
+  return { faltan: faltan, texto: faltan === 0 ? "hoy" : faltan === 1 ? "mañana" : "el " + DN_DIAS_SEM[f.getDay()] + " " + f.getDate() + " " + DN_MESES[f.getMonth()] };
+}
+/* Cuántas versiones llegaron al vivo en los últimos siete días. */
+function dnSubidasDeLaSemana() {
+  const hace7 = Date.now() - 7 * 864e5;
+  return ((DN.bar && DN.bar.historial) || []).filter(h => Date.parse(h.fecha) >= hace7).length;
+}
+function dnPaqueteHTML(cola) {
+  const p = dnProximoPaquete(), d = dnDiaPaquete(), sueltas = dnSubidasDeLaSemana();
+  return `<div class="dn-paquete">
+      <p class="dn-nota">Todo lo terminado se junta aquí y sube de una vez: para quien usa la app es una sola versión, la última de la tanda.${sueltas > 1 ? " En los últimos 7 días llegaron al vivo " + sueltas + " versiones." : ""}</p>
+      <div class="dn-campo"><span>Día del paquete</span>
+        <div class="dn-seg" role="radiogroup" aria-label="Día del paquete">${[1, 2, 3, 4, 5, 6, 0].map(n => `<button class="${d === n ? "on" : ""}" data-a="paqdia:${n}" aria-label="${DN_DIAS_SEM[n]}">${DN_DIAS_SEM[n].slice(0, 2)}</button>`).join("")}</div></div>
+      ${p.faltan === 0 && cola.length ? `<div class="dn-aviso dn-ojo"><b>Hoy toca el paquete.</b> ${cola.length === 1 ? "Hay 1 cambio listo" : "Hay " + cola.length + " cambios listos"}: revísalos y súbelos con «Subir todo al vivo».</div>` : ""}</div>`;
+}
+
 function dnColaHTML() {
   const b = DN.bar, cola = b.cola || [], abierto = dnGrifoAbierto();
   const conSql = cola.filter(c => (c.sql || []).length).length;
@@ -640,17 +743,18 @@ function dnColaHTML() {
   const tapon = abierto && cola.length ? cola[0] : null, taponSql = tapon && (tapon.sql || []).length;
   const nombre = c => c.version ? "la " + dnE(c.version) : "«" + dnE(c.titulo || "un cambio") + "»";
   const clase = v => { const e = (DN.nov || []).find(x => String(x.version) === String(v)); return e ? (typeof novedadClase === "function" ? novedadClase(e) : e.clase) : ""; };
-  return `<div class="dn-panel"><div class="dn-pcab"><h3>${abierto ? "Detenido en la cola" : "En la cola"}</h3><span class="dn-chip">${cola.length}</span>
-        ${cola.length ? `<div class="dn-der"><button class="dn-btn b-primary mini" data-a="subir:">${dnIc("subidas")}Subir todo al vivo</button></div>` : ""}</div>
+  return `<div class="dn-panel"><div class="dn-pcab"><h3>${abierto ? "Detenido en la cola" : "El paquete de la semana"}</h3><span class="dn-chip">${cola.length}</span>${abierto ? "" : `<span class="dn-chip">sale ${dnE(dnProximoPaquete().texto)}</span>`}
+        ${cola.length ? `<div class="dn-der"><button class="dn-btn b-primary mini" data-a="subir:" ${dnEnMarcha() ? "disabled" : ""}>${dnIc("subidas")}${dnEnMarcha() ? "Subiendo…" : "Subir todo al vivo"}</button></div>` : ""}</div>
+      ${abierto ? "" : dnPaqueteHTML(cola)}
       ${tapon ? `<div class="dn-aviso dn-ojo"><b>Detenida por ${nombre(tapon)}${taponSql ? ", que trae SQL" : ""}.</b> ${taponSql ? "Un SQL no llega solo a Supabase, así que no sube hasta que digas que ya lo pegaste." : "No pasó las comprobaciones de la barrera: el motivo está en «Las últimas veces»."}${cola.length > 1 ? (cola.length === 2 ? " El cambio de detrás espera" : " Los " + (cola.length - 1) + " de detrás esperan") + " aunque el grifo esté abierto, porque se aprueba en orden." : ""}</div>` : ""}
       ${cola.length ? `<p class="dn-nota">Se aprueba en orden: «Subir hasta aquí» lleva al vivo ese cambio y todos los de arriba.${conSql ? " Lo que trae SQL pide que lo hayas pegado antes." : ""}</p>` : ""}
-      ${!cola.length ? `<div class="dn-vacio">${abierto ? "Nada detenido. Lo que se sube a main está llegando solo." : "No hay nada esperando. Lo que se suba a main aparecerá aquí."}</div>` : cola.map((c, i) => {
+      ${!cola.length ? `<div class="dn-vacio">${abierto ? "Nada detenido. Lo que se sube a main está llegando solo." : "El paquete está vacío. Lo que se suba a main aparecerá aquí."}</div>` : cola.map((c, i) => {
         const h = dnHace(dnLocal(c.fecha)), sql = (c.sql || []).length, detras = tapon && i > 0;
         return `<div class="dn-prueba"><div>
             <div class="dn-sobre-t">${dnEtq(clase(c.version))}<span class="dn-estado ${h !== null && h >= 5 ? "e-espera" : "e-no"}">${dnIc("reloj")}${h !== null && h >= 5 ? "Lleva " + h + " días sin subir" : detras ? "Espera al de arriba" : tapon ? "Detiene la cola, " + dnHaceTx(h) : "En cola, " + dnHaceTx(h)}</span>${sql ? `<span class="dn-estado e-sql">${dnIc("db")}Trae SQL</span>` : ""}</div>
             <h4>${dnE(c.titulo || "Sin título")}${c.version ? `<span class="dn-chip">${dnE(c.version)}</span>` : ""}</h4>
             ${sql ? `<p class="dn-interno">Interno · ${dnE((c.sql || []).join(", "))} · no sale en el changelog</p>` : ""}</div>
-          <div class="dn-acciones"><button class="dn-btn b-soft mini" data-a="subir:${dnE(c.sha)}">Subir hasta aquí</button></div></div>`;
+          <div class="dn-acciones"><button class="dn-btn b-soft mini" data-a="subir:${dnE(c.sha)}" ${dnEnMarcha() ? "disabled" : ""}>Subir hasta aquí</button></div></div>`;
       }).join("")}</div>`;
 }
 
@@ -836,6 +940,13 @@ async function dnMandaBarrera(accion, datos, dicho) {
     await sbBarrera(accion, datos);
     toast(dicho, "hecho");
     DN.grifoPend = null;
+    /* Todo lo que pone a GitHub a trabajar enciende el «subiendo». */
+    if (accion === "subir" || accion === "aprobar" || accion === "regresar" || (accion === "grifo" && datos.abierto)) {
+      DN.subiendo = Date.now();
+      /* El latido que ya esperaba lo hacía a paso lento (30 s): se vuelve a
+         poner, ahora al paso de una subida en marcha. */
+      dnLatido();
+    }
     await dnCargaBarrera();
     dnRepreguntaBarrera();
   } catch (e) {
@@ -903,7 +1014,8 @@ function dnSalaSubidas() {
   const cola = (b && b.cola) || [];
   const llave = e => typeof novedadLlave === "function" ? novedadLlave(e) : String(e.id || e.version);
   return `
-    <div class="dn-cab"><h2>Subidas</h2></div>
+    <div class="dn-cab"><h2>Subidas</h2><span class="dn-chip dn-der">Se actualiza sola</span></div>
+    ${dnSubiendoHTML()}
     <div class="dn-kpis tres">
       ${dnKpi("En vivo", "V" + dnE(enVivo), "", `<span class="dn-ver">${dnEtapa() ? `<span class="etapa">${dnEtapa()}</span>` : ""}<span>${b && b.vivo && b.vivo.fecha ? "· " + dnE(dnDia(dnLocal(b.vivo.fecha))) : "· " + dnE(typeof VERSION_FECHA !== "undefined" ? VERSION_FECHA : "")}</span></span>`)}
       ${total ? dnKpi("Ya la tienen", conLa, " de " + total, "personas que abrieron en 14 días") : dnKpi("Ya la tienen", "—", "", "Nadie abrió en 14 días")}
@@ -914,6 +1026,7 @@ function dnSalaSubidas() {
       : (b.grifo ? dnGrifoHTML() : `<div class="dn-panel"><h3>Falta el grifo</h3><p class="dn-nota">Pega <code>supabase/barrera.sql</code> en Supabase y vuelve a preguntar.</p><div class="dn-acciones"><button class="dn-btn b-linea mini" data-a="barrera">Volver a preguntar</button></div></div>`) + dnColaHTML() + dnHistorialHTML() + dnCorridasHTML()}
     <div class="dn-panel"><div class="dn-pcab"><h3>Novedades por aprobar</h3><span class="dn-chip">${DN.nov ? bor.length : "…"}</span><div class="dn-der">${bor.length > 1 ? `<button class="dn-btn b-primary mini" data-a="aprobartodas">${dnIc("check")}Aprobar todas</button>` : ""}<button class="dn-btn b-linea mini" data-a="novedades">Leerlas en Novedades</button></div></div>
       <p class="dn-nota">El cambio de cada una ya está en la app. Lo que espera es su anuncio: no sale en la ventana, en Ajustes → Novedades ni en el sitio hasta que su estado pase a «publicado» en <code>novedades/novedades.json</code>. «Aprobar y publicar» la sube solo; para cambiarle un texto, pídeselo a una sesión.</p>
+      ${dnReservadas().length ? `<p class="dn-nota">Guardadas para su versión, y no se pueden aprobar aquí: ${dnReservadas().map(e => dnE(e.version)).join(" y ")}. Salen cuando la app llegue a ese número.</p>` : ""}
       ${!DN.nov ? `<div class="dn-vacio">Leyendo las novedades…</div>` : !bor.length ? `<div class="dn-vacio">No hay ninguna por aprobar.</div>` : bor.map(e => {
         const h = dnHace(e.fecha), clase = typeof novedadClase === "function" ? novedadClase(e) : (e.clase || "mejora");
         return `<div class="dn-prueba"><div>
@@ -933,6 +1046,79 @@ function dnPartes(tit, filas, claveNombre) {
   const f3 = filas.slice(0, 3), tono = (f, i) => f.tono || tonos[i];
   return `<div class="dn-campo"><span>${tit}</span><div class="dn-partes">${f3.map((f, i) => `<i style="flex:${Number(f.personas) || 0};background:var(${tono(f, i)})"></i>`).join("")}</div>
     <div class="dn-uso">${f3.map((f, i) => `<div><small><i class="dn-punto" style="background:var(${tono(f, i)})"></i>${dnE(f[claveNombre])}</small><b>${Math.round(f.personas / t * 100)}%</b></div>`).join("")}</div></div>`;
+}
+
+/* ---- Las ventas por fecha (0.7.193) ----
+   Sale del libro de pagos (`pagos`, en planes.sql): cada cobro y cada
+   devolución, apuntados por la función `cobro` cuando Stripe avisa. El
+   servidor manda TODA la historia sumada por día, y aquí se recorta: cambiar
+   de periodo o de fechas no vuelve a preguntar.
+
+   Lo pidió Eduardo: fechas a su gusto, los periodos de 15 a 180 días,
+   suscripciones contra Fundador —el flujo que se repite y el que entra una
+   vez— y las devoluciones.
+
+   Tres cosas que no se inventan: sin la tabla no hay sala, sino el aviso de
+   qué falta; el libro empieza el día que se pegó, y se dice; y una devolución
+   de suscripción no sabe si era mensual o anual, así que va en «suscripciones»
+   a secas. */
+const DN_PERIODOS = [15, 30, 60, 90, 180];
+const dnPesos = cent => "$" + Math.round((Number(cent) || 0) / 100).toLocaleString("es-MX");
+const dnISO = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+/* El tramo que se mira: los días del periodo hasta hoy, o las dos fechas. */
+function dnTramoCobro(pagos) {
+  const hoy = new Date(), fin0 = dnISO(hoy);
+  let desde, hasta = fin0;
+  if (DN.cobDesde || DN.cobHasta) {
+    hasta = DN.cobHasta || fin0;
+    desde = DN.cobDesde || (pagos.length ? String(pagos[0].dia).slice(0, 10) : hasta);
+    if (desde > hasta) { const t = desde; desde = hasta; hasta = t; }
+  } else {
+    const d = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - ((DN.cobDias || 30) - 1));
+    desde = dnISO(d);
+  }
+  /* Un punto por día; pasado de 200 días, uno por semana, o la línea es un peine. */
+  const dias = [], p = desde.split("-").map(Number), q = hasta.split("-").map(Number);
+  const a = new Date(p[0], p[1] - 1, p[2]), z = new Date(q[0], q[1] - 1, q[2]);
+  for (let d = new Date(a); d <= z && dias.length < 4000; d.setDate(d.getDate() + 1)) dias.push(dnISO(d));
+  return { desde: desde, hasta: hasta, dias: dias, semanal: dias.length > 200 };
+}
+function dnVentas(c) {
+  const pagos = (c.pagos || []).map(x => ({ dia: String(x.dia).slice(0, 10), producto: x.producto, clase: x.clase, n: Number(x.n) || 0, cent: Number(x.centavos) || 0 }));
+  const t = dnTramoCobro(pagos), en = pagos.filter(x => x.dia >= t.desde && x.dia <= t.hasta);
+  const suma = f => en.filter(f).reduce((s, x) => ({ n: s.n + x.n, cent: s.cent + x.cent }), { n: 0, cent: 0 });
+  const esSus = x => x.clase === "pago" && x.producto !== "fundador", esFun = x => x.clase === "pago" && x.producto === "fundador", esDev = x => x.clase === "devolucion";
+  /* Las series, día a día o semana a semana, en pesos. */
+  const cubos = t.semanal ? t.dias.filter((d, i) => i % 7 === 0) : t.dias;
+  const cubo = dia => t.semanal ? cubos[Math.floor(t.dias.indexOf(dia) / 7)] : dia;
+  const serie = f => { const m = {}; en.filter(f).forEach(x => { const k = cubo(x.dia); m[k] = (m[k] || 0) + x.cent; }); return cubos.map(k => Math.round((m[k] || 0) / 100)); };
+  return { t: t, pagos: pagos, sus: suma(esSus), fun: suma(esFun), dev: suma(esDev), rot: cubos.map(dnDia),
+    sSus: serie(esSus), sFun: serie(esFun), sDev: serie(esDev), primero: pagos.length ? pagos[0].dia : "" };
+}
+function dnVentasHTML(c) {
+  if (c.pagos === undefined) return `<div class="dn-panel"><h3>Las ventas por fecha</h3>
+      <p class="dn-nota">Falta el libro de pagos: el servidor solo sabe cómo está cada suscripción ahora. Pega el bloque de <code>planes.sql</code> y <code>administracion.sql</code> que está en «Pendiente de pegar» y vuelve a pedir los números.</p></div>`;
+  const v = dnVentas(c), libre = !!(DN.cobDesde || DN.cobHasta);
+  const filtros = `<div class="dn-filtros">
+      <div class="dn-seg" role="radiogroup" aria-label="Periodo">${DN_PERIODOS.map(n => `<button class="${!libre && (DN.cobDias || 30) === n ? "on" : ""}" data-a="cob:${n}">${n} días</button>`).join("")}</div>
+      <label class="dn-fecha"><span>Del</span><input type="date" id="dn-cob-desde" value="${escapeAttr(libre ? v.t.desde : "")}" max="${escapeAttr(dnISO(new Date()))}"></label>
+      <label class="dn-fecha"><span>al</span><input type="date" id="dn-cob-hasta" value="${escapeAttr(libre ? v.t.hasta : "")}" max="${escapeAttr(dnISO(new Date()))}"></label>
+      ${libre ? `<button class="dn-btn b-ghost mini" data-a="cob:0">Quitar fechas</button>` : ""}</div>`;
+  if (!v.pagos.length) return `<div class="dn-panel"><h3>Las ventas por fecha</h3>
+      <p class="dn-nota">El libro de pagos ya está puesto y todavía no entra ningún cobro. Lo que se cobró antes de ponerlo no está: Stripe lo tiene, aquí no se apuntó.</p></div>`;
+  const total = v.sus.cent + v.fun.cent, neto = total - v.dev.cent;
+  const veces = (n, uno, varios) => n + " " + (n === 1 ? uno : varios);
+  return `<div class="dn-panel"><div class="dn-pcab"><h3>Las ventas por fecha</h3><span class="dn-chip dn-der">del ${dnE(dnDia(v.t.desde))} al ${dnE(dnDia(v.t.hasta))}</span></div>
+      ${filtros}
+      <div class="dn-kpis">
+        ${dnKpi("Entró", dnPesos(total), "", veces(v.sus.n + v.fun.n, "cobro", "cobros"))}
+        ${dnKpi("Suscripciones", dnPesos(v.sus.cent), "", veces(v.sus.n, "cobro", "cobros") + " · se repite")}
+        ${dnKpi("Fundador", dnPesos(v.fun.cent), "", veces(v.fun.n, "venta", "ventas") + " · entra una vez")}
+        ${dnKpi("Se devolvió", dnPesos(v.dev.cent), "", v.dev.n ? veces(v.dev.n, "cargo", "cargos") + " · queda " + dnPesos(neto) : "nada en este periodo")}
+      </div>
+      <div class="dn-ley"><span><i class="dn-raya" style="border-color:var(--dn-l1)"></i>Suscripciones</span><span><i class="dn-raya p" style="border-color:var(--dn-l2)"></i>Fundador</span>${v.dev.n ? `<span><i class="dn-raya" style="border-color:var(--dn-coral)"></i>Devoluciones</span>` : ""}</div>
+      <div class="dn-graf" data-g="ventas"></div>
+      <p class="dn-nota">En pesos, ${v.t.semanal ? "semana a semana" : "día a día"}. El libro empieza el ${dnE(dnDia(v.primero))}: lo cobrado antes no está.</p></div>`;
 }
 
 function dnSalaNumeros() {
@@ -959,8 +1145,7 @@ function dnSalaNumeros() {
         ${dnPartes("Planes activos", activos.map(p => ({ personas: p.personas, n: nombre(p.plan), tono: { mensual: "--dn-l1", anual: "--faint", fundador: "--dn-l2" }[p.plan] })), "n")}
         ${otros.length ? `<p class="dn-nota">Además: ${otros.map(p => dnE(nombre(p.plan)) + " " + dnE(p.estado) + ", " + Number(p.personas)).join(" · ")}.</p>` : ""}
       </div>
-      <div class="dn-panel"><h3>Lo que el cobro todavía no guarda</h3>
-        <p class="dn-nota">El servidor solo sabe cómo está cada suscripción ahora. Las ventas por fecha, Fundador contra suscripciones en el tiempo y las devoluciones necesitan que se empiece a apuntar cada pago; hasta entonces no hay histórico que dibujar.</p></div>`;
+      ${dnVentasHTML(c)}`;
   }
   const vol = dnDeCada(r.volvieron || 0, r.abrieron || 0, 40), sig = dnDeCada(r.siguen30 || 0, r.maduros || 0, 20), ins = dnDeCada(r.instalaron || 0, r.abrieron || 0, 30);
   const vs = m.versiones || [];
@@ -1066,6 +1251,7 @@ function dnPinta() {
   capa.dataset.sala = DN.sala;
   if (salaVieja === DN.sala) capa.querySelector(".dn-sala").scrollTop = arriba;
   dnDibuja();
+  if (DN.sala === "subidas" && !DN.latido) dnLatido();
 }
 
 /* ---- Gráficas ----
@@ -1202,6 +1388,12 @@ function dnDibujaUna() {
   document.querySelectorAll("#dentro .dn-graf").forEach(c => {
     const g = c.dataset.g;
     if (g === "mini") dnGrafica(c, { titulo: "Personas que abrieron la app, 14 días", alto: 170, dias: rot, series: [{ n: "Personas", c: "--dn-l1", d: dias.map(d => Number(d.personas) || 0) }] });
+    if (g === "ventas") {
+      const v = dnVentas((metricasCache && metricasCache.cobro) || {});
+      const series = [{ n: "Suscripciones", c: "--dn-l1", d: v.sSus }, { n: "Fundador", c: "--dn-l2", d: v.sFun, p: true }];
+      if (v.dev.n) series.push({ n: "Devoluciones", c: "--dn-coral", d: v.sDev });
+      dnGrafica(c, { titulo: "Ventas por fecha, en pesos", alto: 240, dias: v.rot, series: series });
+    }
     if (g === "gente") dnGrafica(c, { titulo: "Personas que abrieron y cuentas nuevas", alto: 240, dias: tramo.map(d => dnDia(d.dia)), series: [{ n: "Personas que abrieron", c: "--dn-l1", d: tramo.map(d => Number(d.personas) || 0) }, { n: "Cuentas nuevas", c: "--dn-l2", d: tramo.map(d => Number(d.altas) || 0), p: 1 }] });
     if (g === "reten") dnGrafica(c, { titulo: "Cuántas siguen con los días", alto: 200, vara: 20, dias: reten.map(x => "Día " + x.dia), series: [{ n: "Siguen, de cada 100", c: "--dn-l1", d: reten.map(x => Math.round(Number(x.siguen) / Number(x.de) * 100)) }] });
     if (g === "embudo") dnEmbudo(c, m.embudo);
@@ -1247,6 +1439,12 @@ async function dnGuardar(t, cambios) {
 }
 /* La nota y la versión se guardan al salir del campo, no a cada letra. */
 function dnCambia(ev) {
+  /* Las dos fechas del cobro: no son de ningún reporte, así que van antes. */
+  if (ev.target.id === "dn-cob-desde" || ev.target.id === "dn-cob-hasta") {
+    DN[ev.target.id === "dn-cob-desde" ? "cobDesde" : "cobHasta"] = /^\d{4}-\d{2}-\d{2}$/.test(ev.target.value) ? ev.target.value : "";
+    dnPinta();
+    return;
+  }
   const t = dnTropiezos().find(x => dnClave(x) === DN.sel);
   if (!t || t.id == null) return;
   if (ev.target.id === "dn-nota") dnGuardar(t, { nota: ev.target.value.slice(0, 500) });
@@ -1301,7 +1499,9 @@ function dnClic(ev) {
       DN.ventana = null; DN.seguro = true; clearInterval(DN.reloj);
       dnMandaBarrera("regresar", { a: v }, "Grifo cerrado y regreso en marcha: tarda dos o tres minutos");
       return;
+    case "paqdia": try { localStorage.setItem("norata-paquete-dia", String(Number(v) || 0)); } catch (e) { /* sin almacén, se queda en jueves */ } break;
     case "num": DN.num = v; break;
+    case "cob": DN.cobDesde = ""; DN.cobHasta = ""; if (Number(v)) DN.cobDias = Number(v); break;
     case "lab": DN.lab = v; break;
     case "novedades": cerrarDentro(); if (typeof mostrarAjuste === "function") mostrarAjuste("novedades"); return;
     /* La llave de una ficha es su `id` o su versión: se toma entera del
