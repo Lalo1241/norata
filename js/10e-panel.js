@@ -292,6 +292,8 @@ const DN_PRUEBAS = [
     esta: () => typeof novedadesEnBorrador === "function" && novedadesEnBorrador() },
   { id: "contaste", n: "Lo que me contaste", tag: "mejora", q: "Quien reporta ve aquí lo que mandó y tu respuesta. Sale un enlace en el cuadro de reportar y un aviso al abrir si hay respuesta nueva. Los textos están por revisar.", on: "?contaste=1", off: "?contaste=0",
     esta: () => dnSesion("norata-prueba-contaste", "1") },
+  { id: "flotante", n: "La burbuja de la computadora", tag: "expansion", q: "Un botón «Flotar» en la barra lateral abre una ventanita encima de todo con el Pomodoro, lo que sigue en la rueda y las misiones de hoy. Solo en Chrome y Edge de escritorio.", on: "?flotante=si", off: "?flotante=no",
+    esta: () => dnSesion("norata-prueba-flotante", "si") },
   { id: "informes", n: "Informes con datos de ejemplo", q: "Llena los informes con datos falsos para revisar las gráficas.", on: "?informes=demo", off: "?informes=no",
     esta: () => dnSesion("norata-prueba-informes", "demo") },
   { id: "esqueleto", n: "Esqueletos de carga", tag: "mejora", q: "Las siluetas mientras carga una pantalla. Se descartaron en la 0.7.96.", on: "?esqueleto=1", off: "?esqueleto=0",

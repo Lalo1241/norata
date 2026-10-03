@@ -451,6 +451,18 @@
     }
   } catch (e) {}
 
+  /* ---- La prueba de la burbuja de la computadora (0.7.193) ----
+     `?flotante=si` saca el botón «Flotar» en la barra lateral y `?flotante=no`
+     lo quita. Lo que hace, en js/13c-flotante.js; aquí solo la clase, para
+     que el rótulo esté desde el primer cuadro. */
+  try {
+    var qf = new URLSearchParams(location.search).get("flotante");
+    if (qf === "si" || qf === "no") sessionStorage.setItem("norata-prueba-flotante", qf);
+    if (sessionStorage.getItem("norata-prueba-flotante") === "si") {
+      document.documentElement.classList.add("flotante-prueba");
+    }
+  } catch (e) {}
+
 
 
   /* ---- Red de seguridad ----
@@ -684,6 +696,12 @@
 <div class="rotulo-prueba" id="rotulo-informes">
   Estás viendo números inventados, no son tus datos
   <a href="?informes=no">salir</a>
+</div>
+<!-- El rótulo de la prueba de la burbuja (0.7.193). Se borra al encenderla
+     para todos; la lista, en la entrada de 0.7.193 de VERSIONES.md. -->
+<div class="rotulo-prueba" id="rotulo-flotante">
+  Prueba: la burbuja de la computadora
+  <a href="?flotante=no">salir</a>
 </div>
 
 
@@ -1519,6 +1537,14 @@
        se lleva consigo el anclaje abajo y la linea de separacion, que sin eso
        quedarian dos rayas seguidas. En el telefono no hay barra lateral, asi
        que alli sigue saliendo el toast: es el unico sitio que hay. -->
+  <!-- La burbuja de la computadora (0.7.193, en prueba). Nace escondida y la
+       enseña `fltPintarBoton` solo con la prueba puesta, con ratón y en un
+       navegador que la sepa abrir (js/13c-flotante.js). -->
+  <button class="c-nav side-only" id="nav-flotante" hidden onclick="abrirFlotante()"
+          aria-label="Abrir la burbuja" title="Abrir una ventanita que se queda encima de todo">
+    <svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="13" rx="3"/><rect x="11.5" y="11" width="6.5" height="4.5" rx="1.4"/></svg>
+    <span class="nav-label">Flotar</span>
+  </button>
   <button class="c-nav side-only" id="nav-update-side" hidden onclick="norataActualizar(this)"
           aria-label="Actualizar a la version nueva" title="Hay una version nueva de Norata">
     <!-- El icono en su disco: es lo que lo vuelve una insignia en vez de una
@@ -1749,5 +1775,6 @@
 <script defer src="js/11-arranque.js"></script>
 <script defer src="js/13-nativo.js"></script>
 <script defer src="js/13b-avisos.js"></script>
+<script defer src="js/13c-flotante.js"></script>
 </body>
 </html>

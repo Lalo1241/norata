@@ -11204,7 +11204,8 @@
      id-de-rótulo y no clase con clase: con un selector suelto, encender una
      sacaba también el rótulo de la otra. Hoy queda una sola prueba viva
      (`?informes=demo`), y el emparejamiento se deja puesto para la siguiente. */
-  html.informes-demo #rotulo-informes {
+  html.informes-demo #rotulo-informes,
+  html.flotante-prueba #rotulo-flotante {
     display: flex; align-items: center; gap: 8px;
     position: fixed;
     left: 12px;
@@ -11217,7 +11218,8 @@
     letter-spacing: 0.06em; text-transform: uppercase;
     max-width: calc(100vw - 24px);
   }
-  html.informes-demo #rotulo-informes a {
+  html.informes-demo #rotulo-informes a,
+  html.flotante-prueba #rotulo-flotante a {
     color: inherit;
     background: rgba(16, 21, 29, 0.14);
     border: var(--borde-fino) solid rgba(16, 21, 29, 0.28);
@@ -11226,9 +11228,11 @@
   }
   /* Sin transición en el fondo: el valor sale de una variable y Chrome lo
      deja congelado en el inicial. */
+  html.flotante-prueba #rotulo-flotante a:hover,
   html.informes-demo #rotulo-informes a:hover { background: rgba(16, 21, 29, 0.24); }
   @media (min-width: 900px) {
     /* En pantalla ancha la barra de navegación no está abajo. */
+    html.flotante-prueba #rotulo-flotante,
     html.informes-demo #rotulo-informes { bottom: calc(env(safe-area-inset-bottom) + 14px); }
   }
 

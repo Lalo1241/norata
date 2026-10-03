@@ -679,6 +679,29 @@
       }
     },
     {
+      "version": "0.7.193",
+      "fecha": "2026-10-03",
+      "estado": "borrador",
+      "clase": "expansion",
+      "titulo": "Norata te acompaña en la computadora",
+      "resumen": "Con «Flotar», tu Pomodoro y lo de hoy se quedan en una ventanita encima de lo que estés haciendo.",
+      "puntos": [
+        "Pausa, sigue o inicia un tramo sin volver a la pestaña.",
+        "Tacha tus misiones de hoy desde ahí mismo.",
+        "Ve qué sigue en tu rueda antes de que llegue."
+      ],
+      "retoques": [],
+      "en": {
+        "titulo": "Norata keeps you company on your computer",
+        "resumen": "With \"Float\", your Pomodoro and today's list stay in a small window on top of whatever you're doing.",
+        "puntos": [
+          "Pause, resume or start a session without going back to the tab.",
+          "Check off today's missions right from there.",
+          "See what's next on your wheel before it arrives."
+        ]
+      }
+    },
+    {
       "version": "0.7.191",
       "fecha": "2026-10-03",
       "estado": "borrador",

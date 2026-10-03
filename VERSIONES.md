@@ -318,6 +318,51 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.193 · 3 oct 2026
+
+**La burbuja de la computadora, en prueba.** Lo pidió Eduardo: algo que te siga
+en la PC como la burbuja de Messenger, sin la barra del navegador encima y que
+se sienta parte de Norata; en el teléfono y la tableta se quedan los avisos del
+sistema. Un botón «Flotar» en la barra lateral abre una ventanita que se queda
+encima de todo, con el Pomodoro (la cuenta, Iniciar, Pausa en amarillo y
+Seguir), lo que sigue en la rueda y las misiones de hoy para tacharlas ahí.
+
+- **Es Picture-in-Picture de documento** (`documentPictureInPicture`, Chrome y
+  Edge de escritorio). Tres límites que no se pueden cambiar desde una página y
+  están escritos arriba de `js/13c-flotante.js`: lleva una tira mínima del
+  navegador arriba, solo se abre con un clic y vive mientras Norata esté
+  abierta. Quitar la tira del todo pide una app de escritorio (Tauri): se habló
+  y se dejó para después de ver si la burbuja se usa.
+- **No tiene estado propio**: pinta con `jEstadoCentro`, `jSiguienteBloque` y
+  las funciones de Misiones, y sus botones llaman a `jIniciar`, `jPausa`,
+  `jSiguiente` y `logMission`. Copia las hojas de la app y los atributos de
+  `<html>`, así que va vestida del mundo y del modo puestos.
+- **Se repinta por partes y solo lo que cambió**: con todo rehecho cada
+  segundo, un clic que empieza en un botón y acaba en el nuevo se pierde.
+  Medido: el botón es el mismo elemento tres segundos después con el reloj
+  corriendo.
+- **Su reloj corre en su ventana** y, con la pestaña escondida, empuja
+  `jPaso`: Chrome frena los relojes de una pestaña de fondo hasta uno por
+  minuto, y el final de una fase llegaba tarde.
+- Sin la salida de «3, 2, 1» al iniciar (se dibuja en la ventana de la app) y
+  sin Abandonar: una ventanita encima de otra cosa es el peor sitio para un
+  botón sin vuelta.
+
+**Cómo se prueba:** `?flotante=si` la enciende y `?flotante=no` la apaga; está
+en el Puesto de mando → Laboratorio. **Para encenderla para todos, se borra
+por nombre:** la clase `flotante-prueba` y su bloque en el script de arriba de
+`index.html`, el `<div id="rotulo-flotante">`, `html.flotante-prueba
+#rotulo-flotante` en las cuatro reglas de `css/estilos.css`, `fltEnPrueba()`
+en `js/13c-flotante.js` (y su uso en `fltPintarBoton`) y la fila `flotante` de
+`DN_PRUEBAS`. Y se aprueba su novedad, que está en borrador.
+
+**Comprobado en Chromium**, con el ejemplo sembrado: la burbuja abre con el
+reloj, lo que sigue y las cuatro misiones de hoy; Iniciar, Pausa y Seguir
+cambian el tramo de la app; tachar una misión pasa de «0 de 4» a «1 de 4»; en
+modo claro toma los tonos de día; en un teléfono el botón no sale. Sin errores
+en la consola. **Sin probar:** el tamaño de la ventana (sin pantalla, Chromium
+la abre del tamaño de la página) y cómo se ve en cada mundo.
+
 ### 0.7.192.1 · 3 oct 2026
 
 **La cola dice qué la detiene.** Eduardo vio seis cambios parados con el grifo

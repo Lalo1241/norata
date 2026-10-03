@@ -4371,5 +4371,17 @@ const TEXTOS_EN = {
   "Una compra es una llave que se paga.": "A purchase is a key you pay for.",
   "La cifra a la que quieres llegar. La unidad se cambia después en su ficha.": "The number you want to reach. You can change the unit later on its card.",
   "Escribe una cifra mayor que cero": "Type a number greater than zero",
-  "salir de pantalla completa": "exit full screen"
+  "salir de pantalla completa": "exit full screen",
+  /* La burbuja de la computadora (0.7.193, en prueba). */
+  "Flotar": "Float",
+  "Abrir la burbuja": "Open the bubble",
+  "Abrir una ventanita que se queda encima de todo": "Open a small window that stays on top of everything",
+  "Abrir": "Open",
+  "Saltar": "Skip",
+  "Después · {0}": "Next · {0}",
+  "Hoy · {0} de {1}": "Today · {0} of {1}",
+  "Nada programado para hoy.": "Nothing scheduled for today.",
+  "Todo lo de hoy, cumplido.": "Everything for today, done.",
+  "y {0} más": "and {0} more",
+  "Tu navegador no dejó abrir la burbuja.": "Your browser didn't let the bubble open."
 };
