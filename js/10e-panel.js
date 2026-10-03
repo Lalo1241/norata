@@ -578,7 +578,17 @@ function dnGrifoHTML() {
   return `<div class="dn-grifo ${abierto ? "abierto" : DN.seguro ? "" : "suelto"} ${ahora !== antes ? "cambia" : ""} ${(ahora === "abierto") !== (antes === "abierto") ? "gira" : ""}">
     <button class="dn-interruptor" role="switch" aria-checked="${abierto}" aria-label="Grifo de subidas" data-a="grifo:${abierto ? "cerrar" : "abrir"}"><i>${dnIc(abierto ? "subidas" : DN.seguro ? "candado" : "flecha")}</i></button>
     <div><h3>${abierto ? "Grifo abierto" : "Grifo cerrado"}</h3><p>${abierto ? "Lo que se sube a main llega solo al vivo, como hasta hoy. Lo que traiga SQL se queda en la cola." : "Nada llega al vivo sin tu aprobación: lo que se sube a main espera aquí."}</p></div>
-    <div class="acc">${acc}</div></div>`;
+    <div class="acc">${acc}</div>${dnGrifoVeloHTML()}</div>`;
+}
+/* Mientras el servidor contesta, la tarjeta ENTERA lo dice. Abrir o cerrar
+   tarda un segundo o dos —pasa por Supabase y, al abrir, por GitHub—, y en ese
+   rato la tarjeta se quedaba igual y de golpe cambiaba: parecía que el toque
+   no había hecho nada (Eduardo, 3 oct 2026). El candado va dibujado en dos
+   piezas para que el arco se pueda mover solo. */
+function dnGrifoVeloHTML() {
+  const p = DN.grifoPend;
+  if (!p) return "";
+  return `<div class="dn-grifo-velo ${p}" role="status"><svg class="dn-cand" viewBox="0 0 24 24" aria-hidden="true"><path class="arco" d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/><path class="caja" d="M6 11h12v9H6z"/></svg><b>${p === "abriendo" ? "Abriendo el grifo…" : "Cerrando el grifo…"}</b></div>`;
 }
 
 /* Lo que falta para que la barrera funcione, dicho pieza por pieza. */
@@ -627,7 +637,11 @@ const dnPartirTitulo = t => String(t || "").split("\n")[0];
    `vivo` se fabrica uno, así que su lista ES lo publicado, con su fecha.
 
    Una versión está SANA si estuvo 24 horas o más en vivo sin errores nuevos
-   ni fallos abiertos. El boceto pedía además «abierta por al menos diez
+   ni fallos abiertos. «En vigilancia» es solo para la que está en vivo: una
+   que reemplazó otra antes de sus 24 horas ya no las va a cumplir, y se
+   quedaba en vigilancia para siempre (lo vio Eduardo el 3 oct 2026). Esa pasa
+   a DE PASO, que es definitivo: no tuvo tiempo de probarse, así que no cuenta
+   como sana para el regreso automático, pero se puede elegir a mano. El boceto pedía además «abierta por al menos diez
    dispositivos», y se cayó al construirlo: los números de la app dicen en qué
    versión está HOY cada persona, no por cuáles pasó, así que de una versión
    vieja no se puede saber quién la abrió.
@@ -643,9 +657,9 @@ function dnSalud(lista) {
     const autos = ts.filter(t => dnTipo(t) === "auto" && t.version === h.version);
     const nuevos = autos.filter(t => !ts.some(x => x !== t && x.mensaje === t.mensaje && viejas.indexOf(x.version) >= 0)).length;
     const fallos = ts.filter(t => dnTipo(t) === "fallo" && t.version === h.version && dnAbierto(t)).length;
-    const est = nuevos || fallos ? "mal" : horas < 24 ? "vig" : "sana";
+    const est = nuevos || fallos ? "mal" : horas >= 24 ? "sana" : i ? "paso" : "vig";
     const dias = Math.round(horas / 24);
-    const dur = horas < 24 ? Math.max(1, Math.round(horas)) + " h en vivo" : dias + (dias === 1 ? " día en vivo" : " días en vivo");
+    const dur = horas < 24 ? (i ? "duró " : "") + Math.max(1, Math.round(horas)) + " h" + (i ? " y la reemplazó otra" : " en vivo") : dias + (dias === 1 ? " día en vivo" : " días en vivo");
     const cosas = [nuevos ? nuevos + (nuevos === 1 ? " error nuevo" : " errores nuevos") : "", fallos ? fallos + (fallos === 1 ? " fallo abierto" : " fallos abiertos") : ""].filter(Boolean);
     return Object.assign({}, h, { est: est, horas: horas, texto: (cosas.length ? cosas.join(" · ") : "Sin errores nuevos") + " · " + dur });
   });
@@ -656,11 +670,11 @@ const dnUltimaSana = () => dnHistorial().slice(1).find(h => h.est === "sana") ||
 function dnHistorialHTML() {
   const hs = dnHistorial().slice(0, 8);
   if (!hs.length) return "";
-  const est = { sana: ["e-ok", "check", "Sana"], vig: ["e-espera", "reloj", "En vigilancia"], mal: ["e-yo", "fallo", "Con problemas"] };
+  const est = { sana: ["e-ok", "check", "Sana"], vig: ["e-espera", "reloj", "En vigilancia"], paso: ["e-no", "flecha", "De paso"], mal: ["e-yo", "fallo", "Con problemas"] };
   const u = dnUltimaSana();
   return `<div class="dn-panel"><div class="dn-pcab"><h3>Lo que estuvo en vivo</h3>
         ${u ? `<div class="dn-der"><button class="dn-btn b-coral mini" data-a="regresar:${dnE(u.version)}">${dnIc("regreso")}Regresar a la ${dnE(u.version)}</button></div>` : ""}</div>
-      <p class="dn-nota">Sana: estuvo 24 horas o más en vivo sin errores nuevos ni fallos abiertos. Regresar publica otra vez su contenido con un número nuevo y cierra el grifo.</p>
+      <p class="dn-nota">Sana: estuvo 24 horas o más en vivo sin errores nuevos ni fallos abiertos. De paso: la reemplazó otra antes, así que no le dio tiempo de probarse. Regresar publica otra vez su contenido con un número nuevo y cierra el grifo.</p>
       ${hs.map((h, i) => { const q = est[h.est]; return `<div class="dn-prueba"><div>
           <div class="dn-sobre-t"><span class="dn-estado ${q[0]}">${dnIc(q[1])}${q[2]}</span>${i ? "" : `<span class="dn-chip">en vivo</span>`}<span class="dn-chip">${dnE(dnDia(dnLocal(h.fecha)))}</span></div>
           <h4>V${dnE(h.version)}</h4><p>${dnE(h.texto)}</p></div>
@@ -699,8 +713,8 @@ function dnVentanaHTML() {
       <h3>¿Regresar a la ${dnE(h.version)}?</h3>
       <p>Se publica otra vez su contenido con un número nuevo, para que llegue a todos los dispositivos, y deja sin efecto ${nada}. El grifo queda cerrado: lo que trajeron sigue en main, esperando su arreglo.</p>
       ${h.est !== "sana" ? `<div class="dn-aviso"><b>Esta no está marcada como sana.</b> ${dnE(h.texto)}.</div>` : ""}
-      <p class="dn-nota">Si entre las dos cambió el formato de los datos, GitHub se niega y aquí sale como «Falló». «Solo ensayar» prepara el regreso y te dice qué cambiaría, sin publicar nada.</p>
-      <div class="dn-macc"><button class="dn-btn b-ghost" data-a="ventana:cerrar!">Cancelar</button><button class="dn-btn b-linea" data-a="ensayar:${dnE(h.version)}">Solo ensayar</button><button class="dn-btn b-coral" data-a="regresarya:${dnE(h.version)}">Regresar a la ${dnE(h.version)}</button></div></div></div>`;
+      <p class="dn-nota">Si entre las dos cambió el formato de los datos, GitHub se niega y aquí sale como «Falló».</p>
+      <div class="dn-macc"><button class="dn-btn b-ghost" data-a="ventana:cerrar!">Cancelar</button><button class="dn-btn b-coral" data-a="regresarya:${dnE(h.version)}">Regresar a la ${dnE(h.version)}</button></div></div></div>`;
   }
   const cola = (DN.bar && DN.bar.cola) || [];
   if (v.tipo === "abrir") {
@@ -765,12 +779,17 @@ function dnLlaveSuelta() {
 }
 
 async function dnMandaBarrera(accion, datos, dicho) {
+  /* Lo que mueve el grifo lo anuncia en la tarjeta mientras dura. */
+  DN.grifoPend = accion === "grifo" ? (datos.abierto ? "abriendo" : "cerrando") : accion === "regresar" ? "cerrando" : null;
+  if (DN.grifoPend) dnPinta();
   try {
     await sbBarrera(accion, datos);
     toast(dicho, "hecho");
+    DN.grifoPend = null;
     await dnCargaBarrera();
     dnRepreguntaBarrera();
   } catch (e) {
+    DN.grifoPend = null;
     toast(e.message || String(e), "atencion");
     dnPinta();
   }
@@ -1222,9 +1241,9 @@ function dnClic(ev) {
       DN.ventana = { tipo: "abrir" }; break;
     case "emergencia": DN.ventana = { tipo: "emergencia" }; break;
     case "regresar": DN.ventana = { tipo: "regresar", a: v }; break;
-    case "regresarya": case "ensayar":
-      DN.ventana = null; DN.seguro = true; clearInterval(DN.reloj); dnPinta();
-      dnMandaBarrera("regresar", { a: v, ensayo: a === "ensayar" }, a === "ensayar" ? "Ensayo en marcha: el resultado sale en «Las últimas veces»" : "Grifo cerrado y regreso en marcha: tarda dos o tres minutos");
+    case "regresarya":
+      DN.ventana = null; DN.seguro = true; clearInterval(DN.reloj);
+      dnMandaBarrera("regresar", { a: v }, "Grifo cerrado y regreso en marcha: tarda dos o tres minutos");
       return;
     case "num": DN.num = v; break;
     case "lab": DN.lab = v; break;

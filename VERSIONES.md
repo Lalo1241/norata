@@ -48,6 +48,10 @@ changelog público no podría agruparlos: sus retoques no hablaban de él.
 - **Dos sesiones a la vez con temas distintos son dos 3º**, no dos 4º del mismo.
 - **Los números de antes no se tocan.** La 0.7.148.1–.9 se quedan como están:
   renumerar historia rompe los enlaces y los paquetes del APK.
+- **Si su 3º ya no es el último publicado, el retoque sube el 3º** (0.7.187).
+  Un número no puede bajar: la app de Android solo se actualiza a uno mayor, y
+  desde la 0.7.184 la barrera se niega a publicarlo. La entrada dice de quién
+  es el retoque.
 
 Cada 3º es además **una entrada de `novedades/novedades.json`**, y sus 4º van
 dentro como `retoques` (ver `novedades/LEEME.md`).
@@ -314,10 +318,10 @@ en que conviene hacerlo:
 
 ## La lista
 
-### 0.7.187 · 3 oct 2026
+### 0.7.188 · 3 oct 2026
 
 **La ventana de Novedades, el doble de ancha en la computadora, con su letrero
-en verde Norata; y las destacadas, con etiqueta.** Tres cosas de Eduardo sobre
+en verde Norata; y las destacadas, con etiqueta.** Número propio y no la 0.7.187, que otra sesión cogió a la vez. Tres cosas de Eduardo sobre
 capturas de Averno:
 
 - **El letrero** —la estrella y «Novedades de Norata»— va en `--casa-menta` en
@@ -330,6 +334,45 @@ capturas de Averno:
 
 Medido en Averno, Cyberpunk y la casa: letrero `rgb(95, 224, 176)`, ventana de
 920 px sin desbordar, y la etiqueta de −10 a 12 px sobre el borde.
+### 0.7.187.2 · 3 oct 2026
+
+**El grifo dice que está cambiando, y el ensayo sale del panel.**
+
+- **Un candado tapa la tarjeta mientras el grifo cambia.** Abrir o cerrar tarda
+  un segundo o dos —pasa por Supabase y, al abrir, por GitHub—, y en ese rato
+  la tarjeta se quedaba igual y de golpe cambiaba: parecía que el toque no
+  había hecho nada. Ahora la tarjeta entera lo dice, «Abriendo el grifo…» o
+  «Cerrando el grifo…», con el arco del candado moviéndose. Va dibujado en dos
+  piezas para que el arco se mueva solo, y es macizo: lo de debajo es el estado
+  viejo.
+- **«Solo ensayar» se quitó.** Eduardo lo probó y preguntó qué lógica tenía:
+  preparaba el regreso sin publicar, y a él solo le devolvía un «Terminó bien».
+  Servía para comprobar el mecanismo, no para decidir nada, y de paso le cerró
+  el grifo (corregido en la función el mismo día). El trabajo de GitHub
+  conserva la opción; el panel ya no la ofrece.
+
+### 0.7.187.1 · 3 oct 2026
+
+**El botón «Cierre de emergencia» lleva marco coral y crece un poco al pasarle
+el cursor.** Lo pidió Eduardo: un marco fino (1,5 px) y un 5 % de agrandamiento.
+La transición va declarada aparte, porque el Puesto de mando las apaga todas
+para que ningún mundo le cuele las suyas.
+
+### 0.7.187 · 3 oct 2026
+
+**Dos retoques del regreso de emergencia (0.7.184).** Lleva número de 3º y no
+el 0.7.184.1 que le tocaría: cuando se hizo ya estaba publicada la 0.7.186, y
+un número no puede bajar (ver «El 4º es del tema de su 3º»).
+
+- **«De paso».** Una versión que otra reemplazó antes de sus 24 horas se
+  quedaba «en vigilancia» para siempre, porque ya no las iba a cumplir. Lo vio
+  Eduardo. Ahora la vigilancia es solo de la que está en vivo, y la otra queda
+  «De paso», que es definitivo: no le dio tiempo de probarse, así que no cuenta
+  como sana para el regreso automático, pero se puede elegir a mano.
+- **El botón «Cierre de emergencia» vuelve a ser macizo.** El tenue coral se
+  transparentaba sobre las rayas del grifo abierto, y el botón parecía salir
+  por detrás de la animación; ya le había pasado una vez en el boceto. El mismo
+  tono, puesto sobre la tarjeta.
 
 ### 0.7.186 · 3 oct 2026
 
