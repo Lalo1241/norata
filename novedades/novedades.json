@@ -1327,7 +1327,7 @@
       "estado": "publicado",
       "clase": "expansion",
       "titulo": "Cyberpunk, el quinto mundo",
-      "resumen": "Paneles con visor en vez de marco, cinco paletas con su cara de día y una racha que se enciende como un circuito.",
+      "resumen": "Norata tiene un mundo nuevo: Cyberpunk. Aquí las tarjetas dejan el marco y se vuelven paneles con visor, y tu racha se enciende como un circuito cada semana que cumples. Trae cinco paletas, cada una con su cara de día, para que lo uses a la hora que sea.\n\nSu camino tiene nombres propios: empiezas como Señal y, si sigues, llegas a Leyenda. Y Voltaje, la quinta paleta, se gana al alcanzar el tercer rango.",
       "puntos": [
         "Tu camino ahí: Señal, Enlace, Protocolo, Núcleo y Leyenda.",
         "Voltaje, la quinta paleta, se gana con el tercer rango."
@@ -1348,7 +1348,7 @@
           "titulo": "Cyberpunk en números",
           "en": {
             "titulo": "Cyberpunk in numbers",
-            "pie": "Cyberpunk in figures and its five palettes, with when you get each one."
+            "pie": "The world in figures and its five palettes, with when you get each one."
           },
           "datos": [
             {
@@ -1385,7 +1385,7 @@
               "detalle": "Señal, Enlace, Protocolo, Núcleo y Leyenda."
             }
           ],
-          "pie": "Cyberpunk en cifras y sus cinco paletas, con cuándo se gana cada una."
+          "pie": "El mundo en cifras y sus cinco paletas, con cuándo se gana cada una."
         },
         {
           "tipo": "colores",
@@ -1528,7 +1528,7 @@
       ],
       "en": {
         "titulo": "Cyberpunk, the fifth world",
-        "resumen": "Panels with a visor instead of a frame, five palettes with their daytime face, and a streak that lights up like a circuit.",
+        "resumen": "Norata has a new world: Cyberpunk. Here, cards drop the frame and become panels with a visor, and your streak lights up like a circuit every week you keep it going. It brings five palettes, each with a daytime face, so you can wear it at any hour.\n\nIts path has names of its own: you start as Signal and, if you keep going, you reach Legend. And Voltage, the fifth palette, is earned when you reach the third rank.",
         "puntos": [
           "Your path there: Signal, Link, Protocol, Core and Legend.",
           "Voltage, the fifth palette, is earned with the third rank."
@@ -1541,9 +1541,9 @@
           "en": {
             "alt": "The Summary with Cyberpunk, split diagonally: daytime on the left, night on the right.",
             "src": "novedades/img/0.7.148-cyberpunk-dia-y-noche-en.jpg",
-            "pie": "The Summary with Cyberpunk on, by day and by night."
+            "pie": "The Summary with the world on, by day and by night."
           },
-          "pie": "El Resumen con Cyberpunk puesto, de día y de noche."
+          "pie": "El Resumen con el mundo puesto, de día y de noche."
         }
       ]
     },
@@ -1553,7 +1553,7 @@
       "estado": "publicado",
       "clase": "expansion",
       "titulo": "Cinco paletas por mundo y diez ambientes",
-      "resumen": "Cada mundo trae cinco paletas, Norata clásico llega a diez ambientes, y los mundos se miran desde Mi apariencia antes de ponértelos.",
+      "resumen": "Ahora cada mundo se puede vestir de cinco maneras. Blueprint, Reliquia, Catedral y Averno traen cinco paletas cada uno: cuatro llegan con el mundo y la quinta se gana al alcanzar el tercer rango de su camino. Y ya no tienes que ponerte un mundo para saber cómo se ve: desde Mi apariencia lo miras antes de decidir.\n\nNorata clásico también creció y llega a diez ambientes. Los nuevos son Cobre, Zafiro y Oliva, y Duna se rehízo para que se sienta como un desierto de verdad.",
       "puntos": [
         "La quinta paleta de cada mundo se gana con el tercer rango de su camino.",
         "Los ambientes nuevos son Cobre, Zafiro y Oliva, y Duna se rehízo como desierto de verdad."
@@ -1815,7 +1815,7 @@
       "retoques": [],
       "en": {
         "titulo": "Five palettes per world and ten ambiences",
-        "resumen": "Every world brings five palettes, classic Norata reaches ten ambiences, and you can look at worlds from My look before wearing them.",
+        "resumen": "Every world can now be worn five ways. Blueprint, Relic, Cathedral and Inferno bring five palettes each: four come with the world and the fifth is earned when you reach the third rank of its path. And you no longer have to put a world on to see how it looks: from My look you can view it before deciding.\n\nClassic Norata grew too, and now reaches ten ambiences. The new ones are Copper, Sapphire and Olive, and Dune was remade to feel like a real desert.",
         "puntos": [
           "Each world's fifth palette is earned with the third rank of its path.",
           "The new ambiences are Copper, Sapphire and Olive, and Dune was remade as a real desert."

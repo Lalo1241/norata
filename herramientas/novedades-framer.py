@@ -429,7 +429,7 @@ def cuerpo(e, en=False):
     # así no cabe en una frase; el campo Resumen de Framer es texto plano y
     # se comería el salto.
     for parrafo in parrafos(campo(e, "resumen", en))[1:]:
-        trozos.append(f'<p class="nv-parrafo" style="margin:0;font-size:16px;line-height:1.55;color:#3D4052">{esc(parrafo)}</p>')
+        trozos.append(f'<p class="nv-parrafo" style="margin:0;max-width:68ch;font-size:16px;line-height:1.55;color:#3D4052">{esc(parrafo)}</p>')
     todos = [t for n in sorted(medios) for t in medios[n]]
     primera = min([n for n in medios if n > 0], default=0)
     antes = [f"<li>{esc(p)}</li>" for i, p in enumerate(puntos, 1) if i not in medios and i < primera]
