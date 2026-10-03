@@ -511,13 +511,20 @@ async function renderPanelNovedades() {
      Play Store»: Eduardo los leyó como textos de ejemplo que sobraban. No se
      borran del JSON —son el anuncio de verdad, y `probarHito` los usa—: se
      ven con `?novedades=borrador`, que es donde se prueban. */
-  const lista = novedadesVisibles(await cargarNovedades(), borrador)
-    .filter((e) => borrador || !(novedadClase(e) === "hito" && e.estado !== "publicado"));
+  /* NUNCA lo que está por aprobar, ni con la prueba puesta (0.7.186). Eduardo,
+     al ver aquí «Por aprobar» con la prueba encendida en su pestaña: «revisa
+     que en Novedades nunca jamás salga lo que está por aprobar». La prueba se
+     enciende desde el Laboratorio y dura toda la pestaña, así que se olvidaba
+     puesta y la lista parecía la de todos. Las fichas por aprobar se revisan
+     en el Puesto de mando → Subidas; aquí la prueba solo deja las
+     herramientas (la ventana y los dos anuncios de hito). */
+  const lista = novedadesVisibles(await cargarNovedades(), false)
+    .filter((e) => !(novedadClase(e) === "hito" && e.estado !== "publicado"));
   const aviso = borrador ? `
     <div class="nov-prueba">
-      <b>${escapeHtml(tx("Estás viendo lo que falta aprobar"))}</b>
-      <span>${escapeHtml(tx("Solo en esta pestaña. Lo que dice «Por aprobar» ya está en la app, pero no se le anuncia a nadie hasta que se apruebe."))}</span>
-      ${lista.length ? `<button type="button" class="btn btn-soft btn-block" onclick="novedadesProbarVentana()">${escapeHtml(tx("Ver la ventana de la más reciente"))}</button>` : ""}
+      <b>${escapeHtml(tx("Herramientas de prueba"))}</b>
+      <span>${escapeHtml(tx("Solo en esta pestaña. Lo que está por aprobar se revisa en el Puesto de mando, nunca aquí."))}</span>
+      <button type="button" class="btn btn-soft btn-block" onclick="novedadesProbarVentana()">${escapeHtml(tx("Ver la ventana de la más reciente"))}</button>
       <div class="nov-prueba-hitos">
         <button type="button" class="btn btn-linea" onclick="probarHito('beta')">${escapeHtml(tx("Probar el anuncio de la beta"))}</button>
         <button type="button" class="btn btn-linea" onclick="probarHito('1.0')">${escapeHtml(tx("Probar el anuncio de la 1.0"))}</button>

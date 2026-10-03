@@ -679,6 +679,20 @@
       }
     },
     {
+      "version": "0.7.186",
+      "fecha": "2026-10-03",
+      "estado": "borrador",
+      "clase": "arreglo",
+      "titulo": "Novedades enseña solo lo publicado",
+      "resumen": "La lista de Novedades ya no enseña nada que esté pendiente de aprobar, en ningún caso.",
+      "puntos": [],
+      "retoques": [],
+      "en": {
+        "titulo": "What's new shows only what's published",
+        "resumen": "The What's new list no longer shows anything still awaiting approval, under any circumstances."
+      }
+    },
+    {
       "version": "0.7.185",
       "fecha": "2026-10-03",
       "estado": "borrador",

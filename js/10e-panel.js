@@ -288,7 +288,7 @@ function dnFiltrados() {
    decidir desde el panel. Al añadir una prueba a la app, su fila va aquí. */
 const dnSesion = (k, v) => { try { return sessionStorage.getItem(k) === v; } catch (e) { return false; } };
 const DN_PRUEBAS = [
-  { id: "novedades", n: "Novedades por aprobar", q: "Ajustes → Novedades con lo que todavía no apruebas, la ventana y los anuncios de hito.", on: "?novedades=borrador", off: "?novedades=",
+  { id: "novedades", n: "Pruebas de Novedades", q: "En Ajustes → Novedades, botones para ver la ventana y los anuncios de hito. La lista sigue solo con lo publicado.", on: "?novedades=borrador", off: "?novedades=",
     esta: () => typeof novedadesEnBorrador === "function" && novedadesEnBorrador() },
   { id: "informes", n: "Informes con datos de ejemplo", q: "Llena los informes con datos falsos para revisar las gráficas.", on: "?informes=demo", off: "?informes=no",
     esta: () => dnSesion("norata-prueba-informes", "demo") },

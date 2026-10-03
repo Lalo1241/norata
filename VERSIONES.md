@@ -314,6 +314,18 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.186 · 3 oct 2026
+
+**Ajustes → Novedades enseña solo lo publicado, siempre, también con la prueba
+puesta.** Eduardo vio ahí «Por aprobar» (la 1.0, la beta, la 0.7.185 y la
+0.7.181) y lo pidió urgente: «revisa que en Novedades nunca jamás salga lo que
+está por aprobar». No era la lista de todos: era su pestaña con
+`?novedades=borrador`, que se enciende desde el Laboratorio y dura lo que la
+pestaña, así que se olvida puesta. Ahora esa prueba ya no cambia la lista
+(`renderPanelNovedades`): solo deja los botones de la ventana y de los dos
+anuncios de hito. Lo por aprobar se revisa en el Puesto de mando → Subidas.
+Comprobado con la prueba puesta: cero «Por aprobar», las tres publicadas.
+
 ### 0.7.185 · 3 oct 2026
 
 **Cada imagen de Novedades lleva su pie, y las de claro contra oscuro dicen
