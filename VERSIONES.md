@@ -318,6 +318,18 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.200.1 · 3 oct 2026
+
+**Las fichas de Cyberpunk (0.7.148) y de las paletas (0.7.147), reescritas en
+dos párrafos**, con el mismo tono que la del Pomodoro; Eduardo revisó los
+textos y quitó «el más eléctrico hasta ahora» y que «Cyberpunk» saliera tan
+seguido (sus dos pies ya dicen «el mundo»). En el sitio, el segundo párrafo
+lleva el ancho del primero (68ch). Es un 4º de la 0.7.200.
+
+**Cambiar una ficha YA publicada pide subir el número**: `novedades.json` está
+en `ASSETS`, y la barrera se negó a subir el commit 8a34a56, que lo cambiaba
+con el número de vivo («cambia la app sin subir el número»).
+
 ### 0.7.200 · 3 oct 2026
 
 **El resumen de una novedad puede llevar más de un párrafo, y la ficha del

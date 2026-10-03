@@ -686,7 +686,15 @@
       "titulo": "Las novedades, contadas con más calma",
       "resumen": "Las novedades destacadas ya se cuentan en más de un párrafo, para explicarte con calma qué cambia para ti.",
       "puntos": [],
-      "retoques": [],
+      "retoques": [
+        {
+          "version": "0.7.200.1",
+          "texto": "Cyberpunk y las paletas por mundo también se cuentan con más calma.",
+          "en": {
+            "texto": "Cyberpunk and the palettes per world are told with more room too."
+          }
+        }
+      ],
       "en": {
         "titulo": "Updates, told with more room",
         "resumen": "Featured updates can now run to more than one paragraph, to explain calmly what changes for you."
