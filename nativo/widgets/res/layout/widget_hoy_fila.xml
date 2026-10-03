@@ -1,26 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- letras al 87 % de las del boceto: se veian grandes junto a lo demas del telefono (3 oct 2026). -->
 <!-- Una fila del widget Hoy: una misión (casilla, nombre y su habilidad) o una
      actividad (cuadrito, nombre y su hora). La raya de arriba separa de la fila
      anterior; la primera la lleva invisible. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/wf_fila"
     android:layout_width="match_parent"
-    android:layout_height="37dp"
+    android:layout_height="34dp"
     android:orientation="vertical">
 
     <ImageView android:id="@+id/wf_raya" android:layout_width="match_parent" android:layout_height="1dp"
         android:scaleType="fitXY" android:src="@drawable/widget_raya" android:importantForAccessibility="no" />
 
-    <LinearLayout android:layout_width="match_parent" android:layout_height="36dp"
+    <LinearLayout android:layout_width="match_parent" android:layout_height="33dp"
         android:orientation="horizontal" android:gravity="center_vertical">
         <ImageView android:id="@+id/wf_marca" android:layout_width="22dp" android:layout_height="22dp"
             android:importantForAccessibility="no" />
         <TextView android:id="@+id/wf_nom" android:layout_width="0dp" android:layout_height="wrap_content"
-            android:layout_weight="1" android:layout_marginStart="11dp" android:textSize="14.5dp"
+            android:layout_weight="1" android:layout_marginStart="11dp" android:textSize="12.5dp"
             android:fontFamily="@font/outfit_medium" android:maxLines="1" android:ellipsize="end"
             android:includeFontPadding="false" />
         <TextView android:id="@+id/wf_de" android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:layout_marginStart="8dp" android:textSize="12dp" android:fontFamily="@font/outfit_medium"
+            android:layout_marginStart="8dp" android:textSize="10.5dp" android:fontFamily="@font/outfit_medium"
             android:fontFeatureSettings="tnum" android:maxLines="1" android:includeFontPadding="false" />
     </LinearLayout>
 </LinearLayout>

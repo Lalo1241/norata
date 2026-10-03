@@ -408,7 +408,7 @@ final class Pinta {
             if (Build.VERSION.SDK_INT >= 24) v.setChronometerCountDown(crono, true);
             v.setTextColor(crono, texto);
             // Con horas («5:04:12») no cabe dentro del aro chico a su tamaño de siempre.
-            if (!grande && !ancho) v.setTextViewTextSize(crono, TypedValue.COMPLEX_UNIT_DIP, sueno ? 19 : 25);
+            if (!grande && !ancho) v.setTextViewTextSize(crono, TypedValue.COMPLEX_UNIT_DIP, sueno ? 16.5f : 22);
         } else {
             v.setChronometer(crono, SystemClock.elapsedRealtime(), null, false);
             texto(c, v, "wp_t", t, texto);

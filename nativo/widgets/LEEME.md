@@ -165,6 +165,9 @@ estaba antes de ESE instalador.
   como hace Android de fábrica. Salen del boceto «Widgets de Norata», con los
   tonos de la casa de noche; **al cambiar el diseño de un widget hay que volver
   a sacar la suya**, o el selector enseñará el de antes.
+- **Las letras van al 87 % de las del boceto.** En el teléfono se veían
+  demasiado grandes junto a los nombres de las apps y a otros widgets; lo pidió
+  Eduardo al verlos puestos. Las filas de Hoy bajaron de 37 a 34 dp con ellas.
 - **En dp y no en sp.** El alto lo pone la cuadrícula del teléfono, y con la
   letra del sistema agrandada las filas se saldrían.
 - **Marcar y desmarcar seguido se anula aquí** y no llega a la app: aplicar
