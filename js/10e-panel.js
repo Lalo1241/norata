@@ -267,7 +267,7 @@ function dnTexto(t) {
 
 /* El estado de la capa. En memoria y no en `state`: es dónde estabas mirando,
    no un dato de nadie. */
-const DN = { sala: "hoy", tipo: "todo", ver: "abiertos", q: "", sel: null, num: "gente", rango: 14, lab: "pruebas", cargando: false, error: "", nov: null,
+const DN = { sala: "hoy", tipo: "todo", ver: "abiertos", q: "", sel: null, num: "gente", rango: 14, lab: "pruebas", cobDias: 30, cobDesde: "", cobHasta: "", cargando: false, error: "", nov: null,
   /* La barrera: lo que contestó la función, el seguro del grifo y la ventana abierta. */
   bar: null, barError: null, seguro: true, cuenta: 15, ventana: null };
 
@@ -933,6 +933,79 @@ function dnPartes(tit, filas, claveNombre) {
     <div class="dn-uso">${f3.map((f, i) => `<div><small><i class="dn-punto" style="background:var(${tono(f, i)})"></i>${dnE(f[claveNombre])}</small><b>${Math.round(f.personas / t * 100)}%</b></div>`).join("")}</div></div>`;
 }
 
+/* ---- Las ventas por fecha (0.7.193) ----
+   Sale del libro de pagos (`pagos`, en planes.sql): cada cobro y cada
+   devolución, apuntados por la función `cobro` cuando Stripe avisa. El
+   servidor manda TODA la historia sumada por día, y aquí se recorta: cambiar
+   de periodo o de fechas no vuelve a preguntar.
+
+   Lo pidió Eduardo: fechas a su gusto, los periodos de 15 a 180 días,
+   suscripciones contra Fundador —el flujo que se repite y el que entra una
+   vez— y las devoluciones.
+
+   Tres cosas que no se inventan: sin la tabla no hay sala, sino el aviso de
+   qué falta; el libro empieza el día que se pegó, y se dice; y una devolución
+   de suscripción no sabe si era mensual o anual, así que va en «suscripciones»
+   a secas. */
+const DN_PERIODOS = [15, 30, 60, 90, 180];
+const dnPesos = cent => "$" + Math.round((Number(cent) || 0) / 100).toLocaleString("es-MX");
+const dnISO = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+/* El tramo que se mira: los días del periodo hasta hoy, o las dos fechas. */
+function dnTramoCobro(pagos) {
+  const hoy = new Date(), fin0 = dnISO(hoy);
+  let desde, hasta = fin0;
+  if (DN.cobDesde || DN.cobHasta) {
+    hasta = DN.cobHasta || fin0;
+    desde = DN.cobDesde || (pagos.length ? String(pagos[0].dia).slice(0, 10) : hasta);
+    if (desde > hasta) { const t = desde; desde = hasta; hasta = t; }
+  } else {
+    const d = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - ((DN.cobDias || 30) - 1));
+    desde = dnISO(d);
+  }
+  /* Un punto por día; pasado de 200 días, uno por semana, o la línea es un peine. */
+  const dias = [], p = desde.split("-").map(Number), q = hasta.split("-").map(Number);
+  const a = new Date(p[0], p[1] - 1, p[2]), z = new Date(q[0], q[1] - 1, q[2]);
+  for (let d = new Date(a); d <= z && dias.length < 4000; d.setDate(d.getDate() + 1)) dias.push(dnISO(d));
+  return { desde: desde, hasta: hasta, dias: dias, semanal: dias.length > 200 };
+}
+function dnVentas(c) {
+  const pagos = (c.pagos || []).map(x => ({ dia: String(x.dia).slice(0, 10), producto: x.producto, clase: x.clase, n: Number(x.n) || 0, cent: Number(x.centavos) || 0 }));
+  const t = dnTramoCobro(pagos), en = pagos.filter(x => x.dia >= t.desde && x.dia <= t.hasta);
+  const suma = f => en.filter(f).reduce((s, x) => ({ n: s.n + x.n, cent: s.cent + x.cent }), { n: 0, cent: 0 });
+  const esSus = x => x.clase === "pago" && x.producto !== "fundador", esFun = x => x.clase === "pago" && x.producto === "fundador", esDev = x => x.clase === "devolucion";
+  /* Las series, día a día o semana a semana, en pesos. */
+  const cubos = t.semanal ? t.dias.filter((d, i) => i % 7 === 0) : t.dias;
+  const cubo = dia => t.semanal ? cubos[Math.floor(t.dias.indexOf(dia) / 7)] : dia;
+  const serie = f => { const m = {}; en.filter(f).forEach(x => { const k = cubo(x.dia); m[k] = (m[k] || 0) + x.cent; }); return cubos.map(k => Math.round((m[k] || 0) / 100)); };
+  return { t: t, pagos: pagos, sus: suma(esSus), fun: suma(esFun), dev: suma(esDev), rot: cubos.map(dnDia),
+    sSus: serie(esSus), sFun: serie(esFun), sDev: serie(esDev), primero: pagos.length ? pagos[0].dia : "" };
+}
+function dnVentasHTML(c) {
+  if (c.pagos === undefined) return `<div class="dn-panel"><h3>Las ventas por fecha</h3>
+      <p class="dn-nota">Falta el libro de pagos: el servidor solo sabe cómo está cada suscripción ahora. Pega el bloque de <code>planes.sql</code> y <code>administracion.sql</code> que está en «Pendiente de pegar» y vuelve a pedir los números.</p></div>`;
+  const v = dnVentas(c), libre = !!(DN.cobDesde || DN.cobHasta);
+  const filtros = `<div class="dn-filtros">
+      <div class="dn-seg" role="radiogroup" aria-label="Periodo">${DN_PERIODOS.map(n => `<button class="${!libre && (DN.cobDias || 30) === n ? "on" : ""}" data-a="cob:${n}">${n} días</button>`).join("")}</div>
+      <label class="dn-fecha"><span>Del</span><input type="date" id="dn-cob-desde" value="${escapeAttr(libre ? v.t.desde : "")}" max="${escapeAttr(dnISO(new Date()))}"></label>
+      <label class="dn-fecha"><span>al</span><input type="date" id="dn-cob-hasta" value="${escapeAttr(libre ? v.t.hasta : "")}" max="${escapeAttr(dnISO(new Date()))}"></label>
+      ${libre ? `<button class="dn-btn b-ghost mini" data-a="cob:0">Quitar fechas</button>` : ""}</div>`;
+  if (!v.pagos.length) return `<div class="dn-panel"><h3>Las ventas por fecha</h3>
+      <p class="dn-nota">El libro de pagos ya está puesto y todavía no entra ningún cobro. Lo que se cobró antes de ponerlo no está: Stripe lo tiene, aquí no se apuntó.</p></div>`;
+  const total = v.sus.cent + v.fun.cent, neto = total - v.dev.cent;
+  const veces = (n, uno, varios) => n + " " + (n === 1 ? uno : varios);
+  return `<div class="dn-panel"><div class="dn-pcab"><h3>Las ventas por fecha</h3><span class="dn-chip dn-der">del ${dnE(dnDia(v.t.desde))} al ${dnE(dnDia(v.t.hasta))}</span></div>
+      ${filtros}
+      <div class="dn-kpis">
+        ${dnKpi("Entró", dnPesos(total), "", veces(v.sus.n + v.fun.n, "cobro", "cobros"))}
+        ${dnKpi("Suscripciones", dnPesos(v.sus.cent), "", veces(v.sus.n, "cobro", "cobros") + " · se repite")}
+        ${dnKpi("Fundador", dnPesos(v.fun.cent), "", veces(v.fun.n, "venta", "ventas") + " · entra una vez")}
+        ${dnKpi("Se devolvió", dnPesos(v.dev.cent), "", v.dev.n ? veces(v.dev.n, "cargo", "cargos") + " · queda " + dnPesos(neto) : "nada en este periodo")}
+      </div>
+      <div class="dn-ley"><span><i class="dn-raya" style="border-color:var(--dn-l1)"></i>Suscripciones</span><span><i class="dn-raya p" style="border-color:var(--dn-l2)"></i>Fundador</span>${v.dev.n ? `<span><i class="dn-raya" style="border-color:var(--dn-coral)"></i>Devoluciones</span>` : ""}</div>
+      <div class="dn-graf" data-g="ventas"></div>
+      <p class="dn-nota">En pesos, ${v.t.semanal ? "semana a semana" : "día a día"}. El libro empieza el ${dnE(dnDia(v.primero))}: lo cobrado antes no está.</p></div>`;
+}
+
 function dnSalaNumeros() {
   const m = metricasCache, r = m.resumen || {}, c = m.cobro || {};
   /* El servidor da 14 días o 90, según tenga pegado el SQL nuevo o no: los
@@ -957,8 +1030,7 @@ function dnSalaNumeros() {
         ${dnPartes("Planes activos", activos.map(p => ({ personas: p.personas, n: nombre(p.plan), tono: { mensual: "--dn-l1", anual: "--faint", fundador: "--dn-l2" }[p.plan] })), "n")}
         ${otros.length ? `<p class="dn-nota">Además: ${otros.map(p => dnE(nombre(p.plan)) + " " + dnE(p.estado) + ", " + Number(p.personas)).join(" · ")}.</p>` : ""}
       </div>
-      <div class="dn-panel"><h3>Lo que el cobro todavía no guarda</h3>
-        <p class="dn-nota">El servidor solo sabe cómo está cada suscripción ahora. Las ventas por fecha, Fundador contra suscripciones en el tiempo y las devoluciones necesitan que se empiece a apuntar cada pago; hasta entonces no hay histórico que dibujar.</p></div>`;
+      ${dnVentasHTML(c)}`;
   }
   const vol = dnDeCada(r.volvieron || 0, r.abrieron || 0, 40), sig = dnDeCada(r.siguen30 || 0, r.maduros || 0, 20), ins = dnDeCada(r.instalaron || 0, r.abrieron || 0, 30);
   const vs = m.versiones || [];
@@ -1200,6 +1272,12 @@ function dnDibujaUna() {
   document.querySelectorAll("#dentro .dn-graf").forEach(c => {
     const g = c.dataset.g;
     if (g === "mini") dnGrafica(c, { titulo: "Personas que abrieron la app, 14 días", alto: 170, dias: rot, series: [{ n: "Personas", c: "--dn-l1", d: dias.map(d => Number(d.personas) || 0) }] });
+    if (g === "ventas") {
+      const v = dnVentas((metricasCache && metricasCache.cobro) || {});
+      const series = [{ n: "Suscripciones", c: "--dn-l1", d: v.sSus }, { n: "Fundador", c: "--dn-l2", d: v.sFun, p: true }];
+      if (v.dev.n) series.push({ n: "Devoluciones", c: "--dn-coral", d: v.sDev });
+      dnGrafica(c, { titulo: "Ventas por fecha, en pesos", alto: 240, dias: v.rot, series: series });
+    }
     if (g === "gente") dnGrafica(c, { titulo: "Personas que abrieron y cuentas nuevas", alto: 240, dias: tramo.map(d => dnDia(d.dia)), series: [{ n: "Personas que abrieron", c: "--dn-l1", d: tramo.map(d => Number(d.personas) || 0) }, { n: "Cuentas nuevas", c: "--dn-l2", d: tramo.map(d => Number(d.altas) || 0), p: 1 }] });
     if (g === "reten") dnGrafica(c, { titulo: "Cuántas siguen con los días", alto: 200, vara: 20, dias: reten.map(x => "Día " + x.dia), series: [{ n: "Siguen, de cada 100", c: "--dn-l1", d: reten.map(x => Math.round(Number(x.siguen) / Number(x.de) * 100)) }] });
     if (g === "embudo") dnEmbudo(c, m.embudo);
@@ -1245,6 +1323,12 @@ async function dnGuardar(t, cambios) {
 }
 /* La nota y la versión se guardan al salir del campo, no a cada letra. */
 function dnCambia(ev) {
+  /* Las dos fechas del cobro: no son de ningún reporte, así que van antes. */
+  if (ev.target.id === "dn-cob-desde" || ev.target.id === "dn-cob-hasta") {
+    DN[ev.target.id === "dn-cob-desde" ? "cobDesde" : "cobHasta"] = /^\d{4}-\d{2}-\d{2}$/.test(ev.target.value) ? ev.target.value : "";
+    dnPinta();
+    return;
+  }
   const t = dnTropiezos().find(x => dnClave(x) === DN.sel);
   if (!t || t.id == null) return;
   if (ev.target.id === "dn-nota") dnGuardar(t, { nota: ev.target.value.slice(0, 500) });
@@ -1300,6 +1384,7 @@ function dnClic(ev) {
       dnMandaBarrera("regresar", { a: v }, "Grifo cerrado y regreso en marcha: tarda dos o tres minutos");
       return;
     case "num": DN.num = v; break;
+    case "cob": DN.cobDesde = ""; DN.cobHasta = ""; if (Number(v)) DN.cobDias = Number(v); break;
     case "lab": DN.lab = v; break;
     case "novedades": cerrarDentro(); if (typeof mostrarAjuste === "function") mostrarAjuste("novedades"); return;
     /* La llave de una ficha es su `id` o su versión: se toma entera del

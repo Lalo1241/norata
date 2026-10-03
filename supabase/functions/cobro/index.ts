@@ -326,6 +326,55 @@ async function aplicarSuscripcion(
   return "ok " + plan + " " + estado;
 }
 
+/* ---- El libro de pagos (3 oct 2026) ----
+   Cada cobro y cada devolucion se apuntan en `pagos` (ver planes.sql), que es
+   de donde el Puesto de mando saca las ventas por fecha.
+
+   **Esto NUNCA puede tumbar un aviso.** Lo que importa de esta funcion es que
+   quien pago tenga su plan; el libro es contabilidad para mirar. Por eso todo
+   va dentro de su propio try, no lanza, y un fallo solo deja una linea en el
+   registro: si la tabla no existe todavia, o la base no contesta, el plan se
+   aplica igual y Stripe recibe su 200.
+
+   Se escribe con `merge-duplicates` sobre el id del objeto de Stripe: un aviso
+   repetido —y Stripe repite— reescribe la misma fila en vez de sumar dos. */
+async function apuntarPago(SB: string, SERVICIO: string, fila: {
+  id: string; clase: "pago" | "devolucion"; producto: string; importe: number; moneda?: string; cuando?: number;
+}) {
+  try {
+    if (!fila.id || !(fila.importe > 0)) return;
+    const res = await fetch(SB + "/rest/v1/pagos?on_conflict=id", {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + SERVICIO,
+        "apikey": SERVICIO,
+        "Content-Type": "application/json",
+        "Prefer": "resolution=merge-duplicates,return=minimal",
+      },
+      body: JSON.stringify({
+        id: fila.id,
+        clase: fila.clase,
+        producto: fila.producto,
+        importe: Math.round(fila.importe),
+        moneda: String(fila.moneda || "mxn").toLowerCase(),
+        cuando: new Date((fila.cuando || Math.floor(Date.now() / 1000)) * 1000).toISOString(),
+      }),
+    });
+    if (!res.ok) console.error("pagos: no se apunto", fila.id, res.status, (await res.text()).slice(0, 200));
+  } catch (e) {
+    console.error("pagos: no se apunto", fila.id, (e as Error).message);
+  }
+}
+
+/* Mensual o anual, por lo que dura el periodo que cubre la factura. Se mira el
+   periodo y no el precio porque donde vive el intervalo dentro de una linea de
+   factura ha cambiado entre versiones de la API de Stripe, y el periodo no. */
+function productoDeFactura(factura: Record<string, any>): string {
+  const linea = (factura.lines?.data || [])[0] || {};
+  const dias = ((Number(linea.period?.end) || 0) - (Number(linea.period?.start) || 0)) / 86400;
+  return dias > 200 ? "anual" : dias > 0 ? "mensual" : "suscripcion";
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return new Response("no", { status: 405 });
 
@@ -356,6 +405,11 @@ Deno.serve(async (req: Request) => {
       if (dato.mode === "subscription" && dato.subscription) {
         resultado = await aplicarSuscripcion(SB, SERVICIO, LLAVE, dato.subscription);
       } else if (dato.mode === "payment" && dato.payment_status === "paid") {
+        /* Al libro, se encuentre o no al dueno: el dinero entro igual. */
+        await apuntarPago(SB, SERVICIO, {
+          id: String(dato.payment_intent || dato.id), clase: "pago", producto: "fundador",
+          importe: Number(dato.amount_total) || 0, moneda: dato.currency, cuando: Number(dato.created) || 0,
+        });
         /* Fundador. No hay suscripcion que consultar: es un cobro y ya.
            `vence_el` se queda en NULL y `mi_plan()` lo entiende como "no
            vence nunca" —ver planes.sql—, en vez de poner una fecha lejana
@@ -459,6 +513,17 @@ Deno.serve(async (req: Request) => {
       const total = sigue ? (Number(cargo.amount) || 0) : 0;
       const devuelto = sigue ? (Number(cargo.amount_refunded) || 0) : 0;
 
+      /* Al libro, antes de decidir nada del plan: una devolucion parcial de
+         una suscripcion no le quita el plan a nadie, pero el dinero salio. Es
+         lo devuelto EN TOTAL de ese cargo, asi que un segundo reembolso
+         parcial reescribe la fila con la suma. */
+      if (sigue && cargo.id) {
+        await apuntarPago(SB, SERVICIO, {
+          id: "dev_" + cargo.id, clase: "devolucion", producto: cargo.invoice ? "suscripcion" : "fundador",
+          importe: devuelto, moneda: cargo.currency, cuando: Number(aviso.created) || 0,
+        });
+      }
+
       if (!sigue) {
         /* Ya se dijo por que arriba. */
       } else if (cargo.invoice) {
@@ -499,6 +564,15 @@ Deno.serve(async (req: Request) => {
          acaban preguntandole a Stripe lo mismo y escribiendo lo mismo. */
       if (dato.subscription) {
         resultado = await aplicarSuscripcion(SB, SERVICIO, LLAVE, dato.subscription);
+      }
+      /* Al libro, DESPUES de aplicar el plan y solo si de verdad se cobro algo
+         (una factura de $0 —una prueba, un cupon entero— no es una venta). */
+      if (tipo === "invoice.paid") {
+        await apuntarPago(SB, SERVICIO, {
+          id: String(dato.id), clase: "pago", producto: productoDeFactura(dato),
+          importe: Number(dato.amount_paid) || 0, moneda: dato.currency,
+          cuando: Number(dato.status_transitions?.paid_at) || Number(dato.created) || 0,
+        });
       }
     }
 

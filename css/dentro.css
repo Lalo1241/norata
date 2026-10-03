@@ -220,6 +220,9 @@ html.claro #dentro {
 #dentro .dn-tipos button.on.c-menta { background: var(--dn-menta-s); border-color: var(--dn-menta); color: var(--dn-menta); }
 #dentro .dn-tipos button.on.c-acero { background: var(--carril); border-color: var(--muted); color: var(--text); }
 #dentro .dn-filtros { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+#dentro .dn-fecha { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--muted); }
+#dentro .dn-fecha input { background: var(--bg2); border: 2px solid var(--line); border-radius: 12px; padding: 7px 10px; font-size: 13.5px; color: var(--text); color-scheme: dark; min-width: 0; }
+html.claro #dentro .dn-fecha input { color-scheme: light; }
 #dentro .dn-buscar { flex: 1 1 180px; display: flex; align-items: center; gap: 9px; background: var(--bg2); border: 2px solid var(--line); border-radius: 999px; padding: 8px 15px; color: var(--muted); min-width: 0; }
 #dentro .dn-buscar input { border: 0; background: transparent; outline: 0; width: 100%; min-width: 0; font-size: 14px; color: var(--text); }
 #dentro .dn-bz { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; min-height: 0; }

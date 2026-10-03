@@ -27,7 +27,24 @@ cierra.
 
 Lo de abajo está escrito por orden: lo de más arriba es lo más antiguo.
 
-**Nada pendiente.** Lo último que se pegó fue el bloque de las respuestas del buzón (0.7.190), el 3 oct 2026; con él quedó puesto también el `apuntar_tropiezo` del 25 de septiembre.
+### 1. El libro de pagos — 3 oct 2026
+
+**Qué**: la tabla `pagos` (de `planes.sql`) y `metricas()` (de
+`administracion.sql`), que ahora la devuelve sumada por día. Es lo que llena
+«Las ventas por fecha» en Números → Cobro.
+
+**Se puede pegar dos veces sin consecuencias.** La función `cobro` ya está
+desplegada y empieza a apuntar en cuanto exista la tabla; hasta entonces cobra
+igual y solo deja una línea en su registro.
+
+**Después de pegarlo**: en el Puesto de mando → Subidas, la versión que lo trae
+está detenida en la cola; se sube con «Ya lo pegué: subir».
+
+**No se probó contra una base de verdad.** Va en una transacción. Si el editor
+da un error, copiar el mensaje tal cual.
+
+**Al volver a desplegar `cobro`**, siempre con `--no-verify-jwt`:
+`supabase functions deploy cobro --no-verify-jwt --project-ref wifffghnyrqfuwqlatci`
 
 ---
 

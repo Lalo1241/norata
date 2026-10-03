@@ -318,6 +318,46 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.193 · 3 oct 2026
+
+**El cobro tiene historia: las ventas por fecha.** El servidor solo sabía cómo
+está cada suscripción AHORA; no se podía saber cuánto entró en un mes, ni
+cuánto fue Fundador y cuánto suscripción, ni cuánto se devolvió. Lo pidió
+Eduardo al rehacer el panel.
+
+**El libro de pagos** (`pagos`, en `supabase/planes.sql`): una fila por cobro y
+una por cargo devuelto, escritas por la función `cobro` con cada aviso de
+Stripe. Tres decisiones que no se deshacen sin saber por qué están:
+
+- **Apuntar un pago nunca puede tumbar un aviso.** Lo que importa de `cobro` es
+  que quien pagó tenga su plan. El apunte va en su propio `try`, no lanza, y si
+  la tabla no existe o la base no contesta deja una línea en el registro y ya.
+- **Sin dueño.** No guarda de quién fue: para dibujar las ventas no hace falta.
+- **El id es el del objeto de Stripe**, así que un aviso repetido reescribe la
+  misma fila. En una devolución, el importe es lo devuelto en total de ese
+  cargo: dos reembolsos parciales son una fila que crece.
+
+Mensual o anual se decide por lo que dura el periodo de la factura, no por el
+precio: dónde vive el intervalo ha cambiado entre versiones de la API de
+Stripe, y el periodo no.
+
+**En Números → Cobro**: los periodos de 15, 30, 60, 90 y 180 días, dos fechas a
+gusto, lo que entró, suscripciones contra Fundador —lo que se repite y lo que
+entra una vez—, lo devuelto y lo que queda, y una gráfica con las tres líneas.
+`metricas()` manda la historia entera sumada por día y el panel recorta: cambiar
+de periodo no vuelve a preguntar. Pasado de 200 días va semana a semana.
+
+**El libro empieza vacío**: lo cobrado antes de pegar el SQL no está, y la sala
+lo dice con la fecha del primer apunte. Traerlo de Stripe es otra tanda.
+
+**Trae SQL**, en «Pendiente de pegar». La función `cobro` ya está desplegada
+(3 oct 2026): sin firma sigue contestando 400, que es lo que hacía.
+
+**Cómo se probó.** La sala, con un libro imitado: los cinco periodos, las
+fechas a gusto, el libro vacío y el servidor sin la tabla; las sumas se
+contaron a mano. La función se comprobó de sintaxis y de que arranca. **Un
+cobro de verdad no ha pasado por aquí, y el SQL no se probó contra una base.**
+
 ### 0.7.192.1 · 3 oct 2026
 
 **La cola dice qué la detiene.** Eduardo vio seis cambios parados con el grifo
