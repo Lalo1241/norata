@@ -318,6 +318,29 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.191 · 3 oct 2026
+
+**Las imágenes de una novedad van en una sola rejilla, de dos en dos, y el
+punto que acompañaban ya no se escribe.** Eduardo, con el sitio recién
+publicado: «se rompieron las tarjetas, dan información repetida. El texto con
+bolita se tendría que ir… y en PC tienen que salir sí o sí de 2 en dos… cuando
+sean número impar busca otra solución, como una imagen extra». El pie de la
+0.7.185 decía lo mismo que el punto de debajo, y como cada punto abría su
+tramo con una sola imagen, salían de una en una a todo lo ancho.
+
+- **Sitio** (`cuerpo()` del exportador): una rejilla con todas, con las
+  columnas en línea para no depender de volver a pegar el componente; los
+  puntos sin imagen van debajo. **Con un número impar, el exportador avisa.**
+- **App** (`novedadCuerpoHTML`): lo mismo; aquí el gráfico se dibuja y no
+  cuenta como imagen, así que con impar la última ocupa la fila.
+- **El Pomodoro** llevaba tres: se le sumó el aviso en pausa.
+
+Medido en la app a 1440: dos columnas de 320 px, cuatro imágenes en dos filas.
+
+**El commit 123c570 salió con el número mal** («0.7.189», por debajo de la
+0.7.190 que ya estaba en `main`): el guion leyó la versión, pero el texto que
+escribía llevaba el número fijo. Este lo corrige; aquel no llegó a publicarse.
+
 ### 0.7.190 · 3 oct 2026
 
 **El buzón ya puede contestar.** Un reporte era un buzón de ida: se mandaba y no

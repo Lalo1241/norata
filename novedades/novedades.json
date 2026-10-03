@@ -679,6 +679,20 @@
       }
     },
     {
+      "version": "0.7.191",
+      "fecha": "2026-10-03",
+      "estado": "borrador",
+      "clase": "mejora",
+      "titulo": "Las imágenes de Novedades, de dos en dos",
+      "resumen": "Las imágenes de cada novedad van juntas, de dos en dos, y cada una se explica con su pie: ya nada se dice dos veces.",
+      "puntos": [],
+      "retoques": [],
+      "en": {
+        "titulo": "What's new images, two by two",
+        "resumen": "Each update's images sit together, two by two, and each one is explained by its caption: nothing is said twice anymore."
+      }
+    },
+    {
       "version": "0.7.189",
       "fecha": "2026-10-03",
       "estado": "borrador",

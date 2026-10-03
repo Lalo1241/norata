@@ -8582,7 +8582,7 @@
   .nov-tramo { display: grid; gap: 8px; margin-top: 14px; }
   .nov-tramo .nov-graf { margin-top: 0; }
   .nov-tramo + .nov-puntos, .nov-tramo + .nov-tramo { margin-top: 14px; }
-  /* De dos en dos como mucho, y de una cuando no caben (0.7.189). Con un
+  /* De dos en dos como mucho, y de una cuando no caben (0.7.191). Con un
      número impar la última ocupa la fila entera en vez de dejar un hueco; lo
      que pide Eduardo es que sean pares, y de eso avisa el exportador. */
   .nov-medios { display: grid; grid-template-columns: repeat(auto-fit, minmax(max(210px, 34%), 1fr)); gap: 14px 10px; margin-top: 14px; }

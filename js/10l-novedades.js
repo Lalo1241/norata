@@ -355,7 +355,7 @@ function novedadCuerpoHTML(e, puntos) {
     if (html) poner(b.tras).grafs.push(html);
   });
   /* Todas las imágenes en UNA rejilla, de dos en dos, y sin el punto que
-     acompañaban (0.7.189). Eduardo, al ver el pie y debajo el punto con
+     acompañaban (0.7.191). Eduardo, al ver el pie y debajo el punto con
      bolita: «dan información repetida… el texto con bolita se tendría que
      ir», y «en PC tienen que salir sí o sí de 2 en dos». Antes cada punto
      abría su tramo y sus imágenes salían de una en una. El `tras` sigue

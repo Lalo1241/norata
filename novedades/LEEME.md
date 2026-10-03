@@ -162,6 +162,14 @@ Para las que lo merecen, que casi siempre son expansiones.
 
 ### Para la tarjeta del sitio: el banner y dónde cae cada imagen
 
+**Regla vigente (0.7.191), que manda sobre lo que diga más abajo de «tramos»:**
+todas las imágenes de una ficha van en UNA rejilla, de dos en dos; cada una
+lleva su `pie` (y `en.pie`), centrado, que dice qué se ve; y **un punto que
+tiene imagen ya no se escribe**, porque su pie lo dice. `tras` da el orden y
+señala qué punto se calla. **Tienen que ser un número par**: si salen impares,
+se hace una imagen más (el exportador avisa). Las de claro contra oscuro llevan
+sus cápsulas y su versión en inglés en `en.src`.
+
 Eduardo lo pidió el 2 oct 2026, con los parches de Steam de ejemplo: **una
 expansión lleva arriba una imagen ancha, pegada a los cantos de la tarjeta, y
 las demás imágenes van entre el texto, no todas al final.** Son tres campos
