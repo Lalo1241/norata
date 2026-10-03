@@ -256,6 +256,10 @@ una entrada por 3º, con sus 4º dentro como retoques. La lee la app —una
 ventana al estrenar una versión y Ajustes → Novedades (`js/10l-novedades.js`)—
 y la lee también el changelog del sitio.
 
+- **Una ficha de una versión que todavía no existe no se publica, nunca**
+  (0.7.195): la de la beta (0.8) y la de la 1.0 están escritas de antemano y
+  estuvieron a un clic de anunciarse. Lo impide la barrera
+  (`herramientas/novedades-futuras.py`); no se le busca excepción.
 - **Nada sale sin que Eduardo lo apruebe.** Las entradas nacen en
   `"borrador"` y la ventana que sale al abrir solo enseña `"publicado"`. Las
   reglas para escribirlas, en `novedades/LEEME.md`.

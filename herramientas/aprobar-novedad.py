@@ -17,6 +17,7 @@ usa para el mensaje del commit. Sale con 2 si la ficha no existe; con 0 y sin
 tocar nada si ya estaba publicada.
 """
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -40,6 +41,15 @@ def main():
         print(f"No hay ninguna ficha «{llave}».", file=sys.stderr)
         sys.exit(2)
     e = fichas[0]
+    # Una ficha de una versión que todavía no existe no se aprueba, se pida
+    # como se pida (ver herramientas/novedades-futuras.py). Sale con 3, que
+    # quien llama lee como «esta se salta», no como un fallo.
+    base = (RAIZ / "js" / "01-base.js").read_text(encoding="utf-8")
+    app = re.search(r'^const VERSION = "([^"]+)";', base, re.M).group(1)
+    num = lambda v: tuple(int(x) for x in str(v).split(".")) if re.fullmatch(r"\d+(\.\d+){1,3}", str(v or "")) else None
+    if num(e.get("version")) is not None and num(e.get("version")) > num(app):
+        print(f"«{llave}» es de una versión que todavía no existe (la app va en la {app}): no se aprueba.", file=sys.stderr)
+        sys.exit(3)
     print(e.get("titulo", llave))
     if e.get("estado") == "publicado":
         print("Ya estaba publicada: no se toca nada.", file=sys.stderr)

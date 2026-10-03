@@ -166,6 +166,9 @@ jobs:
           done
           [ "$falta" = 0 ] || exit 1
           python3 -c "import json; json.load(open('novedades/novedades.json', encoding='utf-8'))" || { echo "::error::novedades.json no es un JSON válido."; exit 1; }
+          # Y ninguna novedad publicada de una versión que todavía no existe:
+          # la 0.8 y la 1.0 estuvieron a un clic de anunciarse el 3 oct 2026.
+          python3 herramientas/novedades-futuras.py || { echo "::error::Hay novedades publicadas de una versión futura. No se sube nada."; exit 1; }
           echo "4. Lo que la app instala está entero."
 
           # 5. El número. Una app solo se actualiza hacia delante: si lo que se

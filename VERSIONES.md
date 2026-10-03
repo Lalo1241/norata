@@ -318,6 +318,33 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.195 · 3 oct 2026
+
+**Una novedad de una versión que todavía no existe no se puede publicar.**
+«Aprobar todas» (0.7.192) aprobó de un jalón las dieciocho fichas en borrador,
+y entre ellas iban la de la beta (0.8) y la del lanzamiento (1.0): anuncios de
+dos etapas a las que les falta mucho, escritos de antemano. **No llegaron al
+vivo**, y fue de milagro: la cola estaba detenida por el SQL de la 0.7.193.
+Eduardo: «imposibilita que se suban y que no se suban jamás ni con ese botón».
+El fallo fue mío: el botón trataba igual todo lo que estuviera en borrador.
+
+Esta versión las devuelve a borrador y pone tres candados, con una regla que
+no depende de acordarse de dos números: **una ficha cuya versión es mayor que
+`VERSION` no se publica.** El día que la app llegue a la 0.8, la suya deja de
+ser futura sola.
+
+- **La barrera** (`herramientas/novedades-futuras.py`, dentro de la 4ª
+  comprobación): no sube nada al vivo si hay una publicada. Es el que de verdad
+  lo impide, pase lo que pase en los otros dos.
+- **`aprobar-novedad.py`** se niega a aprobarla, y el trabajo de GitHub la
+  salta y sigue con las demás.
+- **El Puesto de mando** no las enseña entre las que se pueden aprobar: salen
+  en una línea aparte, «guardadas para su versión».
+
+**Cómo se probó.** El guion, contra la cola tal como estaba (se niega y nombra
+las dos) y contra el arreglo (pasa); aprobar la 1.0 a mano sale rechazado. En
+vivo se comprobó que las dos seguían en borrador antes de tocar nada.
+
 ### 0.7.194 · 3 oct 2026
 
 **Cambiar de mundo es una sola pieza, y el reinicio del APK va dentro, con su

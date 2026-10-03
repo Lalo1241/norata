@@ -637,7 +637,7 @@
     {
       "version": "1.0",
       "fecha": "",
-      "estado": "publicado",
+      "estado": "borrador",
       "clase": "hito",
       "hito": "1.0",
       "titulo": "Norata 1.0",
@@ -659,7 +659,7 @@
     {
       "version": "0.8",
       "fecha": "",
-      "estado": "publicado",
+      "estado": "borrador",
       "clase": "hito",
       "hito": "beta",
       "titulo": "Norata entra en beta",

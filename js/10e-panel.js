@@ -420,9 +420,16 @@ function dnDeCada(parte, total, vara) {
   return { val: pc, uni: " de cada 100", pie: `<span class="dn-vara ${tono}">${juicio}</span> de ${vara}` };
 }
 
+/* Las fichas de una versión que todavía no existe —la beta, la 1.0: sus
+   anuncios están escritos de antemano— NO son «por aprobar». El 3 oct 2026
+   «Aprobar todas» se las llevó con las demás y estuvieron a un clic de
+   anunciarse. Aquí dejan de verse; quien de verdad lo impide es la barrera
+   (`herramientas/novedades-futuras.py`). */
+const dnFutura = e => /^\d+(\.\d+){1,3}$/.test(String(e.version || "")) && versionMasNueva(String(e.version), VERSION);
 function dnBorradores() {
-  return (DN.nov || []).filter(e => e && e.estado !== "publicado");
+  return (DN.nov || []).filter(e => e && e.estado !== "publicado" && !dnFutura(e));
 }
+const dnReservadas = () => (DN.nov || []).filter(e => e && dnFutura(e));
 
 function dnSalaHoy() {
   const m = metricasCache, r = m.resumen || {}, c = m.cobro || {}, dias = m.dias || [];
@@ -912,6 +919,7 @@ function dnSalaSubidas() {
       : (b.grifo ? dnGrifoHTML() : `<div class="dn-panel"><h3>Falta el grifo</h3><p class="dn-nota">Pega <code>supabase/barrera.sql</code> en Supabase y vuelve a preguntar.</p><div class="dn-acciones"><button class="dn-btn b-linea mini" data-a="barrera">Volver a preguntar</button></div></div>`) + dnColaHTML() + dnHistorialHTML() + dnCorridasHTML()}
     <div class="dn-panel"><div class="dn-pcab"><h3>Novedades por aprobar</h3><span class="dn-chip">${DN.nov ? bor.length : "…"}</span><div class="dn-der">${bor.length > 1 ? `<button class="dn-btn b-primary mini" data-a="aprobartodas">${dnIc("check")}Aprobar todas</button>` : ""}<button class="dn-btn b-linea mini" data-a="novedades">Leerlas en Novedades</button></div></div>
       <p class="dn-nota">El cambio de cada una ya está en la app. Lo que espera es su anuncio: no sale en la ventana, en Ajustes → Novedades ni en el sitio hasta que su estado pase a «publicado» en <code>novedades/novedades.json</code>. «Aprobar y publicar» la sube solo; para cambiarle un texto, pídeselo a una sesión.</p>
+      ${dnReservadas().length ? `<p class="dn-nota">Guardadas para su versión, y no se pueden aprobar aquí: ${dnReservadas().map(e => dnE(e.version)).join(" y ")}. Salen cuando la app llegue a ese número.</p>` : ""}
       ${!DN.nov ? `<div class="dn-vacio">Leyendo las novedades…</div>` : !bor.length ? `<div class="dn-vacio">No hay ninguna por aprobar.</div>` : bor.map(e => {
         const h = dnHace(e.fecha), clase = typeof novedadClase === "function" ? novedadClase(e) : (e.clase || "mejora");
         return `<div class="dn-prueba"><div>
