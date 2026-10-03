@@ -1618,6 +1618,11 @@ async function adoptarSesion(mensaje) {
        sobre datos de otra cuenta justo al entrar solo asusta a quien acaba de
        hacer lo correcto. Las copias siguen estando en Ajustes. */
     stashConflict("otra-cuenta", state);
+    /* Y con los datos se va la fecha de la última vez que este dispositivo
+       habló con la cuenta: era de la otra (ver SYNC_REZAGO). Con el mismo
+       dueño se queda, que es lo que deja reconocer a un rezagado que vuelve
+       a entrar después de que le caducara la sesión. */
+    sync.baseAt = null;
     guardarLocal({
       skills: [], perks: [], projects: [], missions: [], cajas: [],
       settings: { timezone: userTZ() }, schemaVersion: SCHEMA
@@ -2000,6 +2005,7 @@ async function borrarCuentaYa() {
     return;
   }
   sync.cfg = {}; sync.enabled = false; sync.entrada = null; sync.dueño = null;
+  sync.baseAt = null;
   saveSync();
   rescateCuando = null;
   portadaPintar("entrar");

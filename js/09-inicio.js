@@ -2641,6 +2641,7 @@ function importData(input) {
       if (!Array.isArray(data.perks)) data.perks = [];
       if (!await ask(`El respaldo tiene ${data.skills.length} habilidad(es), ${data.perks.length} talento(s), ${(data.projects || []).length} proyecto(s) y ${(data.missions || []).length} misión(es), y reemplazará tus datos actuales. ¿Continuar?`, "Importar")) return;
       if (!guardarLocal(data)) return;
+      syncSoltarBase();
       state = load();
       applyDecay();
       showView("summary");

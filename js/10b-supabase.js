@@ -309,6 +309,12 @@ async function sbRenovar(s) {
   const nueva = sbSesionDe(r.body);
   if (!nueva.uid) nueva.uid = s.uid;   // el refresco no siempre repite el usuario
   sync.cfg.sesion = nueva;
+  /* El perfil viene en la misma respuesta y antes se tiraba (0.7.189): un
+     navegador que llevaba semanas sin abrirse seguía enseñando el apodo de
+     entonces, y como guardar el perfil manda los tres campos, cambiar ahí el
+     color del círculo habría devuelto el nombre viejo a la cuenta. */
+  const meta = ((r.body || {}).user || {}).user_metadata;
+  if (meta && typeof meta === "object") sync.cfg.perfil = perfilDe(meta);
   sync.caducada = false;
   saveSync();
   /* Y la copia de la lista de cuentas de este dispositivo, que si no se queda con

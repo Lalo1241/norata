@@ -318,6 +318,54 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.189 · 3 oct 2026
+
+**Un dispositivo rezagado ya no pisa la cuenta.** Eduardo abrió su cuenta en
+otro navegador de la misma computadora, uno con semanas sin usarse, y lo viejo
+de ahí —el apodo «Galleta Oreo», los ajustes, las habilidades de entonces—
+acabó encima de la cuenta. Es pérdida de datos, y por eso va sola y urgente.
+
+**La causa.** La fusión elige qué lado es la BASE —de dónde salen `settings`,
+`ui` y los campos sueltos— comparando la fecha de la cuenta contra
+`sync.dirtyAt`. Y `dirtyAt` lo sellaba cualquier `save()`, también los que la
+app hace sola: si la primera sincronía del arranque falla (sin red, sesión
+caducada, la app aún sin actualizar y por eso con un formato más viejo),
+`applyDecay()` corre igual, guarda, y deja `dirtyAt` en la hora de ahora. En
+la siguiente sincronía el navegador viejo pasaba por ser el más reciente.
+Reproducido en local con un almacén de mentira: la versión publicada devolvía
+el nombre viejo, los ajustes viejos y una habilidad que la cuenta ya no tenía.
+
+**Lo que cambia** (`js/10-sincronia.js`, nota larga junto a `SYNC_REZAGO`):
+
+- **`dirtyAt` solo avanza si alguien tocó la pantalla** en los últimos veinte
+  segundos (`syncGestoAt`; los oyentes viven en `js/11-arranque.js`, porque
+  la puerta también carga la sincronía y ahí nada corre al cargarse).
+- **Un rezagado no puede ser la base**: si la cuenta se movió más de tres días
+  después de la última vez que este dispositivo habló con ella —o si no se
+  sabe cuándo fue—, manda la cuenta. El progreso del rezagado se suma igual.
+- **Lo que la cuenta ya borró no vuelve** (`sinLoYaBorrado`): lo que nació
+  antes de la última sincronía de este dispositivo y ya no está en la cuenta,
+  se borró desde otro lado. La fecha sale del id. Solo para un rezagado, y lo
+  quitado queda en la copia «previo». La marca nueva es `sync.baseAt`, con el
+  reloj de aquí; se suelta al importar un respaldo, al restaurar una copia y
+  al entrar otra cuenta.
+- **Cuando sí manda lo de aquí, se aparta lo de la cuenta** (copia «remoto»).
+  Antes solo se guardaba el lado de este dispositivo, o sea el que ganaba.
+- **El perfil se pone al día al renovar la sesión** (`sbRenovar`): venía en la
+  respuesta y se tiraba, así que el navegador viejo seguía con el apodo de
+  entonces, y guardar ahí el color habría devuelto el nombre viejo.
+
+**Medido**, sobre un navegador sembrado con treinta días de rezago: antes
+quedaba «Nombre viejo», género de antes y la habilidad borrada de vuelta;
+ahora queda el nombre y los ajustes de la cuenta, la borrada no vuelve, lo
+creado aquí sin subir se conserva y el XP de los dos lados se suma (80). Y el
+caso normal no cambia: un dispositivo al día que edita después sigue mandando.
+
+**Lo que no arregla:** lo que ya se mezcló en una cuenta no se desmezcla solo.
+Y un dispositivo que hoy ya está rezagado y vuelve a ENTRAR (no solo abrir)
+llega sin fecha de última sincronía: manda la cuenta, pero sus cosas viejas
+sin lápida se suman una vez.
+
 ### 0.7.188 · 3 oct 2026
 
 **La ventana de Novedades, el doble de ancha en la computadora, con su letrero

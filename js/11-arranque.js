@@ -438,6 +438,13 @@ showView("summary");
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible") syncRun({ silent: true });
 });
+
+/* Cuándo tocó alguien la pantalla por última vez. Lo lee `syncTouch` para
+   distinguir un cambio hecho por la persona de un guardado que la app hace
+   sola (ver SYNC_REZAGO en `js/10-sincronia.js`). Va aquí y no allá porque
+   aquel archivo también lo carga la puerta, donde nada corre al cargarse. */
+["pointerdown", "keydown", "click", "touchend", "change"].forEach(ev =>
+  window.addEventListener(ev, () => { syncGestoAt = Date.now(); }, { capture: true, passive: true }));
 window.addEventListener("online", () => syncRun({ silent: true }));
 
 /* ---- Deslizar hacia abajo para actualizar ----

@@ -38,6 +38,75 @@
 const SYNC_KEY = "mainquest-sync-v1";
 const SYNC_DELAY = 4000;
 
+/* ---- Un dispositivo rezagado no manda (0.7.189) ----
+   Eduardo abrió su cuenta en otro navegador de la misma computadora, uno que
+   llevaba semanas sin usarse, y lo viejo de ahí —el apodo de entonces, los
+   ajustes, las habilidades que ya había quitado— acabó encima de su cuenta.
+
+   La fusión elige un lado como base por una sola fecha: `dirtyAt`, «cuándo se
+   tocó esto aquí». Y esa fecha mentía, porque la ponía CUALQUIER guardado: el
+   desgaste que se aplica solo al abrir la sellaba con la hora de ahora, y con
+   eso un dispositivo que nadie había tocado en un mes pasaba por ser el más
+   reciente. Bastaba con que la primera sincronía del arranque fallara —sin
+   red, la sesión caducada, la app todavía sin actualizar— para que el
+   desgaste corriera antes de hablar con la cuenta.
+
+   Tres piezas, y hacen falta las tres:
+
+   1. `dirtyAt` solo avanza si alguien acaba de tocar la pantalla. Lo que la
+      app guarda por su cuenta marca «hay algo que subir», pero no fecha.
+   2. Un dispositivo que lleva más de SYNC_REZAGO sin hablar con la cuenta,
+      cuando la cuenta sí se movió, no puede ser la base. Su progreso se suma
+      igual —eso no compite—; lo que no hace es mandar en ajustes y nombres.
+   3. Lo que la cuenta ya borró no vuelve de un rezagado (`sinLoYaBorrado`).
+      Las lápidas duran cuatro meses, y un respaldo importado no deja ninguna. */
+const SYNC_REZAGO = 3 * 86400000;
+const SYNC_GESTO = 20000;
+let syncGestoAt = 0;
+
+/* Una fecha guardada, en milisegundos; 0 si no hay. `Date.parse(0)` no da 0:
+   lee el año 2000, y eso es una fecha que parece de verdad. */
+function syncMs(iso) {
+  return iso ? (Date.parse(iso) || 0) : 0;
+}
+
+/* Cuándo nació algo, sacado de su id (`uid()` empieza por la hora). 0 si el id
+   no es de esos —los de fábrica, los de un camino—, y entonces no se opina. */
+function nacioEn(x) {
+  const id = String((x && x.id) || "");
+  if (!/^[0-9a-z]{13}$/.test(id)) return 0;
+  const t = parseInt(id.slice(0, 8), 36);
+  return (t > 1.5e12 && t < Date.now() + 86400000) ? t : 0;
+}
+
+/* Lo de este dispositivo, sin lo que la cuenta ya borró. Si algo nació ANTES
+   de la última vez que este dispositivo habló con la cuenta, entonces subió
+   con ella; que hoy no esté allá solo puede significar que se borró desde
+   otro lado. Lo que nació después es trabajo de aquí que aún no ha subido, y
+   se queda. Con cinco minutos de margen, por si los relojes no coinciden.
+   No toca `state`: devuelve una copia, y lo quitado sigue en la copia
+   «previo» que se aparta antes de fusionar. */
+function sinLoYaBorrado(local, remoto, visto) {
+  const alla = idsDeEstado(remoto || {});
+  const out = Object.assign({}, local);
+  COLECCIONES.forEach(col => {
+    if (!Array.isArray(local[col])) return;
+    out[col] = local[col].filter(x => {
+      if (!x || !x.id || alla.has(x.id)) return true;
+      const t = nacioEn(x);
+      return !t || t >= visto - 300000;
+    });
+  });
+  return out;
+}
+
+/* Lo de este dispositivo deja de venir de la última sincronía: se importó un
+   respaldo o se restauró una copia. Sin esto, la regla de arriba tomaría lo
+   recién traído por algo que la cuenta ya había borrado. */
+function syncSoltarBase() {
+  try { sync.baseAt = null; sync.lastAt = null; saveSync(); } catch (e) {}
+}
+
 const ALMACENES = {};
 
 function almacen() {
@@ -114,8 +183,9 @@ function syncTouch() {
     sync.dirty = true;
     // Cuándo se tocó esto por última vez. Sin este dato, ante un conflicto
     // solo se puede fechar el lado remoto, y elegir "el más reciente" se
-    // vuelve una adivinanza.
-    sync.dirtyAt = new Date().toISOString();
+    // vuelve una adivinanza. Solo si lo tocó ALGUIEN: un guardado que la app
+    // hace sola no cuenta como haberlo usado (ver SYNC_REZAGO).
+    if (Date.now() - syncGestoAt < SYNC_GESTO) sync.dirtyAt = new Date().toISOString();
     saveSync();
     clearTimeout(syncTimer);
     syncTimer = setTimeout(() => syncRun({ silent: true }), SYNC_DELAY);
@@ -230,6 +300,7 @@ async function restaurarCopia(key) {
      conflicto, así que se protege igual: el lado que sale se aparta primero. */
   stashConflict("previo", state);
   if (!guardarLocal(datos)) return;
+  syncSoltarBase();
   state = load();
   applyDecay();
   showView("summary");
@@ -252,6 +323,11 @@ function adoptRemote(env) {
 
 async function syncOnce(opts) {
   const almacenActual = almacen();
+  /* La hora de ANTES de leer, con el reloj de aquí: todo lo que ya existía en
+     este instante sube o se compara en esta vuelta. Es lo que `sinLoYaBorrado`
+     necesita saber, y por eso no sirve `lastAt`, que a veces es la hora del
+     otro dispositivo. */
+  const empezo = new Date().toISOString();
   const remote = await almacenActual.leer();
 
   // Todavía no hay nada allá: lo sembramos con lo que hay aquí
@@ -260,7 +336,7 @@ async function syncOnce(opts) {
     const w = await almacenActual.escribir(env, null);
     if (w.conflicto) { const e = new Error("carrera"); e.retry = true; throw e; }
     sync.marca = w.marca; sync.rev = env.rev;
-    sync.dirty = false; sync.lastAt = env.updatedAt; saveSync();
+    sync.dirty = false; sync.lastAt = env.updatedAt; sync.baseAt = empezo; saveSync();
     if (!opts.silent) toast(T`Listo: tu progreso ya está en ${almacenActual.nombre}`, "logro");
     return;
   }
@@ -286,8 +362,18 @@ async function syncOnce(opts) {
        "no puede", y el coste de guardarla es un puñado de bytes. */
     stashConflict("previo", state);
 
-    const suyoEsMasNuevo = Date.parse(env.updatedAt || 0) > Date.parse(sync.dirtyAt || 0);
-    guardarLocal(fusionarEstados(state, env.state, suyoEsMasNuevo));
+    /* Quién es la base. Antes era solo una fecha contra otra; ahora un
+       rezagado —o uno que no sabe cuándo habló con la cuenta por última vez—
+       no puede serlo (ver SYNC_REZAGO). */
+    const suyo = syncMs(env.updatedAt);
+    const visto = syncMs(sync.baseAt || sync.lastAt);
+    const rezagado = !visto || (suyo - visto) > SYNC_REZAGO;
+    const suyoEsMasNuevo = rezagado || suyo > syncMs(sync.dirtyAt);
+    /* Si aun así manda lo de aquí, lo que pierde es lo de la cuenta, y eso no
+       lo guardaba nadie: la copia «previo» es la de ESTE lado. */
+    if (!suyoEsMasNuevo) stashConflict("remoto", env.state);
+    const mio = (rezagado && visto) ? sinLoYaBorrado(state, env.state, visto) : state;
+    guardarLocal(fusionarEstados(mio, env.state, suyoEsMasNuevo));
     state = load();
     applyDecay();
     showView(activeMainView || "summary");
@@ -300,7 +386,7 @@ async function syncOnce(opts) {
   } else if (remoteNewer && env && env.state) {
     adoptRemote(env);
     sync.marca = remote.marca; sync.rev = remoteRev;
-    sync.dirty = false; sync.lastAt = env.updatedAt; saveSync();
+    sync.dirty = false; sync.lastAt = env.updatedAt; sync.baseAt = empezo; saveSync();
     renderSync();
     if (!opts.silent) toast(T`Al día con ${env.device || tx("el otro dispositivo")}`);
     return;
@@ -309,7 +395,7 @@ async function syncOnce(opts) {
   }
 
   if (!sync.dirty) {
-    sync.lastAt = new Date().toISOString(); saveSync();
+    sync.lastAt = new Date().toISOString(); sync.baseAt = empezo; saveSync();
     if (!opts.silent) toast(tx("Todo al día"), "calma");
     return;
   }
@@ -318,7 +404,7 @@ async function syncOnce(opts) {
   const w = await almacenActual.escribir(out, sync.marca);
   if (w.conflicto) { const e = new Error("carrera"); e.retry = true; throw e; }
   sync.marca = w.marca; sync.rev = out.rev;
-  sync.dirty = false; sync.lastAt = out.updatedAt; saveSync();
+  sync.dirty = false; sync.lastAt = out.updatedAt; sync.baseAt = empezo; saveSync();
   if (!opts.silent) toast("Sincronizado");
 }
 
@@ -823,6 +909,7 @@ async function borrarCuenta() {
   sync.cuentasPrueba = (sync.cuentasPrueba || []).filter(c => c !== correo.toLowerCase());
   sync.enabled = false; sync.cfg = {}; sync.marca = null; sync.rev = 0;
   sync.dirty = false; sync.lastAt = null; sync.entrada = null; sync.dueño = null;
+  sync.baseAt = null;
   saveSync();
   syncError = null;
 
