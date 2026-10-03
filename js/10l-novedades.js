@@ -441,13 +441,10 @@ function ventanaNovedades(lista) {
    bienvenida y de la elección de idioma. Encima de la carga no se vería, y
    encima de otra ventana la pisaría. Con tope, para no preguntar para siempre. */
 function cuandoNadaTape(hacer) {
-  const tope = Date.now() + 3 * 60 * 1000;
-  (function mirar() {
-    const tapa = (typeof cargaVisible === "function" && cargaVisible()) ||
-      document.querySelector("#modal.show, #tuto.show, #ncel.show, #region, #view-onboarding.active");
-    if (!tapa) hacer();
-    else if (Date.now() < tope) setTimeout(mirar, 700);
-  })();
+  /* Desde la 0.7.204 es la fila de todo lo que sale solo (`enTurno`,
+     js/01-base.js): una sola espera para la carga, las escenas y las
+     ventanas, en vez de una por archivo. */
+  enTurno(hacer);
 }
 
 function leerVistas() {
@@ -582,6 +579,15 @@ async function novedadesProbarVentana() {
 let avisoCerrado = { version: null, en: 0 };
 function avisoVersionLista(version, accion) {
   if (avisoCerrado.version === version && Date.now() - avisoCerrado.en < 5 * 60 * 1000) return;
+  /* EN SU TURNO (0.7.204). Eduardo: «si hay una pantalla de nivel no le debe de
+     aparecer una de actualizar versión». La tarjeta espera a que no haya
+     carga ni escena abierta, y sale un segundo después de que se cierren.
+     Si ya está a la vista solo se le refresca el número: eso no interrumpe. */
+  const puesta = document.getElementById("aviso-version");
+  if (!(puesta && puesta.classList.contains("show")) && typeof turnoTapado === "function" && turnoTapado()) {
+    enTurno(() => avisoVersionLista(version, accion), { clave: "aviso-version" });
+    return;
+  }
   let caja = document.getElementById("aviso-version");
   if (!caja) {
     caja = document.createElement("div");

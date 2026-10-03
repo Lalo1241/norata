@@ -679,6 +679,21 @@
       }
     },
     {
+      "version": "0.7.204",
+      "fecha": "2026-10-03",
+      "estado": "borrador",
+      "clase": "arreglo",
+      "titulo": "Cada cosa a su turno al abrir",
+      "resumen": "Las celebraciones y los avisos ya no salen encima de la pantalla de carga ni unos sobre otros: esperan a que la app esté a la vista y pasan de uno en uno.",
+      "puntos": [],
+      "retoques": [],
+      "en": {
+        "titulo": "One thing at a time when you open",
+        "resumen": "Celebrations and notices no longer show up on top of the loading screen or over each other: they wait until the app is in view and come one at a time.",
+        "puntos": []
+      }
+    },
+    {
       "id": "widget-hoy",
       "version": "0.7.201",
       "fecha": "2026-10-03",

@@ -173,6 +173,7 @@ aplicarModulos();
 /* Todo interruptor se desliza (0.7.154): un solo oyente para toda la app.
    Vive en `js/01-base.js`, junto a los interruptores de Aspecto. */
 if (typeof instalarDesliza === "function") instalarDesliza();
+if (typeof instalarTurno === "function") instalarTurno();
 
 /* El gesto de atrás del teléfono pasa por aquí. Ver atrasApp(): si la app se
    ocupa, se repone el colchón; si no, se deja ir de verdad —el gesto ya
@@ -378,9 +379,10 @@ showView("summary");
          función se abstiene si hay cualquier otra capa encima.
          Y con un segundo de espera (0.7.147.8, de Eduardo): recién destapada
          la app, primero se ve el tablero y después llega la ventana; al
-         instante se leía como parte de la carga. De paso llega DESPUÉS del
-         tutorial (que sale a los 500 ms) y se calla si el tutorial salió. */
-      setTimeout(quizaVentanaDeVuelta, 1000);
+         instante se leía como parte de la carga. Desde la 0.7.204 ese segundo
+         lo pone la fila de lo que sale solo (`enTurno`, js/01-base.js), y si
+         hay una celebración esperando, la vuelta va detrás de ella. */
+      enTurno(quizaVentanaDeVuelta, { clave: "vuelta" });
     }
   }
 

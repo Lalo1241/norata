@@ -9,6 +9,13 @@ document.addEventListener("pointerdown", () => { userHasTapped = true; }, { once
    «habilidad» cuando sube una habilidad, «racha», «bienvenida». Suena con el
    material de la apariencia puesta, Arcade incluido. */
 function celebrate(title, sub, color, iconName, sonido) {
+  /* Nunca pegada a una carga (0.7.204): si hay una puesta, espera su turno y
+     sale después, con la app ya a la vista (`enTurno`, js/01-base.js). Sin
+     carga sale en el acto, como siempre. */
+  if (typeof turnoTapado === "function" && turnoTapado(true)) {
+    enTurno(() => celebrate(title, sub, color, iconName, sonido), { ligera: true });
+    return;
+  }
   if (typeof sonar === "function") sonar(sonido || "hito");
   const el = document.getElementById("celebrate");
   /* La de pantalla completa, que abre el nivel 15 con Pro: la misma noticia
@@ -759,7 +766,12 @@ function revisarNivelExpedicion() {
   if (typeof sembrarLoApuntado === "function") sembrarLoApuntado();
   guardarLocal(state);
   if (typeof aplicarModulos === "function") aplicarModulos();
-  celebrarNivel(ahora, abre);
+  /* EN SU TURNO, no ahora (0.7.204). Esto corre también al arrancar y al bajar
+     la sincronía, o sea con la carga puesta: la escena salía dentro del zoom
+     y las dos animaciones se peleaban. El nivel ya quedó apuntado arriba; lo
+     que espera es solo la fiesta. */
+  if (typeof enTurno === "function") enTurno(() => celebrarNivel(ahora, abre), { clave: "nivel" });
+  else celebrarNivel(ahora, abre);
 }
 
 /* ================= El destello =================
@@ -900,7 +912,11 @@ function checkStreakMilestone() {
   const merece = HITOS_RACHA.includes(stk.cur);
   state.ui.rachaFestejada = stk.cur;
   guardarLocal(state);
-  if (merece) celebrateStreak(stk.cur);
+  if (merece) {
+    const dias = stk.cur;
+    if (typeof enTurno === "function") enTurno(() => celebrateStreak(dias), { clave: "racha" });
+    else celebrateStreak(dias);
+  }
 }
 
 /* ================= Escenas generadas ================= */

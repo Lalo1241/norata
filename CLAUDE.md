@@ -773,6 +773,22 @@ mano y se mide la pastilla cuadro a cuadro: nunca fuera de la caja del grupo,
 y el último cuadro igual a la opción de verdad. Con `--desliza-dur: 14s`
 puesto en `<html>` da tiempo a sacar una captura a medio viaje.
 
+## Lo que sale solo va en fila
+
+**Nada que se abra solo sale pegado a una carga, ni encima de otra escena**
+(Eduardo, 0.7.204: abrió la app, la celebración de subir de nivel salió dentro
+del zoom y «parpadeó mil veces»; «mándalas a cola y que se reproduzcan al
+final»). Lo hace `enTurno(hacer, opciones)` (`js/01-base.js`): espera a que no
+haya carga, portada ni otra escena, y deja un segundo entre una cosa y la
+siguiente. Sin nada delante, lo hace en el acto.
+
+Pasan por ahí las celebraciones (nivel, racha, la tarjeta de `celebrate`), el
+aniversario, la ventana de vuelta, las novedades y «Ya está lista la versión».
+**Al añadir algo que se abra solo, se llama con `enTurno`**, y si es una capa
+nueva su selector va en `TURNO_ESCENAS`. No se escribe otra espera suelta que
+pregunte por su cuenta si la carga sigue puesta: había cuatro, y la que
+faltaba fue la que chocó.
+
 ## Las capas
 
 **Ningún `z-index` se escribe a mano:** salen de variables `--piso-*`

@@ -318,6 +318,30 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.204 · 3 oct 2026
+
+**Lo que sale solo va en fila: nada se abre pegado a una carga ni encima de
+otra escena.** Eduardo abrió la app y la celebración de subir de nivel salió
+dentro del zoom de la carga: la escena aleja la app de detrás justo cuando el
+zoom la enseña por el hueco del logo, y «parpadeó mil veces». Pidió una cola,
+y que una pantalla de nivel y el aviso de versión tampoco salgan juntos.
+
+- **`enTurno`** (`js/01-base.js`): una fila para todo lo que se abre solo.
+  Espera a que no haya carga, portada ni otra escena, y deja un segundo entre
+  una cosa y la siguiente. Sin nada delante, sale en el acto.
+- **Pasan por ella**: subir de nivel de expedición (`revisarNivelExpedicion`),
+  el hito de racha, la tarjeta de `celebrate` (solo espera a la carga), el
+  aniversario, la ventana de vuelta, las novedades (`cuandoNadaTape` ya es la
+  fila) y «Ya está lista la versión».
+- **La causa del choque**: `revisarNivelExpedicion` corre al arrancar y al
+  bajar la sincronía, y llamaba a `celebrarNivel` sin mirar si la carga seguía
+  puesta. Era la única de las que salen solas que no preguntaba.
+
+**Medido en local**: con la carga puesta, un nivel pendiente y un aviso de
+versión esperan; la escena sale un segundo después de irse la carga y el aviso
+un segundo después de cerrarla. **Sin probar en el teléfono.** El parpadeo de
+Reliquia no se reprodujo aquí: sigue abierto.
+
 ### 0.7.203 · 3 oct 2026
 
 **«Mis reportes» habla como un área de soporte, y se puede ver con ejemplos.**
