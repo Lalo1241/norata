@@ -26,7 +26,7 @@ on:
   workflow_dispatch:
     inputs:
       llave:
-        description: "La ficha: su id, o su versión si no lleva id"
+        description: "La ficha: su id, o su versión si no lleva id. Varias, separadas por comas"
         required: true
 
 permissions:
@@ -56,20 +56,31 @@ jobs:
         env:
           LLAVE: ${{ inputs.llave }}
         run: |
-          case "$LLAVE" in *[!A-Za-z0-9._-]*|"") echo "::error::Esa ficha no es válida: $LLAVE"; exit 1;; esac
+          # Una o varias, separadas por comas («Aprobar todas», 0.7.192): van en
+          # UNA corrida y un solo commit. Mandarlas como corridas sueltas no
+          # sirve: de las que esperan turno, GitHub solo conserva la última.
+          case "$LLAVE" in *[!A-Za-z0-9._,-]*|"") echo "::error::Esa ficha no es válida: $LLAVE"; exit 1;; esac
           git config user.name "Puesto de mando"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           for intento in 1 2 3 4; do
             git fetch -q origin main
             git reset -q --hard origin/main
-            TITULO=$(python3 herramientas/aprobar-novedad.py "$LLAVE" | head -1) || { echo "::error::No se pudo aprobar «$LLAVE»."; exit 1; }
+            TITULO=""; N=0
+            for K in $(echo "$LLAVE" | tr ',' ' '); do
+              UNO=$(python3 herramientas/aprobar-novedad.py "$K" | head -1) || { echo "::error::No se pudo aprobar «$K»."; exit 1; }
+              N=$((N + 1)); TITULO="${TITULO:+$TITULO · }$UNO"
+            done
             git add novedades/
             if git diff --cached --quiet; then
               echo "«$TITULO» ya estaba publicada: nada que hacer."
               echo "### Ya estaba publicada" >> "$GITHUB_STEP_SUMMARY"
               exit 0
             fi
-            git commit -q -m "Aprobada la novedad $LLAVE: $TITULO" -m "Desde el Puesto de mando."
+            if [ "$N" -gt 1 ]; then
+              git commit -q -m "Aprobadas $N novedades: $(echo "$LLAVE" | sed 's/,/, /g')" -m "$TITULO" -m "Desde el Puesto de mando."
+            else
+              git commit -q -m "Aprobada la novedad $LLAVE: $TITULO" -m "Desde el Puesto de mando."
+            fi
             if git push -q origin HEAD:main; then
               echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
               echo "### Aprobada: $TITULO" >> "$GITHUB_STEP_SUMMARY"

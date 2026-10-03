@@ -138,8 +138,11 @@ Deno.serve(async (req: Request) => {
     if (accion === "aprobar") {
       /* La llave de una ficha es su `id` o su versión: letras, números, puntos
          y guiones. Cualquier otra cosa no se le pasa a GitHub. */
-      const llave = String(cuerpo.llave || "");
-      if (!/^[A-Za-z0-9._-]{1,60}$/.test(llave)) return responder({ error: "Esa novedad no es válida." }, 400, origen);
+      /* Una (`llave`) o varias (`llaves`, «Aprobar todas»): viajan juntas,
+         separadas por comas, a una sola corrida del trabajo. */
+      const varias = Array.isArray(cuerpo.llaves) ? cuerpo.llaves.map(String) : [String(cuerpo.llave || "")];
+      if (!varias.length || varias.length > 40 || varias.some((k) => !/^[A-Za-z0-9._-]{1,60}$/.test(k))) return responder({ error: "Esa novedad no es válida." }, 400, origen);
+      const llave = varias.join(",");
       const r = await gh(`/repos/${REPO}/actions/workflows/${APROBAR}/dispatches`, LLAVE, {
         method: "POST",
         body: JSON.stringify({ ref: "main", inputs: { llave } }),
