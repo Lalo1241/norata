@@ -378,11 +378,11 @@ def cuerpo(e, en=False):
 
     A qué punto acompaña cada imagen lo dice su `tras`: el número del punto (1
     es el primero; sin `tras`, el último; 0 es antes de todos y sin pie). Los
-    bloques del gráfico llevan su `tras` igual. **Las imágenes van ARRIBA y su
-    punto debajo, de pie de foto** (Eduardo, 2 oct 2026: con el texto encima
-    no se entendía a qué imágenes correspondía). Las de un mismo punto salen
-    en una fila, y TODAS las de una tarjeta miden lo mismo: de eso se encarga
-    el componente."""
+    bloques del gráfico llevan su `tras` igual. El `tras` da el ORDEN y dice
+    qué punto deja de escribirse: **un punto con imagen no sale como texto, lo
+    dice el pie de su imagen**; los puntos sin imagen van debajo, en lista.
+    Todas las imágenes van en una sola rejilla, de dos en dos, y miden lo
+    mismo. Por eso tienen que ser un número PAR: si no, falta una."""
     puntos = campo(e, "puntos", en) or []
     medios = {}
 
@@ -404,24 +404,27 @@ def cuerpo(e, en=False):
     for tras, direccion, titulos, pie in dibujar(e, en):
         poner(tras, figura(direccion, ("Chart: " if en else "Gráfico: ") + titulos, "nv-grafico", pie))
 
-    trozos, lista = [], []
-
-    def cerrar():
-        if lista:
-            trozos.append('<ul class="nv-puntos">' + "".join(lista) + "</ul>")
-            lista.clear()
-
-    if 0 in medios:
-        trozos.append('<div class="nv-medios">' + "".join(medios[0]) + "</div>")
-    for i, punto in enumerate(puntos, 1):
-        if i in medios:
-            # Un tramo: sus imágenes y, debajo, el punto que las explica.
-            cerrar()
-            trozos.append('<div class="nv-tramo"><div class="nv-medios">' + "".join(medios[i]) + "</div>"
-                          f'<ul class="nv-puntos"><li>{esc(punto)}</li></ul></div>')
-        else:
-            lista.append(f"<li>{esc(punto)}</li>")
-    cerrar()
+    # Todas las imágenes de la ficha van en UNA rejilla, de dos en dos, y el
+    # punto que acompañaban ya no se escribe: su pie lo dice. Eduardo, 3 oct
+    # 2026, al ver el pie y debajo el punto con bolita: «dan información
+    # repetida… el texto con bolita se tendría que ir», y «en PC tienen que
+    # salir sí o sí de 2 en dos». Antes cada punto abría su propio tramo, y con
+    # una sola imagen por punto salían de una en una, a todo lo ancho.
+    #
+    # La rejilla lleva sus columnas EN LÍNEA: el componente de Framer se pega a
+    # mano, y así no depende de que alguien lo vuelva a pegar. `max(240px,
+    # 34%)` son dos columnas como mucho, y una sola cuando no caben (teléfono).
+    trozos = []
+    todos = [t for n in sorted(medios) for t in medios[n]]
+    if todos:
+        if len(todos) % 2:
+            print(f"  ¡OJO! {e.get('id') or e['version']}: {len(todos)} imágenes, número impar. "
+                  "Van de dos en dos: falta una para que la rejilla quede pareja.", file=sys.stderr)
+        trozos.append('<div class="nv-medios" style="display:grid;gap:20px 14px;margin:4px 0;'
+                      'grid-template-columns:repeat(auto-fit,minmax(max(240px,34%),1fr))">' + "".join(todos) + "</div>")
+    sueltos = [f"<li>{esc(p)}</li>" for i, p in enumerate(puntos, 1) if i not in medios]
+    if sueltos:
+        trozos.append('<ul class="nv-puntos">' + "".join(sueltos) + "</ul>")
     ret = e.get("retoques") or []
     if ret:
         trozos.append(f'<h5 class="nv-rotulo">{"Touch-ups" if en else "Retoques"}</h5><ul class="nv-retoques">' +

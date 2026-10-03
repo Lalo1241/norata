@@ -1039,6 +1039,17 @@
           "pie": "El tramo en curso en la cortina: la cuenta atrás y el botón de pausa."
         },
         {
+          "src": "novedades/img/0.7.163-en-pausa-dia-y-noche.jpg",
+          "alt": "El aviso del tramo en pausa, plegado y abierto, con el botón Seguir, partido en diagonal: de día a la izquierda y de noche a la derecha.",
+          "pie": "En pausa: la cuenta se detiene y sigues con un toque.",
+          "en": {
+            "src": "novedades/img/0.7.163-en-pausa-dia-y-noche-en.jpg",
+            "alt": "The paused-session notification, collapsed and expanded, with the Resume button, split diagonally: daytime on the left, night on the right.",
+            "pie": "Paused: the countdown stops and you resume with one tap."
+          },
+          "tras": 1
+        },
+        {
           "src": "novedades/img/0.7.163-fin-de-fase-dia-y-noche.jpg",
           "alt": "El aviso de tramo listo, plegado y abierto, partido en diagonal: de día a la izquierda y de noche a la derecha.",
           "en": {

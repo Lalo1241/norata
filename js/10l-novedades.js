@@ -344,7 +344,7 @@ function novedadCuerpoHTML(e, puntos) {
        llevan sus cápsulas rotuladas, y en inglés tienen que decir «Light
        mode». El pie va debajo y centrado, y dice qué se VE: Eduardo pidió uno
        en cada imagen, «alusivo al contenido de la imagen para entenderlo
-       mejor». El punto del texto, debajo del tramo, sigue diciendo qué cambió. */
+       mejor». */
     if (!i || !i.src) return;
     const pie = novedadCampo(i, "pie");
     const fig = `<figure class="nov-fig"><img src="${escapeAttr(novedadImgSrc(novedadCampo(i, "src")))}" alt="${escapeAttr(novedadCampo(i, "alt") || "")}" loading="lazy" onerror="this.closest('.nov-pieza').remove()"></figure>`;
@@ -354,15 +354,19 @@ function novedadCuerpoHTML(e, puntos) {
     const html = novedadBloqueHTML(b);
     if (html) poner(b.tras).grafs.push(html);
   });
-  const tramo = (m, pie) => `<div class="nov-tramo">${m.figs.length ? `<div class="nov-medios">${m.figs.join("")}</div>` : ""}${m.grafs.join("")}${pie}</div>`;
-  let html = medios[0] ? tramo(medios[0], "") : "", lista = [];
-  const cerrar = () => { if (lista.length) { html += `<ul class="nov-puntos">${lista.join("")}</ul>`; lista = []; } };
-  puntos.forEach((p, i) => {
-    const li = `<li>${escapeHtml(p)}</li>`;
-    if (medios[i + 1]) { cerrar(); html += tramo(medios[i + 1], `<ul class="nov-puntos nov-pie">${li}</ul>`); }
-    else lista.push(li);
-  });
-  cerrar();
+  /* Todas las imágenes en UNA rejilla, de dos en dos, y sin el punto que
+     acompañaban (0.7.189). Eduardo, al ver el pie y debajo el punto con
+     bolita: «dan información repetida… el texto con bolita se tendría que
+     ir», y «en PC tienen que salir sí o sí de 2 en dos». Antes cada punto
+     abría su tramo y sus imágenes salían de una en una. El `tras` sigue
+     dando el orden. Un punto con imagen ya no se escribe; con solo un gráfico
+     sí, porque aquí el gráfico se dibuja y no lleva pie. */
+  const orden = Object.keys(medios).map(Number).sort((a, b) => a - b);
+  const figs = orden.flatMap((n) => medios[n].figs);
+  let html = figs.length ? `<div class="nov-medios${figs.length % 2 ? " impar" : ""}">${figs.join("")}</div>` : "";
+  html += orden.flatMap((n) => medios[n].grafs).join("");
+  const sueltos = puntos.filter((p, i) => !(medios[i + 1] && medios[i + 1].figs.length));
+  if (sueltos.length) html += `<ul class="nov-puntos">${sueltos.map((p) => `<li>${escapeHtml(p)}</li>`).join("")}</ul>`;
   return html;
 }
 
