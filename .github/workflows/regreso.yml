@@ -25,6 +25,9 @@
 # los da por «del futuro» y no arranca.
 
 name: Regreso a una versión sana
+# El título de cada corrida dice si fue ensayo y a qué versión: es lo que el
+# Puesto de mando enseña en «Las últimas veces».
+run-name: ${{ inputs.ensayo && 'Ensayo (no publicó nada): regreso' || 'Regreso de emergencia' }} a la ${{ inputs.a }}
 
 on:
   workflow_dispatch:

@@ -152,14 +152,19 @@ Deno.serve(async (req: Request) => {
       const a = String(cuerpo.a || "");
       if (!/^\d+(\.\d+){2,3}$/.test(a)) return responder({ error: "Esa versión no es válida." }, 400, origen);
       /* Primero el grifo: con él abierto, lo malo que sigue en `main` volvería
-         a salir solo en la próxima subida, y el regreso no duraría nada. */
-      const g = await rpc("barrera_grifo", { p_abierto: false });
-      if (!g.ok) return responder({ error: "No pude cerrar el grifo: el regreso no se hizo.", falta: "sql" }, 503, origen);
+         a salir solo en la próxima subida, y el regreso no duraría nada.
+         Un ENSAYO no publica nada, así que tampoco cierra: la primera vez lo
+         cerraba igual, y Eduardo se encontró el grifo cerrado por probar. */
+      const ensayo = cuerpo.ensayo === true;
+      if (!ensayo) {
+        const g = await rpc("barrera_grifo", { p_abierto: false });
+        if (!g.ok) return responder({ error: "No pude cerrar el grifo: el regreso no se hizo.", falta: "sql" }, 503, origen);
+      }
       const r = await gh(`/repos/${REPO}/actions/workflows/${REGRESO}/dispatches`, LLAVE, {
         method: "POST",
-        body: JSON.stringify({ ref: "main", inputs: { a, ensayo: cuerpo.ensayo === true ? "true" : "false" } }),
+        body: JSON.stringify({ ref: "main", inputs: { a, ensayo: ensayo ? "true" : "false" } }),
       });
-      if (!r.ok) return responder({ error: "El grifo quedó cerrado, pero GitHub no aceptó el regreso (" + r.status + ")." }, 502, origen);
+      if (!r.ok) return responder({ error: (ensayo ? "GitHub no aceptó el ensayo (" : "El grifo quedó cerrado, pero GitHub no aceptó el regreso (") + r.status + ")." }, 502, origen);
       return responder({ ok: true }, 200, origen);
     }
 
