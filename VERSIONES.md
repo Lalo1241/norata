@@ -314,6 +314,55 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.184 · 2 oct 2026
+
+**El cierre de emergencia ya regresa a una versión sana.** Era la pieza que le
+faltaba a la barrera: cerrar el grifo para lo que viene no quita lo que ya está
+publicado. Número propio y no un 4º de la 0.7.173: la app (el Puesto de mando)
+hace algo que no hacía.
+
+**Cómo funciona** (`.github/workflows/regreso.yml`). Publica otra vez el
+contenido de una versión anterior con un número NUEVO —un cuarto tramo encima
+de la mala, saltando los que `main` o un paquete ya usaron—, porque una app solo
+se actualiza hacia delante. `vivo` recibe un commit encima, siempre hacia
+delante, y `main` lo recibe con una fusión `-s ours` que no cambia su contenido:
+lo malo sigue ahí, esperando su arreglo, y solo se le añade la entrada de este
+documento para que la próxima sesión vea el número cogido. No se regresan los
+trabajos de GitHub, los hooks, el SQL, las herramientas ni los documentos:
+regresar la barrera junto con la app sería desmontar la red justo cuando se usa.
+**Se niega si cambió el formato de los datos** (`SCHEMA`): una app vieja que
+abre datos de una más nueva no arranca.
+
+**El grifo se cierra antes**, en la misma orden: con él abierto, lo malo de
+`main` volvería a salir solo en la siguiente subida.
+
+**La barrera ganó una comprobación, la del número**: lo que se sube no puede
+tener un número menor que el que está en vivo, ni cambiar un archivo de la app
+con el mismo número. Las dos cosas dejaban dispositivos sin recibir nada, y la
+primera es justo lo que pasa en `main` después de un regreso.
+
+**En la sala de Subidas.** «Lo que estuvo en vivo»: las últimas versiones
+publicadas, cada una sana, en vigilancia o con problemas, y «Regresar aquí». El
+botón del grifo abierto pasa a ser «Cierre de emergencia», que ofrece solo
+cerrar o cerrar y regresar a la última sana. Y «Solo ensayar» prepara el regreso
+sin publicar nada. **Sana** es 24 horas o más en vivo sin errores nuevos ni
+fallos abiertos; el «abierta por diez dispositivos» del boceto se cayó, porque
+los números dicen en qué versión está HOY cada persona, no por cuáles pasó. El
+historial sale de los paquetes de Android: hay uno por cada vez que algo llega
+a `vivo`.
+
+**Y un arreglo de paso:** las fechas que vienen de GitHub (la cola, las
+corridas, lo que está en vivo) se recortaban en UTC y de noche salían un día
+adelantadas.
+
+**Cómo se probó.** La sala con la función imitada, en PC y a 375 px: la salud
+de cada versión con errores repetidos de antes y nuevos, las dos ventanas y lo
+que manda cada botón. El paso del regreso se corrió entero en una copia del
+repositorio contra el `vivo` real: preparó la 0.7.183.1 con el contenido de la
+0.7.182, tocó solo archivos de la app, y la fusión dejó `main` igual salvo la
+entrada. La comprobación del número, con cuatro pares de commits reales. **El
+regreso de verdad no se ha corrido**: la primera vez conviene «Solo ensayar».
+
 ### 0.7.183 · 2 oct 2026
 
 **Aprobar una novedad es un clic en el Puesto de mando, y desde ahí sale

@@ -212,6 +212,11 @@ Y cuatro cosas que muerden:
   solo avisa antes. Si un día la llave se pierde o se cambia, las subidas se
   paran con un error en el paso «Subir al vivo»: se hace otra llave, no se
   quita la regla.
+- **Hay un regreso de emergencia** (0.7.184, `.github/workflows/regreso.yml`):
+  publica otra vez una versión anterior con un número nuevo encima de la mala,
+  y cierra el grifo. Después de uno, `vivo` tiene un número MAYOR que `main`, y
+  la barrera no deja subir nada que no lo pase: el arreglo lleva el siguiente
+  número libre (mira `VERSIONES.md`, el regreso apunta ahí el suyo).
 - **Un tramo que toca `supabase/*.sql` no sube solo**, ni con el grifo abierto:
   espera a que Eduardo lo suba diciendo que ya lo pegó. Al tocar un `.sql`,
   díselo, además de apuntarlo en «Pendiente de pegar».

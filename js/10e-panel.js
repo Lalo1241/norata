@@ -167,6 +167,7 @@ const DN_IC = {
   candado: "M6 11h12v9H6z M8.5 11V8a3.5 3.5 0 0 1 7 0v3",
   check: "M5 12l5 5 9-10", x: "M6 6l12 12 M18 6L6 18",
   reloj: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z M12 7v5l3 2",
+  regreso: "M4 4v6h6 M4.5 10A8 8 0 1 1 6 17.5",
   db: "M5 6c0-1.7 3.1-3 7-3s7 1.3 7 3-3.1 3-7 3-7-1.3-7-3z M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6 M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3",
   llave: "M8 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8z M11 11l9 9 M16 16l2-2 M19 19l2-2",
   cerradura: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z M12 9a2 2 0 0 0-1 3.7V16h2v-3.3A2 2 0 0 0 12 9z"
@@ -194,6 +195,12 @@ function dnMomento(iso) {
   const d = new Date(iso);
   if (isNaN(d)) return "";
   return "el " + d.getDate() + " " + DN_MESES[d.getMonth()] + " a las " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+}
+/* Lo que llega de GitHub viene en UTC con hora: recortar el texto daba el día
+   siguiente por la noche en México. Se pasa a la fecha local primero. */
+function dnLocal(iso) {
+  const d = new Date(iso);
+  return isNaN(d) ? "" : d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
 }
 const dnHaceTx = n => n === null ? "" : n === 0 ? "hoy" : n === 1 ? "ayer" : "hace " + n + " días";
 
@@ -563,7 +570,7 @@ const dnGrifoAbierto = () => !!(DN.bar && DN.bar.grifo && DN.bar.grifo.grifo ===
 
 function dnGrifoHTML() {
   const abierto = dnGrifoAbierto();
-  const acc = abierto ? `<button class="dn-btn b-coral" data-a="grifo:cerrar">Cerrar el grifo</button>`
+  const acc = abierto ? `<button class="dn-btn b-coral" data-a="emergencia">Cierre de emergencia</button>`
     : DN.seguro ? `<div class="dn-cerrojo"><button class="dn-llave" id="dn-llave" aria-label="Llave. Arrástrala hasta la cerradura para quitar el seguro">${dnIc("llave")}</button><span class="dn-riel"></span><span class="dn-cerradura" id="dn-cerradura">${dnIc("cerradura")}</span></div><small>Arrastra la llave a la cerradura</small>`
     : `<span class="dn-sin-seguro">Sin seguro por <b id="dn-cuenta">${DN.cuenta}</b> segundos</span><button class="dn-btn b-oro dn-late" data-a="grifo:abrir">Abrir el grifo</button>`;
   const ahora = abierto ? "abierto" : DN.seguro ? "cerrado" : "suelto", antes = DN.grifoVisto || ahora;
@@ -594,7 +601,7 @@ function dnColaHTML() {
         ${cola.length ? `<div class="dn-der"><button class="dn-btn b-primary mini" data-a="subir:">${dnIc("subidas")}Subir todo al vivo</button></div>` : ""}</div>
       ${cola.length ? `<p class="dn-nota">Se aprueba en orden: «Subir hasta aquí» lleva al vivo ese cambio y todos los de arriba.${conSql ? " Lo que trae SQL pide que lo hayas pegado antes." : ""}</p>` : ""}
       ${!cola.length ? `<div class="dn-vacio">${abierto ? "Nada detenido. Lo que se sube a main está llegando solo." : "No hay nada esperando. Lo que se suba a main aparecerá aquí."}</div>` : cola.map(c => {
-        const h = dnHace(String(c.fecha).slice(0, 10)), sql = (c.sql || []).length;
+        const h = dnHace(dnLocal(c.fecha)), sql = (c.sql || []).length;
         return `<div class="dn-prueba"><div>
             <div class="dn-sobre-t">${dnEtq(clase(c.version))}<span class="dn-estado ${h !== null && h >= 5 ? "e-espera" : "e-no"}">${dnIc("reloj")}${h !== null && h >= 5 ? "Lleva " + h + " días sin subir" : "En cola, " + dnHaceTx(h)}</span>${sql ? `<span class="dn-estado e-sql">${dnIc("db")}Trae SQL</span>` : ""}</div>
             <h4>${dnE(c.titulo || "Sin título")}${c.version ? `<span class="dn-chip">${dnE(c.version)}</span>` : ""}</h4>
@@ -608,12 +615,57 @@ function dnCorridasHTML() {
   if (!cs.length) return "";
   const que = c => c.estado !== "completed" ? ["e-espera", "reloj", "En marcha"] : c.resultado === "success" ? ["e-ok", "check", "Terminó bien"] : ["e-yo", "x", "Falló"];
   return `<div class="dn-panel"><h3>Las últimas veces que pasó algo por la barrera</h3>
-      ${cs.map(c => { const q = que(c), h = dnHace(String(c.creado).slice(0, 10)); return `<div class="dn-prueba"><div>
-          <div class="dn-sobre-t"><span class="dn-estado ${q[0]}">${dnIc(q[1])}${q[2]}</span><span class="dn-chip">${c.evento === "push" ? "al subir a main" : "aprobada a mano"}</span><span class="dn-chip">${dnHaceTx(h)}</span></div>
+      ${cs.map(c => { const q = que(c), h = dnHace(dnLocal(c.creado)); return `<div class="dn-prueba"><div>
+          <div class="dn-sobre-t"><span class="dn-estado ${q[0]}">${dnIc(q[1])}${q[2]}</span><span class="dn-chip">${c.clase === "regreso" ? "regreso de emergencia" : c.evento === "push" ? "al subir a main" : "aprobada a mano"}</span><span class="dn-chip">${dnHaceTx(h)}</span></div>
           <h4>${dnE(dnPartirTitulo(c.titulo))}</h4></div>
         <div class="dn-acciones"><a class="dn-btn b-ghost mini" href="${escapeAttr(c.url)}" target="_blank" rel="noopener">Ver en GitHub</a></div></div>`; }).join("")}</div>`;
 }
 const dnPartirTitulo = t => String(t || "").split("\n")[0];
+
+/* ---- Lo que estuvo en vivo, y el regreso a una versión sana ----
+   El historial sale de los paquetes de Android: cada vez que algo llega a
+   `vivo` se fabrica uno, así que su lista ES lo publicado, con su fecha.
+
+   Una versión está SANA si estuvo 24 horas o más en vivo sin errores nuevos
+   ni fallos abiertos. El boceto pedía además «abierta por al menos diez
+   dispositivos», y se cayó al construirlo: los números de la app dicen en qué
+   versión está HOY cada persona, no por cuáles pasó, así que de una versión
+   vieja no se puede saber quién la abrió.
+
+   Regresar no borra nada: publica el contenido de la versión elegida con un
+   número nuevo y cierra el grifo (`.github/workflows/regreso.yml`). */
+function dnSalud(lista) {
+  const ts = dnTropiezos(), ahora = Date.now();
+  return lista.map((h, i) => {
+    const hasta = i ? Date.parse(lista[i - 1].fecha) : ahora;
+    const horas = Math.max(0, (hasta - Date.parse(h.fecha)) / 36e5);
+    const viejas = lista.slice(i + 1).map(x => x.version);
+    const autos = ts.filter(t => dnTipo(t) === "auto" && t.version === h.version);
+    const nuevos = autos.filter(t => !ts.some(x => x !== t && x.mensaje === t.mensaje && viejas.indexOf(x.version) >= 0)).length;
+    const fallos = ts.filter(t => dnTipo(t) === "fallo" && t.version === h.version && dnAbierto(t)).length;
+    const est = nuevos || fallos ? "mal" : horas < 24 ? "vig" : "sana";
+    const dias = Math.round(horas / 24);
+    const dur = horas < 24 ? Math.max(1, Math.round(horas)) + " h en vivo" : dias + (dias === 1 ? " día en vivo" : " días en vivo");
+    const cosas = [nuevos ? nuevos + (nuevos === 1 ? " error nuevo" : " errores nuevos") : "", fallos ? fallos + (fallos === 1 ? " fallo abierto" : " fallos abiertos") : ""].filter(Boolean);
+    return Object.assign({}, h, { est: est, horas: horas, texto: (cosas.length ? cosas.join(" · ") : "Sin errores nuevos") + " · " + dur });
+  });
+}
+const dnHistorial = () => dnSalud(((DN.bar && DN.bar.historial) || []).slice(0, 15));
+const dnUltimaSana = () => dnHistorial().slice(1).find(h => h.est === "sana") || null;
+
+function dnHistorialHTML() {
+  const hs = dnHistorial().slice(0, 8);
+  if (!hs.length) return "";
+  const est = { sana: ["e-ok", "check", "Sana"], vig: ["e-espera", "reloj", "En vigilancia"], mal: ["e-yo", "fallo", "Con problemas"] };
+  const u = dnUltimaSana();
+  return `<div class="dn-panel"><div class="dn-pcab"><h3>Lo que estuvo en vivo</h3>
+        ${u ? `<div class="dn-der"><button class="dn-btn b-coral mini" data-a="regresar:${dnE(u.version)}">${dnIc("regreso")}Regresar a la ${dnE(u.version)}</button></div>` : ""}</div>
+      <p class="dn-nota">Sana: estuvo 24 horas o más en vivo sin errores nuevos ni fallos abiertos. Regresar publica otra vez su contenido con un número nuevo y cierra el grifo.</p>
+      ${hs.map((h, i) => { const q = est[h.est]; return `<div class="dn-prueba"><div>
+          <div class="dn-sobre-t"><span class="dn-estado ${q[0]}">${dnIc(q[1])}${q[2]}</span>${i ? "" : `<span class="dn-chip">en vivo</span>`}<span class="dn-chip">${dnE(dnDia(dnLocal(h.fecha)))}</span></div>
+          <h4>V${dnE(h.version)}</h4><p>${dnE(h.texto)}</p></div>
+        ${i ? `<div class="dn-acciones"><button class="dn-btn b-ghost mini" data-a="regresar:${dnE(h.version)}">Regresar aquí</button></div>` : ""}</div>`; }).join("")}</div>`;
+}
 
 function dnVentanaHTML() {
   const v = DN.ventana;
@@ -630,6 +682,25 @@ function dnVentanaHTML() {
       ${anuncia && !((e.banner && e.banner.src) || (e.imagen && e.imagen.src)) ? `<div class="dn-aviso"><b>No tiene imágenes.</b> En el sitio saldría sin banner, y una expansión lleva el suyo. Mejor pide sus capturas antes de aprobarla.</div>` : ""}
       ${delante ? `<div class="dn-aviso"><b>${cola.length === 1 ? "Hay 1 cambio esperando en la cola" : "Hay " + cola.length + " cambios esperando en la cola"}.</b> La novedad no puede adelantarlos: sale cuando los subas.</div>` : `<p class="dn-nota">Sale en uno o dos minutos. El sitio de Framer la toma de la hoja en menos de una hora.</p>`}
       <div class="dn-macc"><button class="dn-btn b-ghost" data-a="ventana:cerrar!">Cancelar</button><button class="dn-btn b-primary" data-a="aprobarnovya:${dnE(v.llave)}">Aprobar y publicar</button></div></div></div>`;
+  }
+  if (v.tipo === "emergencia") {
+    const u = dnUltimaSana(), vivo = dnHistorial()[0];
+    return `<div class="dn-velo" data-a="ventana:cerrar"><div class="dn-modal" role="dialog" aria-label="Cierre de emergencia" data-quieto="1">
+      <h3>Cierre de emergencia</h3>
+      <p>Cierra el grifo para todo lo que venga. Si lo que está en vivo${vivo ? " (la " + dnE(vivo.version) + ")" : ""} ya salió mal, además puedes regresar a la última versión sana.</p>
+      ${u ? "" : `<div class="dn-aviso"><b>No hay ninguna versión sana a la que regresar.</b> Ninguna anterior estuvo 24 horas en vivo sin errores nuevos. Puedes elegir una a mano en «Lo que estuvo en vivo».</div>`}
+      <div class="dn-macc"><button class="dn-btn b-ghost" data-a="ventana:cerrar!">Cancelar</button><button class="dn-btn b-linea" data-a="grifo:cerrar">Solo cerrar el grifo</button>${u ? `<button class="dn-btn b-coral" data-a="regresarya:${dnE(u.version)}">Cerrar y regresar a la ${dnE(u.version)}</button>` : ""}</div></div></div>`;
+  }
+  if (v.tipo === "regresar") {
+    const hs = dnHistorial(), i = hs.findIndex(h => h.version === v.a), h = hs[i];
+    if (!h) return "";
+    const malas = hs.slice(0, i), nada = malas.length === 1 ? "la versión que subió después (" + dnE(malas[0].version) + ")" : "las " + malas.length + " versiones que subieron después";
+    return `<div class="dn-velo" data-a="ventana:cerrar"><div class="dn-modal" role="dialog" aria-label="Regresar a otra versión" data-quieto="1">
+      <h3>¿Regresar a la ${dnE(h.version)}?</h3>
+      <p>Se publica otra vez su contenido con un número nuevo, para que llegue a todos los dispositivos, y deja sin efecto ${nada}. El grifo queda cerrado: lo que trajeron sigue en main, esperando su arreglo.</p>
+      ${h.est !== "sana" ? `<div class="dn-aviso"><b>Esta no está marcada como sana.</b> ${dnE(h.texto)}.</div>` : ""}
+      <p class="dn-nota">Si entre las dos cambió el formato de los datos, GitHub se niega y aquí sale como «Falló». «Solo ensayar» prepara el regreso y te dice qué cambiaría, sin publicar nada.</p>
+      <div class="dn-macc"><button class="dn-btn b-ghost" data-a="ventana:cerrar!">Cancelar</button><button class="dn-btn b-linea" data-a="ensayar:${dnE(h.version)}">Solo ensayar</button><button class="dn-btn b-coral" data-a="regresarya:${dnE(h.version)}">Regresar a la ${dnE(h.version)}</button></div></div></div>`;
   }
   const cola = (DN.bar && DN.bar.cola) || [];
   if (v.tipo === "abrir") {
@@ -765,13 +836,13 @@ function dnSalaSubidas() {
   return `
     <div class="dn-cab"><h2>Subidas</h2></div>
     <div class="dn-kpis tres">
-      ${dnKpi("En vivo", "V" + dnE(enVivo), "", `<span class="dn-ver">${dnEtapa() ? `<span class="etapa">${dnEtapa()}</span>` : ""}<span>${b && b.vivo && b.vivo.fecha ? "· " + dnE(dnDia(String(b.vivo.fecha).slice(0, 10))) : "· " + dnE(typeof VERSION_FECHA !== "undefined" ? VERSION_FECHA : "")}</span></span>`)}
+      ${dnKpi("En vivo", "V" + dnE(enVivo), "", `<span class="dn-ver">${dnEtapa() ? `<span class="etapa">${dnEtapa()}</span>` : ""}<span>${b && b.vivo && b.vivo.fecha ? "· " + dnE(dnDia(dnLocal(b.vivo.fecha))) : "· " + dnE(typeof VERSION_FECHA !== "undefined" ? VERSION_FECHA : "")}</span></span>`)}
       ${total ? dnKpi("Ya la tienen", conLa, " de " + total, "personas que abrieron en 14 días") : dnKpi("Ya la tienen", "—", "", "Nadie abrió en 14 días")}
       ${b ? dnKpi("En la cola", cola.length, "", cola.length ? "esperan para subir" : "nada espera") : dnKpi("Novedades por aprobar", DN.nov ? bor.length : "…", "", "ya en la app, sin anunciar")}
     </div>
     ${b && b.pagina && b.pagina !== "vivo" ? `<div class="dn-aviso dn-ojo"><b>La barrera todavía no frena nada.</b> El sitio se sigue publicando desde <code>${dnE(b.pagina)}</code>: lo que se sube ahí llega al vivo sin pasar por aquí. Falta cambiar la rama en GitHub → Settings → Pages → <code>vivo</code>.</div>` : ""}
     ${!b ? (DN.barError ? dnBarreraFaltaHTML() : `<div class="dn-panel"><div class="dn-vacio">Preguntando por la barrera…</div></div>`)
-      : (b.grifo ? dnGrifoHTML() : `<div class="dn-panel"><h3>Falta el grifo</h3><p class="dn-nota">Pega <code>supabase/barrera.sql</code> en Supabase y vuelve a preguntar.</p><div class="dn-acciones"><button class="dn-btn b-linea mini" data-a="barrera">Volver a preguntar</button></div></div>`) + dnColaHTML() + dnCorridasHTML()}
+      : (b.grifo ? dnGrifoHTML() : `<div class="dn-panel"><h3>Falta el grifo</h3><p class="dn-nota">Pega <code>supabase/barrera.sql</code> en Supabase y vuelve a preguntar.</p><div class="dn-acciones"><button class="dn-btn b-linea mini" data-a="barrera">Volver a preguntar</button></div></div>`) + dnColaHTML() + dnHistorialHTML() + dnCorridasHTML()}
     <div class="dn-panel"><div class="dn-pcab"><h3>Novedades por aprobar</h3><span class="dn-chip">${DN.nov ? bor.length : "…"}</span><div class="dn-der"><button class="dn-btn b-linea mini" data-a="novedades">Leerlas en Novedades</button></div></div>
       <p class="dn-nota">El cambio de cada una ya está en la app. Lo que espera es su anuncio: no sale en la ventana, en Ajustes → Novedades ni en el sitio hasta que su estado pase a «publicado» en <code>novedades/novedades.json</code>. «Aprobar y publicar» la sube solo; para cambiarle un texto, pídeselo a una sesión.</p>
       ${!DN.nov ? `<div class="dn-vacio">Leyendo las novedades…</div>` : !bor.length ? `<div class="dn-vacio">No hay ninguna por aprobar.</div>` : bor.map(e => {
@@ -1145,10 +1216,16 @@ function dnClic(ev) {
       dnMandaBarrera("subir", { hasta: h, sql_pegado: sql }, "Subida en marcha: tarda uno o dos minutos");
       return; }
     case "grifo":
-      if (v === "cerrar") { DN.seguro = true; clearInterval(DN.reloj); dnMandaBarrera("grifo", { abierto: false }, "Grifo cerrado: lo nuevo espera tu aprobación"); return; }
+      if (v === "cerrar") { DN.seguro = true; clearInterval(DN.reloj); DN.ventana = null; dnMandaBarrera("grifo", { abierto: false }, "Grifo cerrado: lo nuevo espera tu aprobación"); return; }
       if (v === "abrirya") { clearInterval(DN.reloj); DN.seguro = true; DN.ventana = null; dnPinta(); dnMandaBarrera("grifo", { abierto: true }, "Grifo abierto"); return; }
       if (DN.seguro) { toast("Tiene seguro. Arrastra la llave a la cerradura.", "atencion"); return; }
       DN.ventana = { tipo: "abrir" }; break;
+    case "emergencia": DN.ventana = { tipo: "emergencia" }; break;
+    case "regresar": DN.ventana = { tipo: "regresar", a: v }; break;
+    case "regresarya": case "ensayar":
+      DN.ventana = null; DN.seguro = true; clearInterval(DN.reloj); dnPinta();
+      dnMandaBarrera("regresar", { a: v, ensayo: a === "ensayar" }, a === "ensayar" ? "Ensayo en marcha: el resultado sale en «Las últimas veces»" : "Grifo cerrado y regreso en marcha: tarda dos o tres minutos");
+      return;
     case "num": DN.num = v; break;
     case "lab": DN.lab = v; break;
     case "novedades": cerrarDentro(); if (typeof mostrarAjuste === "function") mostrarAjuste("novedades"); return;

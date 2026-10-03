@@ -1,0 +1,209 @@
+# El regreso a una versión sana: el «cierre de emergencia» del Puesto de mando.
+#
+# Cuando una versión sale mal, cerrar el grifo para lo que viene, pero no quita
+# lo que ya está publicado. Esto sí: vuelve a publicar el contenido de una
+# versión anterior, con un número NUEVO —mayor que el de la versión mala—,
+# porque una app solo se actualiza hacia delante: si el número bajara, ningún
+# dispositivo se movería de la versión rota.
+#
+# Lo dispara la función `barrera` de Supabase cuando Eduardo lo confirma en el
+# panel, y esa misma función cierra el grifo antes: con el grifo abierto, lo
+# malo que sigue en `main` volvería a salir solo en la próxima subida.
+#
+#   vivo   recibe un commit nuevo encima: el árbol de la versión sana, con el
+#          número nuevo. Siempre hacia delante, nunca forzado.
+#   main   recibe ese commit con una fusión que NO cambia su contenido
+#          (`-s ours`): lo que hay en la cola sigue ahí para arreglarlo, y la
+#          barrera ya no deja subir nada con un número que no pase del regreso.
+#
+# Lo que NO se regresa: los trabajos de GitHub, los hooks, el SQL, las
+# herramientas y los documentos. Regresar la barrera junto con la app sería
+# desmontar la red justo cuando se está usando.
+#
+# Se niega si entre las dos versiones cambió el formato de los datos (`SCHEMA`
+# en `js/01-base.js`): una app vieja que abre datos guardados por una más nueva
+# los da por «del futuro» y no arranca.
+
+name: Regreso a una versión sana
+
+on:
+  workflow_dispatch:
+    inputs:
+      a:
+        description: "Versión a la que se regresa (por ejemplo 0.7.182)"
+        required: true
+      ensayo:
+        description: "Solo preparar y enseñar el cambio, sin publicar nada"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+# En la misma fila que la barrera: un regreso y una subida no se cruzan.
+concurrency:
+  group: barrera
+  cancel-in-progress: false
+
+jobs:
+  regresar:
+    runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.hacer.outputs.sha }}
+      subio: ${{ steps.publicar.outputs.subio }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: vivo
+          fetch-depth: 0
+
+      - name: Preparar el regreso
+        id: hacer
+        env:
+          A: ${{ inputs.a }}
+        run: |
+          set -e
+          git fetch -q --tags origin '+refs/heads/main:refs/remotes/origin/main'
+          git config user.name "Barrera de Norata"
+          git config user.email "barrera@norata.app"
+
+          echo "$A" | grep -Eq '^[0-9]+(\.[0-9]+){2,3}$' || { echo "::error::«$A» no es un número de versión."; exit 1; }
+          META=$(git rev-list -n1 "app-$A" 2>/dev/null) || { echo "::error::No hay paquete publicado de la $A: solo se puede regresar a una versión que estuvo en vivo."; exit 1; }
+          VIVO=$(git rev-parse HEAD)
+          git merge-base --is-ancestor "$META" "$VIVO" || { echo "::error::La $A no está en la historia de vivo."; exit 1; }
+
+          ver() { git show "$1:js/01-base.js" | sed -n 's/^const VERSION = "\(.*\)";.*/\1/p'; }
+          esq() { git show "$1:js/01-base.js" | sed -n 's/^const SCHEMA = \([0-9]*\);.*/\1/p'; }
+          MALA=$(ver "$VIVO")
+          [ "$(ver "$META")" = "$A" ] || { echo "::error::El paquete app-$A no apunta a la versión $A."; exit 1; }
+          [ "$A" != "$MALA" ] || { echo "::error::La $A es la que ya está en vivo."; exit 1; }
+          if [ "$(esq "$META")" != "$(esq "$VIVO")" ]; then
+            echo "::error::Entre la $A y la $MALA cambió el formato de los datos ($(esq "$META") → $(esq "$VIVO")). Regresar dejaría a quien ya abrió la nueva sin poder abrir la app. Hay que arreglarlo hacia delante."
+            exit 1
+          fi
+
+          # El número nuevo: un cuarto tramo encima de la versión mala, saltando
+          # cualquiera que `main` o un paquete ya hayan usado.
+          case "$MALA" in
+            *.*.*.*) BASE=${MALA%.*}; N=${MALA##*.} ;;
+            *) BASE=$MALA; N=0 ;;
+          esac
+          usado() {
+            git rev-parse -q --verify "refs/tags/app-$1" >/dev/null && return 0
+            git show origin/main:VERSIONES.md | grep -q "^### $1 " && return 0
+            git log origin/main --format=%s | grep -q "^$1:" && return 0
+            return 1
+          }
+          N=$((N + 1)); while usado "$BASE.$N"; do N=$((N + 1)); done
+          NUEVA="$BASE.$N"
+
+          FECHA=$(TZ=America/Mexico_City python3 -c "import datetime; d=datetime.datetime.now(); m='ene feb mar abr may jun jul ago sep oct nov dic'.split()[d.month-1]; print(f'{d.day} {m} {d.year}')")
+
+          # El árbol de la versión sana, entero —también lo que se borró
+          # después—, salvo lo que no es la app.
+          git rm -rq .
+          git checkout "$META" -- .
+          RED=".github .githooks supabase herramientas"
+          git rm -rqf --ignore-unmatch $RED
+          git checkout "$VIVO" -- $RED
+          git ls-tree -r --name-only "$VIVO" | grep '\.md$' | while read -r f; do git checkout "$VIVO" -- "$f"; done
+
+          sed -i "s/^const VERSION = \".*\";/const VERSION = \"$NUEVA\";/; s/^const VERSION_FECHA = \".*\";/const VERSION_FECHA = \"$FECHA\";/" js/01-base.js
+          sed -i "s/^const CACHE = \"norata-.*\";/const CACHE = \"norata-$NUEVA\";/" sw.js
+
+          ENTRADA="### $NUEVA · $FECHA
+
+          **Regreso de emergencia a la $A.** La $MALA salió mal y se retiró desde el
+          Puesto de mando: esta versión es el contenido de la $A con un número nuevo,
+          para que llegue a todos los dispositivos. Lo que trajo la $MALA sigue en
+          \`main\`, esperando su arreglo; la barrera no deja subir nada con un número
+          que no pase de este.
+          "
+          python3 - "$ENTRADA" <<'PY'
+          import io, re, sys
+          entrada = sys.argv[1].strip() + "\n\n"
+          io.open("/tmp/entrada-regreso.md", "w", encoding="utf-8").write(entrada)
+          s = io.open("VERSIONES.md", encoding="utf-8").read()
+          # Antes de la primera ENTRADA DE VERSIÓN, no del primer «###»: arriba
+          # del documento hay secciones de reglas con el mismo nivel.
+          m = re.search(r"^### \d", s, re.M)
+          assert m, "VERSIONES.md sin entradas de versión"
+          io.open("VERSIONES.md", "w", encoding="utf-8").write(s[:m.start()] + entrada + s[m.start():])
+          PY
+
+          for f in sw.js js/*.js; do node --check "$f" || { echo "::error file=$f::No se puede leer."; exit 1; }; done
+          V=$(sed -n 's/^const VERSION = "\(.*\)";.*/\1/p' js/01-base.js)
+          C=$(sed -n 's/^const CACHE = "norata-\(.*\)";.*/\1/p' sw.js)
+          [ "$V" = "$NUEVA" ] && [ "$C" = "$NUEVA" ] || { echo "::error::No quedaron bien los números ($V / $C)."; exit 1; }
+
+          git add -A
+          git commit -q -m "$NUEVA: regreso de emergencia a la $A" -m "Retira la $MALA. Lo hizo el trabajo «Regreso a una versión sana» desde el Puesto de mando."
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "nueva=$NUEVA" >> "$GITHUB_OUTPUT"
+          echo "mala=$MALA" >> "$GITHUB_OUTPUT"
+          {
+            echo "### Regreso a la $A, publicado como $NUEVA"
+            echo "Retira la $MALA. Archivos que cambian respecto a lo que está en vivo:"
+            echo '```'
+            git diff --stat "$VIVO" HEAD | tail -40
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          git diff --stat "$VIVO" HEAD | tail -5
+
+      - name: Publicar
+        id: publicar
+        if: ${{ !inputs.ensayo }}
+        env:
+          LLAVE: ${{ secrets.LLAVE_VIVO }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ steps.hacer.outputs.sha }}
+          NUEVA: ${{ steps.hacer.outputs.nueva }}
+          A: ${{ inputs.a }}
+        run: |
+          set -e
+          [ -n "$LLAVE" ] || { echo "::error::Falta el secreto LLAVE_VIVO: sin él no se puede tocar vivo."; exit 1; }
+          mkdir -p ~/.ssh
+          printf '%s\n' "$LLAVE" > ~/.ssh/llave_vivo
+          chmod 600 ~/.ssh/llave_vivo
+          ssh-keyscan -t ed25519,rsa github.com >> ~/.ssh/known_hosts 2>/dev/null
+          export GIT_SSH_COMMAND="ssh -i ~/.ssh/llave_vivo -o IdentitiesOnly=yes"
+          REMOTO="git@github.com:$REPO.git"
+
+          git push "$REMOTO" "$SHA:refs/heads/vivo"
+          echo "subio=1" >> "$GITHUB_OUTPUT"
+
+          # main: se fusiona sin cambiar su contenido, y solo se le añade la
+          # entrada de VERSIONES.md, para que la próxima sesión vea que este
+          # número ya está cogido. Si alguien sube a main justo ahora, se
+          # reintenta sobre lo nuevo.
+          for i in 1 2 3 4 5; do
+            git fetch -q "$REMOTO" '+refs/heads/main:refs/remotes/origin/main'
+            git checkout -q -B fusion origin/main
+            git merge -q -s ours --no-edit "$SHA" -m "Fusiona el regreso $NUEVA (sin cambiar main)"
+            python3 - <<'PY'
+          import io, re
+          entrada = io.open("/tmp/entrada-regreso.md", encoding="utf-8").read()
+          s = io.open("VERSIONES.md", encoding="utf-8").read()
+          if entrada.splitlines()[0] not in s:
+              m = re.search(r"^### \d", s, re.M)
+              s = s[:m.start()] + entrada + s[m.start():]
+              io.open("VERSIONES.md", "w", encoding="utf-8").write(s)
+          PY
+            git add VERSIONES.md
+            git commit -q --amend --no-edit
+            if git push "$REMOTO" HEAD:refs/heads/main; then break; fi
+            [ "$i" = 5 ] && { echo "::error::No pude dejar el regreso apuntado en main. vivo sí quedó en $NUEVA."; exit 1; }
+            sleep 5
+          done
+          rm -f ~/.ssh/llave_vivo
+          echo "### En vivo" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`vivo\` está en $NUEVA (el contenido de la $A). El grifo quedó cerrado." >> "$GITHUB_STEP_SUMMARY"
+
+  paquete:
+    needs: regresar
+    if: needs.regresar.outputs.subio == '1'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/paquete-app.yml
+    with:
+      ref: ${{ needs.regresar.outputs.sha }}

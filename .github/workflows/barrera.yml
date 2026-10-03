@@ -168,7 +168,25 @@ jobs:
           python3 -c "import json; json.load(open('novedades/novedades.json', encoding='utf-8'))" || { echo "::error::novedades.json no es un JSON válido."; exit 1; }
           echo "4. Lo que la app instala está entero."
 
-          # 5. El SQL. Una versión llega sola a los dispositivos y un `.sql` no:
+          # 5. El número. Una app solo se actualiza hacia delante: si lo que se
+          #    sube cambia la app con un número que no pasa del que está en vivo,
+          #    ningún dispositivo lo recibe (o recibe dos contenidos con el mismo
+          #    número). Pasa sobre todo después de un regreso de emergencia, que
+          #    deja vivo con un número por encima de main.
+          if [ -n "$VIVO" ]; then
+            VV=$(git show "$VIVO:js/01-base.js" | sed -n 's/^const VERSION = "\(.*\)";.*/\1/p')
+            APP=$(git diff --name-only "$VIVO" "$SHA" | while read -r f; do grep -qF "\"./$f\"" sw.js && echo "$f" || true; done)
+            ORDEN=$(python3 -c "import sys; a,b=[tuple(int(x) for x in v.split('.')) for v in sys.argv[1:]]; print('mayor' if a>b else 'igual' if a==b else 'menor')" "$V" "$VV")
+            if [ "$ORDEN" = "menor" ]; then
+              echo "::error::Lo que se sube es la $V y en vivo está la $VV: el número tiene que pasar de $VV."; exit 1
+            fi
+            if [ "$ORDEN" = "igual" ] && [ -n "$APP" ]; then
+              echo "::error::Cambia la app ($(echo $APP | cut -d' ' -f1-3)) sin subir el número $V: ningún dispositivo lo recibiría."; exit 1
+            fi
+          fi
+          echo "5. El número está bien: $V."
+
+          # 6. El SQL. Una versión llega sola a los dispositivos y un `.sql` no:
           #    si este tramo toca alguno, no sube hasta que Eduardo diga que ya
           #    lo pegó. Con el grifo abierto se queda en la cola en vez de fallar.
           BASE="$VIVO"; [ -n "$BASE" ] || BASE="$SHA~1"
@@ -183,7 +201,7 @@ jobs:
             fi
             echo "::error::Este tramo trae SQL y no se marcó como pegado."; exit 1
           fi
-          echo "5. Sin SQL pendiente."
+          echo "6. Sin SQL pendiente."
 
       - name: Subir al vivo
         id: subir

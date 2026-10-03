@@ -17,6 +17,8 @@
               el grifo, qué hay publicado y cómo fueron las últimas subidas
      subir    aprueba: dispara el trabajo hasta el commit que se diga
      grifo    lo abre o lo cierra; al abrirlo, sube lo que estuviera esperando
+     regresar el cierre de emergencia: cierra el grifo y vuelve a publicar una
+              versión anterior con un número nuevo (`regreso.yml`)
      aprobar  aprueba el ANUNCIO de una novedad (0.7.183): dispara
               `novedades-aprobar.yml`, que la publica y la lleva al vivo si
               nada espera delante
@@ -39,6 +41,7 @@
 const GH = "https://api.github.com";
 const REPO = "Lalo1241/norata";
 const TRABAJO = "barrera.yml";
+const REGRESO = "regreso.yml";
 const APROBAR = "novedades-aprobar.yml";
 
 /* De dónde se acepta la llamada. La app de Android sirve sus archivos desde
@@ -145,6 +148,21 @@ Deno.serve(async (req: Request) => {
       return responder({ ok: true }, 200, origen);
     }
 
+    if (accion === "regresar") {
+      const a = String(cuerpo.a || "");
+      if (!/^\d+(\.\d+){2,3}$/.test(a)) return responder({ error: "Esa versión no es válida." }, 400, origen);
+      /* Primero el grifo: con él abierto, lo malo que sigue en `main` volvería
+         a salir solo en la próxima subida, y el regreso no duraría nada. */
+      const g = await rpc("barrera_grifo", { p_abierto: false });
+      if (!g.ok) return responder({ error: "No pude cerrar el grifo: el regreso no se hizo.", falta: "sql" }, 503, origen);
+      const r = await gh(`/repos/${REPO}/actions/workflows/${REGRESO}/dispatches`, LLAVE, {
+        method: "POST",
+        body: JSON.stringify({ ref: "main", inputs: { a, ensayo: cuerpo.ensayo === true ? "true" : "false" } }),
+      });
+      if (!r.ok) return responder({ error: "El grifo quedó cerrado, pero GitHub no aceptó el regreso (" + r.status + ")." }, 502, origen);
+      return responder({ ok: true }, 200, origen);
+    }
+
     if (accion === "grifo") {
       const abierto = cuerpo.abierto === true;
       const g = await rpc("barrera_grifo", { p_abierto: abierto });
@@ -157,12 +175,14 @@ Deno.serve(async (req: Request) => {
     }
 
     /* ---- estado ---- */
-    const [grifoR, comparaR, vivoR, corridasR, paginaR] = await Promise.all([
+    const [grifoR, comparaR, vivoR, corridasR, paginaR, regresosR, paquetesR] = await Promise.all([
       rpc("barrera_estado", {}),
       gh(`/repos/${REPO}/compare/vivo...main`, LLAVE),
       gh(`/repos/${REPO}/commits/vivo`, LLAVE),
       gh(`/repos/${REPO}/actions/workflows/${TRABAJO}/runs?per_page=8`, LLAVE),
       gh(`/repos/${REPO}/pages`, LLAVE),
+      gh(`/repos/${REPO}/actions/workflows/${REGRESO}/runs?per_page=4`, LLAVE),
+      gh(`/repos/${REPO}/releases?per_page=20`, LLAVE),
     ]);
 
     const grifo = grifoR.ok ? await grifoR.json() : null;
@@ -192,13 +212,27 @@ Deno.serve(async (req: Request) => {
       }));
     }
 
-    let corridas: unknown[] = [];
-    if (corridasR.ok) {
-      const c = await corridasR.json();
-      corridas = (c.workflow_runs || []).map((w: Record<string, any>) => ({
-        id: w.id, estado: w.status, resultado: w.conclusion, evento: w.event,
+    /* Las corridas de la barrera y las de los regresos, juntas y por fecha. */
+    let corridas: Record<string, any>[] = [];
+    for (const [resp, clase] of [[corridasR, "barrera"], [regresosR, "regreso"]] as [Response, string][]) {
+      if (!resp.ok) continue;
+      const c = await resp.json();
+      corridas = corridas.concat((c.workflow_runs || []).map((w: Record<string, any>) => ({
+        id: w.id, estado: w.status, resultado: w.conclusion, evento: w.event, clase,
         titulo: w.display_title, creado: w.created_at, url: w.html_url,
-      }));
+      })));
+    }
+    corridas.sort((x, y) => String(y.creado).localeCompare(String(x.creado)));
+
+    /* Lo que estuvo en vivo: cada vez que algo llega a `vivo` sale un paquete
+       de Android (`app-<versión>`), así que la lista de paquetes ES el
+       historial de lo publicado, con su fecha. Se guardan los últimos quince. */
+    let historial: unknown[] = [];
+    if (paquetesR.ok) {
+      historial = ((await paquetesR.json()) || [])
+        .filter((r: Record<string, any>) => String(r.tag_name || "").startsWith("app-") && !r.draft)
+        .map((r: Record<string, any>) => ({ version: String(r.tag_name).slice(4), fecha: r.published_at || r.created_at }))
+        .sort((x: Record<string, string>, y: Record<string, string>) => String(y.fecha).localeCompare(String(x.fecha)));
     }
 
     /* Desde qué rama se publica el sitio. Mientras no sea `vivo`, la barrera
@@ -206,7 +240,7 @@ Deno.serve(async (req: Request) => {
     let pagina = "";
     if (paginaR.ok) pagina = String((await paginaR.json()).source?.branch || "");
 
-    return responder({ grifo, vivo, sinVivo: !vivoR.ok, cola, corridas, pagina }, 200, origen);
+    return responder({ grifo, vivo, sinVivo: !vivoR.ok, cola, corridas: corridas.slice(0, 8), historial, pagina }, 200, origen);
   } catch (e) {
     return responder({ error: (e as Error).message || String(e) }, 502, origen);
   }
