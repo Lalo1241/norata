@@ -101,7 +101,10 @@ Deno.serve(async (req: Request) => {
 
   const SB = Deno.env.get("SUPABASE_URL");
   const SERVICIO = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  const LLAVE = Deno.env.get("GITHUB_BARRERA");
+  /* Los nombres de los secretos distinguen mayúsculas, y el panel de Supabase
+     no las corrige: la primera vez se guardó como `GITHUB_Barrera` y la
+     función decía que faltaba la llave. Se aceptan las dos. */
+  const LLAVE = Deno.env.get("GITHUB_BARRERA") || Deno.env.get("GITHUB_Barrera");
   if (!SB || !SERVICIO) return responder({ error: "Falta configuración del servidor." }, 500, origen);
 
   /* Quién pregunta. Se le pasa SU sesión a `soy_admin()`, que es quien decide:
