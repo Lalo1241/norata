@@ -2395,13 +2395,17 @@ let repTipo = "fallo";
    El color de cada tipo es el que ya tiene en el buzón del Puesto de mando
    (`DN_TIPOS`): quien reporta y quien lee ven el mismo código. */
 const REP_FORMAL = {
-  fallo: { titulo: "Reportar un fallo", icono: "bicho", rotulo: "Fallo", donde: "¿Dónde ocurrió?", pregunta: "Describe el fallo",
-    ejemplo: "La pantalla se quedó en blanco y no respondió.", falta: "No se envió: falta describir el fallo." },
+  fallo: { titulo: "Reportar un error", icono: "bicho", rotulo: "Error/Bug", donde: "¿Dónde ocurrió?", pregunta: "Describe el error",
+    intro: "Usa esta opción cuando algo no funcione como debería. No necesitas conocimientos técnicos: describe lo que recuerdes.",
+    ejemplo: "La pantalla se quedó en blanco y no respondió.", falta: "No se envió: falta describir el error." },
   idea: { titulo: "Enviar una sugerencia", icono: "bulb", rotulo: "Sugerencia", donde: "¿Sobre qué sección?", pregunta: "Describe tu sugerencia",
+    intro: "Usa esta opción para proponer una mejora o una función nueva. Todas las sugerencias se revisan.",
     ejemplo: "Poder repetir una misión cada quince días.", falta: "No se envió: falta describir la sugerencia." },
   duda: { titulo: "Hacer una pregunta", icono: "duda", rotulo: "Pregunta", donde: "¿Sobre qué sección?", pregunta: "Escribe tu pregunta",
+    intro: "Usa esta opción si algo de la app no te quedó claro. Recibirás la respuesta en «Mis reportes».",
     ejemplo: "¿Por qué bajó el nivel de una habilidad?", falta: "No se envió: falta escribir la pregunta." },
   gusto: { titulo: "Dejar un comentario", icono: "heart", rotulo: "Comentario", donde: "¿Sobre qué sección?", pregunta: "Escribe tu comentario",
+    intro: "Usa esta opción para decirnos qué te gustó o qué opinas de la app. Nos ayuda a saber qué conservar.",
     ejemplo: "El sonido al subir de nivel.", falta: "No se envió: falta escribir el comentario." }
 };
 /* El texto de un tipo, en el tono que toque. */
@@ -2416,6 +2420,9 @@ function repTono(id) {
   const tit = document.getElementById("modal-titulo"), ic = document.getElementById("modal-ic");
   if (tit) tit.textContent = tx(REP_FORMAL[id].titulo);
   if (ic) ic.innerHTML = icon(REP_FORMAL[id].icono, 26);
+  /* Y la frase de entrada: dice para qué sirve ESA opción, no el cuadro. */
+  const intro = c.querySelector(".rep-intro");
+  if (intro) intro.textContent = tx(REP_FORMAL[id].intro);
 }
 
 /* Cambiar de tipo sin redibujar la ventana: lo ya escrito se queda donde está.
@@ -2455,7 +2462,7 @@ async function reportarFallo() {
   const formal = contasteOn(), f0 = REP_TIPOS[0];
   const cuerpo =
     '<span class="rep-intro' + (formal ? ' centro' : '') + '">' + (formal
-      ? tx("Tu mensaje lo recibe el equipo de Norata. No necesitas conocimientos técnicos: describe lo que recuerdes.")
+      ? tx(REP_FORMAL.fallo.intro)
       : tx("Lo leo yo. No necesitas saber nada técnico: con lo que recuerdes me basta.")) + '</span>' +
     '<div class="rep-tipos" id="rep-tipos" role="radiogroup" aria-label="' + escapeAttr(tx("De qué se trata")) + '">' +
       REP_TIPOS.map(t =>

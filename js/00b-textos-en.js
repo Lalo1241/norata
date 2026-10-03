@@ -1695,22 +1695,28 @@ const TEXTOS_EN = {
   "La pantalla se quedó en blanco y no volvió.": "The screen went blank and never came back.",
   "Enviar": "Send",
   "Ver mis reportes": "View my reports",
-  "Tu mensaje lo recibe el equipo de Norata. No necesitas conocimientos técnicos: describe lo que recuerdes.":
-    "Your message goes to the Norata team. No technical knowledge needed: describe what you remember.",
+  "Usa esta opción cuando algo no funcione como debería. No necesitas conocimientos técnicos: describe lo que recuerdes.":
+    "Use this option when something doesn't work as it should. No technical knowledge needed: describe what you remember.",
+  "Usa esta opción para proponer una mejora o una función nueva. Todas las sugerencias se revisan.":
+    "Use this option to propose an improvement or a new feature. Every suggestion is reviewed.",
+  "Usa esta opción si algo de la app no te quedó claro. Recibirás la respuesta en «Mis reportes».":
+    "Use this option if something in the app wasn't clear. You'll get the reply in “My reports”.",
+  "Usa esta opción para decirnos qué te gustó o qué opinas de la app. Nos ayuda a saber qué conservar.":
+    "Use this option to tell us what you liked or what you think of the app. It helps us know what to keep.",
   "No incluyas datos personales, contraseñas ni información de pago. No son necesarios para atender tu mensaje.":
     "Don't include personal data, passwords or payment details. They aren't needed to handle your message.",
-  "Reportar un fallo": "Report a bug",
+  "Reportar un error": "Report a bug",
   "Enviar una sugerencia": "Send a suggestion",
   "Hacer una pregunta": "Ask a question",
   "Dejar un comentario": "Leave a comment",
-  "Fallo": "Bug",
+  "Error/Bug": "Error/Bug",
   "Sugerencia": "Suggestion",
   "Pregunta": "Question",
   "Comentario": "Comment",
   "¿Dónde ocurrió?": "Where did it happen?",
-  "Describe el fallo": "Describe the bug",
+  "Describe el error": "Describe the bug",
   "La pantalla se quedó en blanco y no respondió.": "The screen went blank and stopped responding.",
-  "No se envió: falta describir el fallo.": "Not sent: the bug description is missing.",
+  "No se envió: falta describir el error.": "Not sent: the bug description is missing.",
   "¿Sobre qué sección?": "About which section?",
   "Describe tu sugerencia": "Describe your suggestion",
   "No se envió: falta describir la sugerencia.": "Not sent: the suggestion is missing.",

@@ -318,6 +318,13 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.205.2 · 3 oct 2026
+
+**En el cuadro de reportar (en pruebas), la frase de entrada también sigue a
+la opción**, y «Fallo» pasa a llamarse «Error/Bug». Los dos son de Eduardo: la
+frase tiene que decir para qué sirve ESA opción, no el cuadro. Cuatro frases,
+una por tipo, en `REP_FORMAL`.
+
 ### 0.7.205.1 · 3 oct 2026
 
 **En el cuadro de reportar (en pruebas), el título y el icono siguen a la
