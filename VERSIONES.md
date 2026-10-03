@@ -289,13 +289,12 @@ en que conviene hacerlo:
 - **Beta testers**: una tabla con el rol, la invitación por enlace y un botón
   en su menú. Hoy una prueba solo se enciende con su enlace, en la pestaña.
 - **Lo que le falta a la barrera** (existe desde la 0.7.173, ver su entrada):
-  - **El corte**: que GitHub Pages publique `vivo` en vez de `main`. Lo hace
-    Eduardo en Settings → Pages. Hasta entonces la barrera no frena nada, y el
-    panel lo dice.
-  - **Proteger `vivo`** con una regla de GitHub y una llave de despliegue
-    (`LLAVE_VIVO`): hoy la guarda el `pre-push` local, que una copia sin los
-    hooks puede saltarse. La llave hace falta además para subir un tramo que
-    toque `.github/workflows/`.
+  - ~~El corte~~ y ~~proteger `vivo`~~: **hechos el 2 oct 2026**. GitHub Pages
+    publica `vivo`; la regla «Vivo» de GitHub le prohíbe a todos actualizarla,
+    borrarla o forzarla, y solo se salta con la llave de despliegue «Barrera
+    vivo», cuya mitad privada vive en el secreto de Actions `LLAVE_VIVO` y en
+    ningún otro sitio. Desde ahí el trabajo ya no pide a Pages una segunda
+    construcción (salían dos por subida, una «fallida»).
   - **El regreso a una versión sana**, que es lo que hacía el «cierre de
     emergencia» del boceto: republicar el contenido de una versión anterior con
     número nuevo, y negarse si cambió el formato de los datos.

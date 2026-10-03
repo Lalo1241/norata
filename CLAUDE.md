@@ -206,7 +206,12 @@ Y cuatro cosas que muerden:
 - **GitHub Pages publica `vivo` desde el 2 oct 2026** (lo cambió Eduardo en
   Settings → Pages). Si algún día vuelve a `main`, la barrera deja de frenar
   sin avisar a nadie más que al panel, que lo dice arriba en amarillo.
-- **Nunca se sube a `vivo` a mano.** El `pre-push` se niega. Es lo publicado.
+- **Nunca se sube a `vivo` a mano, y GitHub tampoco deja.** La regla «Vivo»
+  rechaza cualquier actualización que no venga de la llave de despliegue del
+  trabajo (secreto `LLAVE_VIVO`), incluida la de Eduardo; el `pre-push` local
+  solo avisa antes. Si un día la llave se pierde o se cambia, las subidas se
+  paran con un error en el paso «Subir al vivo»: se hace otra llave, no se
+  quita la regla.
 - **Un tramo que toca `supabase/*.sql` no sube solo**, ni con el grifo abierto:
   espera a que Eduardo lo suba diciendo que ya lo pegó. Al tocar un `.sql`,
   díselo, además de apuntarlo en «Pendiente de pegar».
