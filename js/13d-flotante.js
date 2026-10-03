@@ -27,9 +27,10 @@
    se pierde. Cada parte guarda lo último que pintó y solo se toca si es
    distinto, así que los botones se quedan quietos mientras el número corre.
 
-   Nace apagada detrás de `?flotante=si` (y se apaga con `?flotante=no`),
-   con su rótulo: lo que hay que borrar al encenderla para todos está en la
-   entrada de 0.7.200 de VERSIONES.md. */
+   Nace solo para la casa: sale en la cuenta de pruebas, y en la cuenta
+   administradora con `?flotante=si` (se apaga con `?flotante=no`), con su
+   rótulo. Lo que hay que borrar al encenderla para todos está en la entrada
+   de 0.7.200 de VERSIONES.md. */
 
 function fltEnPrueba() {
   try { return sessionStorage.getItem("norata-prueba-flotante") === "si"; } catch (e) { return false; }
@@ -48,9 +49,19 @@ function fltDisponible() {
 let fltVentana = null;
 let fltPartes = {};
 
+/* Solo para la casa mientras se prueba (Eduardo: «se debiera ver solo en la
+   cuenta admin de pruebas»). Sale sola en la cuenta de pruebas; en la cuenta
+   administradora de verdad, con `?flotante=si`; y para nadie más, aunque
+   escriba el parámetro. Lo decide el servidor (`esAdmin`), que contesta un
+   momento después de arrancar: por eso `revisarAdmin` vuelve a llamar aquí. */
+function fltParaEstaCuenta() {
+  if (typeof esCuentaDePruebas === "function" && esCuentaDePruebas()) return true;
+  return typeof esAdmin !== "undefined" && esAdmin && fltEnPrueba();
+}
+
 function fltPintarBoton() {
   const b = document.getElementById("nav-flotante");
-  if (b) b.hidden = !(fltEnPrueba() && fltDisponible());
+  if (b) b.hidden = !(fltParaEstaCuenta() && fltDisponible());
   if (b) b.classList.toggle("on", !!fltVentana);
 }
 
@@ -117,7 +128,7 @@ const FLT_CSS = `
 
 async function abrirFlotante() {
   if (fltVentana) { try { fltVentana.focus(); } catch (e) {} return; }
-  if (!fltDisponible()) return;
+  if (!fltDisponible() || !fltParaEstaCuenta()) return;
   let w;
   try { w = await documentPictureInPicture.requestWindow({ width: 300, height: 420 }); }
   catch (e) { toast(tx("Tu navegador no dejó abrir la burbuja.")); return; }

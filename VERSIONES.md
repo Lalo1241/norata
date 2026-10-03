@@ -350,12 +350,18 @@ la 0.7.200 y el archivo `13d-flotante.js`.
   sin Abandonar: una ventanita encima de otra cosa es el peor sitio para un
   botón sin vuelta.
 
+**Solo para la casa** (Eduardo: «se debiera ver solo en la cuenta admin de
+pruebas»): sale sola en la cuenta de pruebas, en la administradora con el
+enlace, y para nadie más aunque escriba el parámetro (`fltParaEstaCuenta`).
+Como `esAdmin` contesta después de arrancar, `revisarAdmin` vuelve a pintar el
+botón. Medido: sin ser admin, con el enlace, ni sale el botón ni abre.
+
 **Cómo se prueba:** `?flotante=si` la enciende y `?flotante=no` la apaga; está
 en el Puesto de mando → Laboratorio. **Para encenderla para todos, se borra
 por nombre:** la clase `flotante-prueba` y su bloque en el script de arriba de
 `index.html`, el `<div id="rotulo-flotante">`, `html.flotante-prueba
-#rotulo-flotante` en las cuatro reglas de `css/estilos.css`, `fltEnPrueba()`
-en `js/13d-flotante.js` (y su uso en `fltPintarBoton`) y la fila `flotante` de
+#rotulo-flotante` en las cuatro reglas de `css/estilos.css`, `fltEnPrueba()` y
+`fltParaEstaCuenta()` en `js/13d-flotante.js` (y su llamada en `revisarAdmin`) y la fila `flotante` de
 `DN_PRUEBAS`. Y se aprueba su novedad, que está en borrador.
 
 **Comprobado en Chromium**, con el ejemplo sembrado: la burbuja abre con el
