@@ -168,6 +168,7 @@
         ahora: tx("Ahora"), sigue: tx("Sigue"), hasta: tx("hasta {h}"),
         vacio: tx("Hoy no tienes misiones."), apuntar: tx("Apuntar una"),
         abre: tx("Abre Norata para ver tu día."), abrir: tx("Abrir"),
+        mas: tx("{n} más"), arriba: tx("Volver arriba"),
       },
       dias,
     };

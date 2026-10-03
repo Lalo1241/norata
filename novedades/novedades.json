@@ -691,7 +691,7 @@
       "titulo": "Tus misiones, en la pantalla de inicio",
       "resumen": "En la app de Android ya puedes poner el widget Hoy: tus misiones del día y las actividades que vienen, y las marcas sin abrir Norata. Lo que marques se aplica al abrir la app.",
       "puntos": [],
-      "retoques": [],
+      "retoques": [{"version": "0.7.197.1", "texto": "La lista del widget Hoy pasa de página con un toque, en vez de deslizarse.", "en": {"texto": "The Today widget list now turns pages with a tap instead of scrolling."}}],
       "en": {
         "titulo": "Your missions, on your home screen",
         "resumen": "In the Android app you can now add the Today widget: your missions for the day and the activities coming up, and you check them off without opening Norata. What you check is applied when you open the app.",

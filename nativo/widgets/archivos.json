@@ -1,5 +1,6 @@
 [
  "drawable/widget_boton.xml",
+ "drawable/widget_ic_abajo.xml",
  "drawable/widget_ic_hoy.xml",
  "drawable/widget_marco.xml",
  "drawable/widget_marco_dentro.xml",

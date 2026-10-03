@@ -54,6 +54,9 @@ final class Widgets {
     /* La acción del toque en una fila. Es un texto cualquiera, único en la app. */
     static final String MARCA = "norata.widgets.MARCA";
     static final String EXTRA_ID = "norataMision";
+    /* El toque en el pie del widget: pasa a la página siguiente de la lista. */
+    static final String PAGINA = "norata.widgets.PAGINA";
+    static final String EXTRA_WIDGET = "norataWidgetId";
     /* Adónde abrir la app. Lo lee `WidgetsPlugin` al arrancar o en `handleOnNewIntent`. */
     static final String EXTRA_IR = "norataWidget";
 
@@ -213,6 +216,34 @@ final class Widgets {
         p.filas.addAll(luego);
         p.filas.addAll(hechas);
         return p;
+    }
+
+    /* ---------- Las páginas ----------
+       La lista NO se desliza (0.7.197.1). En el teléfono de Eduardo el
+       lanzador inclina y deforma el widget entero mientras hay un dedo
+       arrastrando encima, y ese es justo el gesto de deslizar una lista: se
+       veía tosco, y desde un widget esa animación no se puede apagar. Así que
+       cada widget enseña solo las filas que le caben y un pie que pasa a las
+       siguientes con un toque: «3 más», y al final «Volver arriba».
+
+       `caben_<id>` lo apunta `HoyWidget.pintar`, que es quien sabe cuánto mide
+       ese widget; 0 quiere decir que entra todo y no hay pie. Devuelve
+       { desde, hasta, las que quedan después }. */
+    static int[] tramo(Context c, int widget, int n) {
+        int caben = prefs(c).getInt("caben_" + widget, 0);
+        if (caben <= 0 || n <= caben) return new int[] { 0, n, 0 };
+        int pag = prefs(c).getInt("pag_" + widget, 0);
+        if (pag < 0 || pag * caben >= n) pag = 0;
+        int desde = pag * caben, hasta = Math.min(n, desde + caben);
+        return new int[] { desde, hasta, n - hasta };
+    }
+
+    static void pasarPagina(Context c, int widget) {
+        int caben = prefs(c).getInt("caben_" + widget, 0);
+        int n = plan(foto(c)).filas.size();
+        int pag = prefs(c).getInt("pag_" + widget, 0) + 1;
+        if (caben <= 0 || pag * caben >= n) pag = 0;
+        prefs(c).edit().putInt("pag_" + widget, pag).apply();
     }
 
     /* ---------- La cola ----------

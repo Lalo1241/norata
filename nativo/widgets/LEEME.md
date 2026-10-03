@@ -8,7 +8,8 @@ teléfono. El primero es **Hoy**:
   sigue.
 - **En la lista**, las misiones pendientes del día con su casilla, luego las
   actividades que vienen con su hora, y al final las misiones ya cumplidas,
-  tachadas. La lista se desliza dentro del widget.
+  tachadas. Si no caben todas, abajo sale un pie —«3 más»— que pasa a las
+  siguientes con un toque, y al final «Volver arriba».
 - **Tocar una misión la marca**, sin abrir la app. Tocar otra vez una ya
   cumplida la deshace, igual que su botón dentro. Una misión de varias veces
   suma una por toque y dice por dónde va («1 de 3»).
@@ -115,6 +116,13 @@ estaba antes de ESE instalador.
   el selector de widgets, que enseña el molde antes de que nadie lo pinte.
 - **Las esquinas van a 20 dp**, no a los 28 del boceto: en el teléfono de Eduardo se veían de más, y
   al lado de otros widgets desentonaban. Lo pidió al verlo puesto por primera vez (3 oct 2026).
+- **La lista va por páginas y no se desliza** (0.7.197.1). En el teléfono de
+  Eduardo el lanzador inclina y deforma el widget entero mientras hay un dedo
+  arrastrando encima, que es justo el gesto de deslizar: se veía tosco, y esa
+  animación es del lanzador, no se apaga desde aquí. Cuántas filas caben sale
+  del alto que Android dice que mide el widget (`OPTION_APPWIDGET_MAX_HEIGHT`)
+  y de las medidas del molde; **si se cambia un alto en el molde, se cambia
+  también en `HoyWidget.pintar`**. Al estirar el widget caben más.
 - **En dp y no en sp.** El alto lo pone la cuadrícula del teléfono, y con la
   letra del sistema agrandada las filas se saldrían.
 - **Marcar y desmarcar seguido se anula aquí** y no llega a la app: aplicar

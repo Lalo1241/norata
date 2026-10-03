@@ -2,6 +2,7 @@
 // La primera línea (`package`) tiene que ser LA MISMA que la de MainActivity.
 package app.norata;
 
+import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Paint;
@@ -14,8 +15,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-/* La lista del widget «Hoy». Android la pide fila por fila, y por eso se
-   desliza dentro del widget: es lo único de un widget que sabe hacerlo.
+/* La lista del widget «Hoy». Android la pide fila por fila. Podría deslizarse
+   —es lo único de un widget que sabe hacerlo—, pero aquí va por páginas: se le
+   dan solo las filas que caben (ver «Las páginas» en `Widgets.java`).
 
    Una fila es una misión (con casilla: tocarla la marca) o una actividad de
    la rueda (con su cuadrito y su hora: no se toca). Se distinguen porque solo
@@ -24,15 +26,16 @@ public class HoyLista extends RemoteViewsService {
 
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
-        return new Fabrica(getApplicationContext());
+        return new Fabrica(getApplicationContext(), intent == null ? 0 : intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, 0));
     }
 
     private static final class Fabrica implements RemoteViewsFactory {
         private final Context c;
+        private final int widget;
         private JSONObject foto = new JSONObject();
         private List<JSONObject> filas = new ArrayList<>();
 
-        Fabrica(Context c) { this.c = c; }
+        Fabrica(Context c, int widget) { this.c = c; this.widget = widget; }
 
         @Override public void onCreate() {}
         @Override public void onDestroy() {}
@@ -40,7 +43,10 @@ public class HoyLista extends RemoteViewsService {
         @Override
         public void onDataSetChanged() {
             foto = Widgets.foto(c);
-            filas = Widgets.plan(foto).filas;
+            // Solo la página que toca: las filas que caben en ESTE widget.
+            List<JSONObject> todas = Widgets.plan(foto).filas;
+            int[] t = Widgets.tramo(c, widget, todas.size());
+            filas = new ArrayList<>(todas.subList(t[0], t[1]));
         }
 
         @Override public int getCount() { return filas.size(); }

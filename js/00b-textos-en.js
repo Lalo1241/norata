@@ -3732,6 +3732,8 @@ const TEXTOS_EN = {
   "Apuntar una": "Add one",
   "Abre Norata para ver tu día.": "Open Norata to see your day.",
   "Abrir": "Open",
+  "{n} más": "{n} more",
+  "Volver arriba": "Back to top",
   "Se aplicó 1 marca del widget": "Applied 1 check from the widget",
   "Se aplicaron {n} marcas del widget": "Applied {n} checks from the widget",
   "Avisos del Pomodoro": "Pomodoro alerts",

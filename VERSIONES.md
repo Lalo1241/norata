@@ -318,6 +318,25 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.197.1 · 3 oct 2026
+
+**El widget Hoy va por páginas, y con las esquinas menos redondas.** Eduardo lo
+puso en su teléfono —la primera vez que se veía pintado— y salieron dos cosas.
+
+- **La lista ya no se desliza.** Su lanzador inclina y deforma el widget entero
+  mientras hay un dedo arrastrando encima, y ese es justo el gesto de deslizar
+  una lista: «se mueve tan tosco». Esa animación es del lanzador y desde un
+  widget no se apaga. Ahora cada widget enseña las filas que le caben y un pie
+  que pasa a las siguientes con un toque: «3 más», y al final «Volver arriba».
+  Cuántas caben sale del alto que Android dice que mide el widget
+  (`OPTION_APPWIDGET_MAX_HEIGHT`) y de las medidas del molde, y se vuelve a
+  contar al estirarlo.
+- **Las esquinas bajan de 28 a 20 dp**: al lado de otros widgets se veían de más.
+
+Dos textos nuevos viajan en la foto, y por eso sube el número: lo demás es
+nativo y pide volver a armar el APK. **Sin probar en el teléfono**: que el alto
+que da su lanzador cuadre con lo que de verdad cabe.
+
 ### 0.7.197 · 3 oct 2026
 
 **El primer widget de la pantalla de inicio: Hoy.** En la app de Android, las
