@@ -318,6 +318,32 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.205 · 3 oct 2026
+
+**El cuadro de reportar, en tono de soporte, con color por tipo y aviso de
+privacidad. En pruebas, como «Mis reportes».** Eduardo, al verlo dentro de la
+app: «sé más formal, no un Cuéntame», un aviso de no poner información personal,
+que cambie de color según cuál de los cuatro se elige, y los textos bien
+acomodados.
+
+- **Textos**: «Reportar o sugerir» de título; Fallo, Sugerencia, Pregunta y
+  Comentario; rótulos y ejemplos sin la primera persona (`REP_FORMAL`).
+- **Color**: el marco, el icono, la opción encendida y el foco toman el tono
+  del tipo, que es el mismo que tiene en el buzón del Puesto de mando. Fallo y
+  comentario van en los tonos de estado, que ningún mundo cambia. Sin
+  transición: son variables.
+- **Aviso de privacidad**, en su caja al pie, y debajo el enlace a «Mis
+  reportes», que deja de colgar de la frase de entrada.
+- **Al enviar**: «Mensaje enviado», y dónde consultar la respuesta.
+
+**Para todos sigue saliendo el de siempre**: lo nuevo solo se ve con
+`?contaste=demo` (o `=1`). Al aprobarlo, `REP_FORMAL` pasa a ser lo único y se
+borran los rótulos de antes de `REP_TIPOS` y sus claves en inglés.
+
+**Cómo se probó.** Con la prueba encendida: los cuatro tipos, su color leído en
+el marco, el icono y la opción, y el orden de las piezas. Con la prueba apagada:
+el cuadro idéntico al de antes, también al cambiar de tipo.
+
 ### 0.7.204 · 3 oct 2026
 
 **Lo que sale solo va en fila: nada se abre pegado a una carga ni encima de

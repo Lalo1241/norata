@@ -2384,6 +2384,34 @@ const REP_TIPOS = [
 ];
 let repTipo = "fallo";
 
+/* ---- El cuadro en tono de soporte (en pruebas, con `?contaste=`) ----
+   Eduardo, al ver «Mis reportes» dentro de la app: «sé más formal, no un
+   Cuéntame», un aviso de no poner información personal, y que el cuadro cambie
+   de color según cuál de los cuatro se elige. Va detrás del mismo interruptor
+   que «Mis reportes» —son la misma función: mandar y recibir respuesta— hasta
+   que él apruebe los textos; al sacarlo, esto pasa a ser lo único y se borran
+   los rótulos de antes.
+
+   El color de cada tipo es el que ya tiene en el buzón del Puesto de mando
+   (`DN_TIPOS`): quien reporta y quien lee ven el mismo código. */
+const REP_FORMAL = {
+  fallo: { rotulo: "Fallo", donde: "¿Dónde ocurrió?", pregunta: "Describe el fallo",
+    ejemplo: "La pantalla se quedó en blanco y no respondió.", falta: "No se envió: falta describir el fallo." },
+  idea: { rotulo: "Sugerencia", donde: "¿Sobre qué sección?", pregunta: "Describe tu sugerencia",
+    ejemplo: "Poder repetir una misión cada quince días.", falta: "No se envió: falta describir la sugerencia." },
+  duda: { rotulo: "Pregunta", donde: "¿Sobre qué sección?", pregunta: "Escribe tu pregunta",
+    ejemplo: "¿Por qué bajó el nivel de una habilidad?", falta: "No se envió: falta escribir la pregunta." },
+  gusto: { rotulo: "Comentario", donde: "¿Sobre qué sección?", pregunta: "Escribe tu comentario",
+    ejemplo: "El sonido al subir de nivel.", falta: "No se envió: falta escribir el comentario." }
+};
+/* El texto de un tipo, en el tono que toque. */
+const repTx = (t, campo) => tx((contasteOn() && REP_FORMAL[t.id] ? REP_FORMAL[t.id] : t)[campo]);
+/* El color del cuadro sigue al tipo elegido. */
+function repTono(id) {
+  const c = document.querySelector("#modal .modal-card.reporte");
+  if (c && contasteOn()) c.dataset.rep = id; else if (c) delete c.dataset.rep;
+}
+
 /* Cambiar de tipo sin redibujar la ventana: lo ya escrito se queda donde está.
    Solo cambian los rótulos, el ejemplo y si se pregunta por el «justo antes». */
 function repElegir(id) {
@@ -2395,10 +2423,11 @@ function repElegir(id) {
     b.setAttribute("aria-checked", on ? "true" : "false");
   });
   const pon = (sel, txt) => { const el = document.getElementById(sel); if (el) el.textContent = txt; };
-  pon("rep-rot-donde", tx(t.donde));
-  pon("rep-rot-que", tx(t.pregunta));
+  pon("rep-rot-donde", repTx(t, "donde"));
+  pon("rep-rot-que", repTx(t, "pregunta"));
   const ta = document.getElementById("rep-que");
-  if (ta) ta.placeholder = tx(t.ejemplo);
+  if (ta) ta.placeholder = repTx(t, "ejemplo");
+  repTono(t.id);
   const antes = document.getElementById("rep-campo-antes");
   if (antes) antes.hidden = t.id !== "fallo";
 }
@@ -2417,16 +2446,18 @@ async function reportarFallo() {
      y lo primero que lee no puede ser una casilla. Dice para qué sirve lo que
      va a escribir —que alguien lo lee y lo arregla— y que no hace falta saber
      nada técnico. Dos frases: la tercera ya no se lee. */
+  const formal = contasteOn(), f0 = REP_TIPOS[0];
   const cuerpo =
-    '<span class="rep-intro">' + tx("Lo leo yo. No necesitas saber nada técnico: con lo que recuerdes me basta.") +
-      (contasteOn() ? ' <button type="button" class="rep-ver" onclick="modalDone(false); setTimeout(verLoQueMeContaste, 0)">' + tx("Ver mis reportes") + '</button>' : "") + '</span>' +
+    '<span class="rep-intro' + (formal ? ' centro' : '') + '">' + (formal
+      ? tx("Tu mensaje lo recibe el equipo de Norata. No necesitas conocimientos técnicos: describe lo que recuerdes.")
+      : tx("Lo leo yo. No necesitas saber nada técnico: con lo que recuerdes me basta.")) + '</span>' +
     '<div class="rep-tipos" id="rep-tipos" role="radiogroup" aria-label="' + escapeAttr(tx("De qué se trata")) + '">' +
       REP_TIPOS.map(t =>
         '<button type="button" role="radio" data-tipo="' + t.id + '" aria-checked="' + (t.id === "fallo" ? "true" : "false") + '"' +
-        (t.id === "fallo" ? ' class="on"' : "") + ' onclick="repElegir(\'' + t.id + '\')">' + escapeHtml(tx(t.rotulo)) + '</button>').join("") +
+        (t.id === "fallo" ? ' class="on"' : "") + ' onclick="repElegir(\'' + t.id + '\')">' + escapeHtml(repTx(t, "rotulo")) + '</button>').join("") +
     '</div>' +
     '<label class="rep-campo">' +
-      '<span class="rep-rot" id="rep-rot-donde">' + tx("¿Dónde pasó?") + '</span>' +
+      '<span class="rep-rot" id="rep-rot-donde">' + repTx(f0, "donde") + '</span>' +
       '<select id="rep-donde">' +
         lugares.map(([id, txt]) =>
           '<option value="' + escapeAttr(id) + '"' + (id === porDefecto ? " selected" : "") + '>' +
@@ -2434,14 +2465,21 @@ async function reportarFallo() {
       '</select>' +
     '</label>' +
     '<label class="rep-campo" id="rep-campo-antes">' +
-      '<span class="rep-rot">' + tx("¿Qué hacías justo antes? <i>Opcional</i>") + '</span>' +
+      '<span class="rep-rot">' + (formal ? tx("¿Qué estabas haciendo antes? <i>Opcional</i>") : tx("¿Qué hacías justo antes? <i>Opcional</i>")) + '</span>' +
       '<input type="text" id="rep-antes" maxlength="80" placeholder="' + escapeAttr(tx("Ej. Abrí un talento desde el mapa")) + '">' +
     '</label>' +
     '<label class="rep-campo">' +
-      '<span class="rep-rot" id="rep-rot-que">' + tx("¿Qué salió mal?") + '</span>' +
-      '<textarea id="rep-que" rows="3" maxlength="' + MOTIVO_MAX + '" placeholder="' + escapeAttr(tx("La pantalla se quedó en blanco y no volvió.")) + '"></textarea>' +
+      '<span class="rep-rot" id="rep-rot-que">' + repTx(f0, "pregunta") + '</span>' +
+      '<textarea id="rep-que" rows="3" maxlength="' + MOTIVO_MAX + '" placeholder="' + escapeAttr(repTx(f0, "ejemplo")) + '"></textarea>' +
       '<span class="modal-cuenta" id="modal-cuenta">0 / ' + MOTIVO_MAX + '</span>' +
-    '</label>';
+    '</label>' +
+    /* El aviso de privacidad y el enlace a lo ya enviado, al pie: lo primero
+       que se lee es para qué sirve el cuadro, y esto es lo último antes de
+       enviar, que es cuando importa. */
+    (formal
+      ? '<p class="rep-privado">' + tx("No incluyas datos personales, contraseñas ni información de pago. No son necesarios para atender tu mensaje.") + '</p>' +
+        '<button type="button" class="rep-ver" onclick="modalDone(false); setTimeout(verLoQueMeContaste, 0)">' + tx("Ver mis reportes") + '</button>'
+      : "");
 
   /* Oro y no menta, y lo eligió Eduardo: un fallo no es un logro ni una venta.
      El oro es el tono de «esto tiene un coste que quizá no ves» (ver la nota
@@ -2456,8 +2494,9 @@ async function reportarFallo() {
      venido a esto. Mandar un reporte es un favor, no la acción de la
      pantalla. */
   const p = askBase(cuerpo, true, tx("Enviar"), false, false, tx("Cancelar"),
-                    { icono: "bicho", titulo: tx("Cuéntame"), tono: "oro",
+                    { icono: "bicho", titulo: formal ? tx("Reportar o sugerir") : tx("Cuéntame"), tono: "oro",
                       clase: "reporte", okClase: "btn-linea" });
+  repTono("fallo");
 
   /* `setTimeout` y no `requestAnimationFrame`, igual que en `askText`: el
      cuadro tiene que quedar listo aunque la pestaña esté en segundo plano, y
@@ -2486,7 +2525,7 @@ async function reportarFallo() {
 
   const que = elQue ? limpiarLibre(elQue.value) : "";
   const tipo = REP_TIPOS.find(x => x.id === repTipo) || REP_TIPOS[0];
-  if (!que) { toast(tx(tipo.falta), "atencion"); return; }
+  if (!que) { toast(repTx(tipo, "falta"), "atencion"); return; }
 
   const idDonde = selDonde ? selDonde.value : "otro";
   const nombreDonde = (lugares.find(([id]) => id === idDonde) || [null, idDonde])[1];
@@ -2513,7 +2552,10 @@ async function reportarFallo() {
        pantalla— y aquí no se advierte de nada. Un «gracias» que tiembla es un
        susto. Sin cancelar, porque no hay nada que cancelar, y sin `fijo`:
        quien ya leyó las dos líneas puede cerrar tocando fuera. */
-    await askBase(
+    if (contasteOn()) {
+      await askBase(tx("Recibimos tu mensaje. Puedes consultar su estado y la respuesta en «Mis reportes»."),
+        false, tx("Aceptar"), false, false, null, { icono: "bicho", titulo: tx("Mensaje enviado"), tono: "oro", soloOk: true });
+    } else await askBase(
       tipo.id === "fallo"
         ? tx("Ya me llegó y lo voy a revisar. Cosas como ésta son las que hacen que Norata deje de fallar donde falla.")
         : tx("Ya me llegó y lo voy a leer con calma."),
@@ -2523,7 +2565,7 @@ async function reportarFallo() {
     /* Ni «error» ni una disculpa larga: se dice qué pasó y qué se puede
        hacer. Lo escrito se ha perdido, y eso también se dice — dejar creer
        que quedó guardado en alguna parte es lo único imperdonable aquí. */
-    toast(tx("No pude enviarlo: revisa tu conexión y vuelve a intentarlo."), "atencion");
+    toast(contasteOn() ? tx("No se pudo enviar. Revisa tu conexión e inténtalo de nuevo.") : tx("No pude enviarlo: revisa tu conexión y vuelve a intentarlo."), "atencion");
   }
 }
 

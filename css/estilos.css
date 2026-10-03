@@ -7717,9 +7717,34 @@
   /* El enlace a «Lo que me contaste», dentro del párrafo de entrada: es un
      botón que se lee como enlace, porque no es la acción del cuadro. */
   .modal-card.reporte .rep-ver {
-    display: block; margin-top: 8px; padding: 0; border: 0; background: none;
-    font: inherit; font-weight: 600; color: var(--estado-curso-tinta, var(--muted));
+    display: block; margin: 12px auto 0; padding: 0; border: 0; background: none;
+    font: inherit; font-size: 13.5px; font-weight: 600; color: var(--rep-tono);
     text-decoration: underline; text-underline-offset: 3px; cursor: pointer;
+  }
+  /* El cuadro toma el color del tipo elegido (en pruebas: solo lleva
+     `data-rep` con `?contaste=`). Dos variables y todo lo demás las lee: el
+     marco, el icono, la opción encendida y el foco. Sin `transition`: son
+     variables, y una transición sobre un color que sale de una variable se
+     queda congelada (ver «Trampas» en CLAUDE.md). El fallo y el comentario van
+     en los tonos de ESTADO, que ningún mundo cambia; la sugerencia y la
+     pregunta, en celeste y lila. */
+  .modal-card.reporte { --rep-tono: var(--fire); --rep-soft: var(--fire-soft); }
+  .modal-card.reporte[data-rep="fallo"] { --rep-tono: var(--estado-fallo-tinta); --rep-soft: var(--estado-fallo-soft); }
+  .modal-card.reporte[data-rep="idea"]  { --rep-tono: var(--celeste); --rep-soft: var(--celeste-soft); }
+  .modal-card.reporte[data-rep="duda"]  { --rep-tono: var(--lila); --rep-soft: var(--lila-soft); }
+  .modal-card.reporte[data-rep="gusto"] { --rep-tono: var(--estado-hecho-tinta); --rep-soft: var(--estado-hecho-soft); }
+  .modal-card.reporte[data-rep] { border-color: var(--rep-tono); }
+  .modal-card.reporte[data-rep] .modal-ic { background: var(--rep-soft); color: var(--rep-tono); }
+  .modal-card.reporte[data-rep] .rep-tipos button.on { border-color: var(--rep-tono); background: var(--rep-soft); color: var(--rep-tono); }
+  .modal-card.reporte[data-rep] .rep-campo select:focus-visible,
+  .modal-card.reporte[data-rep] .rep-campo input:focus-visible,
+  .modal-card.reporte[data-rep] .rep-campo textarea:focus-visible { border-color: var(--rep-tono); }
+  .modal-card.reporte .rep-intro.centro { text-align: center; }
+  /* El aviso de privacidad, al pie y en su caja: es lo último antes de enviar. */
+  .modal-card.reporte .rep-privado {
+    margin: 4px 0 0; padding: 9px 12px; border-radius: var(--r-chico);
+    background: var(--rep-soft); color: var(--muted);
+    font-size: 12.5px; line-height: 1.45; text-align: left;
   }
   /* «Lo que me contaste»: la lista de lo reportado con su respuesta. Mismo
      cuadro en oro y con el título en tinta normal, por lo mismo que el de
