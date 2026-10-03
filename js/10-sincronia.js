@@ -58,8 +58,13 @@ const SYNC_DELAY = 4000;
    2. Un dispositivo que lleva más de SYNC_REZAGO sin hablar con la cuenta,
       cuando la cuenta sí se movió, no puede ser la base. Su progreso se suma
       igual —eso no compite—; lo que no hace es mandar en ajustes y nombres.
-   3. Lo que la cuenta ya borró no vuelve de un rezagado (`sinLoYaBorrado`).
-      Las lápidas duran cuatro meses, y un respaldo importado no deja ninguna. */
+   3. Con un rezagado de verdad ni siquiera se junta: se queda la cuenta
+      (0.7.189.1). Lo decidió Eduardo —«que siempre siga estando la versión
+      más reciente»— después de ver un cuadro que preguntaba con cuál
+      quedarse: casi nadie elegiría volver atrás, y juntar le devuelve a la
+      cuenta lo que ya se había borrado, porque las lápidas duran cuatro meses
+      y un respaldo importado no deja ninguna. Lo de aquí no se tira: se
+      aparta en una copia, en Ajustes. */
 const SYNC_REZAGO = 3 * 86400000;
 const SYNC_GESTO = 20000;
 let syncGestoAt = 0;
@@ -70,39 +75,9 @@ function syncMs(iso) {
   return iso ? (Date.parse(iso) || 0) : 0;
 }
 
-/* Cuándo nació algo, sacado de su id (`uid()` empieza por la hora). 0 si el id
-   no es de esos —los de fábrica, los de un camino—, y entonces no se opina. */
-function nacioEn(x) {
-  const id = String((x && x.id) || "");
-  if (!/^[0-9a-z]{13}$/.test(id)) return 0;
-  const t = parseInt(id.slice(0, 8), 36);
-  return (t > 1.5e12 && t < Date.now() + 86400000) ? t : 0;
-}
-
-/* Lo de este dispositivo, sin lo que la cuenta ya borró. Si algo nació ANTES
-   de la última vez que este dispositivo habló con la cuenta, entonces subió
-   con ella; que hoy no esté allá solo puede significar que se borró desde
-   otro lado. Lo que nació después es trabajo de aquí que aún no ha subido, y
-   se queda. Con cinco minutos de margen, por si los relojes no coinciden.
-   No toca `state`: devuelve una copia, y lo quitado sigue en la copia
-   «previo» que se aparta antes de fusionar. */
-function sinLoYaBorrado(local, remoto, visto) {
-  const alla = idsDeEstado(remoto || {});
-  const out = Object.assign({}, local);
-  COLECCIONES.forEach(col => {
-    if (!Array.isArray(local[col])) return;
-    out[col] = local[col].filter(x => {
-      if (!x || !x.id || alla.has(x.id)) return true;
-      const t = nacioEn(x);
-      return !t || t >= visto - 300000;
-    });
-  });
-  return out;
-}
-
 /* Lo de este dispositivo deja de venir de la última sincronía: se importó un
-   respaldo o se restauró una copia. Sin esto, la regla de arriba tomaría lo
-   recién traído por algo que la cuenta ya había borrado. */
+   respaldo o se restauró una copia. Sin esto, lo recién traído pasaría por
+   lo de un rezagado y la cuenta se lo llevaría por delante. */
 function syncSoltarBase() {
   try { sync.baseAt = null; sync.lastAt = null; saveSync(); } catch (e) {}
 }
@@ -323,10 +298,9 @@ function adoptRemote(env) {
 
 async function syncOnce(opts) {
   const almacenActual = almacen();
-  /* La hora de ANTES de leer, con el reloj de aquí: todo lo que ya existía en
-     este instante sube o se compara en esta vuelta. Es lo que `sinLoYaBorrado`
-     necesita saber, y por eso no sirve `lastAt`, que a veces es la hora del
-     otro dispositivo. */
+  /* La hora de ANTES de leer, con el reloj de aquí: cuándo habló este
+     dispositivo con la cuenta por última vez. De ahí sale si está rezagado, y
+     por eso no sirve `lastAt`, que a veces es la hora del otro dispositivo. */
   const empezo = new Date().toISOString();
   const remote = await almacenActual.leer();
 
@@ -368,12 +342,23 @@ async function syncOnce(opts) {
     const suyo = syncMs(env.updatedAt);
     const visto = syncMs(sync.baseAt || sync.lastAt);
     const rezagado = !visto || (suyo - visto) > SYNC_REZAGO;
+
+    /* Rezagado de verdad: se queda la cuenta, entera. Lo de aquí ya está
+       apartado en la copia de arriba. Es el mismo camino que cuando este
+       dispositivo no tenía nada pendiente. */
+    if (rezagado && visto) {
+      adoptRemote(env);
+      sync.marca = remote.marca; sync.rev = remoteRev;
+      sync.dirty = false; sync.lastAt = env.updatedAt; sync.baseAt = empezo; saveSync();
+      renderSync();
+      return;
+    }
+
     const suyoEsMasNuevo = rezagado || suyo > syncMs(sync.dirtyAt);
     /* Si aun así manda lo de aquí, lo que pierde es lo de la cuenta, y eso no
        lo guardaba nadie: la copia «previo» es la de ESTE lado. */
     if (!suyoEsMasNuevo) stashConflict("remoto", env.state);
-    const mio = (rezagado && visto) ? sinLoYaBorrado(state, env.state, visto) : state;
-    guardarLocal(fusionarEstados(mio, env.state, suyoEsMasNuevo));
+    guardarLocal(fusionarEstados(state, env.state, suyoEsMasNuevo));
     state = load();
     applyDecay();
     showView(activeMainView || "summary");

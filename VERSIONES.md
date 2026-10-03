@@ -318,6 +318,33 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.189.1 · 3 oct 2026
+
+**Con un dispositivo rezagado se queda la cuenta, entera y sin preguntar.**
+La 0.7.189 juntaba los dos lados con la cuenta de base. Eduardo pidió primero
+que preguntara con cuál quedarse; se construyó el cuadro —dos versiones lado a
+lado y tres salidas— y al verlo lo descartó: «casi nadie va a elegir volver…
+mejor mátalo y que siempre siga estando la versión más reciente». **No volver
+a proponer la pregunta.**
+
+Así que cuando este dispositivo lleva más de tres días sin hablar con la
+cuenta y la cuenta cambió (`rezagado && visto` en `syncOnce`), ya no hay
+fusión: se aparta lo de aquí en una copia «previo» —sigue en Ajustes, por si
+había algo sin subir— y se adopta la cuenta, por el mismo camino que cuando
+no hay nada pendiente. Con eso sobran `sinLoYaBorrado` y `nacioEn`, que se
+quitan: sin fusión no hay nada borrado que pueda volver.
+
+**El coste, y se acepta:** lo hecho sin conexión en un dispositivo durante
+más de tres días, si mientras tanto la cuenta se usó desde otro, ya no se
+suma solo; queda en la copia. Entre dispositivos al día todo sigue igual.
+
+Sin fecha de última sincronía —un dispositivo que vuelve a ENTRAR y no la
+traía— se sigue juntando con la cuenta de base, como en la 0.7.189.
+
+**Medido** con el navegador sembrado de la 0.7.189: queda en pantalla lo de
+la cuenta y nada más, no se sube nada, y la copia guarda las tres habilidades
+de este lado. Un dispositivo al día sigue fusionando.
+
 ### 0.7.189 · 3 oct 2026
 
 **Un dispositivo rezagado ya no pisa la cuenta.** Eduardo abrió su cuenta en

@@ -684,12 +684,12 @@
       "estado": "borrador",
       "clase": "arreglo",
       "titulo": "Un dispositivo que llevaba tiempo sin abrirse ya no pisa tu cuenta",
-      "resumen": "Si abres Norata en un navegador o un teléfono que tenías olvidado, lo viejo de ahí ya no se pone encima de lo que llevas hoy. Tu cuenta manda, y lo que hayas hecho en ese dispositivo se suma.",
+      "resumen": "Si abres Norata en un navegador o un teléfono que tenías olvidado, lo viejo de ahí ya no se pone encima de lo que llevas hoy: se queda lo de tu cuenta.",
       "puntos": [],
       "retoques": [],
       "en": {
         "titulo": "A device you hadn't opened in a while no longer overwrites your account",
-        "resumen": "If you open Norata in a browser or phone you had forgotten about, its old data no longer lands on top of what you have today. Your account leads, and whatever you did on that device is added in.",
+        "resumen": "If you open Norata in a browser or phone you had forgotten about, its old data no longer lands on top of what you have today: your account stays as it is.",
         "puntos": []
       }
     },
