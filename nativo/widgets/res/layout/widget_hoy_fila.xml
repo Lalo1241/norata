@@ -18,10 +18,10 @@
             android:importantForAccessibility="no" />
         <TextView android:id="@+id/wf_nom" android:layout_width="0dp" android:layout_height="wrap_content"
             android:layout_weight="1" android:layout_marginStart="11dp" android:textSize="12.5dp"
-            android:fontFamily="@font/outfit_medium" android:maxLines="1" android:ellipsize="end"
+            android:fontFamily="sans-serif-medium" android:maxLines="1" android:ellipsize="end"
             android:includeFontPadding="false" />
         <TextView android:id="@+id/wf_de" android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:layout_marginStart="8dp" android:textSize="10.5dp" android:fontFamily="@font/outfit_medium"
+            android:layout_marginStart="8dp" android:textSize="10.5dp" android:fontFamily="sans-serif-medium"
             android:fontFeatureSettings="tnum" android:maxLines="1" android:includeFontPadding="false" />
     </LinearLayout>
 </LinearLayout>

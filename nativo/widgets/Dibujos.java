@@ -14,7 +14,6 @@ import android.graphics.RadialGradient;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.Typeface;
-import android.os.Build;
 
 import org.json.JSONObject;
 
@@ -46,16 +45,11 @@ final class Dibujos {
         return Bitmap.createBitmap(Math.max(1, ancho), Math.max(1, alto), Bitmap.Config.ARGB_8888);
     }
 
-    /* Outfit, la de `res/font`. Antes de Android 8 no se puede cargar así y se
-       cae en la del sistema: se lee igual, solo cambia la letra. */
+    /* La letra de lo que se escribe DENTRO de un dibujo (las horas de la rueda, las
+       iniciales de la semana): la del sistema, como todo lo demás de los widgets.
+       Quien tiene otra letra puesta en su teléfono la ve también aquí. */
     static Typeface letra(Context c, String nombre) {
-        if (Build.VERSION.SDK_INT >= 26) {
-            int id = Widgets.recurso(c, "font", nombre);
-            if (id != 0) {
-                try { return c.getResources().getFont(id); } catch (Exception e) { /* la del sistema */ }
-            }
-        }
-        return Typeface.DEFAULT_BOLD;
+        return nombre.contains("medium") ? Typeface.create("sans-serif-medium", Typeface.NORMAL) : Typeface.DEFAULT_BOLD;
     }
 
     /* ---------- Aros y barras ---------- */

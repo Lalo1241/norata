@@ -99,7 +99,6 @@ estaba antes de ESE instalador.
 | `res/layout/widget_*.xml` | los moldes; el Pomodoro tiene tres (`chico`, `ancho`, `grande`) con los mismos nombres dentro |
 | `res/drawable/widget_*.xml` | el marco, las cajas, los botones y los iconos |
 | `res/xml/widget_*_info.xml` | la ficha de cada widget: su tamaño y cada cuánto se repinta |
-| `res/font/outfit_*.ttf` | Outfit en tres pesos; las mismas de los avisos |
 | `archivos.json` | la lista de `res/`, para que el instalador sepa qué bajar |
 
 ## Lo que hay que saber antes de tocarlo
@@ -116,12 +115,16 @@ estaba antes de ESE instalador.
 - **Se repinta solo cada media hora**, que es el mínimo que deja Android sin
   una alarma propia. Por eso la tira de «Ahora» puede ir hasta media hora
   atrasada; cualquier toque en el widget la pone al día.
-- **Un marco, Outfit y los tonos del mundo**, las mismas reglas de los avisos:
-  un widget de Android solo sabe dibujar marcos, textos e imágenes, sin
-  texturas ni letras de mundo. El filo lleva el acento del mundo; el icono
-  también, salvo uno rojo, que pasa a la menta; lo cumplido es el verde de
-  Norata, nunca el acento. **Cada widget lleva su propio icono, no el logo**:
-  lo pidió Eduardo sobre el boceto.
+- **Un marco, la letra del sistema y los tonos del mundo.** Un widget de
+  Android solo sabe dibujar marcos, textos e imágenes, sin texturas ni letras
+  de mundo. **La letra es la del teléfono y no Outfit**, y es decisión de
+  Eduardo (3 oct 2026): quien tiene otra letra puesta en su sistema vería los
+  widgets de Norata desentonar con todo lo demás de su pantalla de inicio. (En
+  su Honor, además, Outfit ni siquiera llegaba a pintarse.) En esto los
+  widgets se apartan de los avisos, que sí van en Outfit. El filo lleva el
+  acento del mundo; el icono también, salvo uno rojo, que pasa a la menta; lo
+  cumplido es el verde de Norata, nunca el acento. **Cada widget lleva su
+  propio icono, no el logo**: lo pidió Eduardo sobre el boceto.
 - **Los colores de los moldes son los de la casa de noche**, y el código los
   cambia al pintar (`setColorFilter` tapa el color de origen). Están ahí para
   el selector de widgets, que enseña el molde antes de que nadie lo pinte.
@@ -173,8 +176,8 @@ estaba antes de ESE instalador.
 - **Marcar y desmarcar seguido se anula aquí** y no llega a la app: aplicar
   las dos daría y quitaría el XP, y dejaría dos renglones en el registro de la
   habilidad por algo que no pasó.
-- **No depende de los avisos.** Un APK puede traer uno sin el otro; solo
-  comparten las letras de `res/font/`, y por eso deshacer esto no se las lleva.
+- **No depende de los avisos.** Un APK puede traer uno sin el otro, y no
+  comparten nada.
 - **Un APK sin esto** no trae `WidgetsNorata`, y la página lo sabe con
   `isPluginAvailable`: no manda nada y no cambia nada.
 

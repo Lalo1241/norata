@@ -49,7 +49,7 @@ import java.util.TimeZone;
    uno — a medianoche tiene que cambiar de día sin que nadie abra la app.
 
    No depende de los avisos (`nativo/avisos/`): un APK puede traer uno sin el
-   otro. Lo único que comparten son las letras de `res/font/`. */
+   otro, y no comparten nada. */
 final class Widgets {
     private Widgets() {}
 

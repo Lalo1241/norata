@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Siguiente nodo: el paso que toca de una rama, con la figura de su nodo.
-     Un marco, Outfit y los tonos del mundo: los colores los pone el código y los de aquí son
+     Un marco, la letra del sistema y los tonos del mundo: los colores los pone el código y los de aquí son
      los de la casa de noche, para el selector de widgets. En dp y no en sp, como Hoy. -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@android:id/background"
@@ -18,13 +18,13 @@
         <ImageView android:id="@+id/wn_fig" android:layout_width="46dp" android:layout_height="46dp" android:importantForAccessibility="no" />
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="13dp"
             android:orientation="vertical">
-            <TextView android:id="@+id/wn_r1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="10.5dp" android:fontFamily="@font/outfit_medium" android:textColor="#FF93A0AB" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" android:text="Siguiente nodo" />
-            <TextView android:id="@+id/wn_r2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="14dp" android:fontFamily="@font/outfit_semibold" android:textColor="#FFEEF3F1" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" android:layout_marginTop="1dp" />
+            <TextView android:id="@+id/wn_r1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="10.5dp" android:fontFamily="sans-serif-medium" android:textColor="#FF93A0AB" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" android:text="Siguiente nodo" />
+            <TextView android:id="@+id/wn_r2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="14dp" android:textStyle="bold" android:textColor="#FFEEF3F1" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" android:layout_marginTop="1dp" />
             <LinearLayout android:id="@+id/wn_avance" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp"
                 android:orientation="horizontal" android:gravity="center_vertical">
                 <ImageView android:id="@+id/wn_barra" android:layout_width="0dp" android:layout_height="5dp" android:layout_weight="1"
                     android:scaleType="fitXY" android:importantForAccessibility="no" />
-                <TextView android:id="@+id/wn_cuenta" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="10.5dp" android:fontFamily="@font/outfit_medium" android:textColor="#FF93A0AB" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" android:layout_marginStart="8dp" android:fontFeatureSettings="tnum" />
+                <TextView android:id="@+id/wn_cuenta" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="10.5dp" android:fontFamily="sans-serif-medium" android:textColor="#FF93A0AB" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" android:layout_marginStart="8dp" android:fontFeatureSettings="tnum" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

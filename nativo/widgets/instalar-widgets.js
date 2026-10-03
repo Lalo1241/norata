@@ -35,7 +35,7 @@ const WIDGETS = [
   ["ExpedicionWidget", "Expedición", "widget_exp_info"], ["ApuntarWidget", "Apuntar", "widget_apuntar_info"],
   ["NodoWidget", "Siguiente nodo", "widget_nodo_info"],
 ];
-/* Lo de res/ (las letras, los moldes, sus dibujos y la ficha del widget) va en
+/* Lo de res/ (los moldes, sus dibujos, las imágenes de muestra y las fichas) va en
    archivos.json: es la lista que se baja de GitHub cuando esto corre suelto. */
 const LISTA = "archivos.json";
 const COPIA = ".antes-widgets";
@@ -151,15 +151,14 @@ async function instalar() {
     ok("MainActivity registra el complemento");
   }
 
-  // 3. Lo de res/: las letras (Outfit), los moldes, sus dibujos y la ficha del widget.
-  //    Todos se llaman widget_* u outfit_*: se SUMAN a lo que hay y no pisan nada.
-  //    Las letras son las mismas de los avisos; si ya estaban, quedan iguales.
+  // 3. Lo de res/: los moldes, sus dibujos, las imágenes de muestra y las fichas.
+  //    Todos se llaman widget_*: se SUMAN a lo que hay y no pisan nada.
   for (const rel of src.lista) {
     const destino = path.join(main, "res", ...rel.split("/"));
     fs.mkdirSync(path.dirname(destino), { recursive: true });
     fs.writeFileSync(destino, await src.leer("res/" + rel));
   }
-  ok(src.lista.length + " archivos en res/: las letras, los moldes, sus dibujos y la ficha del widget");
+  ok(src.lista.length + " archivos en res/: los moldes, sus dibujos, las imágenes de muestra y las fichas");
 
   // 4. El manifiesto: cada widget y el servicio que llena la lista de Hoy.
   //    Se añade SOLO lo que falte: quien ya tenía Hoy se lleva los demás sin
@@ -238,8 +237,7 @@ function deshacer() {
   }
   const aqui = __dirname;
   const lista = fs.existsSync(path.join(aqui, LISTA)) ? JSON.parse(fs.readFileSync(path.join(aqui, LISTA), "utf8")) : [];
-  // Las letras (font/outfit_*) NO se quitan: son las mismas de los avisos, y
-  // llevárselas dejaría sin letra a los avisos si están instalados.
+  // Nada de font/: los widgets no llevan letra propia, y la que haya es de los avisos.
   for (const rel of lista) {
     if (rel.startsWith("font/")) continue;
     const p = path.join(main, "res", ...rel.split("/"));

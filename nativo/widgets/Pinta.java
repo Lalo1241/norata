@@ -24,8 +24,8 @@ import java.util.Locale;
    su molde con lo que trae la foto (`Widgets.foto`), y su clase —`SigueWidget`,
    `RachaWidget`…— solo existe para que Android tenga a quién llamar.
 
-   Las reglas son las de todos: la página decide y esto pinta; un marco, Outfit
-   y los tonos del mundo; lo cumplido en el verde de Norata y lo que está en
+   Las reglas son las de todos: la página decide y esto pinta; un marco, la letra
+   del sistema y los tonos del mundo; lo cumplido en el verde de Norata y lo que está en
    curso en su amarillo, nunca en el acento; cada widget con su icono y ninguno
    con el logo.
 

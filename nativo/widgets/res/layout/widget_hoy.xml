@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- letras al 87 % de las del boceto: se veian grandes junto a lo demas del telefono (3 oct 2026). -->
-<!-- El widget Hoy. Un marco, Outfit y los tonos del mundo, como los avisos: los
+<!-- El widget Hoy. Un marco, la letra del sistema y los tonos del mundo: los
      colores los pone el código (HoyWidget.java) y aquí todo es blanco o vacío.
      En dp y no en sp: el alto lo pone la cuadrícula del teléfono, y con la letra
      del sistema agrandada las filas se saldrían. -->
@@ -24,10 +24,10 @@
                 android:src="@drawable/widget_ic_hoy" android:importantForAccessibility="no" />
             <TextView android:id="@+id/wh_titulo" android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:layout_marginStart="6dp" android:textSize="12dp"
-                android:fontFamily="@font/outfit_semibold" android:maxLines="1" android:ellipsize="end"
+                android:textStyle="bold" android:maxLines="1" android:ellipsize="end"
                 android:includeFontPadding="false" android:text="Hoy" android:textColor="#FFEEF3F1" />
             <TextView android:id="@+id/wh_cuenta" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:textSize="10.5dp" android:fontFamily="@font/outfit_medium" android:fontFeatureSettings="tnum"
+                android:textSize="10.5dp" android:fontFamily="sans-serif-medium" android:fontFeatureSettings="tnum"
                 android:maxLines="1" android:includeFontPadding="false" />
             <ImageView android:id="@+id/wh_aro" android:layout_width="18dp" android:layout_height="18dp"
                 android:layout_marginStart="6dp" android:visibility="gone" android:importantForAccessibility="no" />
@@ -43,14 +43,14 @@
                 <ImageView android:id="@+id/wh_tira_punto" android:layout_width="8dp" android:layout_height="8dp"
                     android:src="@drawable/widget_punto" android:importantForAccessibility="no" />
                 <TextView android:id="@+id/wh_tira_rot" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp" android:textSize="10.5dp" android:fontFamily="@font/outfit_bold"
+                    android:layout_marginStart="8dp" android:textSize="10.5dp" android:textStyle="bold"
                     android:maxLines="1" android:includeFontPadding="false" />
                 <TextView android:id="@+id/wh_tira_nom" android:layout_width="0dp" android:layout_height="wrap_content"
                     android:layout_weight="1" android:layout_marginStart="6dp" android:textSize="11.5dp"
-                    android:fontFamily="@font/outfit_medium" android:maxLines="1" android:ellipsize="end"
+                    android:fontFamily="sans-serif-medium" android:maxLines="1" android:ellipsize="end"
                     android:includeFontPadding="false" />
                 <TextView android:id="@+id/wh_tira_de" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp" android:textSize="10.5dp" android:fontFamily="@font/outfit_medium"
+                    android:layout_marginStart="8dp" android:textSize="10.5dp" android:fontFamily="sans-serif-medium"
                     android:fontFeatureSettings="tnum" android:maxLines="1" android:includeFontPadding="false" />
             </LinearLayout>
         </FrameLayout>
@@ -65,14 +65,14 @@
             android:layout_weight="1" android:orientation="vertical" android:gravity="center_vertical"
             android:visibility="gone">
             <TextView android:id="@+id/wh_vacio_tx" android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:textSize="11.5dp" android:fontFamily="@font/outfit_medium" android:includeFontPadding="false" />
+                android:textSize="11.5dp" android:fontFamily="sans-serif-medium" android:includeFontPadding="false" />
             <FrameLayout android:id="@+id/wh_vacio_b" android:layout_width="wrap_content" android:layout_height="34dp"
                 android:layout_marginTop="10dp">
                 <ImageView android:id="@+id/wh_vacio_b_fondo" android:layout_width="match_parent" android:layout_height="match_parent"
                     android:scaleType="fitXY" android:src="@drawable/widget_boton" android:importantForAccessibility="no" />
                 <TextView android:id="@+id/wh_vacio_b_tx" android:layout_width="wrap_content" android:layout_height="match_parent"
                     android:gravity="center" android:paddingStart="14dp" android:paddingEnd="14dp" android:textSize="11.5dp"
-                    android:fontFamily="@font/outfit_bold" android:maxLines="1" android:includeFontPadding="false" />
+                    android:textStyle="bold" android:maxLines="1" android:includeFontPadding="false" />
             </FrameLayout>
         </LinearLayout>
     </LinearLayout>
