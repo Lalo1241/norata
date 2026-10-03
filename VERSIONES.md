@@ -48,6 +48,10 @@ changelog público no podría agruparlos: sus retoques no hablaban de él.
 - **Dos sesiones a la vez con temas distintos son dos 3º**, no dos 4º del mismo.
 - **Los números de antes no se tocan.** La 0.7.148.1–.9 se quedan como están:
   renumerar historia rompe los enlaces y los paquetes del APK.
+- **Si su 3º ya no es el último publicado, el retoque sube el 3º** (0.7.187).
+  Un número no puede bajar: la app de Android solo se actualiza a uno mayor, y
+  desde la 0.7.184 la barrera se niega a publicarlo. La entrada dice de quién
+  es el retoque.
 
 Cada 3º es además **una entrada de `novedades/novedades.json`**, y sus 4º van
 dentro como `retoques` (ver `novedades/LEEME.md`).
@@ -313,6 +317,22 @@ en que conviene hacerlo:
   el grifo cambia y la frase no.
 
 ## La lista
+
+### 0.7.187 · 3 oct 2026
+
+**Dos retoques del regreso de emergencia (0.7.184).** Lleva número de 3º y no
+el 0.7.184.1 que le tocaría: cuando se hizo ya estaba publicada la 0.7.186, y
+un número no puede bajar (ver «El 4º es del tema de su 3º»).
+
+- **«De paso».** Una versión que otra reemplazó antes de sus 24 horas se
+  quedaba «en vigilancia» para siempre, porque ya no las iba a cumplir. Lo vio
+  Eduardo. Ahora la vigilancia es solo de la que está en vivo, y la otra queda
+  «De paso», que es definitivo: no le dio tiempo de probarse, así que no cuenta
+  como sana para el regreso automático, pero se puede elegir a mano.
+- **El botón «Cierre de emergencia» vuelve a ser macizo.** El tenue coral se
+  transparentaba sobre las rayas del grifo abierto, y el botón parecía salir
+  por detrás de la animación; ya le había pasado una vez en el boceto. El mismo
+  tono, puesto sobre la tarjeta.
 
 ### 0.7.186 · 3 oct 2026
 

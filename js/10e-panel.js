@@ -627,7 +627,11 @@ const dnPartirTitulo = t => String(t || "").split("\n")[0];
    `vivo` se fabrica uno, así que su lista ES lo publicado, con su fecha.
 
    Una versión está SANA si estuvo 24 horas o más en vivo sin errores nuevos
-   ni fallos abiertos. El boceto pedía además «abierta por al menos diez
+   ni fallos abiertos. «En vigilancia» es solo para la que está en vivo: una
+   que reemplazó otra antes de sus 24 horas ya no las va a cumplir, y se
+   quedaba en vigilancia para siempre (lo vio Eduardo el 3 oct 2026). Esa pasa
+   a DE PASO, que es definitivo: no tuvo tiempo de probarse, así que no cuenta
+   como sana para el regreso automático, pero se puede elegir a mano. El boceto pedía además «abierta por al menos diez
    dispositivos», y se cayó al construirlo: los números de la app dicen en qué
    versión está HOY cada persona, no por cuáles pasó, así que de una versión
    vieja no se puede saber quién la abrió.
@@ -643,9 +647,9 @@ function dnSalud(lista) {
     const autos = ts.filter(t => dnTipo(t) === "auto" && t.version === h.version);
     const nuevos = autos.filter(t => !ts.some(x => x !== t && x.mensaje === t.mensaje && viejas.indexOf(x.version) >= 0)).length;
     const fallos = ts.filter(t => dnTipo(t) === "fallo" && t.version === h.version && dnAbierto(t)).length;
-    const est = nuevos || fallos ? "mal" : horas < 24 ? "vig" : "sana";
+    const est = nuevos || fallos ? "mal" : horas >= 24 ? "sana" : i ? "paso" : "vig";
     const dias = Math.round(horas / 24);
-    const dur = horas < 24 ? Math.max(1, Math.round(horas)) + " h en vivo" : dias + (dias === 1 ? " día en vivo" : " días en vivo");
+    const dur = horas < 24 ? (i ? "duró " : "") + Math.max(1, Math.round(horas)) + " h" + (i ? " y la reemplazó otra" : " en vivo") : dias + (dias === 1 ? " día en vivo" : " días en vivo");
     const cosas = [nuevos ? nuevos + (nuevos === 1 ? " error nuevo" : " errores nuevos") : "", fallos ? fallos + (fallos === 1 ? " fallo abierto" : " fallos abiertos") : ""].filter(Boolean);
     return Object.assign({}, h, { est: est, horas: horas, texto: (cosas.length ? cosas.join(" · ") : "Sin errores nuevos") + " · " + dur });
   });
@@ -656,11 +660,11 @@ const dnUltimaSana = () => dnHistorial().slice(1).find(h => h.est === "sana") ||
 function dnHistorialHTML() {
   const hs = dnHistorial().slice(0, 8);
   if (!hs.length) return "";
-  const est = { sana: ["e-ok", "check", "Sana"], vig: ["e-espera", "reloj", "En vigilancia"], mal: ["e-yo", "fallo", "Con problemas"] };
+  const est = { sana: ["e-ok", "check", "Sana"], vig: ["e-espera", "reloj", "En vigilancia"], paso: ["e-no", "flecha", "De paso"], mal: ["e-yo", "fallo", "Con problemas"] };
   const u = dnUltimaSana();
   return `<div class="dn-panel"><div class="dn-pcab"><h3>Lo que estuvo en vivo</h3>
         ${u ? `<div class="dn-der"><button class="dn-btn b-coral mini" data-a="regresar:${dnE(u.version)}">${dnIc("regreso")}Regresar a la ${dnE(u.version)}</button></div>` : ""}</div>
-      <p class="dn-nota">Sana: estuvo 24 horas o más en vivo sin errores nuevos ni fallos abiertos. Regresar publica otra vez su contenido con un número nuevo y cierra el grifo.</p>
+      <p class="dn-nota">Sana: estuvo 24 horas o más en vivo sin errores nuevos ni fallos abiertos. De paso: la reemplazó otra antes, así que no le dio tiempo de probarse. Regresar publica otra vez su contenido con un número nuevo y cierra el grifo.</p>
       ${hs.map((h, i) => { const q = est[h.est]; return `<div class="dn-prueba"><div>
           <div class="dn-sobre-t"><span class="dn-estado ${q[0]}">${dnIc(q[1])}${q[2]}</span>${i ? "" : `<span class="dn-chip">en vivo</span>`}<span class="dn-chip">${dnE(dnDia(dnLocal(h.fecha)))}</span></div>
           <h4>V${dnE(h.version)}</h4><p>${dnE(h.texto)}</p></div>

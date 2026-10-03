@@ -145,6 +145,10 @@ html.claro #dentro {
 #dentro .dn-btn.b-linea { background: var(--card); border-color: var(--dn-menta); color: var(--dn-menta); }
 #dentro .dn-btn.b-ghost { background: var(--card); border-color: var(--line); color: var(--text); }
 #dentro .dn-btn.b-coral { background: var(--dn-coral-s); color: var(--dn-coral); }
+/* Encima de las rayas del grifo abierto el tenue se transparenta y el botón
+   parece salir por detrás de la animación (Eduardo, dos veces): el mismo
+   tono, pero puesto sobre la tarjeta, que es maciza. */
+#dentro .dn-grifo .dn-btn.b-coral { background: linear-gradient(var(--dn-coral-s), var(--dn-coral-s)), var(--card); }
 #dentro .dn-btn:active { transform: scale(.97); }
 #dentro .dn-btn[disabled] { opacity: .45; cursor: not-allowed; }
 
