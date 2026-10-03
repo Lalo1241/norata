@@ -4,5 +4,5 @@
      lo que se ve en el selector de widgets antes de ponerlo. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
     <solid android:color="#FF2F5A52" />
-    <corners android:radius="28dp" />
+    <corners android:radius="20dp" />
 </shape>

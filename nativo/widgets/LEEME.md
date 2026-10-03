@@ -113,6 +113,8 @@ estaba antes de ESE instalador.
 - **Los colores de los moldes son los de la casa de noche**, y el código los
   cambia al pintar (`setColorFilter` tapa el color de origen). Están ahí para
   el selector de widgets, que enseña el molde antes de que nadie lo pinte.
+- **Las esquinas van a 20 dp**, no a los 28 del boceto: en el teléfono de Eduardo se veían de más, y
+  al lado de otros widgets desentonaban. Lo pidió al verlo puesto por primera vez (3 oct 2026).
 - **En dp y no en sp.** El alto lo pone la cuadrícula del teléfono, y con la
   letra del sistema agrandada las filas se saldrían.
 - **Marcar y desmarcar seguido se anula aquí** y no llega a la app: aplicar
