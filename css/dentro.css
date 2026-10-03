@@ -226,6 +226,8 @@ html.claro #dentro {
 #dentro .dn-giro { flex: none; width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--line); border-top-color: var(--dn-menta); }
 #dentro .dn-subiendo .dn-corre { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--dn-menta), transparent); background-size: 40% 100%; background-repeat: no-repeat; background-position: -40% 0; }
 #dentro .dn-btn[disabled] { opacity: .55; cursor: default; }
+#dentro .dn-paquete { display: flex; flex-direction: column; gap: 12px; }
+#dentro .dn-paquete .dn-seg button { text-transform: capitalize; min-width: 40px; }
 #dentro .dn-filtros { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 #dentro .dn-fecha { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--muted); }
 #dentro .dn-fecha input { background: var(--bg2); border: 2px solid var(--line); border-radius: 12px; padding: 7px 10px; font-size: 13.5px; color: var(--text); color-scheme: dark; min-width: 0; }

@@ -442,7 +442,7 @@ function dnSalaHoy() {
   const colaVieja = Math.max(0, ...cola.map(c => dnHace(c.fecha) || 0));
   const filas = [
     cola.length ? [colaVieja >= 5 ? "ojo" : cerrado ? "ojo" : "dato", cola.length, cola.length === 1 ? "cambio espera en la cola" : "cambios esperan en la cola",
-      colaVieja >= 5 ? "El más viejo lleva " + colaVieja + " días sin subir" : cerrado ? "El grifo está cerrado: suben cuando los apruebes" : "Detenidos: traen SQL o no pasaron las comprobaciones", "ir:subidas"] : null,
+      colaVieja >= 5 ? "El más viejo lleva " + colaVieja + " días sin subir" : cerrado ? (dnProximoPaquete().faltan === 0 ? "Hoy toca el paquete: revísalos y súbelos" : "Es el paquete de la semana: sale " + dnProximoPaquete().texto) : "Detenidos: traen SQL o no pasaron las comprobaciones", "ir:subidas"] : null,
     gente ? ["ojo", gente, gente === 1 ? "reporte nuevo en el buzón" : "reportes nuevos en el buzón", "Lo que alguien se sentó a escribir", "ir:buzon"] : null,
     autos.length ? [enVivo ? "mal" : "ojo", autos.length, autos.length === 1 ? "error automático nuevo" : "errores automáticos nuevos",
       enVivo ? enVivo + (enVivo === 1 ? " se vio" : " se vieron") + " en la " + VERSION + ", la publicada" : "Ninguno en la " + VERSION + ", la publicada", "auto"] : null,
@@ -693,6 +693,43 @@ function dnBarreraFaltaHTML() {
       <div class="dn-acciones"><button class="dn-btn b-linea mini" data-a="barrera">Volver a preguntar</button></div></div>`;
 }
 
+/* ---- El paquete de la semana (0.7.199) ----
+   Eduardo, al pedir la barrera: que las subidas «sean más consistentes, y no
+   sean spam de mini updates». Con el grifo CERRADO, lo terminado se junta en
+   la cola y sube de una vez: eso es el paquete. Para quien usa la app es una
+   sola versión —la última de la tanda—, por muchos cambios que traiga.
+
+   Lo que el boceto tenía y aquí NO existe, porque no puede: meter y sacar
+   cambios sueltos del paquete. `main` es la cola y `vivo` solo avanza en
+   orden; un cambio no se salta, se revierte.
+
+   El día es un RECORDATORIO, no un reloj: nada sube sin su aprobación. Se
+   elige aquí y se guarda en este dispositivo (`localStorage`): es una
+   preferencia de quien administra, no un dato de la app. */
+const DN_DIAS_SEM = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+function dnDiaPaquete() {
+  try { const v = Number(localStorage.getItem("norata-paquete-dia")); return v >= 0 && v <= 6 && localStorage.getItem("norata-paquete-dia") !== null ? v : 4; } catch (e) { return 4; }
+}
+/* Cuántos días faltan para el día del paquete (0 = hoy), y esa fecha. */
+function dnProximoPaquete() {
+  const hoy = new Date(), faltan = (dnDiaPaquete() - hoy.getDay() + 7) % 7;
+  const f = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + faltan);
+  return { faltan: faltan, texto: faltan === 0 ? "hoy" : faltan === 1 ? "mañana" : "el " + DN_DIAS_SEM[f.getDay()] + " " + f.getDate() + " " + DN_MESES[f.getMonth()] };
+}
+/* Cuántas versiones llegaron al vivo en los últimos siete días. */
+function dnSubidasDeLaSemana() {
+  const hace7 = Date.now() - 7 * 864e5;
+  return ((DN.bar && DN.bar.historial) || []).filter(h => Date.parse(h.fecha) >= hace7).length;
+}
+function dnPaqueteHTML(cola) {
+  const p = dnProximoPaquete(), d = dnDiaPaquete(), sueltas = dnSubidasDeLaSemana();
+  return `<div class="dn-paquete">
+      <p class="dn-nota">Todo lo terminado se junta aquí y sube de una vez: para quien usa la app es una sola versión, la última de la tanda.${sueltas > 1 ? " En los últimos 7 días llegaron al vivo " + sueltas + " versiones." : ""}</p>
+      <div class="dn-campo"><span>Día del paquete</span>
+        <div class="dn-seg" role="radiogroup" aria-label="Día del paquete">${[1, 2, 3, 4, 5, 6, 0].map(n => `<button class="${d === n ? "on" : ""}" data-a="paqdia:${n}" aria-label="${DN_DIAS_SEM[n]}">${DN_DIAS_SEM[n].slice(0, 2)}</button>`).join("")}</div></div>
+      ${p.faltan === 0 && cola.length ? `<div class="dn-aviso dn-ojo"><b>Hoy toca el paquete.</b> ${cola.length === 1 ? "Hay 1 cambio listo" : "Hay " + cola.length + " cambios listos"}: revísalos y súbelos con «Subir todo al vivo».</div>` : ""}</div>`;
+}
+
 function dnColaHTML() {
   const b = DN.bar, cola = b.cola || [], abierto = dnGrifoAbierto();
   const conSql = cola.filter(c => (c.sql || []).length).length;
@@ -704,11 +741,12 @@ function dnColaHTML() {
   const tapon = abierto && cola.length ? cola[0] : null, taponSql = tapon && (tapon.sql || []).length;
   const nombre = c => c.version ? "la " + dnE(c.version) : "«" + dnE(c.titulo || "un cambio") + "»";
   const clase = v => { const e = (DN.nov || []).find(x => String(x.version) === String(v)); return e ? (typeof novedadClase === "function" ? novedadClase(e) : e.clase) : ""; };
-  return `<div class="dn-panel"><div class="dn-pcab"><h3>${abierto ? "Detenido en la cola" : "En la cola"}</h3><span class="dn-chip">${cola.length}</span>
+  return `<div class="dn-panel"><div class="dn-pcab"><h3>${abierto ? "Detenido en la cola" : "El paquete de la semana"}</h3><span class="dn-chip">${cola.length}</span>${abierto ? "" : `<span class="dn-chip">sale ${dnE(dnProximoPaquete().texto)}</span>`}
         ${cola.length ? `<div class="dn-der"><button class="dn-btn b-primary mini" data-a="subir:" ${dnEnMarcha() ? "disabled" : ""}>${dnIc("subidas")}${dnEnMarcha() ? "Subiendo…" : "Subir todo al vivo"}</button></div>` : ""}</div>
+      ${abierto ? "" : dnPaqueteHTML(cola)}
       ${tapon ? `<div class="dn-aviso dn-ojo"><b>Detenida por ${nombre(tapon)}${taponSql ? ", que trae SQL" : ""}.</b> ${taponSql ? "Un SQL no llega solo a Supabase, así que no sube hasta que digas que ya lo pegaste." : "No pasó las comprobaciones de la barrera: el motivo está en «Las últimas veces»."}${cola.length > 1 ? (cola.length === 2 ? " El cambio de detrás espera" : " Los " + (cola.length - 1) + " de detrás esperan") + " aunque el grifo esté abierto, porque se aprueba en orden." : ""}</div>` : ""}
       ${cola.length ? `<p class="dn-nota">Se aprueba en orden: «Subir hasta aquí» lleva al vivo ese cambio y todos los de arriba.${conSql ? " Lo que trae SQL pide que lo hayas pegado antes." : ""}</p>` : ""}
-      ${!cola.length ? `<div class="dn-vacio">${abierto ? "Nada detenido. Lo que se sube a main está llegando solo." : "No hay nada esperando. Lo que se suba a main aparecerá aquí."}</div>` : cola.map((c, i) => {
+      ${!cola.length ? `<div class="dn-vacio">${abierto ? "Nada detenido. Lo que se sube a main está llegando solo." : "El paquete está vacío. Lo que se suba a main aparecerá aquí."}</div>` : cola.map((c, i) => {
         const h = dnHace(dnLocal(c.fecha)), sql = (c.sql || []).length, detras = tapon && i > 0;
         return `<div class="dn-prueba"><div>
             <div class="dn-sobre-t">${dnEtq(clase(c.version))}<span class="dn-estado ${h !== null && h >= 5 ? "e-espera" : "e-no"}">${dnIc("reloj")}${h !== null && h >= 5 ? "Lleva " + h + " días sin subir" : detras ? "Espera al de arriba" : tapon ? "Detiene la cola, " + dnHaceTx(h) : "En cola, " + dnHaceTx(h)}</span>${sql ? `<span class="dn-estado e-sql">${dnIc("db")}Trae SQL</span>` : ""}</div>
@@ -1459,6 +1497,7 @@ function dnClic(ev) {
       DN.ventana = null; DN.seguro = true; clearInterval(DN.reloj);
       dnMandaBarrera("regresar", { a: v }, "Grifo cerrado y regreso en marcha: tarda dos o tres minutos");
       return;
+    case "paqdia": try { localStorage.setItem("norata-paquete-dia", String(Number(v) || 0)); } catch (e) { /* sin almacén, se queda en jueves */ } break;
     case "num": DN.num = v; break;
     case "cob": DN.cobDesde = ""; DN.cobHasta = ""; if (Number(v)) DN.cobDias = Number(v); break;
     case "lab": DN.lab = v; break;

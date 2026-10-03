@@ -318,6 +318,29 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.199 · 3 oct 2026
+
+**El paquete de la semana.** Lo pidió Eduardo con la barrera: que las subidas
+no sean «spam de mini updates». Con el grifo cerrado, la cola pasa a llamarse
+así y dice cuándo sale: lo terminado se junta y sube de una vez, y para quien
+usa la app es una sola versión —la última de la tanda—.
+
+- **El día es un recordatorio, no un reloj.** Nada sube sin su aprobación; el
+  día del paquete (jueves de partida, se elige ahí mismo) solo avisa: «sale el
+  jueves 8», y el día que toca, «Hoy toca el paquete» en Subidas y en Hoy. Se
+  guarda en el dispositivo: es una preferencia de quien administra.
+- **Dice cuántas versiones llegaron al vivo en siete días**, que es la medida
+  de lo que el paquete evita.
+- **Lo que el boceto tenía y aquí no existe, porque no puede:** meter y sacar
+  cambios sueltos del paquete. `main` es la cola y `vivo` avanza en orden.
+
+Con el grifo abierto nada de esto sale: ahí no hay paquete.
+
+**Y `herramientas/comprobar-publicado.py` lee la lista de la rama `vivo`**, que
+es lo publicado desde la barrera, y no de la carpeta: con cambios en la cola
+habría dado por roto un sitio que estaba bien. Corrida hoy contra el sitio: 70
+archivos, ninguno falla; 13 documentos, ninguno abierto.
+
 ### 0.7.198 · 3 oct 2026
 
 **El aviso del cambio de mundo dice «cerrar», y Arcade entra en la familia de
