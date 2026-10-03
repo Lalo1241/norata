@@ -352,20 +352,31 @@ function novedadCuerpoHTML(e, puntos) {
   });
   (Array.isArray(e.grafico) ? e.grafico : e.grafico ? [e.grafico] : []).forEach((b) => {
     const html = novedadBloqueHTML(b);
-    if (html) poner(b.tras).grafs.push(html);
+    if (html) { const m = poner(b.tras); m.grafs.push(html); m.pie = m.pie || novedadCampo(b, "pie") || ""; }
   });
   /* Todas las imágenes en UNA rejilla, de dos en dos, y sin el punto que
      acompañaban (0.7.191). Eduardo, al ver el pie y debajo el punto con
      bolita: «dan información repetida… el texto con bolita se tendría que
      ir», y «en PC tienen que salir sí o sí de 2 en dos». Antes cada punto
      abría su tramo y sus imágenes salían de una en una. El `tras` sigue
-     dando el orden. Un punto con imagen ya no se escribe; con solo un gráfico
-     sí, porque aquí el gráfico se dibuja y no lleva pie. */
+     dando el orden, y un punto con imagen o con gráfico ya no se escribe.
+
+     El gráfico es una pieza MÁS de la rejilla (0.7.191.1): los bloques que
+     comparten punto van juntos en una celda, con su pie, igual que en el
+     sitio van en una lámina. La referencia de Eduardo es la tarjeta de
+     Cyberpunk del sitio —la captura a un lado y el gráfico al otro—, y aquí
+     el gráfico quedaba fuera de la rejilla, con la captura sola a todo lo
+     ancho. La portada no cuenta para el par. */
   const orden = Object.keys(medios).map(Number).sort((a, b) => a - b);
-  const figs = orden.flatMap((n) => medios[n].figs);
-  let html = figs.length ? `<div class="nov-medios${figs.length % 2 ? " impar" : ""}">${figs.join("")}</div>` : "";
-  html += orden.flatMap((n) => medios[n].grafs).join("");
-  const sueltos = puntos.filter((p, i) => !(medios[i + 1] && medios[i + 1].figs.length));
+  const piezas = orden.flatMap((n) => {
+    const m = medios[n];
+    const graf = m.grafs.length
+      ? [`<div class="nov-pieza nov-pieza-graf"><div class="nov-lamina">${m.grafs.join("")}</div>${m.pie ? `<p class="nov-leyenda">${escapeHtml(m.pie)}</p>` : ""}</div>`]
+      : [];
+    return m.figs.concat(graf);
+  });
+  let html = piezas.length ? `<div class="nov-medios${piezas.length % 2 ? " impar" : ""}">${piezas.join("")}</div>` : "";
+  const sueltos = puntos.filter((p, i) => !medios[i + 1]);
   if (sueltos.length) html += `<ul class="nov-puntos">${sueltos.map((p) => `<li>${escapeHtml(p)}</li>`).join("")}</ul>`;
   return html;
 }

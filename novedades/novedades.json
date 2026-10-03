@@ -686,7 +686,15 @@
       "titulo": "Las imágenes de Novedades, de dos en dos",
       "resumen": "Las imágenes de cada novedad van juntas, de dos en dos, y cada una se explica con su pie: ya nada se dice dos veces.",
       "puntos": [],
-      "retoques": [],
+      "retoques": [
+        {
+          "version": "0.7.191.1",
+          "texto": "En la app, el gráfico de una novedad va junto a su imagen, lado a lado.",
+          "en": {
+            "texto": "In the app, an update's chart sits next to its image, side by side."
+          }
+        }
+      ],
       "en": {
         "titulo": "What's new images, two by two",
         "resumen": "Each update's images sit together, two by two, and each one is explained by its caption: nothing is said twice anymore."

@@ -318,6 +318,19 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.191.1 · 3 oct 2026
+
+**En la app, el gráfico de una novedad es una pieza más de la rejilla.** La
+referencia de Eduardo para el acomodo es la tarjeta de Cyberpunk del sitio: la
+captura a un lado y el gráfico al otro; «las portadas no cuentan para estas
+sumatorias». En la app el gráfico se dibuja en vez de ser una imagen, y la
+0.7.191 lo dejó fuera de la rejilla, con la captura sola a todo lo ancho. Ahora
+los bloques que comparten punto van en una celda, con su pie
+(`.nov-pieza-graf`), y el punto de un gráfico tampoco se escribe. Es un 4º:
+pule lo que trajo la 0.7.191. Medido a 1440: Cyberpunk, dos piezas en una
+fila; las paletas, cuatro en dos. La celda del gráfico sale más alta que la de
+la captura; el pie de cada una queda pegado a lo suyo.
+
 ### 0.7.191 · 3 oct 2026
 
 **Las imágenes de una novedad van en una sola rejilla, de dos en dos, y el
