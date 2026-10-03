@@ -588,7 +588,7 @@ function dnRespuestaHTML(t, maq) {
    grifo que no mueve nada. */
 function dnCargaBarrera() {
   if (typeof sbBarrera !== "function") return Promise.resolve();
-  return sbBarrera("estado").then(b => { DN.bar = b; DN.barError = null; })
+  return sbBarrera("estado").then(b => { dnTomaEstado(b); })
     .catch(e => { DN.bar = null; DN.barError = { texto: e.message || String(e), falta: e.falta || "" }; })
     .then(() => { if (dnAbierta()) dnPinta(); });
 }
@@ -596,6 +596,65 @@ function dnCargaBarrera() {
    se vuelve a preguntar un par de veces en vez de dejar la sala con lo viejo. */
 function dnRepreguntaBarrera() {
   [4000, 20000, 60000, 120000].forEach(ms => setTimeout(() => { if (dnAbierta()) dnCargaBarrera(); }, ms));
+}
+/* ---- La sala de Subidas se refresca sola (0.7.196) ----
+   Después de aprobar algo, la sala se quedaba igual hasta que uno volvía a
+   entrar: la subida tarda uno o dos minutos en GitHub y aquí no se veía nada
+   moverse. Eduardo lo pidió con esas palabras: «una animación de cargando y
+   que se refresque solo».
+
+   Un solo latido mientras la sala está a la vista: cada 6 segundos si hay una
+   subida en marcha, cada 30 si no. Lo de GitHub tiene cupo —cada pregunta son
+   varias llamadas con la llave—, y por eso no late con la sala cerrada, con la
+   pestaña escondida ni con otra sala abierta.
+
+   Solo se repinta si lo que contestó el servidor CAMBIÓ: repintar cada seis
+   segundos lo mismo reiniciaba las animaciones y le quitaba el sitio a quien
+   estuviera leyendo. Y no se repinta con la llave en la mano ni con el seguro
+   quitado, que el repintado se llevaría el gesto. */
+const dnEnMarcha = () => !!DN.subiendo || ((DN.bar && DN.bar.corridas) || []).some(c => c.estado !== "completed");
+function dnLatido() {
+  clearTimeout(DN.latido);
+  DN.latido = null;
+  if (!dnAbierta() || DN.sala !== "subidas") return;
+  DN.latido = setTimeout(async () => {
+    DN.latido = null;
+    if (!dnAbierta() || DN.sala !== "subidas") return;
+    if (document.hidden || dnArr || !DN.seguro || DN.grifoPend || typeof sbBarrera !== "function") { dnLatido(); return; }
+    try {
+      if (dnTomaEstado(await sbBarrera("estado"))) dnPinta();
+    } catch (e) { /* un latido que falla no dice nada: el siguiente vuelve a preguntar */ }
+    dnLatido();
+  }, dnEnMarcha() ? 6000 : 30000);
+}
+/* Lo que contestó el servidor, venga del latido o de una pregunta suelta: se
+   guarda, se decide si la subida ya terminó y se avisa. Devuelve si cambió
+   algo que haya que repintar. */
+function dnTomaEstado(b) {
+  const antes = JSON.stringify(DN.bar || null), estaba = dnEnMarcha(), colaAntes = ((DN.bar && DN.bar.cola) || []).length;
+  const corriendo = (b.corridas || []).some(c => c.estado !== "completed");
+  /* GitHub tarda unos segundos en dar de alta la corrida: recién mandada la
+     orden, que todavía no salga ninguna en marcha no quiere decir que haya
+     terminado. A los cinco minutos se suelta pase lo que pase. */
+  if (DN.subiendo) {
+    const lleva = Date.now() - DN.subiendo;
+    if ((!corriendo && lleva > 20000) || lleva > 300000) DN.subiendo = 0;
+  }
+  DN.bar = b; DN.barError = null;
+  const sigue = dnEnMarcha();
+  if (estaba && !sigue) {
+    const u = (b.corridas || [])[0], cola = (b.cola || []).length;
+    if (u && u.resultado && u.resultado !== "success") toast("La subida no terminó bien: mira «Las últimas veces».", "atencion");
+    else if (cola < colaAntes || !cola) toast("Ya está en vivo.", "hecho");
+    /* Lo que se aprobó pudo cambiar las novedades: se vuelven a leer. */
+    if (typeof cargarNovedades === "function") cargarNovedades().then(es => { DN.nov = es || []; if (dnAbierta()) dnPinta(); }).catch(() => {});
+  }
+  return JSON.stringify(b) !== antes || estaba !== sigue;
+}
+/* La tira de «está subiendo», arriba de la cola. */
+function dnSubiendoHTML() {
+  if (!dnEnMarcha()) return "";
+  return `<div class="dn-subiendo" role="status"><span class="dn-giro" aria-hidden="true"></span><div><b>Subiendo al vivo…</b><span>Tarda uno o dos minutos. Esta sala se actualiza sola.</span></div><i class="dn-corre" aria-hidden="true"></i></div>`;
 }
 const dnGrifoAbierto = () => !!(DN.bar && DN.bar.grifo && DN.bar.grifo.grifo === "abierto");
 
@@ -646,7 +705,7 @@ function dnColaHTML() {
   const nombre = c => c.version ? "la " + dnE(c.version) : "«" + dnE(c.titulo || "un cambio") + "»";
   const clase = v => { const e = (DN.nov || []).find(x => String(x.version) === String(v)); return e ? (typeof novedadClase === "function" ? novedadClase(e) : e.clase) : ""; };
   return `<div class="dn-panel"><div class="dn-pcab"><h3>${abierto ? "Detenido en la cola" : "En la cola"}</h3><span class="dn-chip">${cola.length}</span>
-        ${cola.length ? `<div class="dn-der"><button class="dn-btn b-primary mini" data-a="subir:">${dnIc("subidas")}Subir todo al vivo</button></div>` : ""}</div>
+        ${cola.length ? `<div class="dn-der"><button class="dn-btn b-primary mini" data-a="subir:" ${dnEnMarcha() ? "disabled" : ""}>${dnIc("subidas")}${dnEnMarcha() ? "Subiendo…" : "Subir todo al vivo"}</button></div>` : ""}</div>
       ${tapon ? `<div class="dn-aviso dn-ojo"><b>Detenida por ${nombre(tapon)}${taponSql ? ", que trae SQL" : ""}.</b> ${taponSql ? "Un SQL no llega solo a Supabase, así que no sube hasta que digas que ya lo pegaste." : "No pasó las comprobaciones de la barrera: el motivo está en «Las últimas veces»."}${cola.length > 1 ? (cola.length === 2 ? " El cambio de detrás espera" : " Los " + (cola.length - 1) + " de detrás esperan") + " aunque el grifo esté abierto, porque se aprueba en orden." : ""}</div>` : ""}
       ${cola.length ? `<p class="dn-nota">Se aprueba en orden: «Subir hasta aquí» lleva al vivo ese cambio y todos los de arriba.${conSql ? " Lo que trae SQL pide que lo hayas pegado antes." : ""}</p>` : ""}
       ${!cola.length ? `<div class="dn-vacio">${abierto ? "Nada detenido. Lo que se sube a main está llegando solo." : "No hay nada esperando. Lo que se suba a main aparecerá aquí."}</div>` : cola.map((c, i) => {
@@ -655,7 +714,7 @@ function dnColaHTML() {
             <div class="dn-sobre-t">${dnEtq(clase(c.version))}<span class="dn-estado ${h !== null && h >= 5 ? "e-espera" : "e-no"}">${dnIc("reloj")}${h !== null && h >= 5 ? "Lleva " + h + " días sin subir" : detras ? "Espera al de arriba" : tapon ? "Detiene la cola, " + dnHaceTx(h) : "En cola, " + dnHaceTx(h)}</span>${sql ? `<span class="dn-estado e-sql">${dnIc("db")}Trae SQL</span>` : ""}</div>
             <h4>${dnE(c.titulo || "Sin título")}${c.version ? `<span class="dn-chip">${dnE(c.version)}</span>` : ""}</h4>
             ${sql ? `<p class="dn-interno">Interno · ${dnE((c.sql || []).join(", "))} · no sale en el changelog</p>` : ""}</div>
-          <div class="dn-acciones"><button class="dn-btn b-soft mini" data-a="subir:${dnE(c.sha)}">Subir hasta aquí</button></div></div>`;
+          <div class="dn-acciones"><button class="dn-btn b-soft mini" data-a="subir:${dnE(c.sha)}" ${dnEnMarcha() ? "disabled" : ""}>Subir hasta aquí</button></div></div>`;
       }).join("")}</div>`;
 }
 
@@ -841,6 +900,13 @@ async function dnMandaBarrera(accion, datos, dicho) {
     await sbBarrera(accion, datos);
     toast(dicho, "hecho");
     DN.grifoPend = null;
+    /* Todo lo que pone a GitHub a trabajar enciende el «subiendo». */
+    if (accion === "subir" || accion === "aprobar" || accion === "regresar" || (accion === "grifo" && datos.abierto)) {
+      DN.subiendo = Date.now();
+      /* El latido que ya esperaba lo hacía a paso lento (30 s): se vuelve a
+         poner, ahora al paso de una subida en marcha. */
+      dnLatido();
+    }
     await dnCargaBarrera();
     dnRepreguntaBarrera();
   } catch (e) {
@@ -908,7 +974,8 @@ function dnSalaSubidas() {
   const cola = (b && b.cola) || [];
   const llave = e => typeof novedadLlave === "function" ? novedadLlave(e) : String(e.id || e.version);
   return `
-    <div class="dn-cab"><h2>Subidas</h2></div>
+    <div class="dn-cab"><h2>Subidas</h2><span class="dn-chip dn-der">Se actualiza sola</span></div>
+    ${dnSubiendoHTML()}
     <div class="dn-kpis tres">
       ${dnKpi("En vivo", "V" + dnE(enVivo), "", `<span class="dn-ver">${dnEtapa() ? `<span class="etapa">${dnEtapa()}</span>` : ""}<span>${b && b.vivo && b.vivo.fecha ? "· " + dnE(dnDia(dnLocal(b.vivo.fecha))) : "· " + dnE(typeof VERSION_FECHA !== "undefined" ? VERSION_FECHA : "")}</span></span>`)}
       ${total ? dnKpi("Ya la tienen", conLa, " de " + total, "personas que abrieron en 14 días") : dnKpi("Ya la tienen", "—", "", "Nadie abrió en 14 días")}
@@ -1144,6 +1211,7 @@ function dnPinta() {
   capa.dataset.sala = DN.sala;
   if (salaVieja === DN.sala) capa.querySelector(".dn-sala").scrollTop = arriba;
   dnDibuja();
+  if (DN.sala === "subidas" && !DN.latido) dnLatido();
 }
 
 /* ---- Gráficas ----

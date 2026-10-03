@@ -318,6 +318,33 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.196 · 3 oct 2026
+
+**La sala de Subidas dice que está subiendo, y se refresca sola.** Después de
+aprobar algo la sala se quedaba igual hasta volver a entrar: la subida tarda
+uno o dos minutos en GitHub y aquí no se movía nada. Lo pidió Eduardo.
+
+- **«Subiendo al vivo…»**: una tira arriba, con su rueda, desde que se manda la
+  orden hasta que GitHub termina. Mientras dura, los botones de subir se apagan
+  —un segundo toque mandaría otra subida detrás—.
+- **Un latido** mientras la sala está a la vista: cada 6 segundos con una
+  subida en marcha, cada 30 sin ella. No late con la sala cerrada, con otra
+  sala abierta ni con la pestaña escondida: cada pregunta son varias llamadas
+  a GitHub con la llave, y la llave tiene cupo.
+- **Solo se repinta si algo cambió**, y nunca con la llave del grifo en la mano.
+- **Al terminar avisa**: «Ya está en vivo», o que no terminó bien, y vuelve a
+  leer las novedades por si lo aprobado las cambió.
+
+GitHub tarda unos segundos en dar de alta una corrida, así que recién mandada
+la orden no se da por terminada hasta pasados veinte segundos sin ninguna en
+marcha; a los cinco minutos se suelta pase lo que pase.
+
+**Cómo se probó.** Con el servidor imitado: mandar una subida, ver la tira y
+los botones apagados, que pregunte solo a los seis segundos, y que al terminar
+quite la tira, vacíe la cola y avise. Dos fallos salieron ahí y se corrigieron:
+el latido lento que ya esperaba no se aceleraba al empezar la subida, y una
+pregunta suelta no sabía dar la subida por terminada.
+
 ### 0.7.195 · 3 oct 2026
 
 **Una novedad de una versión que todavía no existe no se puede publicar.**
