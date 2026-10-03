@@ -203,10 +203,9 @@ sh herramientas/barrera.sh
 
 Y cuatro cosas que muerden:
 
-- **Mientras GitHub Pages siga publicando `main`, la barrera no frena nada.** El
-  corte lo hace Eduardo (Settings → Pages → rama `vivo`), y el panel avisa
-  arriba mientras no esté hecho. `sh herramientas/barrera.sh` habla del grifo,
-  no de eso: si hay duda de qué rama se publica, se le pregunta a él.
+- **GitHub Pages publica `vivo` desde el 2 oct 2026** (lo cambió Eduardo en
+  Settings → Pages). Si algún día vuelve a `main`, la barrera deja de frenar
+  sin avisar a nadie más que al panel, que lo dice arriba en amarillo.
 - **Nunca se sube a `vivo` a mano.** El `pre-push` se niega. Es lo publicado.
 - **Un tramo que toca `supabase/*.sql` no sube solo**, ni con el grifo abierto:
   espera a que Eduardo lo suba diciendo que ya lo pegó. Al tocar un `.sql`,
