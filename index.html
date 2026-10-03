@@ -441,7 +441,14 @@
     var rnc = JSON.parse(localStorage.getItem("norata-renacido") || "null");
     if (rnc) {
       localStorage.removeItem("norata-renacido");
-      if (window.__carga === "entrada" && Date.now() - Number(rnc.t || 0) < 600000) {
+      /* Sin exigir que sea una «entrada» (0.7.206). En el teléfono de Eduardo
+         la app vuelve del cierre creyendo que es un refresco —la marca de
+         «ya abierta» sobrevive—, así que esto no se cumplía nunca y salía
+         «Abriendo Norata…» con su fundido corto. Solo se respeta lo que ya
+         trae su propio dibujo: un estreno o un cambio de cuenta o de mundo. */
+      if (window.__carga !== "estreno" && window.__carga !== "cuenta" && window.__carga !== "mundo" &&
+          Date.now() - Number(rnc.t || 0) < 600000) {
+        window.__carga = "entrada";
         window.__renacido = true;
         document.documentElement.classList.add("carga-llega", "carga-renace");
       }

@@ -2322,6 +2322,9 @@ async function cambiarDeUnaPieza(o) {
   try {
     /* Si lo de abajo no llegara a leerse, que al menos sea una entrada. */
     sessionStorage.setItem("norata-entrada", "1");
+    /* Y que el APK no estrene una versión en esta recarga: sería una segunda
+       recarga y se llevaría lo de abajo (ver `estrenar`, js/13-nativo.js). */
+    sessionStorage.setItem("norata-no-estrenar", "1");
     /* Los textos van ya en su idioma: el marcado que los pinta corre antes
        que `tx()`. */
     sessionStorage.setItem("norata-cuenta", JSON.stringify({

@@ -196,6 +196,9 @@ function cargaSoltarZoom(el) {
   const telon = el.querySelector(".carga-telon");
   if (telon) telon.remove();
   cargaTelonPintar = null;
+  /* El color que el zoom le escribió a mano (ver `cargaZoom`): vale lo mismo
+     que el de la hoja, así que soltarlo aquí no cambia el cuadro. */
+  if (el.dataset.fondoZoom) { el.style.background = ""; delete el.dataset.fondoZoom; }
   /* El dibujo del estreno es de UNA carga: la siguiente que se muestre
      («Cambiando tema…», «Guardando lo último…») vuelve al aro que gira. */
   document.documentElement.classList.remove("carga-estreno", "carga-cuenta", "carga-mundo", "carga-renace", "carga-sin-halo");
@@ -555,9 +558,18 @@ function cargaMundo(el, mio, avisar) {
     if (puede && aro) cargaAnims.push(aro.animate([{ strokeDashoffset: 0 }, { strokeDashoffset: -295.3 }],
       { duration: MUNDO_CUENTA * 1000, easing: "linear", fill: "forwards" }));
   });
+  /* EL PRIMER NÚMERO ENTRA CON LA CUENTA, no antes (0.7.206). Salía pintado
+     junto con el aviso, se quedaba casi dos segundos y, al empezar la cuenta,
+     daba su brinco sin cambiar: Eduardo lo vio como un 4 que «se anima sin
+     cambiar de número de forma prematura». Ahora el renglón de la cuenta está
+     apagado hasta aquí (`.cv-cuenta.va`, css/estilos.css): el 4 aparece cuando
+     empieza a contar y dura un segundo, como los demás. El brinco es de los
+     que CAMBIAN: 3, 2 y 1. */
+  const renglon = frase && frase.querySelector(".cv-cuenta");
   for (let n = MUNDO_CUENTA; n >= 1; n--) {
     dar(t + (MUNDO_CUENTA - n) * 1000, () => {
       num.textContent = n;
+      if (n === MUNDO_CUENTA) { if (renglon) renglon.classList.add("va"); return; }
       if (puede) cargaAnims.push(num.animate([{ transform: "scale(1.35)" }, { transform: "scale(1)" }],
         { duration: 260, easing: "cubic-bezier(.22,1,.36,1)" }));
     });
@@ -753,6 +765,19 @@ function cargaZoom(el, mio, alReves) {
     el.insertBefore(telon, el.firstChild);
   }
   const marco = `M0 0H${W}V${H}H0Z`;
+  /* EL FONDO SE QUEDA LISO MIENTRAS EL HUECO ESTÉ CERRADO (%s). `sale` deja
+     la carga transparente para que la app se vea por el hueco del telón, y lo
+     hacía en el mismo cuadro en que el telón nacía. En el teléfono de Eduardo,
+     ese cuadro salía sin telón: el Resumen entero, con el logo encima, un
+     instante antes del zoom («el parpadeo»). Y al revés, al asentarse la
+     llegada, un cuadro dejaba ver media app al quitar el telón.
+     Ahora la carga conserva su color, escrito a mano, mientras no haya hueco:
+     en la entrada, los primeros 250 ms; en la llegada, desde que se cierra.
+     Quitar o poner el telón en esos ratos no cambia nada de lo que se ve. */
+  const fondoLiso = getComputedStyle(el).backgroundColor;
+  let huecoAbierto = false;
+  el.style.background = fondoLiso;
+  el.dataset.fondoZoom = "1";
   const pintar = () => {
     if (!zoom || !marca) return;
     const t = Number(zoom.currentTime) || 0;
@@ -760,6 +785,10 @@ function cargaZoom(el, mio, alReves) {
     const p = Math.min(1, Math.max(0, (t - 250) / 500));
     const k = 1 - Math.pow(1 - p, 3);                // sale rápido y se asienta
     const m = HUECO_MEDIO * s * k;
+    if ((m >= 0.5) !== huecoAbierto) {
+      huecoAbierto = m >= 0.5;
+      el.style.background = huecoAbierto ? "" : fondoLiso;
+    }
     telon.style.clipPath = m < 0.5 ? "none"
       : `path(evenodd, "${marco} ${cargaRectRedondo(cx, cy, m, HUECO_RADIO * s)}")`;
   };
@@ -1948,6 +1977,9 @@ async function entrarConCuentaGuardada(uid) {
     sessionStorage.removeItem("norata-agregar");
     /* Lo que la carga de la otra página necesita para seguir donde esta se
        queda: de quién a quién, y con qué tonos estaba pintada. */
+    /* Que el APK no estrene una versión en esta recarga (0.7.206): sería una
+       segunda, y se llevaría lo de abajo (ver `estrenar`, js/13-nativo.js). */
+    sessionStorage.setItem("norata-no-estrenar", "1");
     sessionStorage.setItem("norata-cuenta", JSON.stringify({
       de: antes,
       a: cuentaFichaDe(c.uid, saludo, c.correo, (c.perfil || {}).color),

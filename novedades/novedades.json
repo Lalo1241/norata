@@ -679,6 +679,21 @@
       }
     },
     {
+      "version": "0.7.206",
+      "fecha": "2026-10-03",
+      "estado": "borrador",
+      "clase": "arreglo",
+      "titulo": "Cargas sin parpadeos en el teléfono",
+      "resumen": "Cambiar de mundo ya sale completo aunque haya una versión esperando, el zoom de entrada no deja ver la app un instante antes, y la cuenta atrás empieza en 4 cuando de verdad empieza a contar.",
+      "puntos": [],
+      "retoques": [],
+      "en": {
+        "titulo": "Loading screens without flicker on the phone",
+        "resumen": "Switching worlds now plays in full even with a version waiting, the entry zoom no longer shows the app for an instant beforehand, and the countdown starts at 4 when it actually starts counting.",
+        "puntos": []
+      }
+    },
+    {
       "version": "0.7.204",
       "fecha": "2026-10-03",
       "estado": "borrador",

@@ -773,6 +773,30 @@ mano y se mide la pastilla cuadro a cuadro: nunca fuera de la caja del grupo,
 y el último cuadro igual a la opción de verdad. Con `--desliza-dur: 14s`
 puesto en `<html>` da tiempo a sacar una captura a medio viaje.
 
+## Una recarga con la carga puesta
+
+**Lo que cruza una recarga con la carga a la vista —Actualizar, cambiar de
+cuenta, cambiar de mundo— le deja apuntado a la página que viene qué seguir
+pintando, y eso se gasta en UNA lectura.** En el APK hay tres cosas que lo
+rompen, y las tres las vio Eduardo en un video de su teléfono (0.7.206):
+
+- **Una segunda recarga.** Con una versión bajada y esperando, `estrenar`
+  (`js/13-nativo.js`) la ponía al cargar la página: recarga doble, y la segunda
+  ya no encontraba nada. Quien recarga con la carga puesta deja
+  `norata-no-estrenar` en `sessionStorage`. **Una forma nueva de cruzar una
+  recarga la pone también.**
+- **Un cuadro sin telón.** Volver transparente la carga y crear su telón en el
+  mismo cuadro enseña la app un instante. `cargaZoom` le deja el color escrito
+  a mano mientras el hueco esté cerrado.
+- **La app que vuelve del cierre creyendo que es un refresco.** La marca de
+  «ya abierta» sobrevive al cierre que cambia el icono. Lo que tenga que pasar
+  al volver se apunta en `localStorage` y no depende de `window.__carga`.
+
+**Un video del teléfono se revisa con su reloj de verdad**: los de WhatsApp
+tienen velocidad de cuadros variable, y contar cuadros corre los tiempos hasta
+dos segundos. Y los parpadeos de un solo cuadro se cazan midiendo —cuánto
+contenido hay en cada cuadro— y no mirando una hoja cada medio segundo.
+
 ## Lo que sale solo va en fila
 
 **Nada que se abra solo sale pegado a una carga, ni encima de otra escena**

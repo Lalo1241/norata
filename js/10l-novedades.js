@@ -606,11 +606,17 @@ function avisoVersionLista(version, accion) {
     <button type="button" class="avv-no" onclick="cerrarAvisoVersion()" aria-label="${escapeAttr(tx("Cerrar"))}">${icon("close", 16)}</button>`;
   caja.dataset.version = version || "";
   caja.classList.add("show");
+  /* La página baja lo que mide la tarjeta (0.7.206). Va fija arriba y tapaba
+     el título y la flecha de volver de Ajustes: Eduardo la tuvo once segundos
+     encima sin poder ver dónde estaba. `--alto-aviso-version` lo suma el
+     relleno de `.app` (css/estilos.css). */
+  document.documentElement.style.setProperty("--alto-aviso-version", (caja.offsetHeight + 14) + "px");
 }
 function cerrarAvisoVersion() {
   const caja = document.getElementById("aviso-version");
   if (!caja || !caja.classList.contains("show")) return;
   caja.classList.remove("show");
+  document.documentElement.style.removeProperty("--alto-aviso-version");
   avisoCerrado = { version: caja.dataset.version || null, en: Date.now() };
 }
 

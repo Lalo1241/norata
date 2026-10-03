@@ -322,6 +322,8 @@ showView("summary");
      sincronía: con el servidor lento, Eduardo —Fundador— vio la app pidiéndole
      pagar los mundos que ya tiene hasta que la sincronía terminó. */
   const planPedido = recienEntrado ? null : planCargar();
+  /* Con qué plan se va a pintar: la copia guardada, que `planCargar` ya puso. */
+  const planAlPintar = typeof PLAN !== "undefined" ? JSON.stringify(PLAN) : "";
 
   if (!recienEntrado) {
     /* La sincronía, CON TOPE (0.7.181). Aquí se esperaba sin límite, y con el
@@ -416,7 +418,13 @@ showView("summary");
     planPedido.then(() => {
       /* Solo se repinta si resultó que sí paga: para quien no, ya está bien
          dibujado y un repintado de más hace parpadear la pantalla. */
-      if (esPro()) showView(activeMainView || "summary");
+      /* …y solo si el plan que llegó NO es el que ya estaba pintado (0.7.206).
+         Desde la 0.7.181 la app pinta con la copia guardada, así que casi
+         siempre la respuesta dice lo mismo y este repintado era de balde: a
+         Eduardo, que es Fundador, le borraba las tarjetas del Resumen dos
+         cuadros justo después de entrar. */
+      const planAhora = typeof PLAN !== "undefined" ? JSON.stringify(PLAN) : "";
+      if (esPro() && planAhora !== planAlPintar) showView(activeMainView || "summary");
     });
   }
 

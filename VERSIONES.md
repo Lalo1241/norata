@@ -318,6 +318,43 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.206 · 3 oct 2026
+
+**Ocho arreglos de las cargas, sacados de un video del teléfono de Eduardo
+revisado cuadro por cuadro.** Mandó 87 segundos con tres cambios de mundo y
+pidió la tabla de todo lo que fallaba. Lo que se arregla desde la app:
+
+- **El cambio de mundo salía sin su pieza cuando había una versión esperando.**
+  `estrenar` (`js/13-nativo.js`) la ponía al cargar la página: una segunda
+  recarga, y a esa ya no le quedaba lo apuntado. Salía la entrada de siempre y,
+  detrás, la ventana vieja de los diez segundos. Ahora quien recarga con la
+  carga puesta deja `norata-no-estrenar`, y esa carga no estrena. Cambiar de
+  cuenta tenía el mismo hueco.
+- **Un cuadro con el Resumen entero al arrancar el zoom** (y media app al
+  asentarse la llegada): la carga se volvía transparente en el mismo cuadro en
+  que nacía su telón. `cargaZoom` le deja el color escrito mientras el hueco
+  esté cerrado.
+- **Al volver del cierre salía «Abriendo Norata…» con el fundido corto**: la
+  vuelta rápida pedía que la carga fuera una «entrada», y en el teléfono vuelve
+  como refresco. Ya no lo pide.
+- **Un cuadro vacío al pasar de Resumen a Ajustes**: `viewIn` empieza en 0,35.
+- **El 4 de la cuenta atrás** salía con el aviso, duraba 1,7 s y daba un brinco
+  sin cambiar. Ahora el renglón entra cuando empieza a contar.
+- **La tarjeta «Ya está lista la versión» tapaba la cabecera de Ajustes**: la
+  página baja lo que mide la tarjeta (`--alto-aviso-version`).
+- **Las tarjetas del Resumen se borraban dos cuadros después de entrar**: el
+  plan repintaba aunque fuera el mismo que ya estaba pintado.
+- **La raya de desplazamiento encima de la carga**, en pantallas de dedo.
+
+**Lo que no se arregla desde aquí** (es de Android, pide APK): el fondo gris
+0,3 s al abrir en Averno, el color liso sin logo al cerrarse, el icono que
+tarda 1,5 s en cambiar en la pantalla de inicio y que la app no se reabra
+sola. **Sin causa todavía**: el logo y el aviso bajan 8 px de golpe con la
+cuenta en «1» (48,6 s del video).
+
+**Sin probar en el teléfono.** El de la versión esperando y el del telón no se
+pueden reproducir en local: se comprobaron leyendo el código contra el video.
+
 ### 0.7.205.3 · 3 oct 2026
 
 **La frase de «Comentario» cierra amable**: «…qué conservar y qué mejorar para
