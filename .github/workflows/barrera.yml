@@ -46,7 +46,6 @@ on:
 
 permissions:
   contents: write
-  pages: write
 
 # De una en una y sin cancelar: dos subidas seguidas se hacen las dos, en orden.
 concurrency:
@@ -192,7 +191,6 @@ jobs:
         env:
           SHA: ${{ steps.que.outputs.sha }}
           LLAVE: ${{ secrets.LLAVE_VIVO }}
-          GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
         run: |
           # Nunca con `--force`: `vivo` solo va hacia delante.
@@ -208,10 +206,13 @@ jobs:
               git push "git@github.com:$REPO.git" "$SHA:refs/heads/vivo"
             rm -f ~/.ssh/llave_vivo
           else
+            # Sin la llave solo funciona mientras `vivo` no esté protegida, y
+            # nunca para un tramo que toque `.github/workflows/`.
             git push origin "$SHA:refs/heads/vivo"
           fi
-          # Por si la subida no despierta a GitHub Pages por sí sola.
-          gh api -X POST "repos/$REPO/pages/builds" >/dev/null 2>&1 || true
+          # No se le pide a Pages que construya: la subida ya lo despierta, y
+          # pedirlo además hacía dos construcciones por subida, una de ellas
+          # cancelada y marcada como fallida (2 oct 2026).
           echo "subio=1" >> "$GITHUB_OUTPUT"
           echo "### En vivo" >> "$GITHUB_STEP_SUMMARY"
           echo "\`vivo\` está ahora en $(git log -1 --format='%h %s' "$SHA")." >> "$GITHUB_STEP_SUMMARY"
