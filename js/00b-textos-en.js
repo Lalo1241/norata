@@ -3722,6 +3722,18 @@ const TEXTOS_EN = {
   /* Los avisos de la app de Android (0.7.150): los botones y los canales que
      Android enseña en sus ajustes, y lo que dice la cortina. */
   "Pomodoro en curso": "Pomodoro running",
+  /* El widget Hoy de la pantalla de inicio (js/13c-widgets.js). `{a}`, `{b}`,
+     `{h}` y `{n}` los rellena quien los usa, no una plantilla: se quedan tal cual. */
+  "Todo cumplido": "All done",
+  "{a} de {b}": "{a} of {b}",
+  "Sigue": "Next",
+  "hasta {h}": "until {h}",
+  "Hoy no tienes misiones.": "No missions today.",
+  "Apuntar una": "Add one",
+  "Abre Norata para ver tu día.": "Open Norata to see your day.",
+  "Abrir": "Open",
+  "Se aplicó 1 marca del widget": "Applied 1 check from the widget",
+  "Se aplicaron {n} marcas del widget": "Applied {n} checks from the widget",
   "Avisos del Pomodoro": "Pomodoro alerts",
   "Inicio de actividad": "Activity start",
   "Pausar": "Pause",

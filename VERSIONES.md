@@ -318,6 +318,53 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.197 · 3 oct 2026
+
+**El primer widget de la pantalla de inicio: Hoy.** En la app de Android, las
+misiones del día se marcan sin abrir la app. Lo pidió Eduardo, sobre un boceto
+con nueve widgets; este es el primero que se construye.
+
+**La regla que lo ordena todo: el widget apunta, la app aplica.** Un widget
+vive fuera de la página y no puede sumar XP, mover la racha ni sincronizar. Lo
+que se marca queda en una cola con su día y su hora, y la app lo aplica al
+abrirse —o al momento, si estaba viva de fondo—. Es el mecanismo de los avisos
+del Pomodoro (`jAplicarAvisos`).
+
+- **Lo nativo, en `nativo/widgets/`**: el complemento `WidgetsNorata` (cuatro
+  archivos Java), los moldes, el instalador y su `LEEME.md`. No depende de los
+  avisos; solo comparten las letras. **No llega solo: pide reinstalar el APK
+  una vez.** Sin él, `js/13c-widgets.js` se sale en su primera línea.
+- **La página manda una «foto»** cada vez que pasa por `save()`: siete días
+  con sus misiones y las actividades de la rueda del Pomodoro, los textos en el
+  idioma de la app y cada color leído del CSS de verdad. Siete días y no uno
+  porque a medianoche el widget cambia de día sin que nadie abra la app. La
+  rueda se lee SIN `jDatos()`, que la sembraría en quien nunca la abrió.
+- **`logMission` acepta `dia`, `hora` y `mudo`.** Una marca de anoche a las
+  23:50 es de ayer aunque la app se abra hoy; apuntarla en la hora de la
+  apertura le mentiría a la racha de la misión y al informe de horas. `mudo`
+  calla el sonido y la moneda de Arcade: suenan a lo que ves pasar. Así el
+  widget entra por la misma puerta que un toque dentro y no hay un segundo
+  camino para cumplir una misión.
+- **Se dice una vez**: «Se aplicaron 3 marcas del widget», y entonces se
+  pregunta por la racha y el nivel. Una celebración que salga al abrir tiene al
+  lado el aviso que explica de dónde vino.
+- **Marcar y desmarcar seguido se anula en el widget** y no llega a la app:
+  aplicar las dos daría y quitaría el XP por algo que no pasó.
+- **`pendientes` vacía la cola**, así que no se pide hasta que la app está en
+  pie: pedirla sobre la pantalla de carga sería perder las marcas.
+
+**Cómo se probó.** El Java compila con `javac` contra Android 16 y Capacitor 8.
+La página, con un complemento de mentira: seis marcas, cuatro aplicadas con su
+día y su hora y las dos inválidas —una misión que no existe y una fecha
+futura— descartadas; el XP entró y marcar dentro de la app sigue igual.
+**Sin probar:** el widget pintado en un teléfono, el instalador contra el
+proyecto de Android y las actividades de la rueda con datos reales.
+
+**Lo que no hace:** la tira de «Ahora» puede ir hasta media hora atrasada (es
+lo mínimo que Android deja repintar sin una alarma propia), y una marca del
+widget no llega a otros dispositivos hasta abrir la app en este. Todos los
+widgets son gratis de momento; qué pide Pro lo decide Eduardo después.
+
 ### 0.7.196 · 3 oct 2026
 
 **La sala de Subidas dice que está subiendo, y se refresca sola.** Después de

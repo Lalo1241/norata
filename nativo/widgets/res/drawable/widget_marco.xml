@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- El marco del widget, por fuera (el filo). El color de verdad lo pone el código (setColorFilter), porque cambia con el
+     mundo y un widget no deja leer variables; el de aquí es el de la casa de noche, que es
+     lo que se ve en el selector de widgets antes de ponerlo. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#FF2F5A52" />
+    <corners android:radius="28dp" />
+</shape>

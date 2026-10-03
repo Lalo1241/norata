@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.196";
+const VERSION = "0.7.197";
 const VERSION_FECHA = "3 oct 2026";
 
 /* ---- La web de fuera, en UN solo sitio ----
@@ -2278,6 +2278,10 @@ function save() {
   if (typeof expTocado === "function") expTocado();
   guardarLocal(state);
   syncTouch();
+  /* Los widgets de la pantalla de inicio (js/13c-widgets.js) enseñan una foto
+     del día, y aquí es donde cambia. Solo existe en la app de Android con el
+     complemento puesto; en lo demás no hay nada que llamar. */
+  if (typeof widgetsFoto === "function") widgetsFoto();
 }
 
 function uid() {
