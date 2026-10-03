@@ -140,10 +140,16 @@ estaba antes de ESE instalador.
   230 dp de ancho, la rueda chica; con 300 dp de alto además, la entera. Las
   medidas son las que el lanzador le dice a Android, y cada marca las cuenta a
   su manera: si en un teléfono no cambia al estirarlo, es ahí.
-- **Hay un latido cada cinco minutos** (`Widgets.armarTic`) para que la aguja
-  de la rueda, la tira de «Ahora» y la cuenta del sueño no se queden atrás. No
-  despierta el teléfono: con la pantalla apagada no corre. Sin ningún widget
-  puesto, no se arma.
+- **En el Pomodoro, lo que cuenta va en tiempo real.** La cuenta del tramo y
+  la de «cuánto falta para despertar» corren por segundos con el cronómetro
+  del sistema, y la hora de la cabecera con su reloj (`TextClock`), en la zona
+  del perfil. Lo pidió Eduardo: un Pomodoro que no se ve correr no sirve. Lo
+  que es dibujo —la aguja, la arena y el aro— avanza con el latido.
+- **El latido** (`Widgets.armarTic`) repinta los widgets: cada 20 segundos con
+  un tramo en marcha, al cambiar el minuto con un Pomodoro puesto, y cada
+  cinco minutos si no. No despierta el teléfono —con la pantalla apagada no
+  corre— y Android puede retrasarlo unos segundos: por eso nada que tenga que
+  ir al segundo depende de él. Sin ningún widget puesto, no se arma.
 - **Dos cosas se ajustan aquí y no en la página**, porque pasan con la app
   cerrada: una misión marcada en un widget enciende el día de hoy en Racha y
   pone «Al día» en Por cuidar; y a partir del domingo, Racha empieza una

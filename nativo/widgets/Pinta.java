@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.RemoteViews;
 
@@ -322,8 +323,11 @@ final class Pinta {
        esa es la de los avisos (`nativo/avisos/`); duplicarla aquí serían dos
        relojes que pueden no coincidir.
 
-       La cuenta sí corre sola, con el cronómetro del sistema. La aguja y la
-       arena son una imagen: avanzan cuando el widget se repinta. */
+       Lo que cuenta va en tiempo real: la cuenta del tramo y la del sueño, por
+       segundos, con el cronómetro del sistema, y la hora de la cabecera con su
+       reloj. La aguja, la arena y el aro son una imagen y avanzan cuando el
+       widget se repinta: cada minuto con un Pomodoro puesto, y cada veinte
+       segundos con un tramo en marcha (`Widgets.armarTic`). */
     static RemoteViews pomodoro(Context c, AppWidgetManager m, int widget) {
         int[] md = medida(m, widget, 150, 200);
         boolean grande = md[0] >= 230 && md[1] >= 300, ancho = !grande && md[0] >= 230;
@@ -351,6 +355,7 @@ final class Pinta {
 
         String t, rot, sub, largo, corto, ir;
         float prog;
+        long hastaDespertar = 0;
         if (!cerrado.isEmpty()) {
             t = "--:--"; rot = cerrado; sub = ""; prog = 0;
             largo = corto = Widgets.tx(f, "abrir", "Abrir"); ir = "jornada";
@@ -358,6 +363,7 @@ final class Pinta {
             int a = blo.optInt("a"), z = blo.optInt("b"), total = ((z - a + 1440) % 1440) == 0 ? 1440 : (z - a + 1440) % 1440, falta = (z - minuto + 1440) % 1440;
             boolean dormido = pm.optBoolean("dormido");
             t = String.format(Locale.US, "%d:%02d", falta / 60, falta % 60);
+            hastaDespertar = Math.max(0, falta * 60000L - Widgets.ahora(f).get(Calendar.SECOND) * 1000L);
             rot = dormido ? Widgets.tx(f, "durmiendo", "Durmiendo") : Widgets.tx(f, "dormir_rot", "Hora de dormir");
             sub = con(Widgets.tx(f, "levantas", "Te levantas a las {h}"), "{h}", Widgets.hora(z));
             prog = 1 - falta / (float) total;
@@ -378,17 +384,31 @@ final class Pinta {
             ir = corre ? "jornada:pausar" : pausa ? "jornada:seguir" : "jornada:iniciar";
         }
 
-        // La cabecera: en el chico, por dónde va; en los otros, la hora.
-        texto(c, v, "w_meta", grande || ancho ? Widgets.hora(minuto) : sueno || !cerrado.isEmpty() ? "" : pm.optInt("tramo", 1) + "/" + pm.optInt("total", 4), suave);
+        // La cabecera: en el chico, por dónde va; en los otros, la hora, que la
+        // lleva un reloj del sistema (`TextClock`) en la zona del perfil: cambia
+        // sola al minuto, sin esperar a que el widget se repinte.
+        texto(c, v, "w_meta", sueno || !cerrado.isEmpty() ? "" : pm.optInt("tramo", 1) + "/" + pm.optInt("total", 4), suave);
+        int ahora = Widgets.id(c, "wp_ahora");
+        if (ahora != 0 && (grande || ancho)) {
+            v.setTextColor(ahora, suave);
+            String zona = f.optString("zona", "");
+            if (!zona.isEmpty()) v.setString(ahora, "setTimeZone", zona);
+        }
 
-        // La cuenta: el cronómetro del sistema si corre; si no, un texto quieto.
+        // La cuenta corre SOLA, por segundos, con el cronómetro del sistema: lo que
+        // falta del tramo si corre, y lo que falta para despertar en el bloque de
+        // sueño. Solo queda quieta cuando no hay nada contando (en pausa, o antes
+        // de iniciar), que es cuando un número quieto dice la verdad.
         int crono = Widgets.id(c, "wp_crono");
-        ver(c, v, "wp_crono", corre);
-        ver(c, v, "wp_t", !corre);
-        if (corre) {
-            v.setChronometer(crono, SystemClock.elapsedRealtime() + resto, null, true);
+        boolean cuenta = cerrado.isEmpty() && (corre || (sueno && hastaDespertar > 0));
+        ver(c, v, "wp_crono", cuenta);
+        ver(c, v, "wp_t", !cuenta);
+        if (cuenta) {
+            v.setChronometer(crono, SystemClock.elapsedRealtime() + (corre ? resto : hastaDespertar), null, true);
             if (Build.VERSION.SDK_INT >= 24) v.setChronometerCountDown(crono, true);
             v.setTextColor(crono, texto);
+            // Con horas («5:04:12») no cabe dentro del aro chico a su tamaño de siempre.
+            if (!grande && !ancho) v.setTextViewTextSize(crono, TypedValue.COMPLEX_UNIT_DIP, sueno ? 19 : 25);
         } else {
             v.setChronometer(crono, SystemClock.elapsedRealtime(), null, false);
             texto(c, v, "wp_t", t, texto);

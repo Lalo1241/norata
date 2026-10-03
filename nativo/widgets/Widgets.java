@@ -57,8 +57,7 @@ final class Widgets {
     /* La acción del toque en una fila. Es un texto cualquiera, único en la app. */
     static final String MARCA = "norata.widgets.MARCA";
     static final String EXTRA_ID = "norataMision";
-    /* El latido: cada cinco minutos se repintan, para que la aguja de la rueda, la
-       tira de «Ahora» y la cuenta del sueño no se queden atrás. */
+    /* El latido que los repinta. Cada cuánto, en `armarTic`. */
     static final String TIC = "norata.widgets.TIC";
 
     /* Todos los widgets. Uno nuevo se da de alta aquí, en el manifiesto (lo hace
@@ -297,22 +296,32 @@ final class Widgets {
         if (alguno) armarTic(c);
     }
 
-    /* Una alarma que NO despierta el teléfono: con la pantalla apagada no corre,
-       y al encenderla se pone al día. Con un tramo del Pomodoro en marcha se
-       adelanta a su final, para que el widget diga «Tramo listo» a su hora. Sin
-       ningún widget puesto no se arma (`refrescar` no llega aquí). */
+    /* El latido: una alarma que NO despierta el teléfono. Con la pantalla
+       apagada no corre, y al encenderla se pone al día. Cada cuánto, depende de
+       lo que haya a la vista:
+         - un tramo del Pomodoro en marcha: cada 20 segundos, para que el aro y
+           la arena avancen, y justo a su final, para decir «Tramo listo»;
+         - un widget del Pomodoro puesto: al cambiar el minuto, que es cuando se
+           mueve la aguja de la rueda;
+         - lo demás: cada cinco minutos (la tira de «Ahora» de Hoy).
+       Es una alarma inexacta: Android puede retrasarla unos segundos, y por
+       eso lo que tiene que ir al segundo —las cuentas y la hora— no depende de
+       esto, sino del cronómetro y del reloj del sistema. Sin ningún widget
+       puesto no se arma (`refrescar` no llega aquí). */
     static void armarTic(Context c) {
         AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
-        if (am == null) return;
-        long en = 5 * 60000L;
+        AppWidgetManager m = AppWidgetManager.getInstance(c);
+        if (am == null || m == null) return;
+        long ya = System.currentTimeMillis(), en = 5 * 60000L;
+        if (m.getAppWidgetIds(new ComponentName(c, PomodoroWidget.class)).length > 0) en = 60000L - ya % 60000L + 500;
         JSONObject p = foto(c).optJSONObject("pomo");
         if (p != null && p.optBoolean("corre")) {
-            long falta = p.optLong("fin") - System.currentTimeMillis();
-            if (falta > 0) en = Math.min(en, falta + 800);
+            long falta = p.optLong("fin") - ya;
+            if (falta > 0) en = Math.min(Math.min(en, 20000L), falta + 800);
         }
         Intent i = new Intent(c, HoyWidget.class).setAction(TIC);
         PendingIntent pi = PendingIntent.getBroadcast(c, 7900, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        am.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + Math.max(15000L, en), pi);
+        am.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + Math.max(5000L, en), pi);
     }
 
     /* El toque que marca una misión, desde cualquier widget. Va siempre a
