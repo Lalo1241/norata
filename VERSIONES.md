@@ -314,6 +314,30 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.185 · 3 oct 2026
+
+**Cada imagen de Novedades lleva su pie, y las de claro contra oscuro dicen
+cuál es cuál.** Eduardo, sobre las imágenes del changelog: «coloca siempre uno
+en cada imagen que sea alusivo al contenido de la imagen para entenderlo
+mejor», centrado; y en las partidas en diagonal, dos cápsulas abajo, «Modo
+claro» con el sol y «Modo oscuro» con la luna, los iconos del selector de
+Aspecto. Todas las cápsulas, también las de las tiras, más arriba (52 px).
+
+- **El pie (`pie`, con su `en.pie`)** va en cada imagen y en cada lámina de
+  gráficos del sitio; dice qué se VE, y el punto del texto sigue diciendo qué
+  cambió. En la app, `novedadCuerpoHTML` (`.nov-pieza`, `.nov-leyenda`); en
+  el sitio, `figura()` del exportador, con el estilo en línea para que salga
+  bien antes de volver a pegar `TarjetaNovedad` en Framer.
+- **La imagen por idioma (`en.src`).** El texto de las cápsulas está dentro
+  de la imagen, así que la ficha en inglés lleva la suya (`-en.jpg`). El sitio
+  todavía no cambia de idioma; la app sí.
+- **Las ya publicadas se rehicieron con `-v2`**, nunca encima: Cyberpunk, las
+  paletas y los ambientes. `herramientas/capturas/diagonal.mjs` sustituye a
+  `partir.py`, que no rotulaba, y `jpg.py` las deja por debajo de 150 KB.
+- **El Pomodoro (0.7.163) sale publicado**, con su banner y una imagen por
+  punto, sacadas de la lámina «Avisos de Norata». Lo aprobó Eduardo en la
+  conversación («súbelo al live»), no desde el panel.
+
 ### 0.7.184 · 2 oct 2026
 
 **El cierre de emergencia ya regresa a una versión sana.** Era la pieza que le

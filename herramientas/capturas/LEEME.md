@@ -21,7 +21,8 @@ un navegador sin ventana por su protocolo.
    ```sh
    node captura.mjs cyber oscuro noche.png
    node captura.mjs cyber claro dia.png
-   python partir.py dia.png noche.png ../../novedades/img/0.7.148-cyberpunk-dia-y-noche.jpg
+   RAIZ=../.. node diagonal.mjs dia.png noche.png partida.png
+   python jpg.py partida.png ../../novedades/img/0.7.148-cyberpunk-dia-y-noche-v2.jpg
    ```
 
 `captura.mjs <mundo> <oscuro|claro> <salida> [js]` abre la app sin sesión
@@ -30,8 +31,12 @@ un navegador sin ventana por su protocolo.
 argumento es JavaScript que corre antes de la foto, para ir a otra pantalla
 (`abrirApariencia()`, por ejemplo).
 
-`partir.py` deja el día a la izquierda y la noche a la derecha, y baja la
-calidad hasta que el JPG pese menos de 150 KB. **Antes de elegir pantalla, mirar
+`diagonal.mjs` deja el día a la izquierda y la noche a la derecha, **cada uno
+con su cápsula abajo en su esquina: «Modo claro» con el sol y «Modo oscuro» con
+la luna**, los mismos iconos del selector de Aspecto (Eduardo, 2 oct 2026: toda
+imagen de claro contra oscuro los lleva). `jpg.py` baja la calidad hasta que el
+JPG pese menos de 150 KB. Las cápsulas van a 52 px del borde de abajo, también
+las de `tiras.mjs`: a 26 se veían caídas. **Antes de elegir pantalla, mirar
 qué se queda de noche en los dos modos**: la escena de la racha no cambia, así
 que si cae del lado del día, ese lado sale oscuro igual.
 

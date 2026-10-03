@@ -69,6 +69,8 @@ const CSS = `
 .nv-fig { margin: 0; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; background: #10151D; }
 .nv-fig img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center top; cursor: zoom-in; transition: transform 0.25s ease; }
 .nv-fig.nv-grafico img { object-fit: contain; object-position: center; }
+.nv-pieza { display: grid; gap: 8px; min-width: 0; }
+.nv-leyenda { margin: 0; text-align: center; font-size: 14px; line-height: 1.4; opacity: 0.72; }
 .nv-fig img:hover { transform: scale(1.02); }
 .nv-fig img:focus-visible { outline: 3px solid #00915A; outline-offset: -3px; }
 /* Un tramo son unas imágenes y, debajo, el punto que las explica: el pie va

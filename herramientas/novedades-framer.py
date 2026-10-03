@@ -312,7 +312,7 @@ def lamina(bloques, en):
 
 
 def dibujar(e, en=False):
-    """Las láminas de una ficha: `[(tras, dirección, título)]`.
+    """Las láminas de una ficha: `[(tras, dirección, títulos, pie)]`.
 
     Un gráfico es una lista de bloques, y **los que llevan el mismo `tras` van
     en la misma lámina**, que cae tras ese punto del texto (sin `tras`, tras
@@ -338,7 +338,11 @@ def dibujar(e, en=False):
         # lo vigila.
         (IMG / nombre).write_bytes(crudo)
         nombres.add(nombre)
-        hechas.append((tras, WEB + "novedades/img/" + nombre, ", ".join(campo(b, "titulo", en) or "" for b in bloques)))
+        # El pie de la lámina: el `pie` del primer bloque que lo traiga, que
+        # dice qué enseña el dibujo; sin él, sus títulos.
+        titulos = ", ".join(campo(b, "titulo", en) or "" for b in bloques)
+        pie = next((campo(b, "pie", en) for b in bloques if campo(b, "pie", en)), None) or titulos.replace(", ", " · ")
+        hechas.append((tras, WEB + "novedades/img/" + nombre, titulos, pie))
     # Y las de antes se quitan, o `novedades/img/` se llenaría de gráficos que
     # nadie enlaza.
     suyas = re.compile(re.escape(raiz) + r"-grafico(-\d+)?" + cola + r"(-[0-9a-f]{8})?\.svg")
@@ -348,8 +352,19 @@ def dibujar(e, en=False):
     return hechas
 
 
-def figura(src, alt, clase):
-    return f'<figure class="nv-fig {clase}"><img src="{esc(src)}" alt="{esc(alt or "")}" loading="lazy"></figure>'
+def figura(src, alt, clase, pie=""):
+    """Una imagen con su pie debajo, centrado (Eduardo, 3 oct 2026: «coloca
+    siempre uno en cada imagen que sea alusivo al contenido»). El pie dice qué
+    se ve; el punto del texto, debajo del tramo, dice qué cambió.
+
+    Los estilos del pie van EN LÍNEA además de en la tarjeta: el componente de
+    Framer se pega a mano, y una tarjeta con el componente viejo enseñaría el
+    pie sin centrar hasta que alguien lo vuelva a pegar."""
+    img = f'<figure class="nv-fig {clase}"><img src="{esc(src)}" alt="{esc(alt or "")}" loading="lazy"></figure>'
+    if not pie:
+        return img
+    return (f'<div class="nv-pieza" style="display:grid;gap:8px;min-width:0">{img}'
+            f'<p class="nv-leyenda" style="margin:0;text-align:center;font-size:14px;line-height:1.4;opacity:.72">{esc(pie)}</p></div>')
 
 
 def cuerpo(e, en=False):
@@ -384,9 +399,10 @@ def cuerpo(e, en=False):
     propia = [e.get("imagen")] if (e.get("banner") or {}).get("src") else []
     for img in propia + list(e.get("imagenes") or []):
         if img and img.get("src"):
-            poner(img.get("tras"), figura(WEB + img["src"], campo(img, "alt", en), "nv-foto"))
-    for tras, direccion, titulos in dibujar(e, en):
-        poner(tras, figura(direccion, ("Chart: " if en else "Gráfico: ") + titulos, "nv-grafico"))
+            poner(img.get("tras"), figura(WEB + campo(img, "src", en), campo(img, "alt", en), "nv-foto",
+                                          campo(img, "pie", en) or ""))
+    for tras, direccion, titulos, pie in dibujar(e, en):
+        poner(tras, figura(direccion, ("Chart: " if en else "Gráfico: ") + titulos, "nv-grafico", pie))
 
     trozos, lista = [], []
 

@@ -340,7 +340,15 @@ function novedadCuerpoHTML(e, puntos) {
     return medios[n];
   };
   (Array.isArray(e.imagenes) ? e.imagenes : []).forEach((i) => {
-    if (i && i.src) poner(i.tras).figs.push(`<figure class="nov-fig"><img src="${escapeAttr(novedadImgSrc(i.src))}" alt="${escapeAttr(novedadCampo(i, "alt") || "")}" loading="lazy" onerror="this.parentNode.remove()"></figure>`);
+    /* `src` y `pie` por idioma (0.7.185): las imágenes de claro contra oscuro
+       llevan sus cápsulas rotuladas, y en inglés tienen que decir «Light
+       mode». El pie va debajo y centrado, y dice qué se VE: Eduardo pidió uno
+       en cada imagen, «alusivo al contenido de la imagen para entenderlo
+       mejor». El punto del texto, debajo del tramo, sigue diciendo qué cambió. */
+    if (!i || !i.src) return;
+    const pie = novedadCampo(i, "pie");
+    const fig = `<figure class="nov-fig"><img src="${escapeAttr(novedadImgSrc(novedadCampo(i, "src")))}" alt="${escapeAttr(novedadCampo(i, "alt") || "")}" loading="lazy" onerror="this.closest('.nov-pieza').remove()"></figure>`;
+    poner(i.tras).figs.push(`<div class="nov-pieza">${fig}${pie ? `<p class="nov-leyenda">${escapeHtml(pie)}</p>` : ""}</div>`);
   });
   (Array.isArray(e.grafico) ? e.grafico : e.grafico ? [e.grafico] : []).forEach((b) => {
     const html = novedadBloqueHTML(b);

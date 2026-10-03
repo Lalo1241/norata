@@ -679,6 +679,20 @@
       }
     },
     {
+      "version": "0.7.185",
+      "fecha": "2026-10-03",
+      "estado": "borrador",
+      "clase": "mejora",
+      "titulo": "Cada imagen de Novedades, con su pie",
+      "resumen": "Debajo de cada imagen de Novedades va una línea que dice qué enseña, y las que comparan el modo claro con el oscuro dicen cuál es cuál. En inglés, rotuladas en inglés.",
+      "puntos": [],
+      "retoques": [],
+      "en": {
+        "titulo": "Every image in What's new, with its caption",
+        "resumen": "Under each image in What's new there's a line saying what it shows, and the ones comparing light and dark mode say which is which. In English, labeled in English."
+      }
+    },
+    {
       "version": "0.7.181",
       "fecha": "2026-10-02",
       "estado": "borrador",
@@ -940,7 +954,7 @@
     {
       "version": "0.7.163",
       "fecha": "2026-10-02",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "expansion",
       "titulo": "El Pomodoro te avisa aunque la app esté cerrada",
       "resumen": "En la app de Android, el Pomodoro vive también en la cortina de avisos, con los tonos de tu mundo, y cada actividad de tu día te llama a su hora.",
@@ -958,7 +972,52 @@
           "When each phase ends, it rings even if you closed the app.",
           "Each activity on your wheel rings as it starts, and you start it from the notification."
         ]
-      }
+      },
+      "imagen": {
+        "src": "novedades/img/0.7.163-avisos.jpg",
+        "alt": "Una pantalla bloqueada a las 10:00 con dos avisos de Norata: una actividad que empieza, con su botón Iniciar, y la cuenta de un tramo en curso, con su botón de pausa.",
+        "en": {
+          "alt": "A lock screen at 10:00 with two Norata notifications: an activity starting, with its Start button, and the countdown of a session in progress, with its pause button."
+        }
+      },
+      "banner": {
+        "foco": "50% 50%"
+      },
+      "imagenes": [
+        {
+          "src": "novedades/img/0.7.163-cuenta-dia-y-noche.jpg",
+          "alt": "El aviso del tramo en curso, plegado y abierto, partido en diagonal: de día a la izquierda y de noche a la derecha.",
+          "en": {
+            "alt": "The session-in-progress notification, collapsed and expanded, split diagonally: daytime on the left, night on the right.",
+            "src": "novedades/img/0.7.163-cuenta-dia-y-noche-en.jpg",
+            "pie": "The session in progress in the shade: the countdown and the pause button."
+          },
+          "tras": 1,
+          "pie": "El tramo en curso en la cortina: la cuenta atrás y el botón de pausa."
+        },
+        {
+          "src": "novedades/img/0.7.163-fin-de-fase-dia-y-noche.jpg",
+          "alt": "El aviso de tramo listo, plegado y abierto, partido en diagonal: de día a la izquierda y de noche a la derecha.",
+          "en": {
+            "alt": "The session-done notification, collapsed and expanded, split diagonally: daytime on the left, night on the right.",
+            "src": "novedades/img/0.7.163-fin-de-fase-dia-y-noche-en.jpg",
+            "pie": "When a session ends, the notification that rings even with the app closed."
+          },
+          "tras": 2,
+          "pie": "Al acabar un tramo, el aviso que suena aunque la app esté cerrada."
+        },
+        {
+          "src": "novedades/img/0.7.163-alarma-dia-y-noche.jpg",
+          "alt": "La alarma de una actividad que empieza, plegada y abierta, con Iniciar y En 5 min, partida en diagonal: de día a la izquierda y de noche a la derecha.",
+          "en": {
+            "alt": "The alarm for an activity that's starting, collapsed and expanded, with Start and In 5 min, split diagonally: daytime on the left, night on the right.",
+            "src": "novedades/img/0.7.163-alarma-dia-y-noche-en.jpg",
+            "pie": "The alarm for an activity on your wheel, with Start and In 5 min."
+          },
+          "tras": 3,
+          "pie": "La alarma de una actividad de tu rueda, con Iniciar y En 5 min."
+        }
+      ]
     },
     {
       "version": "0.7.162",
@@ -1148,7 +1207,8 @@
           "tipo": "cifras",
           "titulo": "Cyberpunk en números",
           "en": {
-            "titulo": "Cyberpunk in numbers"
+            "titulo": "Cyberpunk in numbers",
+            "pie": "Cyberpunk in figures and its five palettes, with when you get each one."
           },
           "datos": [
             {
@@ -1184,7 +1244,8 @@
               "tono": 2,
               "detalle": "Señal, Enlace, Protocolo, Núcleo y Leyenda."
             }
-          ]
+          ],
+          "pie": "Cyberpunk en cifras y sus cinco paletas, con cuándo se gana cada una."
         },
         {
           "tipo": "colores",
@@ -1335,11 +1396,14 @@
       },
       "imagenes": [
         {
-          "src": "novedades/img/0.7.148-cyberpunk-dia-y-noche.jpg",
+          "src": "novedades/img/0.7.148-cyberpunk-dia-y-noche-v2.jpg",
           "alt": "El Resumen con Cyberpunk, partido en diagonal: a la izquierda de día, a la derecha de noche.",
           "en": {
-            "alt": "The Summary with Cyberpunk, split diagonally: daytime on the left, night on the right."
-          }
+            "alt": "The Summary with Cyberpunk, split diagonally: daytime on the left, night on the right.",
+            "src": "novedades/img/0.7.148-cyberpunk-dia-y-noche-en.jpg",
+            "pie": "The Summary with Cyberpunk on, by day and by night."
+          },
+          "pie": "El Resumen con Cyberpunk puesto, de día y de noche."
         }
       ]
     },
@@ -1369,7 +1433,8 @@
           "tipo": "comparar",
           "titulo": "Paletas nuevas por mundo",
           "en": {
-            "titulo": "New palettes per world"
+            "titulo": "New palettes per world",
+            "pie": "How many palettes each world brings, and Blueprint's five with when you get each one."
           },
           "datos": [
             {
@@ -1409,7 +1474,8 @@
               "detalle": "+ Rosetón"
             }
           ],
-          "tras": 1
+          "tras": 1,
+          "pie": "Cuántas paletas trae cada mundo, y las cinco de Blueprint con cuándo se gana cada una."
         },
         {
           "tipo": "colores",
@@ -1496,7 +1562,8 @@
           "tipo": "cifras",
           "titulo": "Ambientes de Norata clásico",
           "en": {
-            "titulo": "Classic Norata ambiences"
+            "titulo": "Classic Norata ambiences",
+            "pie": "Classic Norata's ambiences and when each one opens."
           },
           "datos": [
             {
@@ -1532,7 +1599,8 @@
                 "detalle": "Dune, now a real desert."
               }
             }
-          ]
+          ],
+          "pie": "Los ambientes de Norata clásico y cuándo se abre cada uno."
         },
         {
           "tipo": "colores",
@@ -1615,19 +1683,25 @@
       },
       "imagenes": [
         {
-          "src": "novedades/img/0.7.147-paletas-dia-y-noche.jpg",
+          "src": "novedades/img/0.7.147-paletas-dia-y-noche-v2.jpg",
           "alt": "Mi apariencia con Blueprint, partida en diagonal: sus cinco paletas de día a la izquierda y de noche a la derecha.",
           "en": {
-            "alt": "My look with Blueprint, split diagonally: its five palettes in daytime on the left and at night on the right."
+            "alt": "My look with Blueprint, split diagonally: its five palettes in daytime on the left and at night on the right.",
+            "src": "novedades/img/0.7.147-paletas-dia-y-noche-en.jpg",
+            "pie": "Blueprint's five palettes in My look, by day and by night."
           },
-          "tras": 1
+          "tras": 1,
+          "pie": "Las cinco paletas de Blueprint en Mi apariencia, de día y de noche."
         },
         {
-          "src": "novedades/img/0.7.147-ambientes-nuevos.jpg",
+          "src": "novedades/img/0.7.147-ambientes-nuevos-v2.jpg",
           "alt": "La pantalla de Habilidades partida en cuatro tiras diagonales: Cobre, Zafiro, Duna y Oliva, cada una con su rótulo.",
           "en": {
-            "alt": "The Skills screen split into four diagonal strips: Copper, Sapphire, Dune and Olive, each with its label."
-          }
+            "alt": "The Skills screen split into four diagonal strips: Copper, Sapphire, Dune and Olive, each with its label.",
+            "src": "novedades/img/0.7.147-ambientes-nuevos-en.jpg",
+            "pie": "The same screen in the four new ambiences: Copper, Sapphire, Dune and Olive."
+          },
+          "pie": "La misma pantalla con los cuatro ambientes nuevos: Cobre, Zafiro, Duna y Oliva."
         }
       ]
     }
