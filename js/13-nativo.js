@@ -203,7 +203,21 @@
      pone en ese momento — la carga de la app tapa la recarga. Lo que falló una
      vez (`error`) no se vuelve a probar: eso es la vuelta atrás del complemento,
      y reintentarla aquí sería un bucle. */
-  const estrenar = act.list().then(({ bundles }) => {
+  /* …SALVO en una recarga que lleva una carga a medias (0.7.206). Cambiar de
+     mundo y cambiar de cuenta recargan con la carga puesta y le dejan a la
+     página que viene lo que tiene que seguir pintando. Con una versión bajada
+     y esperando, esto la estrenaba justo ahí: una SEGUNDA recarga, y a esa ya
+     no le quedaba nada de lo apuntado —la primera lo había gastado—. Eduardo
+     lo vio en su teléfono: el cambio de mundo salió sin su pieza, con la
+     entrada de siempre y la ventana vieja de los diez segundos detrás.
+     Quien recarga así deja una marca, y esta carga no estrena: la versión
+     entra como siempre, al irse la app al fondo o en la próxima apertura. */
+  let noEstrenar = false;
+  try {
+    noEstrenar = sessionStorage.getItem("norata-no-estrenar") === "1";
+    sessionStorage.removeItem("norata-no-estrenar");
+  } catch (e) {}
+  const estrenar = noEstrenar ? Promise.resolve(false) : act.list().then(({ bundles }) => {
     const lista = (bundles || [])
       .filter((b) => (b.status === "success" || b.status === "pending") && masNueva(b.version, VERSION))
       .sort((x, y) => (masNueva(x.version, y.version) ? -1 : 1));

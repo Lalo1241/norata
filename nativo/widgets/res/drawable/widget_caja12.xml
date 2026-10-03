@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Una caja chica: el icono de una habilidad. El color de verdad lo pone el código (setColorFilter); el de aquí es el de la casa
+     de noche, que es lo que se ve en el selector de widgets. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#FF263A38" />
+    <corners android:radius="12dp" />
+</shape>

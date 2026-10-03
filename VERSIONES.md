@@ -318,7 +318,7 @@ en que conviene hacerlo:
 
 ## La lista
 
-### 0.7.200 · 3 oct 2026
+### 0.7.207 · 3 oct 2026
 
 **La burbuja de la computadora, en prueba.** Lo pidió Eduardo: algo que te siga
 en la PC como la burbuja de Messenger, sin la barra del navegador encima y que
@@ -326,8 +326,8 @@ se sienta parte de Norata; en el teléfono y la tableta se quedan los avisos del
 sistema. Un botón «Flotar» en la barra lateral abre una ventanita que se queda
 encima de todo, con el Pomodoro (la cuenta, Iniciar, Pausa en amarillo y
 Seguir), lo que sigue en la rueda y las misiones de hoy para tacharlas ahí. Se escribió como 0.7.193 en `js/13c-flotante.js`; al fusionar, otras sesiones ya
-habían llegado a la 0.7.199 y estrenado `13c-widgets.js`, así que pasó a ser
-la 0.7.200 y el archivo `13d-flotante.js`.
+habían estrenado `13c-widgets.js` y llegado hasta la 0.7.206, así que pasó a ser
+la 0.7.207 y el archivo `13d-flotante.js`.
 
 - **Es Picture-in-Picture de documento** (`documentPictureInPicture`, Chrome y
   Edge de escritorio). Tres límites que no se pueden cambiar desde una página y
@@ -370,6 +370,248 @@ cambian el tramo de la app; tachar una misión pasa de «0 de 4» a «1 de 4»; 
 modo claro toma los tonos de día; en un teléfono el botón no sale. Sin errores
 en la consola. **Sin probar:** el tamaño de la ventana (sin pantalla, Chromium
 la abre del tamaño de la página) y cómo se ve en cada mundo.
+### 0.7.206 · 3 oct 2026
+
+**Ocho arreglos de las cargas, sacados de un video del teléfono de Eduardo
+revisado cuadro por cuadro.** Mandó 87 segundos con tres cambios de mundo y
+pidió la tabla de todo lo que fallaba. Lo que se arregla desde la app:
+
+- **El cambio de mundo salía sin su pieza cuando había una versión esperando.**
+  `estrenar` (`js/13-nativo.js`) la ponía al cargar la página: una segunda
+  recarga, y a esa ya no le quedaba lo apuntado. Salía la entrada de siempre y,
+  detrás, la ventana vieja de los diez segundos. Ahora quien recarga con la
+  carga puesta deja `norata-no-estrenar`, y esa carga no estrena. Cambiar de
+  cuenta tenía el mismo hueco.
+- **Un cuadro con el Resumen entero al arrancar el zoom** (y media app al
+  asentarse la llegada): la carga se volvía transparente en el mismo cuadro en
+  que nacía su telón. `cargaZoom` le deja el color escrito mientras el hueco
+  esté cerrado.
+- **Al volver del cierre salía «Abriendo Norata…» con el fundido corto**: la
+  vuelta rápida pedía que la carga fuera una «entrada», y en el teléfono vuelve
+  como refresco. Ya no lo pide.
+- **Un cuadro vacío al pasar de Resumen a Ajustes**: `viewIn` empieza en 0,35.
+- **El 4 de la cuenta atrás** salía con el aviso, duraba 1,7 s y daba un brinco
+  sin cambiar. Ahora el renglón entra cuando empieza a contar.
+- **La tarjeta «Ya está lista la versión» tapaba la cabecera de Ajustes**: la
+  página baja lo que mide la tarjeta (`--alto-aviso-version`).
+- **Las tarjetas del Resumen se borraban dos cuadros después de entrar**: el
+  plan repintaba aunque fuera el mismo que ya estaba pintado.
+- **La raya de desplazamiento encima de la carga**, en pantallas de dedo.
+
+**Lo que no se arregla desde aquí** (es de Android, pide APK): el fondo gris
+0,3 s al abrir en Averno, el color liso sin logo al cerrarse, el icono que
+tarda 1,5 s en cambiar en la pantalla de inicio y que la app no se reabra
+sola. **Sin causa todavía**: el logo y el aviso bajan 8 px de golpe con la
+cuenta en «1» (48,6 s del video).
+
+**Sin probar en el teléfono.** El de la versión esperando y el del telón no se
+pueden reproducir en local: se comprobaron leyendo el código contra el video.
+
+### 0.7.205.3 · 3 oct 2026
+
+**La frase de «Comentario» cierra amable**: «…qué conservar y qué mejorar para
+ti». De Eduardo, con una condición que no se escribe en pantalla pero manda al
+redactar aquí: nada que suene a promesa, porque no todo lo que se pide se
+agrega. Por eso «mejorar» y no «agregar». Los demás textos del cuadro quedaron
+aprobados.
+
+### 0.7.205.2 · 3 oct 2026
+
+**En el cuadro de reportar (en pruebas), la frase de entrada también sigue a
+la opción**, y «Fallo» pasa a llamarse «Error/Bug». Los dos son de Eduardo: la
+frase tiene que decir para qué sirve ESA opción, no el cuadro. Cuatro frases,
+una por tipo, en `REP_FORMAL`.
+
+### 0.7.205.1 · 3 oct 2026
+
+**En el cuadro de reportar (en pruebas), el título y el icono siguen a la
+opción elegida.** Lo pidió Eduardo: «Reportar un fallo» con el bicho, «Enviar
+una sugerencia» con la bombilla, «Hacer una pregunta» con su signo —icono
+nuevo, `duda`— y «Dejar un comentario» con el corazón. El aviso de privacidad
+va centrado, como la frase de entrada.
+
+**Y quien administra lo ve sin enlace.** El parámetro vive en la pestaña, y
+Eduardo abría la app instalada —otra pestaña— y se encontraba el cuadro de
+siempre: mandó la captura del viejo pidiendo que se actualizara. Ahora
+`contasteOn()` vale también con sesión de administrador; `?contaste=0` se lo
+apaga. Para todos los demás sigue apagado.
+
+### 0.7.205 · 3 oct 2026
+
+**El cuadro de reportar, en tono de soporte, con color por tipo y aviso de
+privacidad. En pruebas, como «Mis reportes».** Eduardo, al verlo dentro de la
+app: «sé más formal, no un Cuéntame», un aviso de no poner información personal,
+que cambie de color según cuál de los cuatro se elige, y los textos bien
+acomodados.
+
+- **Textos**: «Reportar o sugerir» de título; Fallo, Sugerencia, Pregunta y
+  Comentario; rótulos y ejemplos sin la primera persona (`REP_FORMAL`).
+- **Color**: el marco, el icono, la opción encendida y el foco toman el tono
+  del tipo, que es el mismo que tiene en el buzón del Puesto de mando. Fallo y
+  comentario van en los tonos de estado, que ningún mundo cambia. Sin
+  transición: son variables.
+- **Aviso de privacidad**, en su caja al pie, y debajo el enlace a «Mis
+  reportes», que deja de colgar de la frase de entrada.
+- **Al enviar**: «Mensaje enviado», y dónde consultar la respuesta.
+
+**Para todos sigue saliendo el de siempre**: lo nuevo solo se ve con
+`?contaste=demo` (o `=1`). Al aprobarlo, `REP_FORMAL` pasa a ser lo único y se
+borran los rótulos de antes de `REP_TIPOS` y sus claves en inglés.
+
+**Cómo se probó.** Con la prueba encendida: los cuatro tipos, su color leído en
+el marco, el icono y la opción, y el orden de las piezas. Con la prueba apagada:
+el cuadro idéntico al de antes, también al cambiar de tipo.
+
+### 0.7.204 · 3 oct 2026
+
+**Lo que sale solo va en fila: nada se abre pegado a una carga ni encima de
+otra escena.** Eduardo abrió la app y la celebración de subir de nivel salió
+dentro del zoom de la carga: la escena aleja la app de detrás justo cuando el
+zoom la enseña por el hueco del logo, y «parpadeó mil veces». Pidió una cola,
+y que una pantalla de nivel y el aviso de versión tampoco salgan juntos.
+
+- **`enTurno`** (`js/01-base.js`): una fila para todo lo que se abre solo.
+  Espera a que no haya carga, portada ni otra escena, y deja un segundo entre
+  una cosa y la siguiente. Sin nada delante, sale en el acto.
+- **Pasan por ella**: subir de nivel de expedición (`revisarNivelExpedicion`),
+  el hito de racha, la tarjeta de `celebrate` (solo espera a la carga), el
+  aniversario, la ventana de vuelta, las novedades (`cuandoNadaTape` ya es la
+  fila) y «Ya está lista la versión».
+- **La causa del choque**: `revisarNivelExpedicion` corre al arrancar y al
+  bajar la sincronía, y llamaba a `celebrarNivel` sin mirar si la carga seguía
+  puesta. Era la única de las que salen solas que no preguntaba.
+
+**Medido en local**: con la carga puesta, un nivel pendiente y un aviso de
+versión esperan; la escena sale un segundo después de irse la carga y el aviso
+un segundo después de cerrarla. **Sin probar en el teléfono.** El parpadeo de
+Reliquia no se reprodujo aquí: sigue abierto.
+
+### 0.7.203 · 3 oct 2026
+
+**«Mis reportes» habla como un área de soporte, y se puede ver con ejemplos.**
+Eduardo leyó los textos de «Lo que me contaste» (0.7.190) y los devolvió:
+«demasiado informal, no deja de ser más como área de soporte». Se reescribieron
+sin la primera persona —«Mis reportes», «Respuesta de Norata», «En revisión»,
+«Atendido», «Cerrado sin cambios», «Tienes una respuesta a tu reporte»—. El
+cuadro de REPORTAR no se tocó.
+
+Y pidió verlo en la app, no en una lámina: `?contaste=demo` enseña la ventana y
+el aviso de verdad con cuatro reportes de ejemplo, sin tocar el servidor.
+
+**Sigue apagado para todos.** Falta su visto bueno.
+
+### 0.7.202 · 3 oct 2026
+
+**Una tarjeta ya vista no vuelve a salir por culpa de la sincronía.** Eduardo
+mandó una captura del teléfono: la presentación de «Ramas de proyecto» le
+salía otra vez, después de haberla cerrado.
+
+**La causa.** La marca se guarda bien (`marcarPresentado` + `save()`), pero al
+juntar dos dispositivos `ui` y `settings` salen ENTEROS del lado que hace de
+base. Si manda un dispositivo que aún no había visto la tarjeta, la marca del
+otro se tira; el otro baja el resultado y la vuelve a enseñar. Lo mismo le
+pasaba a todo lo que se apunta como visto.
+
+**Lo que cambia** (`fusionarEstados`, `js/10-fusion.js`): las marcas de «ya
+visto» solo crecen, así que se unen en vez de competir.
+
+| Marca | Cómo se junta |
+| --- | --- |
+| `ui.modulosPresentados`, `settings.hitosVistos` | se unen las dos listas |
+| `ui.tutorialVisto`, `settings.sonidoAvisado` | gana el sí |
+| `ui.expNivelVisto` | gana el mayor; si sobra, `revisarNivel` lo baja sin fiesta |
+| `ui.vueltaVista` | gana la fecha más tardía |
+
+**Medido** con dos estados —un teléfono que ya vio la tarjeta de proyectos y
+una computadora que no—: mande quien mande, el resultado lleva las dos
+tarjetas vistas, el nivel 7, los dos hitos y el tutorial; el resto de `ui`
+(el tablero) sigue saliendo de la base; y fusionar dos veces da lo mismo.
+
+**Al añadir una marca nueva de «ya visto», va en ese bloque**, o volverá a
+salir en el dispositivo que no manda.
+
+**Lo que no arregla:** una marca que ya se perdió no vuelve; la tarjeta puede
+salir una vez más en cada dispositivo, y al cerrarla ya se queda cerrada.
+
+### 0.7.201 · 3 oct 2026
+
+**Los nueve widgets de la pantalla de inicio, en la app de Android.** A Hoy
+(0.7.197) se le suman los otros ocho del boceto que aprobó Eduardo: Lo que
+sigue, Pomodoro, Luciérnagas, Racha, Por cuidar, Expedición, Apuntar y
+Siguiente nodo. La tabla de qué enseña y qué hace cada uno está en
+`nativo/widgets/LEEME.md`.
+
+- **Hoy vuelve a deslizarse.** La lista por páginas de la 0.7.197.1 no le
+  gustó a Eduardo al verla en el boceto: en un 4×2 cabían dos filas por
+  página. Prefiere el deslizado aunque el lanzador de su Honor deforme el
+  widget al arrastrar. Las esquinas se quedan en 20 dp.
+- **Una clase por widget y un solo sitio donde se pintan.** Android pide una
+  clase por cada entrada de su selector; son de seis líneas y lo que hacen está
+  en `Pinta.java`. Lo que no se puede pintar con un molde —aros, la semana de
+  la racha, la figura de un nodo, las luciérnagas, el reloj de arena, la rueda
+  de 24 horas— se dibuja en `Dibujos.java` y viaja como imagen.
+- **La foto crece**: además de los siete días, lleva la racha de semanas, el
+  nivel con el próximo módulo, la habilidad por cuidar, el nodo que toca y el
+  tramo del Pomodoro. **Nada de lo que la arma escribe**: se lee `state.jornada`
+  sin `jDatos()`, y no se llama a `applyDecay()` ni a `ramasDe()`, que siembran
+  o guardan. Cada dato va envuelto (`sinFallo`): si uno falla, ese widget se
+  queda sin él y los demás siguen.
+- **El Pomodoro crece con el widget** (2×2, 4×2, 4×4) y elige su molde por el
+  tamaño que el lanzador le dice a Android. **Su botón abre la app y arranca
+  ahí**, no en segundo plano: un tramo con la app cerrada necesita una alarma
+  al acabar, y esa es la de los avisos; ponerla aquí también serían dos relojes.
+- **En el Pomodoro, lo que cuenta va en tiempo real.** Eduardo lo pidió al
+  leer que la aguja avanzaba cada cinco minutos: «me preocupa que no maneje
+  tiempo real visible». La cuenta del tramo y la de «cuánto falta para
+  despertar» corren por segundos con el cronómetro del sistema, y la hora de la
+  cabecera con su reloj (`TextClock`), en la zona del perfil. Lo que es dibujo
+  —aguja, arena, aro— avanza con el latido: cada 20 segundos con un tramo en
+  marcha y al cambiar el minuto con un Pomodoro puesto.
+- **El latido** (`Widgets.armarTic`) es una alarma que no despierta el
+  teléfono. Android puede retrasarla unos segundos; por eso nada que tenga que
+  ir al segundo depende de ella.
+- **Dos ajustes se hacen en lo nativo** porque pasan con la app cerrada: una
+  misión marcada en un widget enciende hoy en Racha y pone «Al día» en Por
+  cuidar, y a partir del domingo Racha empieza otra semana.
+- **El instalador añade solo lo que falte**: quien ya tenía Hoy se lleva los
+  demás sin que el suyo se mueva.
+
+**Cómo se probó.** El APK entero se arma con Gradle, firmado, desde el
+proyecto de Android. La página, con un complemento de mentira: manda los datos
+de los nueve y cada destino abre su sitio (el formulario de habilidad, «Tu
+racha», Mi expedición, Ramas, nueva misión). **Sin probar:** los ocho widgets
+nuevos pintados en un teléfono, el Pomodoro con un tramo corriendo (en la
+prueba estaba cerrado por nivel) y qué tamaños reporta el lanzador de MagicOS.
+
+Todos los widgets son gratis de momento; qué pide Pro lo decide Eduardo después.
+
+### 0.7.200.1 · 3 oct 2026
+
+**Las fichas de Cyberpunk (0.7.148) y de las paletas (0.7.147), reescritas en
+dos párrafos**, con el mismo tono que la del Pomodoro; Eduardo revisó los
+textos y quitó «el más eléctrico hasta ahora» y que «Cyberpunk» saliera tan
+seguido (sus dos pies ya dicen «el mundo»). En el sitio, el segundo párrafo
+lleva el ancho del primero (68ch). Es un 4º de la 0.7.200.
+
+**Cambiar una ficha YA publicada pide subir el número**: `novedades.json` está
+en `ASSETS`, y la barrera se negó a subir el commit 8a34a56, que lo cambiaba
+con el número de vivo («cambia la app sin subir el número»).
+
+### 0.7.200 · 3 oct 2026
+
+**El resumen de una novedad puede llevar más de un párrafo, y la ficha del
+Pomodoro (0.7.163) se reescribió.** Eduardo: «trata de extenderte un poco más
+con los copys que acompañan estas subidas, para hacerlas más humanas», y que
+la ficha diga que la app ya manda notificaciones en el teléfono y que la app
+de Android todavía no es para todo público. Ahora se titula «Norata ya te
+avisa en tu teléfono» y cierra con «cuando esté disponible para todos»; el
+texto lo aprobó él antes de subir.
+
+Los párrafos del resumen se separan con una línea en blanco. En la app cada
+uno es un `<p class="nov-res">`; en el sitio, el primero va en la columna
+Resumen y los demás abren el Cuerpo con su estilo en línea (`parrafos()` en el
+exportador), porque el campo de Framer es texto plano.
+
 ### 0.7.199 · 3 oct 2026
 
 **El paquete de la semana.** Lo pidió Eduardo con la barrera: que las subidas

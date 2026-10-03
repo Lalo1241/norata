@@ -407,7 +407,10 @@ function novedadHTML(e, medios) {
         ${e.estado === "aprobado" ? `<span class="nov-borrador">${escapeHtml(tx("Por subir"))}</span>` : ""}
       </div>
       <h4 class="nov-tit">${escapeHtml(novedadCampo(e, "titulo") || "")}</h4>
-      ${novedadCampo(e, "resumen") ? `<p class="nov-res">${escapeHtml(novedadCampo(e, "resumen"))}</p>` : ""}
+      ${/* Un párrafo por cada tramo separado por una línea en blanco (0.7.200):
+            los resúmenes se alargaron para contarse «más humanos». */
+        String(novedadCampo(e, "resumen") || "").split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean)
+          .map((p) => `<p class="nov-res">${escapeHtml(p)}</p>`).join("")}
       ${medios ? novedadCuerpoHTML(e, puntos) : (puntos.length ? `<ul class="nov-puntos">${puntos.map((p) => `<li>${escapeHtml(p)}</li>`).join("")}</ul>` : "")}
       ${retoques.length ? `
         <details class="nov-ret">
@@ -438,13 +441,10 @@ function ventanaNovedades(lista) {
    bienvenida y de la elección de idioma. Encima de la carga no se vería, y
    encima de otra ventana la pisaría. Con tope, para no preguntar para siempre. */
 function cuandoNadaTape(hacer) {
-  const tope = Date.now() + 3 * 60 * 1000;
-  (function mirar() {
-    const tapa = (typeof cargaVisible === "function" && cargaVisible()) ||
-      document.querySelector("#modal.show, #tuto.show, #ncel.show, #region, #view-onboarding.active");
-    if (!tapa) hacer();
-    else if (Date.now() < tope) setTimeout(mirar, 700);
-  })();
+  /* Desde la 0.7.204 es la fila de todo lo que sale solo (`enTurno`,
+     js/01-base.js): una sola espera para la carga, las escenas y las
+     ventanas, en vez de una por archivo. */
+  enTurno(hacer);
 }
 
 function leerVistas() {
@@ -579,6 +579,15 @@ async function novedadesProbarVentana() {
 let avisoCerrado = { version: null, en: 0 };
 function avisoVersionLista(version, accion) {
   if (avisoCerrado.version === version && Date.now() - avisoCerrado.en < 5 * 60 * 1000) return;
+  /* EN SU TURNO (0.7.204). Eduardo: «si hay una pantalla de nivel no le debe de
+     aparecer una de actualizar versión». La tarjeta espera a que no haya
+     carga ni escena abierta, y sale un segundo después de que se cierren.
+     Si ya está a la vista solo se le refresca el número: eso no interrumpe. */
+  const puesta = document.getElementById("aviso-version");
+  if (!(puesta && puesta.classList.contains("show")) && typeof turnoTapado === "function" && turnoTapado()) {
+    enTurno(() => avisoVersionLista(version, accion), { clave: "aviso-version" });
+    return;
+  }
   let caja = document.getElementById("aviso-version");
   if (!caja) {
     caja = document.createElement("div");
@@ -597,11 +606,17 @@ function avisoVersionLista(version, accion) {
     <button type="button" class="avv-no" onclick="cerrarAvisoVersion()" aria-label="${escapeAttr(tx("Cerrar"))}">${icon("close", 16)}</button>`;
   caja.dataset.version = version || "";
   caja.classList.add("show");
+  /* La página baja lo que mide la tarjeta (0.7.206). Va fija arriba y tapaba
+     el título y la flecha de volver de Ajustes: Eduardo la tuvo once segundos
+     encima sin poder ver dónde estaba. `--alto-aviso-version` lo suma el
+     relleno de `.app` (css/estilos.css). */
+  document.documentElement.style.setProperty("--alto-aviso-version", (caja.offsetHeight + 14) + "px");
 }
 function cerrarAvisoVersion() {
   const caja = document.getElementById("aviso-version");
   if (!caja || !caja.classList.contains("show")) return;
   caja.classList.remove("show");
+  document.documentElement.style.removeProperty("--alto-aviso-version");
   avisoCerrado = { version: caja.dataset.version || null, en: Date.now() };
 }
 

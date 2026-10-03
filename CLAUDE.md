@@ -93,14 +93,18 @@ que abre sin red y sin pasar por Chrome. Lo que eso cambia aquí:
   menta de Norata (Pausa en amarillo) y con un acento rojo ningún texto es
   rojo. La referencia es la lámina «Avisos de Norata»; las reglas, en el
   `LEEME.md` de `nativo/avisos/`.
-- **Los widgets de la pantalla de inicio son nativos, y el primero es Hoy.**
-  El complemento `WidgetsNorata` vive en `nativo/widgets/` (con su instalador
-  y su `LEEME.md`) y la página le habla desde `js/13c-widgets.js`. **El widget
-  apunta y la app aplica**: lo que se marca fuera queda en una cola con su día
-  y su hora, y entra al abrir por `logMission` (`dia`, `hora`, `mudo`), la
-  misma puerta que un toque dentro. La página le manda una «foto» de siete
-  días, con textos y colores ya resueltos, cada vez que pasa por `save()`. Un
-  widget nuevo sigue esas dos reglas y lleva su propio icono, nunca el logo.
+- **Los widgets de la pantalla de inicio son nativos, y son nueve.** El
+  complemento `WidgetsNorata` vive en `nativo/widgets/` (con su instalador y
+  su `LEEME.md`, que trae la tabla de los nueve) y la página le habla desde
+  `js/13c-widgets.js`. **El widget apunta y la app aplica**: lo que se marca
+  fuera queda en una cola con su día y su hora, y entra al abrir por
+  `logMission` (`dia`, `hora`, `mudo`), la misma puerta que un toque dentro.
+  La página le manda una «foto» cada vez que pasa por `save()`: siete días de
+  misiones y actividades, más la racha, el nivel, la habilidad por cuidar, el
+  nodo que toca y el tramo del Pomodoro, con textos y colores ya resueltos.
+  **Lo que arma la foto no escribe**: nada de `jDatos()`, `applyDecay()` ni
+  `ramasDe()`, que siembran o guardan al llamarlas. Un widget nuevo sigue esas
+  reglas y lleva su propio icono, nunca el logo.
 - **El icono de la pantalla de inicio sigue al mundo (0.7.145), y solo en el
   APK.** **Elegir un mundo es una sola pieza (0.7.194)**: el logo llega, se
   recarga, el aro se llena con el color fundiéndose al mundo nuevo, la ruleta
@@ -768,6 +772,46 @@ respaldo, no el final de la animación. Se pausan, se les pone `currentTime` a
 mano y se mide la pastilla cuadro a cuadro: nunca fuera de la caja del grupo,
 y el último cuadro igual a la opción de verdad. Con `--desliza-dur: 14s`
 puesto en `<html>` da tiempo a sacar una captura a medio viaje.
+
+## Una recarga con la carga puesta
+
+**Lo que cruza una recarga con la carga a la vista —Actualizar, cambiar de
+cuenta, cambiar de mundo— le deja apuntado a la página que viene qué seguir
+pintando, y eso se gasta en UNA lectura.** En el APK hay tres cosas que lo
+rompen, y las tres las vio Eduardo en un video de su teléfono (0.7.206):
+
+- **Una segunda recarga.** Con una versión bajada y esperando, `estrenar`
+  (`js/13-nativo.js`) la ponía al cargar la página: recarga doble, y la segunda
+  ya no encontraba nada. Quien recarga con la carga puesta deja
+  `norata-no-estrenar` en `sessionStorage`. **Una forma nueva de cruzar una
+  recarga la pone también.**
+- **Un cuadro sin telón.** Volver transparente la carga y crear su telón en el
+  mismo cuadro enseña la app un instante. `cargaZoom` le deja el color escrito
+  a mano mientras el hueco esté cerrado.
+- **La app que vuelve del cierre creyendo que es un refresco.** La marca de
+  «ya abierta» sobrevive al cierre que cambia el icono. Lo que tenga que pasar
+  al volver se apunta en `localStorage` y no depende de `window.__carga`.
+
+**Un video del teléfono se revisa con su reloj de verdad**: los de WhatsApp
+tienen velocidad de cuadros variable, y contar cuadros corre los tiempos hasta
+dos segundos. Y los parpadeos de un solo cuadro se cazan midiendo —cuánto
+contenido hay en cada cuadro— y no mirando una hoja cada medio segundo.
+
+## Lo que sale solo va en fila
+
+**Nada que se abra solo sale pegado a una carga, ni encima de otra escena**
+(Eduardo, 0.7.204: abrió la app, la celebración de subir de nivel salió dentro
+del zoom y «parpadeó mil veces»; «mándalas a cola y que se reproduzcan al
+final»). Lo hace `enTurno(hacer, opciones)` (`js/01-base.js`): espera a que no
+haya carga, portada ni otra escena, y deja un segundo entre una cosa y la
+siguiente. Sin nada delante, lo hace en el acto.
+
+Pasan por ahí las celebraciones (nivel, racha, la tarjeta de `celebrate`), el
+aniversario, la ventana de vuelta, las novedades y «Ya está lista la versión».
+**Al añadir algo que se abra solo, se llama con `enTurno`**, y si es una capa
+nueva su selector va en `TURNO_ESCENAS`. No se escribe otra espera suelta que
+pregunte por su cuenta si la carga sigue puesta: había cuatro, y la que
+faltaba fue la que chocó.
 
 ## Las capas
 

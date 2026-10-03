@@ -5,9 +5,9 @@
 //
 //     node instalar-widgets.js
 //
-// Hace los pasos de `LEEME.md` sin abrir un solo archivo: pone los cuatro
+// Hace los pasos de `LEEME.md` sin abrir un solo archivo: pone los
 // archivos del complemento junto a MainActivity, lo registra, copia los moldes
-// del widget y añade al manifiesto el widget y el servicio de su lista. Se
+// y añade al manifiesto cada widget y el servicio de la lista de Hoy. Se
 // puede correr dos veces: lo que ya está hecho se lo salta.
 //
 // Antes de tocar nada guarda una copia de lo que edita (con `.antes-widgets`
@@ -23,8 +23,19 @@ const path = require("path");
 
 const RAMAS = ["main"];
 const CRUDO = (rama) => `https://raw.githubusercontent.com/Lalo1241/norata/${rama}/nativo/widgets/`;
-const JAVA = ["Widgets.java", "WidgetsPlugin.java", "HoyWidget.java", "HoyLista.java"];
-/* Lo de res/ (las letras, los moldes, sus dibujos y la ficha del widget) va en
+const JAVA = ["Widgets.java", "WidgetsPlugin.java", "WidgetNorata.java", "Dibujos.java", "Pinta.java", "HoyWidget.java", "HoyLista.java",
+  "SigueWidget.java", "PomodoroWidget.java", "LuciernagasWidget.java", "RachaWidget.java", "HabilidadWidget.java", "ExpedicionWidget.java",
+  "ApuntarWidget.java", "NodoWidget.java"];
+/* Cada widget: su clase, el nombre con el que sale en el selector de widgets
+   del teléfono y su ficha en res/xml. Uno nuevo se añade aquí y en `Widgets.TODOS`. */
+const WIDGETS = [
+  ["HoyWidget", "Hoy", "widget_hoy_info"], ["SigueWidget", "Lo que sigue", "widget_sigue_info"],
+  ["PomodoroWidget", "Pomodoro", "widget_pomo_info"], ["LuciernagasWidget", "Luciérnagas", "widget_luc_info"],
+  ["RachaWidget", "Racha", "widget_racha_info"], ["HabilidadWidget", "Por cuidar", "widget_hab_info"],
+  ["ExpedicionWidget", "Expedición", "widget_exp_info"], ["ApuntarWidget", "Apuntar", "widget_apuntar_info"],
+  ["NodoWidget", "Siguiente nodo", "widget_nodo_info"],
+];
+/* Lo de res/ (los moldes, sus dibujos, las imágenes de muestra y las fichas) va en
    archivos.json: es la lista que se baja de GitHub cuando esto corre suelto. */
 const LISTA = "archivos.json";
 const COPIA = ".antes-widgets";
@@ -140,42 +151,47 @@ async function instalar() {
     ok("MainActivity registra el complemento");
   }
 
-  // 3. Lo de res/: las letras (Outfit), los moldes, sus dibujos y la ficha del widget.
-  //    Todos se llaman widget_* u outfit_*: se SUMAN a lo que hay y no pisan nada.
-  //    Las letras son las mismas de los avisos; si ya estaban, quedan iguales.
+  // 3. Lo de res/: los moldes, sus dibujos, las imágenes de muestra y las fichas.
+  //    Todos se llaman widget_*: se SUMAN a lo que hay y no pisan nada.
   for (const rel of src.lista) {
     const destino = path.join(main, "res", ...rel.split("/"));
     fs.mkdirSync(path.dirname(destino), { recursive: true });
     fs.writeFileSync(destino, await src.leer("res/" + rel));
   }
-  ok(src.lista.length + " archivos en res/: las letras, los moldes, sus dibujos y la ficha del widget");
+  ok(src.lista.length + " archivos en res/: los moldes, sus dibujos, las imágenes de muestra y las fichas");
 
-  // 4. El manifiesto: el widget y el servicio que llena su lista.
+  // 4. El manifiesto: cada widget y el servicio que llena la lista de Hoy.
+  //    Se añade SOLO lo que falte: quien ya tenía Hoy se lleva los demás sin
+  //    que el suyo se toque (el widget que tiene puesto se queda en su sitio).
   const rutaMan = path.join(main, "AndroidManifest.xml");
   let man = fs.readFileSync(rutaMan, "utf8");
   const nlm = salto(man);
-  if (man.includes("HoyWidget")) {
+  const faltan = WIDGETS.filter(([clase]) => !man.includes(`${paquete}.${clase}"`));
+  const sinServicio = !man.includes(`${paquete}.HoyLista"`);
+  if (!faltan.length && !sinServicio) {
     nada("El manifiesto ya estaba listo");
   } else {
     respaldar(rutaMan);
     // Con el nombre COMPLETO: «.HoyWidget» se resuelve contra el namespace de
-    // la app, que puede no ser el paquete del código. El widget va `exported`
-    // porque quien lo repinta es el sistema; el servicio no, y solo lo puede
-    // llamar el sistema (BIND_REMOTEVIEWS).
-    const piezas = [
-      `        <receiver android:name="${paquete}.HoyWidget" android:exported="true" android:label="Hoy">`,
+    // la app, que puede no ser el paquete del código. Los widgets van
+    // `exported` porque quien los repinta es el sistema; el servicio no, y
+    // solo lo puede llamar el sistema (BIND_REMOTEVIEWS).
+    const piezas = faltan.map(([clase, nombre, ficha]) => [
+      `        <receiver android:name="${paquete}.${clase}" android:exported="true" android:label="${nombre}">`,
       `            <intent-filter>`,
       `                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />`,
       `            </intent-filter>`,
-      `            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_hoy_info" />`,
+      `            <meta-data android:name="android.appwidget.provider" android:resource="@xml/${ficha}" />`,
       `        </receiver>`,
+    ].join(nlm));
+    if (sinServicio) piezas.push([
       `        <service android:name="${paquete}.HoyLista" android:exported="false"`,
       `            android:permission="android.permission.BIND_REMOTEVIEWS" />`,
-    ].join(nlm);
+    ].join(nlm));
     if (!/^([ \t]*)<\/application>/m.test(man)) alto("En AndroidManifest.xml no encuentro </application>.");
-    man = man.replace(/^([ \t]*)<\/application>/m, (m) => piezas + nlm + m);
+    man = man.replace(/^([ \t]*)<\/application>/m, (m) => piezas.join(nlm) + nlm + m);
     fs.writeFileSync(rutaMan, man);
-    ok("El widget Hoy y el servicio de su lista, en el manifiesto");
+    ok("En el manifiesto: " + faltan.map((w) => w[1]).join(", ") + (sinServicio ? (faltan.length ? " y " : "") + "el servicio de la lista" : ""));
   }
 
   console.log(`
@@ -191,7 +207,7 @@ Queda en android\\app\\build\\outputs\\apk\\release\\app-release.apk: pásalo al
 teléfono y ábrelo para actualizar.
 
 Después, en el teléfono: mantén el dedo en un hueco de la pantalla de inicio,
-toca «Widgets», busca Norata y arrastra «Hoy».
+toca «Widgets», busca Norata y arrastra el que quieras.
 
 Si algo sale mal: node instalar-widgets.js --deshacer
 `);
@@ -221,15 +237,14 @@ function deshacer() {
   }
   const aqui = __dirname;
   const lista = fs.existsSync(path.join(aqui, LISTA)) ? JSON.parse(fs.readFileSync(path.join(aqui, LISTA), "utf8")) : [];
-  // Las letras (font/outfit_*) NO se quitan: son las mismas de los avisos, y
-  // llevárselas dejaría sin letra a los avisos si están instalados.
+  // Nada de font/: los widgets no llevan letra propia, y la que haya es de los avisos.
   for (const rel of lista) {
     if (rel.startsWith("font/")) continue;
     const p = path.join(main, "res", ...rel.split("/"));
     if (fs.existsSync(p)) { fs.unlinkSync(p); n++; }
   }
   // Corrido suelto no hay lista al lado: se reconocen por el nombre, que es solo nuestro.
-  for (const carpeta of ["drawable", "layout", "xml"]) {
+  for (const carpeta of ["drawable", "drawable-nodpi", "layout", "xml"]) {
     const d = path.join(main, "res", carpeta);
     if (!fs.existsSync(d)) continue;
     for (const f of fs.readdirSync(d)) if (/^widget_/.test(f)) { fs.unlinkSync(path.join(d, f)); n++; }

@@ -173,6 +173,7 @@ aplicarModulos();
 /* Todo interruptor se desliza (0.7.154): un solo oyente para toda la app.
    Vive en `js/01-base.js`, junto a los interruptores de Aspecto. */
 if (typeof instalarDesliza === "function") instalarDesliza();
+if (typeof instalarTurno === "function") instalarTurno();
 
 /* El gesto de atrás del teléfono pasa por aquí. Ver atrasApp(): si la app se
    ocupa, se repone el colchón; si no, se deja ir de verdad —el gesto ya
@@ -321,6 +322,8 @@ showView("summary");
      sincronía: con el servidor lento, Eduardo —Fundador— vio la app pidiéndole
      pagar los mundos que ya tiene hasta que la sincronía terminó. */
   const planPedido = recienEntrado ? null : planCargar();
+  /* Con qué plan se va a pintar: la copia guardada, que `planCargar` ya puso. */
+  const planAlPintar = typeof PLAN !== "undefined" ? JSON.stringify(PLAN) : "";
 
   if (!recienEntrado) {
     /* La sincronía, CON TOPE (0.7.181). Aquí se esperaba sin límite, y con el
@@ -378,9 +381,10 @@ showView("summary");
          función se abstiene si hay cualquier otra capa encima.
          Y con un segundo de espera (0.7.147.8, de Eduardo): recién destapada
          la app, primero se ve el tablero y después llega la ventana; al
-         instante se leía como parte de la carga. De paso llega DESPUÉS del
-         tutorial (que sale a los 500 ms) y se calla si el tutorial salió. */
-      setTimeout(quizaVentanaDeVuelta, 1000);
+         instante se leía como parte de la carga. Desde la 0.7.204 ese segundo
+         lo pone la fila de lo que sale solo (`enTurno`, js/01-base.js), y si
+         hay una celebración esperando, la vuelta va detrás de ella. */
+      enTurno(quizaVentanaDeVuelta, { clave: "vuelta" });
     }
   }
 
@@ -414,7 +418,13 @@ showView("summary");
     planPedido.then(() => {
       /* Solo se repinta si resultó que sí paga: para quien no, ya está bien
          dibujado y un repintado de más hace parpadear la pantalla. */
-      if (esPro()) showView(activeMainView || "summary");
+      /* …y solo si el plan que llegó NO es el que ya estaba pintado (0.7.206).
+         Desde la 0.7.181 la app pinta con la copia guardada, así que casi
+         siempre la respuesta dice lo mismo y este repintado era de balde: a
+         Eduardo, que es Fundador, le borraba las tarjetas del Resumen dos
+         cuadros justo después de entrar. */
+      const planAhora = typeof PLAN !== "undefined" ? JSON.stringify(PLAN) : "";
+      if (esPro() && planAhora !== planAlPintar) showView(activeMainView || "summary");
     });
   }
 

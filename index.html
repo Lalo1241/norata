@@ -441,7 +441,14 @@
     var rnc = JSON.parse(localStorage.getItem("norata-renacido") || "null");
     if (rnc) {
       localStorage.removeItem("norata-renacido");
-      if (window.__carga === "entrada" && Date.now() - Number(rnc.t || 0) < 600000) {
+      /* Sin exigir que sea una «entrada» (0.7.206). En el teléfono de Eduardo
+         la app vuelve del cierre creyendo que es un refresco —la marca de
+         «ya abierta» sobrevive—, así que esto no se cumplía nunca y salía
+         «Abriendo Norata…» con su fundido corto. Solo se respeta lo que ya
+         trae su propio dibujo: un estreno o un cambio de cuenta o de mundo. */
+      if (window.__carga !== "estreno" && window.__carga !== "cuenta" && window.__carga !== "mundo" &&
+          Date.now() - Number(rnc.t || 0) < 600000) {
+        window.__carga = "entrada";
         window.__renacido = true;
         document.documentElement.classList.add("carga-llega", "carga-renace");
       }
@@ -477,7 +484,7 @@
     }
   } catch (e) {}
 
-  /* ---- La prueba de la burbuja de la computadora (0.7.200) ----
+  /* ---- La prueba de la burbuja de la computadora (0.7.207) ----
      `?flotante=si` saca el botón «Flotar» en la barra lateral y `?flotante=no`
      lo quita. Lo que hace, en js/13d-flotante.js; aquí solo la clase, para
      que el rótulo esté desde el primer cuadro. */
@@ -742,8 +749,8 @@
   Estás viendo números inventados, no son tus datos
   <a href="?informes=no">salir</a>
 </div>
-<!-- El rótulo de la prueba de la burbuja (0.7.200). Se borra al encenderla
-     para todos; la lista, en la entrada de 0.7.200 de VERSIONES.md. -->
+<!-- El rótulo de la prueba de la burbuja (0.7.207). Se borra al encenderla
+     para todos; la lista, en la entrada de 0.7.207 de VERSIONES.md. -->
 <div class="rotulo-prueba" id="rotulo-flotante">
   Prueba: la burbuja de la computadora
   <a href="?flotante=no">salir</a>
@@ -1582,7 +1589,7 @@
        se lleva consigo el anclaje abajo y la linea de separacion, que sin eso
        quedarian dos rayas seguidas. En el telefono no hay barra lateral, asi
        que alli sigue saliendo el toast: es el unico sitio que hay. -->
-  <!-- La burbuja de la computadora (0.7.200, en prueba). Nace escondida y la
+  <!-- La burbuja de la computadora (0.7.207, en prueba). Nace escondida y la
        enseña `fltPintarBoton` solo con la prueba puesta, con ratón y en un
        navegador que la sepa abrir (js/13d-flotante.js). -->
   <button class="c-nav side-only" id="nav-flotante" hidden onclick="abrirFlotante()"

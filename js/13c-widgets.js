@@ -12,7 +12,8 @@
    Así que hace dos cosas y nada más, y las dos pasan por aquí:
 
      - **Enseña una foto.** La página le manda los próximos siete días ya
-       resueltos —qué misiones tocan, cuáles van cumplidas, qué actividades
+       resueltos (y para los demás widgets, la racha, el nivel, la habilidad
+       por cuidar, el nodo que toca y el tramo del Pomodoro) —qué misiones tocan, cuáles van cumplidas, qué actividades
        trae la rueda del Pomodoro—, con los textos en el idioma de la app y
        cada color leído del CSS de verdad, en el mundo y el modo puestos. Van
        siete días y no uno porque a medianoche el widget tiene que cambiar de
@@ -113,6 +114,15 @@
       marca: esRojo(tono("var(--mint-macizo)", acento)) ? menta : acento,
       hecho: tono("var(--estado-hecho)", claro ? "#00cc7f" : "#5fe0b0"),
       boton: claro ? "#00cc7f" : "#5fe0b0", sobre: "#10151d",
+      /* Lo que piden los demás widgets: el acento para aros y barras, los dos
+         estados con su tinta, y los velos de los botones tenues, ya mezclados
+         con el fondo (un widget no sabe de transparencias). */
+      acento, tonoA: mezcla(acento, fondo, 0.16),
+      hechoTinta: tono("var(--estado-hecho-tinta)", menta),
+      curso: tono("var(--estado-curso)", claro ? "#f5c314" : "#f5d76e"),
+      cursoTinta: tono("var(--estado-curso-tinta)", claro ? "#755c05" : "#f5d76e"),
+      cursoVelo: mezcla(claro ? "#f5c314" : "#f5d76e", fondo, 0.16),
+      tono: mezcla(claro ? "#00cc7f" : "#5fe0b0", fondo, 0.15), tonoTinta: menta,
     };
   }
 
@@ -142,8 +152,100 @@
     const j = state.jornada;
     if (!j || !Array.isArray(j.rutinas) || j.rutinas.length !== 7) return [];
     if (typeof jornadaEncendida !== "function" || !jornadaEncendida() || typeof jNombreBloque !== "function") return [];
-    return (j.rutinas[weekdayOfKey(dia)] || []).map((b) => ({ n: jNombreBloque(b), c: tono(jColorBloque(b), "#9aa7b8"), a: b.ini, b: b.fin }));
+    return (j.rutinas[weekdayOfKey(dia)] || []).map((b) => ({ n: jNombreBloque(b), c: tono(jColorBloque(b), "#9aa7b8"), a: b.ini, b: b.fin, luna: b.descanso === "dormir" }));
   }
+  /* ---- Lo que enseñan los demás widgets ----
+     Cada uno pregunta con las funciones que la app ya usa en sus pantallas, y
+     ninguna de las de aquí escribe: nada de `applyDecay`, `jDatos` ni
+     `ramasDe`, que guardan o siembran al llamarlas. Si una falla, ese widget
+     se queda sin dato y los demás siguen (`sinFallo`). */
+  function sinFallo(f) { try { return f() || null; } catch (e) { return null; } }
+
+  /* La racha de SEMANAS (js/05c-racha.js). `previas` son las encendidas seguidas
+     antes de esta: es la misma cuenta que hace `mensajeRacha`. La semana va de
+     domingo a sábado, y se mandan sus siete claves para que el widget sepa
+     cuándo ha empezado otra. */
+  function racha() {
+    if (typeof semanasDeRacha !== "function" || typeof activityDayCounts !== "function") return null;
+    const Z = semanasDeRacha(activityDayCounts(), todayKey());
+    const corte = Z.lista.slice(1).findIndex((w) => !w.ok);
+    const letra = (k) => {
+      try {
+        return new Intl.DateTimeFormat(document.documentElement.lang || "es", { weekday: "narrow", timeZone: "UTC" })
+          .format(new Date(k + "T00:00:00Z")).slice(0, 1).toUpperCase();
+      } catch (e) { return ""; }
+    };
+    return {
+      claves: Z.dias.map((d) => d.k), dias: Z.dias.map((d) => (d.estado === "si" ? 1 : 0)), letras: Z.dias.map((d) => letra(d.k)).join(""),
+      umbral: typeof UMBRAL_SEMANA === "number" ? UMBRAL_SEMANA : 3, previas: corte < 0 ? Z.lista.length - 1 : corte,
+    };
+  }
+  /* El aro mide el camino ENTERO hasta el próximo módulo, no lo que llevas del
+     nivel en curso: la misma cuenta de `aroDeNivelHTML` (js/02b-expedicion.js). */
+  function expedicion() {
+    if (typeof nivelExpedicion !== "function") return null;
+    const info = nivelExpedicion();
+    const sig = typeof escaleraDeExpedicion === "function" ? escaleraDeExpedicion().find((x) => x.tipo === "modulo" && x.nivel > info.nivel) : null;
+    const pide = puntosHastaNivel(sig ? sig.nivel : info.nivel + 1);
+    const rango = typeof rangoExpedicion === "function" && typeof nombreDeRango === "function" ? nombreDeRango(rangoExpedicion()) : "";
+    return {
+      nivel: info.nivel, pct: pide > 0 ? Math.round(Math.max(0, Math.min(1, info.puntos / pide)) * 100) : 100, candado: !!sig,
+      linea: sig ? tx("{m} en el nivel {n}").replace("{m}", tx(sig.corto || sig.nombre)).replace("{n}", sig.nivel) : rango,
+    };
+  }
+  /* La habilidad que lleva más días sin práctica, y la misión de hoy que la
+     mantiene, si hay una. Las permanentes y las que no tienen XP no bajan. */
+  function habilidad(hoy) {
+    const vivas = (state.skills || []).filter((s) => !s.permanent && s.xp > 0);
+    if (!vivas.length) return null;
+    const s = vivas.slice().sort((a, b) => diasSinGanar(b) - diasSinGanar(a))[0];
+    const d = diasSinGanar(s), gracia = daysUntilDecay(s), li = levelInfo(s.xp);
+    const suyas = state.missions.filter((m) => m.skillId === s.id && tocaEl(m, hoy));
+    const m = suyas.find((x) => !missionDone(x, hoy)) || suyas[0];
+    return {
+      n: s.name || "", sub: tx("Nivel {n}").replace("{n}", li.level), pct: li.pct, bien: d === 0, mid: m ? m.id : "",
+      a1: d === 1 ? tx("1 día sin práctica") : tx("{n} días sin práctica").replace("{n}", d),
+      a2: isDecaying(s) ? tx("Ya está bajando") : gracia == null ? "" : gracia === 0 ? tx("Empieza a bajar mañana")
+        : gracia === 1 ? tx("Empieza a bajar en 1 día") : tx("Empieza a bajar en {n} días").replace("{n}", gracia),
+    };
+  }
+  /* El nodo que toca: el que ya está en marcha y se tocó último, o si no, uno
+     disponible. No hay «rama fijada» en la app, así que se elige por actividad. */
+  function nodo() {
+    if (typeof moduloAbierto === "function" && !moduloAbierto("tree")) {
+      const f = typeof faltaParaNivel === "function" && typeof MODULO_NIVEL === "object" ? faltaParaNivel(MODULO_NIVEL.tree) : null;
+      return { cerrado: true, r1: tx("Ramas"), r2: f ? f.abre : "" };
+    }
+    if (typeof moduloOn === "function" && !moduloOn("tree")) return { cerrado: true, r1: tx("Ramas"), r2: tx("Tus ramas están apagadas") };
+    const peso = { active: 0, due: 0, available: 1 };
+    const vivos = (state.perks || []).filter((p) => perkStatus(p) in peso)
+      .sort((a, b) => peso[perkStatus(a)] - peso[perkStatus(b)] || String(b.lastActivity || "").localeCompare(String(a.lastActivity || "")));
+    if (!vivos.length) return { r1: tx("Ramas"), r2: tx("Tu siguiente nodo aparecerá aquí."), tipo: "hito", t: 0 };
+    const p = vivos[0], rama = p.branch || "General", suyos = state.perks.filter((x) => (x.branch || "General") === rama);
+    return {
+      r1: tx("{r} · siguiente nodo").replace("{r}", rama), r2: p.name || "", tipo: typeof tipoDe === "function" ? tipoDe(p) : "hito",
+      h: suyos.filter((x) => perkStatus(x) === "completed").length, t: suyos.length,
+    };
+  }
+  /* El tramo en curso, leído de `state.jornada` SIN `jDatos()`. `fin` es la hora
+     a la que acaba si corre: el widget cuenta hacia ella con su cronómetro. */
+  function pomo() {
+    if (typeof jornadaEncendida !== "function" || !jornadaEncendida()) {
+      const abierto = typeof moduloAbierto !== "function" || moduloAbierto("jornada");
+      const f = !abierto && typeof faltaParaNivel === "function" && typeof MODULO_NIVEL === "object" ? faltaParaNivel(MODULO_NIVEL.jornada) : null;
+      return { cerrado: f ? f.abre : tx("Pomodoro apagado") };
+    }
+    const j = state.jornada || {}, cfg = j.cfg || {}, run = j.run;
+    const o = { dur: (Number(cfg.foco) || 25) * 60000, tramo: 1, total: Number(cfg.ciclos) || 4, corre: false, pausa: false, dormido: !!j.dormido };
+    if (run && run.fase === "foco" && run.dur && !run.libre) {
+      o.dur = run.dur; o.tramo = run.tramo || 1;
+      if (run.lite && run.rondas) o.total = run.rondas;
+      if (run.seg) { o.corre = true; o.fin = run.seg + run.dur - (run.acum || 0); }
+      else { o.pausa = true; o.resto = Math.max(0, run.dur - (run.acum || 0)); }
+    }
+    return o;
+  }
+
   function fechaCorta(dia) {
     try {
       return new Intl.DateTimeFormat(document.documentElement.lang || "es", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" })
@@ -163,12 +265,28 @@
       v: 1,
       zona: typeof userTZ === "function" ? userTZ() : "",
       colores: colores(),
+      racha: sinFallo(racha), exp: sinFallo(expedicion), hab: sinFallo(() => habilidad(todayKey())), nodo: sinFallo(nodo), pomo: sinFallo(pomo),
       textos: {
         hoy: tx("Hoy"), completo: tx("Todo cumplido"), de: tx("{a} de {b}"),
         ahora: tx("Ahora"), sigue: tx("Sigue"), hasta: tx("hasta {h}"),
         vacio: tx("Hoy no tienes misiones."), apuntar: tx("Apuntar una"),
         abre: tx("Abre Norata para ver tu día."), abrir: tx("Abrir"),
-        mas: tx("{n} más"), arriba: tx("Volver arriba"),
+        sigue_rot: tx("Lo que sigue"), quedan: tx("Quedan {n} hoy"), ultima: tx("Es la última de hoy"),
+        nada: tx("Nada pendiente. Hoy ya quedó."), sin: tx("Sin misiones para hoy"),
+        luc: tx("Luciérnagas"), de_n: tx("de {n}"), enc: tx("encendidas hoy"), descansan: tx("Hoy descansan"),
+        racha: tx("Racha"), semana_1: tx("semana\nencendida"), semanas_n: tx("semanas\nencendidas"), semana_ok: tx("Semana encendida"),
+        semana_0: tx("Tu semana empieza con el primer día"), falta_1: tx("Falta 1 día para encender esta semana"),
+        faltan_n: tx("Faltan {n} días para encender esta semana"),
+        exp: tx("Expedición"), nivel: tx("nivel"), cobrar: tx("+{n} por cobrar"),
+        apuntar_t: tx("Apuntar"), mision: tx("Misión"), habilidad: tx("Habilidad"), reloj: tx("Reloj"),
+        cuidar: tx("Por cuidar"), cuidar_vacio: tx("Tu primera habilidad aparecerá aquí cuando la practiques."),
+        aldia: tx("Al día"), practicaste: tx("Hoy ya practicaste"), practica: tx("Marcar práctica"),
+        pomo: tx("Pomodoro"), enfoque: tx("Enfoque"), en_pausa: tx("En pausa"), libre: tx("Tiempo libre"), listo: tx("Tramo listo"),
+        iniciar: tx("Iniciar"), iniciar_l: tx("Iniciar enfoque"), pausar: tx("Pausar"), seguir: tx("Seguir"),
+        dormir_rot: tx("Hora de dormir"), durmiendo: tx("Durmiendo"), levantas: tx("Te levantas a las {h}"),
+        noches: tx("Buenas noches, a dormir"), noches_c: tx("A dormir"), dias_b: tx("Buenos días, ya desperté"), dias_c: tx("Ya desperté"),
+        enfocar: tx("Enfocar de todos modos"), tramo: tx("Tramo {a} de {b}"), hasta_m: tx("Hasta las {h}"), sigue_b: tx("Sigue {n}, {h}"),
+        ramas: tx("Ramas"),
       },
       dias,
     };
@@ -227,10 +345,28 @@
     if (typeof checkStreakMilestone === "function") checkStreakMilestone();
     if (typeof revisarNivelExpedicion === "function") revisarNivelExpedicion();
   }
+  /* ---- Adónde abrir ----
+     Lo que se tocó en un widget y no es una marca: abrir la app en su sitio, y
+     en el Pomodoro, hacer además lo que decía el botón. El reloj no se arranca
+     desde el widget con la app cerrada (ver `Pinta.pomodoro`): se arranca aquí,
+     con la app ya abierta, por las mismas funciones que sus botones. */
   function ir(adonde) {
     if (typeof irAModulo !== "function") return;
-    if (!document.querySelector("#view-missions.active")) irAModulo("missions");
-    if (adonde === "nueva" && typeof openMissionForm === "function") openMissionForm();
+    const [sitio, accion] = String(adonde).split(":");
+    const a = (vista) => { if (!document.querySelector("#view-" + vista + ".active")) irAModulo(vista); };
+    if (sitio === "nueva") { a("missions"); if (typeof openMissionForm === "function") openMissionForm(); return; }
+    if (sitio === "habilidad") { a("home"); if (typeof openSkillForm === "function") openSkillForm(); return; }
+    if (sitio === "expedicion") { if (typeof abrirColeccion === "function") abrirColeccion(); return; }
+    if (sitio === "racha") { a("summary"); if (typeof abrirTuRacha === "function") abrirTuRacha(); return; }
+    if (["summary", "missions", "home", "tree", "jornada"].indexOf(sitio) < 0) return;
+    a(sitio);
+    if (sitio !== "jornada" || !accion || typeof jornadaEncendida !== "function" || !jornadaEncendida()) return;
+    const j = state.jornada || {}, run = j.run, enFoco = !!run && run.fase === "foco";
+    if (accion === "iniciar" && !run && typeof jIniciar === "function") jIniciar();
+    else if (accion === "pausar" && enFoco && run.seg && typeof jPausa === "function") jPausa();
+    else if (accion === "seguir" && enFoco && !run.seg && typeof jPausa === "function") jPausa();
+    else if (accion === "dormir" && !j.dormido && typeof jBuenasNoches === "function") jBuenasNoches();
+    else if (accion === "despertar" && j.dormido && typeof jBuenosDias === "function") jBuenosDias();
   }
   let repasando = false;
   function repasar() {

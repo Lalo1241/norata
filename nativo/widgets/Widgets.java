@@ -2,6 +2,7 @@
 // La primera línea (`package`) tiene que ser LA MISMA que la de MainActivity.
 package app.norata;
 
+import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
@@ -14,6 +15,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
+import android.net.Uri;
+import android.os.SystemClock;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,7 +49,7 @@ import java.util.TimeZone;
    uno — a medianoche tiene que cambiar de día sin que nadie abra la app.
 
    No depende de los avisos (`nativo/avisos/`): un APK puede traer uno sin el
-   otro. Lo único que comparten son las letras de `res/font/`. */
+   otro, y no comparten nada. */
 final class Widgets {
     private Widgets() {}
 
@@ -54,9 +57,15 @@ final class Widgets {
     /* La acción del toque en una fila. Es un texto cualquiera, único en la app. */
     static final String MARCA = "norata.widgets.MARCA";
     static final String EXTRA_ID = "norataMision";
-    /* El toque en el pie del widget: pasa a la página siguiente de la lista. */
-    static final String PAGINA = "norata.widgets.PAGINA";
-    static final String EXTRA_WIDGET = "norataWidgetId";
+    /* El latido que los repinta. Cada cuánto, en `armarTic`. */
+    static final String TIC = "norata.widgets.TIC";
+
+    /* Todos los widgets. Uno nuevo se da de alta aquí, en el manifiesto (lo hace
+       el instalador) y con su función en `Pinta`. */
+    static final Class<?>[] TODOS = {
+            HoyWidget.class, SigueWidget.class, PomodoroWidget.class, LuciernagasWidget.class, RachaWidget.class,
+            HabilidadWidget.class, ExpedicionWidget.class, ApuntarWidget.class, NodoWidget.class
+    };
     /* Adónde abrir la app. Lo lee `WidgetsPlugin` al arrancar o en `handleOnNewIntent`. */
     static final String EXTRA_IR = "norataWidget";
 
@@ -218,34 +227,6 @@ final class Widgets {
         return p;
     }
 
-    /* ---------- Las páginas ----------
-       La lista NO se desliza (0.7.197.1). En el teléfono de Eduardo el
-       lanzador inclina y deforma el widget entero mientras hay un dedo
-       arrastrando encima, y ese es justo el gesto de deslizar una lista: se
-       veía tosco, y desde un widget esa animación no se puede apagar. Así que
-       cada widget enseña solo las filas que le caben y un pie que pasa a las
-       siguientes con un toque: «3 más», y al final «Volver arriba».
-
-       `caben_<id>` lo apunta `HoyWidget.pintar`, que es quien sabe cuánto mide
-       ese widget; 0 quiere decir que entra todo y no hay pie. Devuelve
-       { desde, hasta, las que quedan después }. */
-    static int[] tramo(Context c, int widget, int n) {
-        int caben = prefs(c).getInt("caben_" + widget, 0);
-        if (caben <= 0 || n <= caben) return new int[] { 0, n, 0 };
-        int pag = prefs(c).getInt("pag_" + widget, 0);
-        if (pag < 0 || pag * caben >= n) pag = 0;
-        int desde = pag * caben, hasta = Math.min(n, desde + caben);
-        return new int[] { desde, hasta, n - hasta };
-    }
-
-    static void pasarPagina(Context c, int widget) {
-        int caben = prefs(c).getInt("caben_" + widget, 0);
-        int n = plan(foto(c)).filas.size();
-        int pag = prefs(c).getInt("pag_" + widget, 0) + 1;
-        if (caben <= 0 || pag * caben >= n) pag = 0;
-        prefs(c).edit().putInt("pag_" + widget, pag).apply();
-    }
-
     /* ---------- La cola ----------
        Un toque suma una; sobre una misión de una vez ya cumplida, la deshace
        (lo mismo que su botón dentro de la app). Una de varias veces ya
@@ -291,17 +272,88 @@ final class Widgets {
     }
 
     /* ---------- Repintar ---------- */
-    static int[] puestos(Context c) {
+    static int puestos(Context c) {
         AppWidgetManager m = AppWidgetManager.getInstance(c);
-        return m == null ? new int[0] : m.getAppWidgetIds(new ComponentName(c, HoyWidget.class));
+        int n = 0;
+        if (m != null) for (Class<?> k : TODOS) n += m.getAppWidgetIds(new ComponentName(c, k)).length;
+        return n;
     }
 
     static void refrescar(Context c) {
         AppWidgetManager m = AppWidgetManager.getInstance(c);
-        int[] ids = puestos(c);
-        if (m == null || ids.length == 0) return;
-        for (int id : ids) HoyWidget.pintar(c, m, id);
-        m.notifyAppWidgetViewDataChanged(ids, id(c, "wh_lista"));
+        if (m == null) return;
+        boolean alguno = false;
+        for (Class<?> k : TODOS) {
+            int[] ids = m.getAppWidgetIds(new ComponentName(c, k));
+            if (ids.length == 0) continue;
+            alguno = true;
+            try {
+                WidgetNorata w = (WidgetNorata) k.getDeclaredConstructor().newInstance();
+                for (int id : ids) w.pinta(c, m, id);
+                w.despues(c, m, ids);
+            } catch (Exception e) { /* un widget que falla no deja sin pintar a los demás */ }
+        }
+        if (alguno) armarTic(c);
+    }
+
+    /* El latido: una alarma que NO despierta el teléfono. Con la pantalla
+       apagada no corre, y al encenderla se pone al día. Cada cuánto, depende de
+       lo que haya a la vista:
+         - un tramo del Pomodoro en marcha: cada 20 segundos, para que el aro y
+           la arena avancen, y justo a su final, para decir «Tramo listo»;
+         - un widget del Pomodoro puesto: al cambiar el minuto, que es cuando se
+           mueve la aguja de la rueda;
+         - lo demás: cada cinco minutos (la tira de «Ahora» de Hoy).
+       Es una alarma inexacta: Android puede retrasarla unos segundos, y por
+       eso lo que tiene que ir al segundo —las cuentas y la hora— no depende de
+       esto, sino del cronómetro y del reloj del sistema. Sin ningún widget
+       puesto no se arma (`refrescar` no llega aquí). */
+    static void armarTic(Context c) {
+        AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
+        AppWidgetManager m = AppWidgetManager.getInstance(c);
+        if (am == null || m == null) return;
+        long ya = System.currentTimeMillis(), en = 5 * 60000L;
+        if (m.getAppWidgetIds(new ComponentName(c, PomodoroWidget.class)).length > 0) en = 60000L - ya % 60000L + 500;
+        JSONObject p = foto(c).optJSONObject("pomo");
+        if (p != null && p.optBoolean("corre")) {
+            long falta = p.optLong("fin") - ya;
+            if (falta > 0) en = Math.min(Math.min(en, 20000L), falta + 800);
+        }
+        Intent i = new Intent(c, HoyWidget.class).setAction(TIC);
+        PendingIntent pi = PendingIntent.getBroadcast(c, 7900, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        am.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + Math.max(5000L, en), pi);
+    }
+
+    /* El toque que marca una misión, desde cualquier widget. Va siempre a
+       `HoyWidget`, que es quien lo recibe aunque no esté puesto. La dirección
+       distingue una misión de otra. */
+    static PendingIntent alMarcar(Context c, String id) {
+        Intent i = new Intent(c, HoyWidget.class).setAction(MARCA)
+                .setData(Uri.parse("norata-widgets://marca/" + Uri.encode(id))).putExtra(EXTRA_ID, id);
+        return PendingIntent.getBroadcast(c, 7150, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+    }
+
+    /* Cuántas marcas esperan en la cola a que se abra la app. */
+    static synchronized int porCobrar(Context c) {
+        JSONArray cola = cola(c);
+        int n = 0;
+        for (int i = 0; i < cola.length(); i++) {
+            JSONObject e = cola.optJSONObject(i);
+            if (e != null && e.optInt("d") > 0) n++;
+        }
+        return n;
+    }
+
+    /* Una clave de día más `n` días ("2026-10-03" + 7). Vacía si no se entiende. */
+    static String sumar(String clave, int n) {
+        try {
+            String[] t = clave.split("-");
+            Calendar k = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+            k.clear();
+            k.set(Integer.parseInt(t[0]), Integer.parseInt(t[1]) - 1, Integer.parseInt(t[2]));
+            k.add(Calendar.DAY_OF_MONTH, n);
+            return String.format(Locale.US, "%04d-%02d-%02d", k.get(Calendar.YEAR), k.get(Calendar.MONTH) + 1, k.get(Calendar.DAY_OF_MONTH));
+        } catch (Exception e) { return ""; }
     }
 
     /* Tocar la cabecera abre la app en Misiones. `singleTask` en MainActivity:

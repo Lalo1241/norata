@@ -538,8 +538,14 @@ function quizaAniversario() {
     anivPedido = false;
     if (activeMainView !== "summary" || document.hidden) return;
     if (document.documentElement.classList.contains("quieto")) return;
-    if (toca.tipo === "seis") guinoSeisMeses(toca.prueba);
-    else abrirAniversario(toca.a, { prueba: toca.prueba });
+    /* En su turno (`enTurno`, js/01-base.js): nunca pegado a una carga ni
+       encima de otra escena. Si para entonces ya no se está en el Resumen,
+       se deja para la próxima. */
+    enTurno(() => {
+      if (activeMainView !== "summary" || document.hidden || anivEstado) return;
+      if (toca.tipo === "seis") guinoSeisMeses(toca.prueba);
+      else abrirAniversario(toca.a, { prueba: toca.prueba });
+    }, { clave: "aniv" });
     if (toca.prueba) { try { sessionStorage.removeItem("norata-prueba-aniv"); } catch (e) {} }
   }, 1200);
 }

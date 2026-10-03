@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.200";
+const VERSION = "0.7.207";
 const VERSION_FECHA = "3 oct 2026";
 
 /* ---- La web de fuera, en UN solo sitio ----
@@ -286,6 +286,9 @@ const ICONS = {
   figGasto: '<circle cx="12" cy="12" r="6.5"/>',
   play: '<path d="M8 5.5l11 6.5-11 6.5z" stroke-linejoin="round"/>',
   alert: '<path d="M12 7v7M12 17.4v.2"/>',
+  /* La pregunta, para el cuadro de reportar: el gancho y su punto, a trazo
+     como el aviso de arriba. */
+  duda: '<path d="M9 9.2a3 3 0 1 1 4.3 2.7c-.9.5-1.3 1.1-1.3 2.1M12 17.4v.2"/>',
   /* El bicho de reportar fallos. Un escarabajo visto desde arriba: cuerpo,
      cabeza, la raya de la espalda y tres patas por lado. Dibujado a trazo como
      todos los demás —nada de relleno— para que herede el color de quien lo
@@ -1080,6 +1083,91 @@ function deslizaPerilla(p, antes, ritmo) {
   if (antes.carril !== ahora.carril || antes.borde !== ahora.borde) {
     deslizaAnimar(p.carril, { backgroundColor: [antes.carril, ahora.carril], borderColor: [antes.borde, ahora.borde] }, tono);
   }
+}
+
+/* ================= EL TURNO: lo que sale solo, en fila (0.7.204) =================
+
+   Eduardo abrió la app y la celebración de subir de nivel salió DENTRO de la
+   carga: la escena aleja y apaga la app de detrás justo cuando el zoom la
+   está enseñando por el hueco del logo, y las dos animaciones se pelearon
+   («parpadeó mil veces»). Su regla, y no admite matices: «no me debe de salir
+   jamás una animación pegada a tus cortinillas, mándalas a cola y que se
+   reproduzcan al final». Y lo mismo entre ellas: una pantalla de nivel y el
+   aviso de una versión nueva no salen a la vez.
+
+   Había ya cuatro esperas sueltas, cada una preguntando por su cuenta si la
+   carga seguía puesta (`cuandoNadaTape`, `cuandoEsteLista`, la ventana de
+   vuelta, el aniversario), y las celebraciones no preguntaban nada. Esto es
+   UNA fila para todas:
+
+     - nada sale mientras haya una carga, la portada o la app fuera de la
+       vista;
+     - nada sale encima de otra escena o ventana que se abrió sola: espera a
+       que se cierre;
+     - entre la carga —o la escena de antes— y lo siguiente pasa `TURNO_PAUSA`:
+       primero se ve la app, luego llega lo demás. Pegado a la carga se leía
+       como parte de ella.
+
+   Si no hay nada delante y la carga se fue hace rato, `enTurno` lo hace en el
+   acto: marcar una misión sigue celebrándose al instante.
+
+   `ligera` es para lo que no interrumpe (la tarjeta de 2,2 s de `celebrate`):
+   solo espera a la carga, no a que se cierre otra ventana.
+   `clave` evita la fila doble: lo nuevo con la misma clave sustituye a lo que
+   esperaba.
+
+   Al añadir algo que se abra SOLO —una escena, una ventana, un aviso—, pasa
+   por aquí, y si es una capa nueva su selector va en `TURNO_ESCENAS`. Las
+   cargas van en `--piso-carga`, el piso más alto: nada de esto las tapa. */
+const TURNO_PAUSA = 1000;
+const TURNO_ESCENAS = "#ncel.show, #ncel.entrando, #scel.show, #scel.entrando, #celebrate.show, " +
+  "#hito, #aniv, #tuto.show, #modal.show, #vuelta.show, #region, #view-onboarding.active";
+const turnoCola = [];
+let turnoReloj = 0, turnoLibreDesde = 0, turnoMarca = Date.now();
+function turnoTapado(ligera) {
+  if (typeof cargaVisible === "function" && cargaVisible()) return true;
+  if (document.getElementById("portada")) return true;
+  if (document.visibilityState !== "visible") return true;
+  if (ligera) return false;
+  return !!document.querySelector(TURNO_ESCENAS);
+}
+function enTurno(hacer, opciones) {
+  const o = opciones || {};
+  if (o.clave) {
+    for (let i = turnoCola.length - 1; i >= 0; i--) if (turnoCola[i].clave === o.clave) turnoCola.splice(i, 1);
+  }
+  if (!turnoCola.length && !turnoTapado(o.ligera) && Date.now() - turnoMarca >= TURNO_PAUSA) {
+    hacer();
+    return;
+  }
+  turnoCola.push({ hacer: hacer, ligera: !!o.ligera, clave: o.clave || null });
+  turnoBombear();
+}
+function turnoBombear() {
+  clearTimeout(turnoReloj);
+  if (!turnoCola.length) return;
+  const sig = turnoCola[0], ahora = Date.now();
+  /* Dos ligeras seguidas tampoco se pisan: la segunda espera a que la
+     tarjeta de la primera se vaya. */
+  const tapado = turnoTapado(sig.ligera) || (sig.ligera && !!document.querySelector("#celebrate.show"));
+  if (tapado) turnoLibreDesde = 0;
+  else if (!turnoLibreDesde) turnoLibreDesde = Math.max(ahora, turnoMarca);
+  if (!tapado && ahora - turnoLibreDesde >= TURNO_PAUSA) {
+    turnoCola.shift();
+    turnoLibreDesde = 0;
+    try { sig.hacer(); } catch (e) { /* una que falla no atasca a las demás */ }
+  }
+  if (turnoCola.length) turnoReloj = setTimeout(turnoBombear, 200);
+}
+/* Cuándo se movió la carga por última vez, para que lo que llegue justo
+   después de que se quite también guarde la pausa. Lo enciende
+   `11-arranque.js`; sin él la pausa se cuenta desde que cargó la página. */
+function instalarTurno() {
+  const carga = document.getElementById("carga");
+  if (!carga || typeof MutationObserver !== "function") return;
+  new MutationObserver(() => { turnoMarca = Date.now(); })
+    .observe(carga, { attributes: true, attributeFilter: ["class"] });
+  document.addEventListener("visibilitychange", () => { turnoMarca = Date.now(); });
 }
 
 function instalarDesliza() {

@@ -1313,7 +1313,7 @@
   .orb-2 { width: 140px; height: 140px; top: 42%; right: -60px; background: radial-gradient(circle, var(--orbe-2), transparent 70%); }
   .orb-3 { width: 70px; height: 70px; bottom: 18%; left: -20px; background: radial-gradient(circle, var(--orbe-3), transparent 70%); }
 
-  .app { max-width: 560px; margin: 0 auto; padding: var(--alto-aviso, 0) 18px 0; position: relative; z-index: 1; }
+  .app { max-width: 560px; margin: 0 auto; padding: calc(var(--alto-aviso, 0px) + var(--alto-aviso-version, 0px)) 18px 0; position: relative; z-index: 1; }
 
   /* ---------- Cabecera ---------- */
   .page-head {
@@ -4911,8 +4911,11 @@
   /* ---------- Vistas ---------- */
   .view { display: none; }
   .view.active { display: block; animation: viewIn 0.3s cubic-bezier(0.22, 1, 0.36, 1); }
+  /* Desde 0,35 y no desde 0 (0.7.206): empezando en cero, el primer cuadro de
+     la pantalla nueva estaba VACÍO —la anterior ya se quitó de golpe—, y en
+     el teléfono se veía como un parpadeo al pasar de Resumen a Ajustes. */
   @keyframes viewIn {
-    from { opacity: 0; transform: translateY(12px); }
+    from { opacity: 0.35; transform: translateY(12px); }
     to { opacity: 1; transform: none; }
   }
   .back-row {
@@ -7717,9 +7720,34 @@
   /* El enlace a «Lo que me contaste», dentro del párrafo de entrada: es un
      botón que se lee como enlace, porque no es la acción del cuadro. */
   .modal-card.reporte .rep-ver {
-    display: block; margin-top: 8px; padding: 0; border: 0; background: none;
-    font: inherit; font-weight: 600; color: var(--estado-curso-tinta, var(--muted));
+    display: block; margin: 12px auto 0; padding: 0; border: 0; background: none;
+    font: inherit; font-size: 13.5px; font-weight: 600; color: var(--rep-tono);
     text-decoration: underline; text-underline-offset: 3px; cursor: pointer;
+  }
+  /* El cuadro toma el color del tipo elegido (en pruebas: solo lleva
+     `data-rep` con `?contaste=`). Dos variables y todo lo demás las lee: el
+     marco, el icono, la opción encendida y el foco. Sin `transition`: son
+     variables, y una transición sobre un color que sale de una variable se
+     queda congelada (ver «Trampas» en CLAUDE.md). El fallo y el comentario van
+     en los tonos de ESTADO, que ningún mundo cambia; la sugerencia y la
+     pregunta, en celeste y lila. */
+  .modal-card.reporte { --rep-tono: var(--fire); --rep-soft: var(--fire-soft); }
+  .modal-card.reporte[data-rep="fallo"] { --rep-tono: var(--estado-fallo-tinta); --rep-soft: var(--estado-fallo-soft); }
+  .modal-card.reporte[data-rep="idea"]  { --rep-tono: var(--celeste); --rep-soft: var(--celeste-soft); }
+  .modal-card.reporte[data-rep="duda"]  { --rep-tono: var(--lila); --rep-soft: var(--lila-soft); }
+  .modal-card.reporte[data-rep="gusto"] { --rep-tono: var(--estado-hecho-tinta); --rep-soft: var(--estado-hecho-soft); }
+  .modal-card.reporte[data-rep] { border-color: var(--rep-tono); }
+  .modal-card.reporte[data-rep] .modal-ic { background: var(--rep-soft); color: var(--rep-tono); }
+  .modal-card.reporte[data-rep] .rep-tipos button.on { border-color: var(--rep-tono); background: var(--rep-soft); color: var(--rep-tono); }
+  .modal-card.reporte[data-rep] .rep-campo select:focus-visible,
+  .modal-card.reporte[data-rep] .rep-campo input:focus-visible,
+  .modal-card.reporte[data-rep] .rep-campo textarea:focus-visible { border-color: var(--rep-tono); }
+  .modal-card.reporte .rep-intro.centro { text-align: center; }
+  /* El aviso de privacidad, al pie y en su caja: es lo último antes de enviar. */
+  .modal-card.reporte .rep-privado {
+    margin: 4px 0 0; padding: 9px 12px; border-radius: var(--r-chico);
+    background: var(--rep-soft); color: var(--muted);
+    font-size: 12.5px; line-height: 1.45; text-align: center;
   }
   /* «Lo que me contaste»: la lista de lo reportado con su respuesta. Mismo
      cuadro en oro y con el título en tinta normal, por lo mismo que el de
@@ -8524,6 +8552,7 @@
   }
   .nov-tit { margin: 9px 0 0; font-family: var(--tipo-titulo); font-size: 16px; font-weight: 700; line-height: 1.3; }
   .nov-res { margin: 5px 0 0; font-size: 13px; color: var(--muted); line-height: 1.5; text-align: left; }
+  .nov-res + .nov-res { margin-top: 8px; }
   .nov-puntos { margin: 9px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.5; }
   .nov-puntos li + li { margin-top: 4px; }
   .nov-puntos li::marker { color: var(--mint); }
@@ -10679,6 +10708,15 @@
     transition: opacity 0.28s ease;
   }
   .carga.fuera { opacity: 0; pointer-events: none; }
+  /* Sin la raya de desplazamiento encima de la carga (0.7.206). En el teléfono
+     salía una línea blanca arriba a la derecha mientras la app cargaba: la
+     barra de la página de detrás, que el sistema enseña al moverse el
+     contenido. Solo donde la barra va flotando y no ocupa sitio (dedo): en la
+     computadora quitarla movería la página al irse la carga. */
+  @media (pointer: coarse) {
+    html:has(#carga:not(.oculta)) { scrollbar-width: none; }
+    html:has(#carga:not(.oculta))::-webkit-scrollbar { display: none; }
+  }
   .carga.oculta { display: none; }
   /* La salida grande (`cargaZoom`, js/10c-portada.js). La marca llega a
      medir cuarenta veces lo que mide (o más, en pantallas grandes): sin
@@ -10903,7 +10941,9 @@
      va lo suyo: el aviso del reinicio cabe en dos renglones y lleva debajo
      su cuenta atrás. La mueve `cargaMundo` (js/10c-portada.js). */
   html.carga-mundo .cv-frase { max-width: 300px; }
-  .cv-cuenta { display: block; margin-top: 8px; font-size: 13px; font-weight: 500; color: var(--cg-apagado); }
+  .cv-cuenta { display: block; margin-top: 8px; font-size: 13px; font-weight: 500; color: var(--cg-apagado); opacity: 0; }
+  /* Entra cuando empieza a contar (`cargaMundo`), no con el aviso. */
+  .cv-cuenta.va { opacity: 1; transition: opacity 0.22s ease-out; }
   .cv-cuenta b {
     display: inline-block; min-width: 1ch; margin-left: 5px;
     font-size: 22px; font-weight: 800; line-height: 1; vertical-align: -2px;
@@ -11098,14 +11138,14 @@
 
   /* Y el hueco que la barra reserva, medido en JavaScript sobre la barra ya
      dibujada y no clavado a un número: con dos renglones mide otra cosa. */
-  .app { padding-top: var(--alto-aviso, 0); }
+  .app { padding-top: calc(var(--alto-aviso, 0px) + var(--alto-aviso-version, 0px)); }
   /* En la app de Android (0.7.140.3) la página se dibuja DEBAJO de la barra
      de estado —la hora, la batería—: con un WebView nuevo Capacitor le pasa el
      hueco a la página en `env(safe-area-inset-top)` en vez de apartarla él. En
      la web y en la app instalada desde Chrome ese hueco vale 0, así que esto
      solo lo pinta quien lo necesita. Los 10 de encima son de Eduardo: con el
      hueco justo, el título seguía viéndose pegado a la barra. */
-  html.nativa .app { padding-top: calc(var(--alto-aviso, 0px) + env(safe-area-inset-top, 0px) + 10px); }
+  html.nativa .app { padding-top: calc(var(--alto-aviso, 0px) + var(--alto-aviso-version, 0px) + env(safe-area-inset-top, 0px) + 10px); }
 
   /* ================= El teléfono tumbado: los botones al canto =================
      Lo único que cambia al girar el teléfono, y es de Eduardo. Estuvo detrás de

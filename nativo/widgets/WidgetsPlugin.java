@@ -61,7 +61,7 @@ public class WidgetsPlugin extends Plugin {
         Widgets.guardarFoto(c, call.getObject("foto"));
         Widgets.refrescar(c);
         JSObject r = new JSObject();
-        r.put("puestos", Widgets.puestos(c).length);
+        r.put("puestos", Widgets.puestos(c));
         call.resolve(r);
     }
 
