@@ -367,6 +367,11 @@ def figura(src, alt, clase, pie=""):
             f'<p class="nv-leyenda" style="margin:0;text-align:center;font-size:14px;line-height:1.4;opacity:.72">{esc(pie)}</p></div>')
 
 
+def parrafos(texto):
+    """El resumen, partido en párrafos por las líneas en blanco."""
+    return [p.strip() for p in re.split(r"\n\s*\n", texto or "") if p.strip()]
+
+
 def cuerpo(e, en=False):
     """El cuerpo de la tarjeta, en HTML, con sus imágenes DENTRO del texto.
 
@@ -418,6 +423,13 @@ def cuerpo(e, en=False):
     # rejilla, y los de después, debajo: así la tarjeta de Cyberpunk, que es
     # la referencia de Eduardo para el acomodo, conserva su punto encima.
     trozos = []
+    # El resumen puede traer más de un párrafo (separados por una línea en
+    # blanco): el primero va en la columna Resumen y los demás abren el
+    # cuerpo, con su estilo en línea. Eduardo pidió copys «más humanos», y uno
+    # así no cabe en una frase; el campo Resumen de Framer es texto plano y
+    # se comería el salto.
+    for parrafo in parrafos(campo(e, "resumen", en))[1:]:
+        trozos.append(f'<p class="nv-parrafo" style="margin:0;font-size:16px;line-height:1.55;color:#3D4052">{esc(parrafo)}</p>')
     todos = [t for n in sorted(medios) for t in medios[n]]
     primera = min([n for n in medios if n > 0], default=0)
     antes = [f"<li>{esc(p)}</li>" for i, p in enumerate(puntos, 1) if i not in medios and i < primera]
@@ -492,13 +504,13 @@ def main():
             "Orden": len(elegidas) - n,
             "Clase": CLASES[clase][0],
             "Destacada": "true" if clase in ("expansion", "hito") else "false",
-            "Resumen": e.get("resumen", ""),
+            "Resumen": (parrafos(e.get("resumen")) or [""])[0],
             "Cuerpo": cuerpo(e),
             "Banner": ban.get("src", ""),
             "Banner alt": ban.get("alt", ""),
             "Banner foco": ban.get("foco", ""),
             "Title (EN)": campo(e, "titulo", True),
-            "Summary (EN)": campo(e, "resumen", True) or "",
+            "Summary (EN)": (parrafos(campo(e, "resumen", True)) or [""])[0],
             "Body (EN)": cuerpo(e, True),
             "Class (EN)": CLASES[clase][1],
             "Banner alt (EN)": ban.get("alt_en", ""),

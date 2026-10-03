@@ -318,6 +318,21 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.200 · 3 oct 2026
+
+**El resumen de una novedad puede llevar más de un párrafo, y la ficha del
+Pomodoro (0.7.163) se reescribió.** Eduardo: «trata de extenderte un poco más
+con los copys que acompañan estas subidas, para hacerlas más humanas», y que
+la ficha diga que la app ya manda notificaciones en el teléfono y que la app
+de Android todavía no es para todo público. Ahora se titula «Norata ya te
+avisa en tu teléfono» y cierra con «cuando esté disponible para todos»; el
+texto lo aprobó él antes de subir.
+
+Los párrafos del resumen se separan con una línea en blanco. En la app cada
+uno es un `<p class="nov-res">`; en el sitio, el primero va en la columna
+Resumen y los demás abren el Cuerpo con su estilo en línea (`parrafos()` en el
+exportador), porque el campo de Framer es texto plano.
+
 ### 0.7.199 · 3 oct 2026
 
 **El paquete de la semana.** Lo pidió Eduardo con la barrera: que las subidas

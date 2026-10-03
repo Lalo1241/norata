@@ -8524,6 +8524,7 @@
   }
   .nov-tit { margin: 9px 0 0; font-family: var(--tipo-titulo); font-size: 16px; font-weight: 700; line-height: 1.3; }
   .nov-res { margin: 5px 0 0; font-size: 13px; color: var(--muted); line-height: 1.5; text-align: left; }
+  .nov-res + .nov-res { margin-top: 8px; }
   .nov-puntos { margin: 9px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.5; }
   .nov-puntos li + li { margin-top: 4px; }
   .nov-puntos li::marker { color: var(--mint); }

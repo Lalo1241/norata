@@ -407,7 +407,10 @@ function novedadHTML(e, medios) {
         ${e.estado === "aprobado" ? `<span class="nov-borrador">${escapeHtml(tx("Por subir"))}</span>` : ""}
       </div>
       <h4 class="nov-tit">${escapeHtml(novedadCampo(e, "titulo") || "")}</h4>
-      ${novedadCampo(e, "resumen") ? `<p class="nov-res">${escapeHtml(novedadCampo(e, "resumen"))}</p>` : ""}
+      ${/* Un párrafo por cada tramo separado por una línea en blanco (0.7.200):
+            los resúmenes se alargaron para contarse «más humanos». */
+        String(novedadCampo(e, "resumen") || "").split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean)
+          .map((p) => `<p class="nov-res">${escapeHtml(p)}</p>`).join("")}
       ${medios ? novedadCuerpoHTML(e, puntos) : (puntos.length ? `<ul class="nov-puntos">${puntos.map((p) => `<li>${escapeHtml(p)}</li>`).join("")}</ul>` : "")}
       ${retoques.length ? `
         <details class="nov-ret">

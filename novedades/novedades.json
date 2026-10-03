@@ -679,6 +679,20 @@
       }
     },
     {
+      "version": "0.7.200",
+      "fecha": "2026-10-03",
+      "estado": "borrador",
+      "clase": "mejora",
+      "titulo": "Las novedades, contadas con más calma",
+      "resumen": "Las novedades destacadas ya se cuentan en más de un párrafo, para explicarte con calma qué cambia para ti.",
+      "puntos": [],
+      "retoques": [],
+      "en": {
+        "titulo": "Updates, told with more room",
+        "resumen": "Featured updates can now run to more than one paragraph, to explain calmly what changes for you."
+      }
+    },
+    {
       "id": "widget-hoy",
       "version": "0.7.197",
       "fecha": "2026-10-03",
@@ -691,7 +705,15 @@
       "titulo": "Tus misiones, en la pantalla de inicio",
       "resumen": "En la app de Android ya puedes poner el widget Hoy: tus misiones del día y las actividades que vienen, y las marcas sin abrir Norata. Lo que marques se aplica al abrir la app.",
       "puntos": [],
-      "retoques": [{"version": "0.7.197.1", "texto": "La lista del widget Hoy pasa de página con un toque, en vez de deslizarse.", "en": {"texto": "The Today widget list now turns pages with a tap instead of scrolling."}}],
+      "retoques": [
+        {
+          "version": "0.7.197.1",
+          "texto": "La lista del widget Hoy pasa de página con un toque, en vez de deslizarse.",
+          "en": {
+            "texto": "The Today widget list now turns pages with a tap instead of scrolling."
+          }
+        }
+      ],
       "en": {
         "titulo": "Your missions, on your home screen",
         "resumen": "In the Android app you can now add the Today widget: your missions for the day and the activities coming up, and you check them off without opening Norata. What you check is applied when you open the app.",
@@ -1063,8 +1085,8 @@
       "fecha": "2026-10-02",
       "estado": "publicado",
       "clase": "expansion",
-      "titulo": "El Pomodoro te avisa aunque la app esté cerrada",
-      "resumen": "En la app de Android, el Pomodoro vive también en la cortina de avisos, con los tonos de tu mundo, y cada actividad de tu día te llama a su hora.",
+      "titulo": "Norata ya te avisa en tu teléfono",
+      "resumen": "La app de Android de Norata ya manda notificaciones, y el Pomodoro es el primero en usarlas. La cuenta de tu tramo se queda en la cortina de avisos, con los tonos de tu mundo, para que la veas de reojo sin abrir nada. Cuando termina una fase te suena aunque hayas cerrado la app, y cada actividad de tu día te llama a su hora.\n\nLa app de Android todavía no está abierta a todo el público: la seguimos construyendo, y esto es parte de lo que va a traer cuando esté disponible para todos.",
       "puntos": [
         "La cuenta de tu tramo, en la cortina, con un botón para pausarla.",
         "Al acabar cada fase suena aunque hayas cerrado la app.",
@@ -1072,8 +1094,8 @@
       ],
       "retoques": [],
       "en": {
-        "titulo": "The Pomodoro reaches you even with the app closed",
-        "resumen": "In the Android app, the Pomodoro also lives in your notification shade, in your world's colors, and each activity of your day calls you on time.",
+        "titulo": "Norata now reaches you on your phone",
+        "resumen": "Norata's Android app now sends notifications, and the Pomodoro is the first to use them. Your session's countdown stays in the notification shade, in your world's colors, so you can glance at it without opening anything. When a phase ends it rings even if you closed the app, and each activity of your day calls you on time.\n\nThe Android app isn't open to everyone yet: we're still building it, and this is part of what it will bring once it's available to everyone.",
         "puntos": [
           "Your session's countdown in the shade, with a button to pause it.",
           "When each phase ends, it rings even if you closed the app.",
