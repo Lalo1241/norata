@@ -296,6 +296,14 @@ html.claro #dentro {
 #dentro .dn-grifo { position: relative; flex: none; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px 18px; align-items: center; border-radius: var(--dn-burbuja); padding: 20px; border: 2px solid var(--line); background: var(--card); }
 #dentro .dn-grifo > * { position: relative; z-index: 1; }
 #dentro .dn-grifo.suelto { border-color: var(--dn-oro); border-style: dashed; }
+/* Tapa la tarjeta entera mientras el grifo cambia. Va por encima de las rayas
+   y de todo lo de dentro, y es maciza: lo de debajo es el estado VIEJO. */
+#dentro .dn-grifo .dn-grifo-velo { position: absolute; inset: 0; z-index: 3; border-radius: inherit; display: flex; align-items: center; justify-content: center; gap: 12px; background: var(--card); font-size: 16px; font-weight: 800; }
+#dentro .dn-grifo .dn-grifo-velo.abriendo { color: var(--dn-oro); }
+#dentro .dn-grifo .dn-grifo-velo.cerrando { color: var(--dn-coral); }
+#dentro .dn-cand { width: 34px; height: 34px; flex: none; overflow: visible; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+#dentro .dn-cand .arco { transform-box: fill-box; transform-origin: 100% 100%; }
+#dentro .dn-grifo-velo.abriendo .arco { transform: translateY(-2px) rotate(28deg); }
 #dentro .dn-grifo.abierto { border-color: var(--dn-oro-m); }
 /* Las franjas, solo hacia la derecha y tenues: debajo del botón de cerrar, sin
    tocar el texto. En una capa aparte, que no se lleve el alto del panel. */
@@ -337,6 +345,9 @@ html.claro #dentro .dn-velo { background: rgba(16, 24, 34, 0.42); }
    la capa —es lo que impide que un mundo meta las suyas—, así que estas se
    vuelven a encender una por una. De día, el botón no lleva halo. */
 @media (prefers-reduced-motion: no-preference) {
+  #dentro .dn-grifo .dn-grifo-velo { animation: dn-aparece .18s ease-out both; }
+  #dentro .dn-grifo-velo.abriendo .arco { animation: dn-cand-abre 1.1s cubic-bezier(.3, 1.4, .5, 1) infinite; }
+  #dentro .dn-grifo-velo.cerrando .arco { animation: dn-cand-cierra 1.1s cubic-bezier(.3, 1.4, .5, 1) infinite; }
   #dentro .dn-grifo .dn-btn.b-coral { transition: transform .16s ease-out; }
   #dentro .dn-llave { animation: dn-menea 2.2s ease-in-out infinite; }
   #dentro .dn-llave.arrastra, #dentro .dn-llave.vuelve { animation: none; }
@@ -364,6 +375,8 @@ html.claro #dentro .dn-velo { background: rgba(16, 24, 34, 0.42); }
 @keyframes dn-abre { from { left: 4px; } }
 @keyframes dn-cierra { from { left: 40px; } }
 @keyframes dn-aparece { from { opacity: 0; } }
+@keyframes dn-cand-abre { 0%, 25% { transform: none; } 55%, 100% { transform: translateY(-2px) rotate(28deg); } }
+@keyframes dn-cand-cierra { 0%, 25% { transform: translateY(-2px) rotate(28deg); } 55%, 100% { transform: none; } }
 @keyframes dn-fluye { to { background-position: 40px 0; } }
 
 @media (min-width: 900px) {

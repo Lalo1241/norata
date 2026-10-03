@@ -318,6 +318,23 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.187.2 · 3 oct 2026
+
+**El grifo dice que está cambiando, y el ensayo sale del panel.**
+
+- **Un candado tapa la tarjeta mientras el grifo cambia.** Abrir o cerrar tarda
+  un segundo o dos —pasa por Supabase y, al abrir, por GitHub—, y en ese rato
+  la tarjeta se quedaba igual y de golpe cambiaba: parecía que el toque no
+  había hecho nada. Ahora la tarjeta entera lo dice, «Abriendo el grifo…» o
+  «Cerrando el grifo…», con el arco del candado moviéndose. Va dibujado en dos
+  piezas para que el arco se mueva solo, y es macizo: lo de debajo es el estado
+  viejo.
+- **«Solo ensayar» se quitó.** Eduardo lo probó y preguntó qué lógica tenía:
+  preparaba el regreso sin publicar, y a él solo le devolvía un «Terminó bien».
+  Servía para comprobar el mecanismo, no para decidir nada, y de paso le cerró
+  el grifo (corregido en la función el mismo día). El trabajo de GitHub
+  conserva la opción; el panel ya no la ofrece.
+
 ### 0.7.187.1 · 3 oct 2026
 
 **El botón «Cierre de emergencia» lleva marco coral y crece un poco al pasarle
