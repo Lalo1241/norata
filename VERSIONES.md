@@ -318,6 +318,58 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.201 · 3 oct 2026
+
+**Los nueve widgets de la pantalla de inicio, en la app de Android.** A Hoy
+(0.7.197) se le suman los otros ocho del boceto que aprobó Eduardo: Lo que
+sigue, Pomodoro, Luciérnagas, Racha, Por cuidar, Expedición, Apuntar y
+Siguiente nodo. La tabla de qué enseña y qué hace cada uno está en
+`nativo/widgets/LEEME.md`.
+
+- **Hoy vuelve a deslizarse.** La lista por páginas de la 0.7.197.1 no le
+  gustó a Eduardo al verla en el boceto: en un 4×2 cabían dos filas por
+  página. Prefiere el deslizado aunque el lanzador de su Honor deforme el
+  widget al arrastrar. Las esquinas se quedan en 20 dp.
+- **Una clase por widget y un solo sitio donde se pintan.** Android pide una
+  clase por cada entrada de su selector; son de seis líneas y lo que hacen está
+  en `Pinta.java`. Lo que no se puede pintar con un molde —aros, la semana de
+  la racha, la figura de un nodo, las luciérnagas, el reloj de arena, la rueda
+  de 24 horas— se dibuja en `Dibujos.java` y viaja como imagen.
+- **La foto crece**: además de los siete días, lleva la racha de semanas, el
+  nivel con el próximo módulo, la habilidad por cuidar, el nodo que toca y el
+  tramo del Pomodoro. **Nada de lo que la arma escribe**: se lee `state.jornada`
+  sin `jDatos()`, y no se llama a `applyDecay()` ni a `ramasDe()`, que siembran
+  o guardan. Cada dato va envuelto (`sinFallo`): si uno falla, ese widget se
+  queda sin él y los demás siguen.
+- **El Pomodoro crece con el widget** (2×2, 4×2, 4×4) y elige su molde por el
+  tamaño que el lanzador le dice a Android. **Su botón abre la app y arranca
+  ahí**, no en segundo plano: un tramo con la app cerrada necesita una alarma
+  al acabar, y esa es la de los avisos; ponerla aquí también serían dos relojes.
+- **En el Pomodoro, lo que cuenta va en tiempo real.** Eduardo lo pidió al
+  leer que la aguja avanzaba cada cinco minutos: «me preocupa que no maneje
+  tiempo real visible». La cuenta del tramo y la de «cuánto falta para
+  despertar» corren por segundos con el cronómetro del sistema, y la hora de la
+  cabecera con su reloj (`TextClock`), en la zona del perfil. Lo que es dibujo
+  —aguja, arena, aro— avanza con el latido: cada 20 segundos con un tramo en
+  marcha y al cambiar el minuto con un Pomodoro puesto.
+- **El latido** (`Widgets.armarTic`) es una alarma que no despierta el
+  teléfono. Android puede retrasarla unos segundos; por eso nada que tenga que
+  ir al segundo depende de ella.
+- **Dos ajustes se hacen en lo nativo** porque pasan con la app cerrada: una
+  misión marcada en un widget enciende hoy en Racha y pone «Al día» en Por
+  cuidar, y a partir del domingo Racha empieza otra semana.
+- **El instalador añade solo lo que falte**: quien ya tenía Hoy se lleva los
+  demás sin que el suyo se mueva.
+
+**Cómo se probó.** El APK entero se arma con Gradle, firmado, desde el
+proyecto de Android. La página, con un complemento de mentira: manda los datos
+de los nueve y cada destino abre su sitio (el formulario de habilidad, «Tu
+racha», Mi expedición, Ramas, nueva misión). **Sin probar:** los ocho widgets
+nuevos pintados en un teléfono, el Pomodoro con un tramo corriendo (en la
+prueba estaba cerrado por nivel) y qué tamaños reporta el lanzador de MagicOS.
+
+Todos los widgets son gratis de momento; qué pide Pro lo decide Eduardo después.
+
 ### 0.7.200.1 · 3 oct 2026
 
 **Las fichas de Cyberpunk (0.7.148) y de las paletas (0.7.147), reescritas en

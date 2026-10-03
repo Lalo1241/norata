@@ -679,6 +679,27 @@
       }
     },
     {
+      "id": "widget-hoy",
+      "version": "0.7.201",
+      "fecha": "2026-10-03",
+      "estado": "borrador",
+      "clase": "mejora",
+      "toca": [
+        "App de Android",
+        "Misiones",
+        "Pomodoro"
+      ],
+      "titulo": "Norata, en tu pantalla de inicio",
+      "resumen": "En la app de Android ya hay nueve widgets. Con Hoy y Lo que sigue marcas tus misiones sin abrir Norata; el Pomodoro crece hasta enseñar la rueda entera de tu día; y Racha, Luciérnagas, Por cuidar, Expedición, Siguiente nodo y Apuntar te dejan a la vista lo que llevas. Lo que marques se aplica al abrir la app.",
+      "puntos": [],
+      "retoques": [],
+      "en": {
+        "titulo": "Norata, on your home screen",
+        "resumen": "The Android app now has nine widgets. With Today and Up next you check off missions without opening Norata; the Pomodoro grows until it shows the whole wheel of your day; and Streak, Fireflies, Needs care, Journey, Next node and Add keep what you have going in sight. What you check is applied when you open the app.",
+        "puntos": []
+      }
+    },
+    {
       "version": "0.7.200",
       "fecha": "2026-10-03",
       "estado": "borrador",
@@ -698,34 +719,6 @@
       "en": {
         "titulo": "Updates, told with more room",
         "resumen": "Featured updates can now run to more than one paragraph, to explain calmly what changes for you."
-      }
-    },
-    {
-      "id": "widget-hoy",
-      "version": "0.7.197",
-      "fecha": "2026-10-03",
-      "estado": "borrador",
-      "clase": "mejora",
-      "toca": [
-        "App de Android",
-        "Misiones"
-      ],
-      "titulo": "Tus misiones, en la pantalla de inicio",
-      "resumen": "En la app de Android ya puedes poner el widget Hoy: tus misiones del día y las actividades que vienen, y las marcas sin abrir Norata. Lo que marques se aplica al abrir la app.",
-      "puntos": [],
-      "retoques": [
-        {
-          "version": "0.7.197.1",
-          "texto": "La lista del widget Hoy pasa de página con un toque, en vez de deslizarse.",
-          "en": {
-            "texto": "The Today widget list now turns pages with a tap instead of scrolling."
-          }
-        }
-      ],
-      "en": {
-        "titulo": "Your missions, on your home screen",
-        "resumen": "In the Android app you can now add the Today widget: your missions for the day and the activities coming up, and you check them off without opening Norata. What you check is applied when you open the app.",
-        "puntos": []
       }
     },
     {
