@@ -469,7 +469,7 @@ function cargaCuenta(el, mio) {
    para leerlo y el zoom de siempre.
 
    CON REINICIO (el APK, cuando el icono cambia): el tic y, debajo, el aviso
-   con su cuenta atrás —«Se reinicia en 4, 3, 2, 1»—, con el aro vaciándose al
+   con su cuenta atrás —«Se cierra en 4, 3, 2, 1»—, con el aro vaciándose al
    mismo ritmo. Al llegar a cero el texto se apaga y la app se reinicia con el
    logo quieto. Lo pidió Eduardo dos veces: primero que el reinicio fuera
    DENTRO de la animación y no una ventana después, y luego que se anunciara,
@@ -478,6 +478,11 @@ function cargaCuenta(el, mio) {
    La cuenta atrás no es solo cortesía: el WebView escribe `localStorage` al
    disco segundos después, y reiniciar pronto dejaba el mundo a medias
    (0.7.146.1). Entre guardar el mundo y reiniciar pasan aquí más de ocho.
+
+   SE DICE «CERRAR», NO «REINICIAR» (0.7.198). En el teléfono de Eduardo la app
+   se cierra y no vuelve a abrirse sola: «el texto dice una cosa y el APK
+   hace otra». Que se cierre no le parece mal; que el texto mienta, sí. El
+   aviso dice las dos cosas: que se cierra y que hay que volver a abrirla.
 
    Si el reinicio no llega a ocurrir —el complemento dice que no cambió nada,
    o falla—, se entra con el zoom: nadie se queda mirando una carga. */

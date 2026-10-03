@@ -1913,6 +1913,7 @@ function mirarApariencia(id, comoMundo) {
    un mundo parecía habérselo puesto. */
 function pintarSeleccion() {
   const puesta = apariencia();
+  const conArcade = typeof arcadePuesto === "function" && arcadePuesto();
   document.querySelectorAll("#panel-apariencia [data-ap]").forEach((b) => {
     const id = b.getAttribute("data-ap");
     /* Un renglón de mundo se marca por estar ABIERTO; una muestra, por ser lo
@@ -1922,8 +1923,12 @@ function pintarSeleccion() {
     const mirando = esMundo ? id === mundoDesplegado
       : enPliegue ? id === pliegueVista : id === aparienciaMirada;
     b.classList.toggle("mirando", mirando);
-    b.classList.toggle("on", id === puesta);
-    b.setAttribute("aria-pressed", String(id === puesta));
+    /* Con Arcade puesto, en la lista de mundos el que se lleva es Arcade
+       (su renglón lo pinta `arcadeApariencia`): el de partida no lleva
+       palomita, que serían dos a la vez en la misma lista. */
+    const puesto = id === puesta && !(esMundo && conArcade);
+    b.classList.toggle("on", puesto);
+    b.setAttribute("aria-pressed", String(puesto));
     if (esMundo) b.setAttribute("aria-expanded", String(mirando));
   });
 }
@@ -1934,6 +1939,8 @@ function pintarSeleccion() {
    cierra. El mundo que llevas puesto no se abre: ya está arriba, así que
    tocarlo lleva hasta allí. */
 function desplegarMundo(id) {
+  /* Un solo plegable abierto en la lista: el de Arcade se cierra. */
+  if (typeof arcadePlegar === "function") arcadePlegar();
   if (id === apariencia()) {
     mundoDesplegado = null;
     pliegueVista = null;
@@ -2161,11 +2168,13 @@ function renderPanelApariencia() {
       <h3 class="amb-h2">${tx("Mundos")}</h3>
       <p class="settings-note">${tx("Un mundo no es otra luz: es otro material. Cambia la superficie, el marco, la letra y hasta cómo se llama tu camino. Van aparte de los ambientes porque no se combinan — llevas uno o llevas el otro.")}</p>
       <div class="mun-rej" id="ap-mundos"></div>
-      <div id="ap-arcade"></div>`;
+      <div class="mun-rej mun-secretos" id="ap-arcade"></div>`;
   }
   ambientesHTML = muestras;
   pintarRejaAmbientes();
-  /* Arcade, el secreto: solo existe aquí para quien lo encontró. */
+  /* Arcade, el secreto: solo existe aquí para quien lo encontró. Es un
+     renglón más de la lista, debajo de un rótulo («Secretos»), y no una
+     sección aparte (0.7.198). */
   const arc = document.getElementById("ap-arcade");
   if (arc) arc.innerHTML = typeof arcadeApariencia === "function" ? arcadeApariencia() : "";
   document.getElementById("ap-mundos").innerHTML = (listos.length || salida) ? mundos : "";
@@ -2242,20 +2251,39 @@ function elegirApariencia(id) {
    el zoom.
 
    Si la carga ya está puesta, o falta alguna pieza, se hace como siempre
-   (`cambiarTapado`). La paleta de un mundo, la conciliación del arranque y
-   Arcade siguen por ahí. */
-async function cambiarDeMundo(id) {
+   (`cambiarTapado`). La paleta de un mundo y la conciliación del arranque
+   siguen por ahí.
+
+   ARCADE VA POR AQUÍ TAMBIÉN (0.7.198). Eduardo: «a Arcade no me la dejes de
+   lado comparado con los otros mundos, pertenecen a la misma familia». Por
+   eso la pieza recibe QUÉ aplicar y los dos nombres, y no un id: la usan un
+   mundo o ambiente (`cambiarDeMundo`) y Arcade (`arcadeAlternar`,
+   js/10k-arcade.js). */
+function cambiarDeMundo(id) {
+  const idDe = apariencia();
+  const de = aparienciaPorId(idDe), a = aparienciaPorId(id);
+  /* Con Arcade puesto, lo que se deja es Arcade: es lo que se ve. El
+     atributo sigue ahí aunque `elegirApariencia` ya lo haya quitado de lo
+     guardado. */
+  const deArcade = document.documentElement.getAttribute("data-material") === "arcade";
+  return cambiarDeUnaPieza({
+    aplicar: () => ponerApariencia(id),
+    de: deArcade ? "Arcade" : (de ? tx(de.nombre) : ""),
+    a: a ? tx(a.nombre) : "",
+    hayMundo: deArcade || esMundo(id) || esMundo(idDe),
+    respaldo: () => cambiarTapado(() => ponerApariencia(id))
+  });
+}
+async function cambiarDeUnaPieza(o) {
   const cortina = document.getElementById("carga");
   const raiz = document.documentElement;
   const tapado = typeof cargaVisible === "function" && cargaVisible();
   if (!cortina || tapado || typeof cargaLlegar !== "function" || typeof cargaTonos !== "function" ||
       typeof cargaDespedir !== "function") {
-    cambiarTapado(() => ponerApariencia(id));
+    o.respaldo();
     return;
   }
-  const idDe = apariencia();
-  const de = aparienciaPorId(idDe), a = aparienciaPorId(id);
-  const hayMundo = esMundo(id) || esMundo(idDe);
+  const hayMundo = !!o.hayMundo;
 
   await cargaLlegar(hayMundo ? tx("Cambiando de mundo…") : tx("Cambiando tema…"));
   const tonos = cargaTonos();
@@ -2268,7 +2296,7 @@ async function cambiarDeMundo(id) {
      vería cambiar. Al otro lado de la recarga no vuelve. */
   await cargaDespedir();
 
-  if (!ponerApariencia(id)) {
+  if (!o.aplicar()) {
     soltar();
     if (typeof cargaCerrar === "function") cargaCerrar();
     return;
@@ -2299,12 +2327,14 @@ async function cambiarDeMundo(id) {
     sessionStorage.setItem("norata-cuenta", JSON.stringify({
       mundo: true,
       rot: hayMundo ? tx("Mundo") : tx("Tema"),
-      de: { n: de ? tx(de.nombre) : "" },
-      a: { n: a ? tx(a.nombre) : "" },
+      de: { n: String(o.de || "") },
+      a: { n: String(o.a || "") },
       tonos: tonos,
       sinHalo: raiz.classList.contains("claro"),
-      frase: reinicio ? tx("Norata se va a reiniciar para aplicar los ajustes finales") : tx("Listo"),
-      cuenta: reinicio ? tx("Se reinicia en") : ""
+      /* «Cerrar» y no «reiniciar» (0.7.198): la app se cierra y hay que
+         volver a abrirla. El aviso dice las dos cosas. */
+      frase: reinicio ? tx("Norata se va a cerrar para aplicar los ajustes finales. Vuelve a abrirla cuando se cierre.") : tx("Listo"),
+      cuenta: reinicio ? tx("Se cierra en") : ""
     }));
   } catch (e) { /* sin esto la carga de después es la entrada de siempre */ }
   location.reload();
@@ -2441,7 +2471,7 @@ function avisarRenacer() {
       '<circle class="lleno" id="renace-lleno" cx="50" cy="50" r="' + r + '" stroke-dasharray="' + vuelta.toFixed(2) + '" stroke-dashoffset="0"/></svg>' +
       '<span class="renace-pieza">' + iso + '</span>' +
     '</span>' +
-    '<span class="renace-tx">' + escapeHtml(tx("Para terminar de mudarnos al nuevo mundo que elegiste, la aplicación necesita reiniciarse un instante y aplicar todos los ajustes correctamente.")) + '</span>' +
+    '<span class="renace-tx">' + escapeHtml(tx("Para terminar de mudarnos al nuevo mundo que elegiste, la aplicación necesita cerrarse y aplicar todos los ajustes correctamente. Vuelve a abrirla cuando se cierre.")) + '</span>' +
     '<span class="renace-cuenta" id="renace-cuenta"></span>';
   let listo = false, reloj = null, fotograma = 0;
   const fin = new Promise((resolver) => {
@@ -2453,8 +2483,11 @@ function avisarRenacer() {
       if (typeof modalDone === "function") modalDone(true);
       resolver();
     };
-    askBase(cuerpo, true, tx("Reiniciar ahora"), false, false, null,
-            { fijo: true, soloOk: true, tono: "menta", clase: "renace", titulo: tx("Norata necesita reiniciarse") })
+    /* «Cerrarse» y no «reiniciarse» (0.7.198): en el teléfono de Eduardo la app
+       se cierra y no vuelve a abrirse sola, y el texto decía una cosa y el
+       APK hacía otra. Se dice lo que pasa y qué hacer después. */
+    askBase(cuerpo, true, tx("Cerrar ahora"), false, false, null,
+            { fijo: true, soloOk: true, tono: "menta", clase: "renace", titulo: tx("Norata necesita cerrarse") })
       .then(acabar);
     /* Por fotogramas y no con una transición de CSS: una transición puede no
        avanzar (ver «Cómo verificar» en CLAUDE.md), y aquí el aro ES la cuenta.

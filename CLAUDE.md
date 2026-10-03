@@ -105,12 +105,16 @@ que abre sin red y sin pasar por Chrome. Lo que eso cambia aquí:
   APK.** **Elegir un mundo es una sola pieza (0.7.194)**: el logo llega, se
   recarga, el aro se llena con el color fundiéndose al mundo nuevo, la ruleta
   da el tic de un nombre al otro y, si el icono cambia, el mismo letrero avisa
-  («Norata se va a reiniciar…», «Se reinicia en 4, 3, 2, 1») y la app se
-  reinicia ahí, sin ventana aparte (`cambiarDeMundo` → `cargaMundo` → el
-  complemento `IconoNorata`). Al volver abre con el logo quieto y entra con el
-  zoom. Arcade, la paleta y la conciliación del arranque siguen por el camino
-  de antes (`recargarApp` → `revisarIconoPedido` → `avisarRenacer`, con su
-  cuenta de 10 s). **Nunca se reinicia antes de unos segundos**: el WebView
+  («Norata se va a cerrar…», «Se cierra en 4, 3, 2, 1») y la app se cierra
+  ahí, sin ventana aparte (`cambiarDeMundo` → `cargaMundo` → el complemento
+  `IconoNorata`). **Se dice «cerrar» y no «reiniciar» (0.7.198)**: en el teléfono
+  de Eduardo la app no vuelve a abrirse sola, y un texto que promete lo que el
+  APK no hace es peor que el cierre. Al volver a abrirla sale con el logo
+  quieto y entra con el zoom. **Arcade va por la misma pieza** (`arcadeAlternar`
+  → `cambiarDeUnaPieza`) y en Mi apariencia es un renglón más de la lista de
+  mundos, bajo el rótulo «Secretos»: son la misma familia. La paleta y la
+  conciliación del arranque siguen por el camino de antes (`recargarApp` →
+  `revisarIconoPedido` → `avisarRenacer`, con su cuenta de 10 s). **Nunca se reinicia antes de unos segundos**: el WebView
   escribe `localStorage` al disco segundos después, y reiniciar pronto dejaba
   el mundo a medias (0.7.146.1). El reinicio SE ANUNCIA siempre: sin aviso,
   Eduardo lo leyó como un fallo.

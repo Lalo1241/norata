@@ -293,11 +293,12 @@
         /* Y al volver del REINICIO de un cambio de mundo (0.7.194): la app se
            cerró con el logo quieto, y al abrir tiene que seguir ahí desde el
            primer cuadro. Los tonos los dejó `cargaMundo` en `localStorage`,
-           que es lo único que sobrevive a un reinicio. Solo si es reciente:
+           que es lo único que sobrevive a un reinicio. Solo si es reciente
+           —diez minutos: la app se cierra y la vuelve a abrir la persona—:
            una marca vieja no puede vestir una apertura cualquiera. */
         if (!sigue) {
           var rn = JSON.parse(localStorage.getItem("norata-renacido") || "null");
-          if (rn && rn.tonos && Date.now() - Number(rn.t || 0) < 30000) { sigue = "1"; tc = rn.tonos; }
+          if (rn && rn.tonos && Date.now() - Number(rn.t || 0) < 600000) { sigue = "1"; tc = rn.tonos; }
         }
         var esColor = /^(#[0-9a-f]{3,8}|(rgba?|color)\([\w\s.,%\/-]+\))$/i;
         if (sigue && tc && esColor.test(String(tc.fondo || "")) && esColor.test(String(tc.logo || "")) && esColor.test(String(tc.suave || ""))) {
@@ -440,7 +441,7 @@
     var rnc = JSON.parse(localStorage.getItem("norata-renacido") || "null");
     if (rnc) {
       localStorage.removeItem("norata-renacido");
-      if (window.__carga === "entrada" && Date.now() - Number(rnc.t || 0) < 30000) {
+      if (window.__carga === "entrada" && Date.now() - Number(rnc.t || 0) < 600000) {
         window.__renacido = true;
         document.documentElement.classList.add("carga-llega", "carga-renace");
       }

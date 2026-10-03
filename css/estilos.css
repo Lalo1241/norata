@@ -2058,6 +2058,18 @@
      cerrados, y por eso el mundo de Fundador era el único de la lista que
      respondía al cursor — justo el que no se puede tener. */
   .mun-m:hover { background: var(--sup-tarjeta2); }
+  /* «Secretos» (0.7.198): el rótulo que separa a Arcade del resto de la lista.
+     Es la misma lista —misma reja, mismo renglón—, y esto lo único que los
+     distingue. Sin nada dentro (quien no lo encontró), no ocupa sitio. */
+  .mun-rej.mun-secretos { margin-top: 8px; }
+  .mun-secretos:empty { display: none; }
+  .mun-sep {
+    margin: 10px 2px 0; font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .mun-arcade .mun-ic svg { stroke-width: 0; }
+  .arc-pliegue { display: grid; gap: 10px; justify-items: start; padding: 6px 4px 8px; }
+  .arc-pliegue .settings-note { margin: 0; }
   /* Cerrado se ve ENTERO y solo un poco apagado: enseñar lo que se puede tener
      es la mitad de la razón para quererlo, y un mundo tapado no vende nada. */
   .mun-m.cerrado { opacity: 0.68; }
@@ -3720,18 +3732,6 @@
   .arc-pie { margin: 12px 0 0; font-size: 13px; color: var(--muted); }
   #arc-abierto .btn { margin-top: 18px; }
 
-  /* La fila de Arcade en Mi apariencia: solo sale a quien lo encontró. */
-  .arc-ap { display: grid; gap: 10px; }
-  .arc-ap-m {
-    display: flex; align-items: center; gap: 12px; padding: 12px 14px;
-    border: var(--borde-fino) dashed var(--mint); border-radius: var(--r-caja);
-    background: var(--sup-tarjeta);
-  }
-  .arc-ap-ic { flex: none; width: 40px; height: 40px; display: grid; place-items: center; color: var(--mint); background: var(--mint-soft); border-radius: var(--r-chico); }
-  .arc-ap-ic svg { width: 24px; height: 24px; }
-  .arc-ap-tx { flex: 1; min-width: 0; }
-  .arc-ap-tx b { display: block; font: 19px/1.2 "CelestiByte", var(--sans); }
-  .arc-ap-tx span { display: block; font-size: 13px; color: var(--muted); }
   @media (prefers-reduced-motion: reduce) { #arc-pixel i { animation: none; } }
 
   /* La fiesta de después: el dibujo del módulo, el de su botón de la barra. */
@@ -10902,7 +10902,7 @@
      El dibujo es el de «Cambiar de cuenta» (`html.carga-cuenta`), y aquí solo
      va lo suyo: el aviso del reinicio cabe en dos renglones y lleva debajo
      su cuenta atrás. La mueve `cargaMundo` (js/10c-portada.js). */
-  html.carga-mundo .cv-frase { max-width: 290px; }
+  html.carga-mundo .cv-frase { max-width: 300px; }
   .cv-cuenta { display: block; margin-top: 8px; font-size: 13px; font-weight: 500; color: var(--cg-apagado); }
   .cv-cuenta b {
     display: inline-block; min-width: 1ch; margin-left: 5px;

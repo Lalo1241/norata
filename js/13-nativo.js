@@ -123,7 +123,7 @@
                al abrir. Y si el disco no alcanzó a guardarlo, al abrir ya
                coincide el icono y se olvida sin avisar (arriba). */
             olvidarPedido();
-            if (typeof cargaMostrar === "function") cargaMostrar(tx("Reiniciando…"));
+            if (typeof cargaMostrar === "function") cargaMostrar(tx("Cerrando…"));
             return Promise.resolve(iconoNativo.poner({ icono: id, reiniciar: true })).then((p) => {
               /* Si no hubo nada que cambiar, no hay reinicio que tape la carga. */
               if (!(p && p.cambiado) && typeof cargaCerrar === "function") cargaCerrar();

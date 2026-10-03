@@ -318,6 +318,31 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.198 · 3 oct 2026
+
+**El aviso del cambio de mundo dice «cerrar», y Arcade entra en la familia de
+los mundos.** Eduardo probó la 0.7.194 en su teléfono: la app no se reinicia,
+se cierra y hay que abrirla. No le parece mal, pero «el texto dice una cosa y
+el APK hace otra».
+
+- **El aviso**: «Norata se va a cerrar para aplicar los ajustes finales. Vuelve a abrirla cuando se cierre.» y «Se cierra en 4, 3, 2, 1». La ventana vieja
+  (`avisarRenacer`) también: «Norata necesita cerrarse», «Cerrar ahora», y su
+  texto dice que hay que volver a abrirla. «Reiniciando…» pasa a «Cerrando…».
+- **Al volver a abrirla**, la carga de vuelta (logo quieto, zoom a los 0,9 s)
+  vale diez minutos y no treinta segundos: ya no la abre el sistema en el
+  acto, la abre la persona.
+- **Arcade usa la misma pieza** que un mundo: `cambiarDeMundo` pasó a ser
+  `cambiarDeUnaPieza`, que recibe qué aplicar y los dos nombres, y
+  `arcadeAlternar` la llama. Antes se quedaba con la carga suelta y la
+  ventana aparte.
+- **En Mi apariencia, Arcade es un renglón más de la lista de mundos**, con
+  su plegable, debajo de un rótulo: «Secretos». Se fueron la sección aparte,
+  su párrafo y la tarjeta de borde punteado. Con Arcade puesto, la palomita
+  de la lista es la suya y no la del mundo de partida.
+
+**Por qué no se reabre sola no se investigó**: Eduardo prefirió ajustar el
+texto. Sin probar en el teléfono lo de Arcade.
+
 ### 0.7.197.1 · 3 oct 2026
 
 **El widget Hoy va por páginas, y con las esquinas menos redondas.** Eduardo lo
