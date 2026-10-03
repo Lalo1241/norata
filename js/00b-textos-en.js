@@ -1701,8 +1701,8 @@ const TEXTOS_EN = {
     "Use this option to propose an improvement or a new feature. Every suggestion is reviewed.",
   "Usa esta opción si algo de la app no te quedó claro. Recibirás la respuesta en «Mis reportes».":
     "Use this option if something in the app wasn't clear. You'll get the reply in “My reports”.",
-  "Usa esta opción para decirnos qué te gustó o qué opinas de la app. Nos ayuda a saber qué conservar.":
-    "Use this option to tell us what you liked or what you think of the app. It helps us know what to keep.",
+  "Usa esta opción para decirnos qué te gustó o qué opinas de la app. Nos ayuda a saber qué conservar y qué mejorar para ti.":
+    "Use this option to tell us what you liked or what you think of the app. It helps us know what to keep and what to improve for you.",
   "No incluyas datos personales, contraseñas ni información de pago. No son necesarios para atender tu mensaje.":
     "Don't include personal data, passwords or payment details. They aren't needed to handle your message.",
   "Reportar un error": "Report a bug",

@@ -2405,7 +2405,7 @@ const REP_FORMAL = {
     intro: "Usa esta opción si algo de la app no te quedó claro. Recibirás la respuesta en «Mis reportes».",
     ejemplo: "¿Por qué bajó el nivel de una habilidad?", falta: "No se envió: falta escribir la pregunta." },
   gusto: { titulo: "Dejar un comentario", icono: "heart", rotulo: "Comentario", donde: "¿Sobre qué sección?", pregunta: "Escribe tu comentario",
-    intro: "Usa esta opción para decirnos qué te gustó o qué opinas de la app. Nos ayuda a saber qué conservar.",
+    intro: "Usa esta opción para decirnos qué te gustó o qué opinas de la app. Nos ayuda a saber qué conservar y qué mejorar para ti.",
     ejemplo: "El sonido al subir de nivel.", falta: "No se envió: falta escribir el comentario." }
 };
 /* El texto de un tipo, en el tono que toque. */

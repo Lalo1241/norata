@@ -318,6 +318,14 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.205.3 · 3 oct 2026
+
+**La frase de «Comentario» cierra amable**: «…qué conservar y qué mejorar para
+ti». De Eduardo, con una condición que no se escribe en pantalla pero manda al
+redactar aquí: nada que suene a promesa, porque no todo lo que se pide se
+agrega. Por eso «mejorar» y no «agregar». Los demás textos del cuadro quedaron
+aprobados.
+
 ### 0.7.205.2 · 3 oct 2026
 
 **En el cuadro de reportar (en pruebas), la frase de entrada también sigue a
