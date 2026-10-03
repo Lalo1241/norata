@@ -318,6 +318,39 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.202 · 3 oct 2026
+
+**Una tarjeta ya vista no vuelve a salir por culpa de la sincronía.** Eduardo
+mandó una captura del teléfono: la presentación de «Ramas de proyecto» le
+salía otra vez, después de haberla cerrado.
+
+**La causa.** La marca se guarda bien (`marcarPresentado` + `save()`), pero al
+juntar dos dispositivos `ui` y `settings` salen ENTEROS del lado que hace de
+base. Si manda un dispositivo que aún no había visto la tarjeta, la marca del
+otro se tira; el otro baja el resultado y la vuelve a enseñar. Lo mismo le
+pasaba a todo lo que se apunta como visto.
+
+**Lo que cambia** (`fusionarEstados`, `js/10-fusion.js`): las marcas de «ya
+visto» solo crecen, así que se unen en vez de competir.
+
+| Marca | Cómo se junta |
+| --- | --- |
+| `ui.modulosPresentados`, `settings.hitosVistos` | se unen las dos listas |
+| `ui.tutorialVisto`, `settings.sonidoAvisado` | gana el sí |
+| `ui.expNivelVisto` | gana el mayor; si sobra, `revisarNivel` lo baja sin fiesta |
+| `ui.vueltaVista` | gana la fecha más tardía |
+
+**Medido** con dos estados —un teléfono que ya vio la tarjeta de proyectos y
+una computadora que no—: mande quien mande, el resultado lleva las dos
+tarjetas vistas, el nivel 7, los dos hitos y el tutorial; el resto de `ui`
+(el tablero) sigue saliendo de la base; y fusionar dos veces da lo mismo.
+
+**Al añadir una marca nueva de «ya visto», va en ese bloque**, o volverá a
+salir en el dispositivo que no manda.
+
+**Lo que no arregla:** una marca que ya se perdió no vuelve; la tarjeta puede
+salir una vez más en cada dispositivo, y al cerrarla ya se queda cerrada.
+
 ### 0.7.201 · 3 oct 2026
 
 **Los nueve widgets de la pantalla de inicio, en la app de Android.** A Hoy

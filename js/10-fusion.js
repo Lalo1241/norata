@@ -219,6 +219,35 @@ function fusionarEstados(a, b, bEsMasNuevo) {
     }
   }
 
+  /* Lo que ya se VIO, también: una tarjeta vista en un dispositivo está vista
+     en todos. `ui` y `settings` salen enteros del lado más nuevo, así que la
+     marca de «ya me presentaron las ramas de proyecto» puesta en el teléfono
+     se perdía en cuanto mandaba una computadora que aún no la había visto: el
+     teléfono bajaba el resultado y volvía a enseñar la tarjeta. Eduardo lo
+     mandó en una captura. Son marcas que solo crecen, y por eso se unen (las
+     listas), gana el sí (los interruptores) o gana el mayor (el nivel ya
+     celebrado, la última vuelta saludada). El nivel de más se corrige solo:
+     `revisarNivel` lo baja sin fiesta si resulta mayor que el de verdad. */
+  {
+    const bu = base.ui || {}, ou = otro.ui || {};
+    const unir = (a, b) => [...new Set([...(a || []), ...(b || [])])];
+    const poner = (donde, k, v) => { out[donde] = out[donde] || {}; out[donde][k] = v; };
+    if ((bu.modulosPresentados || []).length || (ou.modulosPresentados || []).length) {
+      poner("ui", "modulosPresentados", unir(bu.modulosPresentados, ou.modulosPresentados));
+    }
+    if (bu.tutorialVisto || ou.tutorialVisto) poner("ui", "tutorialVisto", true);
+    if (typeof bu.expNivelVisto === "number" && typeof ou.expNivelVisto === "number") {
+      poner("ui", "expNivelVisto", Math.max(bu.expNivelVisto, ou.expNivelVisto));
+    }
+    if (bu.vueltaVista || ou.vueltaVista) {
+      poner("ui", "vueltaVista", [bu.vueltaVista, ou.vueltaVista].filter(Boolean).sort().pop());
+    }
+    if ((bs.hitosVistos || []).length || (os.hitosVistos || []).length) {
+      poner("settings", "hitosVistos", unir(bs.hitosVistos, os.hitosVistos));
+    }
+    if (bs.sonidoAvisado || os.sonidoAvisado) poner("settings", "sonidoAvisado", true);
+  }
+
   /* Los secretos encontrados (Arcade, 0.7.131), igual: lo encontrado nunca se
      vuelve a cerrar, lo haya encontrado el teléfono o la PC. */
   const secA = (base.settings && base.settings.secretos) || [];
