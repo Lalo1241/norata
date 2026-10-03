@@ -2418,7 +2418,8 @@ async function reportarFallo() {
      va a escribir —que alguien lo lee y lo arregla— y que no hace falta saber
      nada técnico. Dos frases: la tercera ya no se lee. */
   const cuerpo =
-    '<span class="rep-intro">' + tx("Lo leo yo. No necesitas saber nada técnico: con lo que recuerdes me basta.") + '</span>' +
+    '<span class="rep-intro">' + tx("Lo leo yo. No necesitas saber nada técnico: con lo que recuerdes me basta.") +
+      (contasteOn() ? ' <button type="button" class="rep-ver" onclick="modalDone(false); setTimeout(verLoQueMeContaste, 0)">' + tx("Ver lo que me contaste") + '</button>' : "") + '</span>' +
     '<div class="rep-tipos" id="rep-tipos" role="radiogroup" aria-label="' + escapeAttr(tx("De qué se trata")) + '">' +
       REP_TIPOS.map(t =>
         '<button type="button" role="radio" data-tipo="' + t.id + '" aria-checked="' + (t.id === "fallo" ? "true" : "false") + '"' +
@@ -2524,6 +2525,57 @@ async function reportarFallo() {
        que quedó guardado en alguna parte es lo único imperdonable aquí. */
     toast(tx("No pude enviarlo: revisa tu conexión y vuelve a intentarlo."), "atencion");
   }
+}
+
+/* ================= Lo que me contaste =================
+   Lo que esta cuenta reportó, con lo que se le contestó. Antes un reporte era
+   un buzón de ida: se mandaba y no volvía nada, ni siquiera un «ya quedó». Las
+   respuestas las escribe Eduardo en el Puesto de mando.
+
+   **Está en pruebas, apagado para todos** (`?contaste=1` lo enciende en la
+   pestaña): los textos de aquí no los ha revisado Eduardo. El día que salga,
+   `contasteOn` devuelve `true` a secas y se borra el parámetro.
+
+   Solo sale lo que se mandó CON la sesión iniciada: lo de antes de la 0.7.190
+   y lo que se manda sin cuenta es anónimo, y no hay forma de saber de quién
+   fue. */
+function contasteOn() {
+  try {
+    const q = new URLSearchParams(location.search).get("contaste");
+    if (q === "1" || q === "0") sessionStorage.setItem("norata-prueba-contaste", q);
+    return sessionStorage.getItem("norata-prueba-contaste") === "1";
+  } catch (e) { return false; }
+}
+const CONTASTE_ESTADOS = { nuevo: "Recibido", curso: "En curso", hecho: "Listo", no: "Descartado" };
+function contasteHTML(lista) {
+  if (!lista.length) return '<span class="rep-intro">' + tx("Aquí va a salir lo que me cuentes con tu sesión iniciada, y lo que te conteste.") + '</span>';
+  const dia = iso => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || "")); return m ? new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString(document.documentElement.lang || "es", { day: "numeric", month: "short" }) : ""; };
+  return '<div class="ct-lista">' + lista.map(r => {
+    /* El mensaje viaja como «[Lugar|tipo] texto»: la cabecera es para el panel. */
+    const txt = String(r.mensaje || "").replace(/^\[[^\]]*\]\s*/, "");
+    return '<div class="ct-it' + (r.nueva ? " nueva" : "") + '">' +
+      '<span class="ct-meta">' + escapeHtml(dia(r.dia)) + ' · <b>' + escapeHtml(tx(CONTASTE_ESTADOS[r.estado] || CONTASTE_ESTADOS.nuevo)) + '</b>' +
+        (r.estado === "hecho" && r.arreglado ? ' · ' + escapeHtml(T`salió en la ${r.arreglado}`) : "") + '</span>' +
+      '<p class="ct-que">' + escapeHtml(txt) + '</p>' +
+      (r.respuesta ? '<div class="ct-resp"><span>' + tx("Mi respuesta") + '</span>' + escapeHtml(r.respuesta) + '</div>' : "") +
+      '</div>';
+  }).join("") + '</div>';
+}
+async function verLoQueMeContaste() {
+  const lista = await sbMisReportes();
+  if (!lista) { toast(tx("No pude traer lo que me contaste. Inténtalo en un momento."), "atencion"); return; }
+  /* Se dan por leídas al abrir, no al cerrar: quien cierra tocando fuera
+     también las vio. */
+  if (lista.some(r => r.nueva)) sbMisReportesLeidos();
+  await askBase(contasteHTML(lista), true, tx("Cerrar"), false, false, null,
+    { icono: "bicho", titulo: tx("Lo que me contaste"), tono: "oro", clase: "contaste", soloOk: true });
+}
+/* Al abrir la app: si hay una respuesta sin leer, se avisa una vez. Sin
+   esperarlo y en silencio si falla, como todo lo que no pidió la persona. */
+async function avisarSiMeContestaron() {
+  if (!contasteOn() || !(sync.cfg || {}).sesion) return;
+  const lista = await sbMisReportes();
+  if (lista && lista.some(r => r.nueva)) toast(tx("Te contesté algo que me contaste."), "hecho", { label: tx("Leer"), onclick: "verLoQueMeContaste()", ms: 12000 });
 }
 
 function abrirAjustes(sec) {

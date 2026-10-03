@@ -511,13 +511,29 @@ async function sbTropiezoVisto(id, visto) {
 /* El estado, la nota privada y la versión en que salió, de UNO (0.7.171). Lo
    que venga en `null` no se toca. Devuelve cómo quedó la fila, o `null` si ya
    no está. */
-async function sbTropiezoEstado(id, estado, nota, arreglado) {
-  const r = await sbDatos("/rpc/tropiezo_estado", {
-    method: "POST",
-    body: JSON.stringify({ p_id: id, p_estado: estado, p_nota: nota, p_arreglado: arreglado })
-  });
+async function sbTropiezoEstado(id, estado, nota, arreglado, respuesta) {
+  const cuerpo = { p_id: id, p_estado: estado, p_nota: nota, p_arreglado: arreglado };
+  /* La respuesta solo viaja cuando se manda una: el servidor de antes de las
+     respuestas no conoce ese nombre, y con él puesto rechazaría la llamada
+     entera, también la que solo cambia el estado. */
+  if (respuesta !== undefined && respuesta !== null) cuerpo.p_respuesta = respuesta;
+  const r = await sbDatos("/rpc/tropiezo_estado", { method: "POST", body: JSON.stringify(cuerpo) });
   if (!r.ok) throw sbError(r);
   return r.body;
+}
+
+/* Lo que esta cuenta reportó, con lo que se le contestó («Lo que me
+   contaste»). Devuelve la lista, o `null` si no se pudo —sin sesión, sin red, o
+   con un servidor que todavía no tiene la función—: quien llama no enseña nada
+   en vez de enseñar un error por algo que la persona no pidió. */
+async function sbMisReportes() {
+  try {
+    const r = await sbDatos("/rpc/mis_reportes", { method: "POST", body: "{}" });
+    return r.ok && Array.isArray(r.body) ? r.body : null;
+  } catch (e) { return null; }
+}
+async function sbMisReportesLeidos() {
+  try { await sbDatos("/rpc/mis_reportes_leidos", { method: "POST", body: "{}" }); } catch (e) { /* se vuelve a intentar al abrirla otra vez */ }
 }
 
 /* La barrera de subidas (0.7.173): el panel no habla con GitHub, habla con la
@@ -555,7 +571,7 @@ async function sbBarrera(accion, datos) {
 async function sbTropiezo(donde, mensaje) {
   try {
     if (!mensaje) return false;
-    const r = await sbFetch("/rest/v1/rpc/apuntar_tropiezo", {
+    const opts = {
       method: "POST",
       body: JSON.stringify({
         v: (typeof VERSION !== "undefined" ? VERSION : ""),
@@ -563,7 +579,20 @@ async function sbTropiezo(donde, mensaje) {
         dnd: String(donde || ""),
         msg: String(mensaje).slice(0, 300)
       })
-    });
+    };
+    /* Lo que escribe una persona va CON su sesión, si la tiene: es lo que deja
+       al servidor apuntar de quién es y hace posible contestarle. Los avisos
+       automáticos siguen yendo sin ella, anónimos como siempre. Y si la sesión
+       falla —caducó, no hay—, el reporte sale igual sin ella: perder lo que
+       alguien se sentó a escribir por un token viejo sería lo peor de los dos
+       mundos. */
+    if (donde === "reporte" && (sync.cfg || {}).sesion) {
+      try {
+        const con = await sbDatos("/rpc/apuntar_tropiezo", Object.assign({}, opts));
+        if (con && con.ok) return true;
+      } catch (e) { /* se manda sin sesión, abajo */ }
+    }
+    const r = await sbFetch("/rest/v1/rpc/apuntar_tropiezo", opts);
     return !!(r && r.ok);
   } catch (e) {
     /* A propósito. */

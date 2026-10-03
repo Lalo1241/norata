@@ -27,43 +27,24 @@ cierra.
 
 Lo de abajo está escrito por orden: lo de más arriba es lo más antiguo.
 
-### 1. `apuntar_tropiezo` — 25 sep 2026
+### 1. Las respuestas del buzón — 3 oct 2026
 
-**Qué**: volver a pegar la función entera desde `administracion.sql` (la
-sección «Los tropiezos» de más abajo cuenta el porqué). Es un
-`create or replace`: **no toca la tabla ni los datos que ya haya**, así que se
-puede pegar dos veces sin consecuencias.
+**Qué**: el bloque de la 0.7.190, que sale de `administracion.sql`: las columnas
+`respuesta` y `respondido`, la tabla `reportes_de`, y las funciones
+`apuntar_tropiezo`, `metricas`, `tropiezo_estado`, `mis_reportes` y
+`mis_reportes_leidos`. **Incluye el `apuntar_tropiezo` que estaba pendiente
+desde el 25 de septiembre** (los dos cupos del buzón): pegando esto queda puesto
+también aquello.
 
-**Por qué corre prisa lo justo**: sin esto, el buzón de errores se puede cegar
-con unas 500 peticiones baratas y a partir de ahí lo que llegue se pierde en
-silencio. Mientras no haya nadie más que Eduardo usando la app, el riesgo real
-es bajo; el día que haya gente fuera, no.
+**Se puede pegar dos veces sin consecuencias**, y no toca los datos que ya haya.
 
-**Dónde**: panel de Supabase → SQL Editor → pegar → Run.
+**Después de pegarlo**: en el Puesto de mando → Subidas, el cambio de la 0.7.190
+está detenido en la cola porque trae SQL; se sube con «Ya lo pegué: subir».
 
----
+**No se probó contra una base de verdad.** Va en una transacción: si el editor
+da un error no se queda nada a medias. En ese caso, copiar el mensaje tal cual.
 
-### 2. La barrera de subidas — 2 oct 2026
-
-Dos pasos, en este orden. Hasta que estén los dos, el Puesto de mando dice
-cuál falta y todo se publica como siempre. (La función `barrera` ya está
-desplegada desde el 2 oct 2026; al cambiar `functions/barrera/index.ts` se
-vuelve a desplegar con
-`supabase functions deploy barrera --project-ref wifffghnyrqfuwqlatci`.)
-
-1. ~~Pegar `barrera.sql` entero~~ — **pegado el 2 oct 2026**, el grifo contesta.
-   Lo que decía: **Pegar `barrera.sql` entero** en SQL Editor. Crea el grifo, que nace
-   ABIERTO: pegarlo no cambia nada hasta que alguien lo cierre.
-2. **La llave de GitHub.** Un token «fine-grained», solo para el repositorio de
-   Norata, con Actions (leer y escribir), Contents (leer), Pages (leer) y
-   Metadata (leer). Se guarda así, y no se escribe en ningún archivo:
-
-   ```sh
-   supabase secrets set GITHUB_BARRERA=github_pat_xxxxxxxx --project-ref wifffghnyrqfuwqlatci
-   ```
-
-**El SQL no se probó contra una base de verdad, ni la función contra GitHub**
-—eso pide la llave—. Si algo falla, copiar el mensaje tal cual.
+**Dónde**: panel de Supabase → SQL Editor → pestaña nueva → pegar → Run.
 
 ---
 

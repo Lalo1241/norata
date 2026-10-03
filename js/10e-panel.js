@@ -290,6 +290,8 @@ const dnSesion = (k, v) => { try { return sessionStorage.getItem(k) === v; } cat
 const DN_PRUEBAS = [
   { id: "novedades", n: "Pruebas de Novedades", q: "En Ajustes → Novedades, botones para ver la ventana y los anuncios de hito. La lista sigue solo con lo publicado.", on: "?novedades=borrador", off: "?novedades=",
     esta: () => typeof novedadesEnBorrador === "function" && novedadesEnBorrador() },
+  { id: "contaste", n: "Lo que me contaste", tag: "mejora", q: "Quien reporta ve aquí lo que mandó y tu respuesta. Sale un enlace en el cuadro de reportar y un aviso al abrir si hay respuesta nueva. Los textos están por revisar.", on: "?contaste=1", off: "?contaste=0",
+    esta: () => dnSesion("norata-prueba-contaste", "1") },
   { id: "informes", n: "Informes con datos de ejemplo", q: "Llena los informes con datos falsos para revisar las gráficas.", on: "?informes=demo", off: "?informes=no",
     esta: () => dnSesion("norata-prueba-informes", "demo") },
   { id: "esqueleto", n: "Esqueletos de carga", tag: "mejora", q: "Las siluetas mientras carga una pantalla. Se descartaron en la 0.7.96.", on: "?esqueleto=1", off: "?esqueleto=0",
@@ -529,7 +531,8 @@ function dnDetalleHTML(t) {
     ${est === "hecho" && tipo !== "gusto" && tipo !== "duda" ? `<label class="dn-campo"><span>Salió en la versión</span>
       <select id="dn-arreglado"><option value="">Sin apuntar</option>${dnVersiones(t.arreglado).map(v => `<option value="${escapeAttr(v)}" ${t.arreglado === v ? "selected" : ""}>${dnE(v)}</option>`).join("")}</select></label>` : ""}
     <label class="dn-campo"><span>Nota para ti · nadie más la ve</span>
-      <textarea id="dn-nota" rows="2" maxlength="500" placeholder="Qué sospechas, dónde mirar">${dnE(t.nota || "")}</textarea></label>` : "";
+      <textarea id="dn-nota" rows="2" maxlength="500" placeholder="Qué sospechas, dónde mirar">${dnE(t.nota || "")}</textarea></label>
+    ${dnRespuestaHTML(t, maq)}` : "";
   return `
     <button class="dn-btn b-ghost mini dn-volver" data-a="volver">${dnIc("atras")}Buzón</button>
     <div class="dn-dcab"><span class="dn-tic t-${T.tono}">${dnIc(tipo)}</span><h3>${T.n}</h3>${dnPastilla(t)}</div>
@@ -546,6 +549,27 @@ function dnDetalleHTML(t) {
       ${conEstados || t.id == null ? "" : `<button class="dn-btn ${t.visto ? "b-ghost" : "b-soft"} mini" data-a="atender">${dnIc(t.visto ? "atras" : "check")}${t.visto ? "Volver a dejarlo abierto" : "Darlo por atendido"}</button>`}
       <button class="dn-btn b-linea mini" data-a="copiar:reporte">${dnIc("copiar")}Copiar para Claude</button>
     </div>`;
+}
+
+/* ---- La respuesta de vuelta (0.7.190) ----
+   Lo que se escribe aquí lo lee quien mandó el reporte, en «Lo que me
+   contaste». Tres cosas a propósito:
+
+   - Se MANDA con su botón, no al salir del campo como la nota: la nota es
+     tuya y un borrador a medias no le hace daño a nadie; esto le llega a otra
+     persona.
+   - El panel no sabe quién es. `con_cuenta` dice cuántas cuentas hay detrás y
+     nada más: si es cero —lo mandó sin sesión, o antes de que los reportes se
+     ligaran a la cuenta— no hay a quién contestarle, y se dice en vez de
+     dejar escribir una respuesta que no va a leer nadie.
+   - Sin el SQL de las respuestas, `respuesta` no viene y este bloque no sale. */
+function dnRespuestaHTML(t, maq) {
+  if (maq || t.respuesta === undefined) return "";
+  const n = Number(t.con_cuenta) || 0;
+  if (!n) return `<div class="dn-campo"><span>Respuesta</span><p class="dn-nota">No hay a quién contestarle: lo mandó sin su sesión iniciada, o antes de que los reportes se ligaran a la cuenta.</p></div>`;
+  return `<label class="dn-campo"><span>Respuesta · la lee quien lo escribió${n > 1 ? " (" + n + " cuentas)" : ""}</span>
+      <textarea id="dn-respuesta" rows="3" maxlength="600" placeholder="Qué pasó con lo que te contó, en una o dos frases">${dnE(t.respuesta || "")}</textarea></label>
+    <div class="dn-acciones"><button class="dn-btn b-primary mini" data-a="responder">${t.respuesta ? "Enviar el cambio" : "Enviar respuesta"}</button>${t.respondido ? `<span class="dn-chip">Enviada ${dnE(dnMomento(t.respondido))}</span>` : ""}</div>`;
 }
 
 /* ---- La barrera de subidas (0.7.173) ----
@@ -1187,7 +1211,7 @@ async function archivarReporte(id, visto) {
 async function dnGuardar(t, cambios) {
   try {
     const quedo = await sbTropiezoEstado(t.id, cambios.estado === undefined ? null : cambios.estado,
-      cambios.nota === undefined ? null : cambios.nota, cambios.arreglado === undefined ? null : cambios.arreglado);
+      cambios.nota === undefined ? null : cambios.nota, cambios.arreglado === undefined ? null : cambios.arreglado, cambios.respuesta);
     if (!quedo) { metricasCache = null; await cargarMetricas(); return; }
     Object.assign(t, quedo);
     dnPinta();
@@ -1221,6 +1245,12 @@ function dnClic(ev) {
     case "volver": DN.sel = null; break;
     case "atender": if (sel && sel.id != null) archivarReporte(sel.id, !sel.visto); return;
     case "estado": if (sel && sel.id != null && dnEstado(sel) !== v) dnGuardar(sel, { estado: v }); return;
+    case "responder": {
+      const c = document.getElementById("dn-respuesta"), txr = c ? c.value.trim().slice(0, 600) : "";
+      if (!sel || sel.id == null) return;
+      if (!txr) { toast("Escribe la respuesta antes de enviarla.", "atencion"); return; }
+      dnGuardar(sel, { respuesta: txr }).then(() => { if (sel.respuesta === txr) toast("Respuesta enviada", "hecho"); });
+      return; }
     case "rango": DN.rango = Number(v) || 14; break;
     case "vistos": marcarTropiezosVistos(); return;
     case "repedir": metricasCache = null; cargarMetricas(); return;

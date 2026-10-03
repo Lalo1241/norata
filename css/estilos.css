@@ -7714,6 +7714,27 @@
   /* El párrafo de entrada: dice para qué sirve lo que se va a escribir, antes
      de la primera casilla. Alineado a la izquierda como los campos, y con aire
      abajo para que no se lea como el rótulo del primero. */
+  /* El enlace a «Lo que me contaste», dentro del párrafo de entrada: es un
+     botón que se lee como enlace, porque no es la acción del cuadro. */
+  .modal-card.reporte .rep-ver {
+    display: block; margin-top: 8px; padding: 0; border: 0; background: none;
+    font: inherit; font-weight: 600; color: var(--estado-curso-tinta, var(--muted));
+    text-decoration: underline; text-underline-offset: 3px; cursor: pointer;
+  }
+  /* «Lo que me contaste»: la lista de lo reportado con su respuesta. Mismo
+     cuadro en oro y con el título en tinta normal, por lo mismo que el de
+     reportar. */
+  .modal-card.contaste .modal-titulo { color: var(--text); }
+  .modal-card.contaste .rep-intro { display: block; text-align: left; font-size: 13.5px; line-height: 1.5; color: var(--muted); }
+  .modal-card.contaste .ct-lista { display: flex; flex-direction: column; gap: 10px; text-align: left; max-height: min(52vh, 420px); overflow-y: auto; }
+  .modal-card.contaste .ct-it { border: 1px solid var(--line); border-radius: var(--r-mediano, 12px); padding: 11px 13px; display: flex; flex-direction: column; gap: 6px; }
+  .modal-card.contaste .ct-it.nueva { border-color: var(--estado-curso); }
+  .modal-card.contaste .ct-meta { font-size: 12px; color: var(--muted); }
+  .modal-card.contaste .ct-meta b { color: var(--text); font-weight: 600; }
+  .modal-card.contaste .ct-que { margin: 0; font-size: 14px; line-height: 1.45; color: var(--text); overflow-wrap: anywhere; }
+  .modal-card.contaste .ct-resp { background: var(--estado-curso-soft); border-radius: var(--r-chico, 10px); padding: 9px 11px; font-size: 13.5px; line-height: 1.45; color: var(--text); overflow-wrap: anywhere; white-space: pre-line; }
+  .modal-card.contaste .ct-resp span { display: block; font-size: 11.5px; font-weight: 700; color: var(--estado-curso-tinta); margin-bottom: 3px; }
+
   .modal-card.reporte .rep-intro {
     display: block;
     text-align: left;

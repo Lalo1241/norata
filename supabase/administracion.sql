@@ -123,6 +123,39 @@ alter table public.tropiezos add column if not exists arreglado text not null de
 update public.tropiezos set estado = 'hecho' where visto and estado = 'nuevo';
 
 
+-- ---- La respuesta de vuelta (3 oct 2026) ----
+-- Hasta aquí un reporte era anónimo del todo: no se guardaba quién lo mandó,
+-- así que no había a quién contestarle. Eduardo decidió ligarlos a la cuenta
+-- para poder responder («Lo que me contaste», en la app).
+--
+-- La liga vive en una tabla APARTE y no en una columna de `tropiezos`, por dos
+-- razones. Un tropiezo es una fila por mensaje y día: si dos personas escriben
+-- lo mismo, es la misma fila con `cuantos = 2`, y las dos tienen que recibir la
+-- respuesta. Y así los avisos automáticos y lo que se manda sin sesión siguen
+-- sin saber nada de nadie, que es como estaban.
+--
+-- El panel NO enseña quién fue: `metricas()` solo cuenta cuántas cuentas hay
+-- detrás (`con_cuenta`), para saber si la respuesta le va a llegar a alguien.
+-- Al borrar una cuenta, sus ligas se van con ella.
+alter table public.tropiezos add column if not exists respuesta  text not null default '';
+alter table public.tropiezos add column if not exists respondido timestamptz;
+
+create table if not exists public.reportes_de (
+  tropiezo_id bigint not null references public.tropiezos(id) on delete cascade,
+  user_id     uuid   not null references auth.users(id) on delete cascade,
+  cuando      timestamptz not null default now(),
+  -- Cuándo leyó la respuesta. Vuelve a NULL cada vez que se responde de nuevo.
+  leido       timestamptz,
+  primary key (tropiezo_id, user_id)
+);
+create index if not exists reportes_de_usuario on public.reportes_de (user_id);
+
+alter table public.reportes_de enable row level security;
+-- Sin políticas: se escribe desde `apuntar_tropiezo` y se lee desde
+-- `mis_reportes()`, que solo devuelve lo de quien pregunta.
+revoke all on table public.reportes_de from anon, authenticated;
+
+
 -- Apuntar un tropiezo. La llama la red de seguridad de index.html.
 --
 -- Es la ÚNICA función de todo el proyecto que acepta a alguien sin sesión, y
@@ -144,6 +177,8 @@ declare
   tope     integer;
   hoy      integer;
   tocadas  integer;
+  fila     bigint;
+  quien    uuid := auth.uid();
 begin
   -- El mensaje se recorta a 300 caracteres por dos razones distintas y las
   -- dos importan. La primera es de privacidad: un volcado de error completo
@@ -213,7 +248,17 @@ begin
   insert into public.tropiezos (dia, version, aparato, donde, mensaje)
   values (current_date, v_limpio, a_limpio, d_limpio, m_limpio)
   on conflict (dia, version, donde, mensaje)
-  do update set cuantos = public.tropiezos.cuantos + 1;
+  do update set cuantos = public.tropiezos.cuantos + 1
+  returning id into fila;
+
+  -- De quién es, y SOLO si lo escribió una persona con su sesión iniciada: un
+  -- aviso automático no se liga a nadie aunque haya sesión, que para leerlo no
+  -- hace falta saber de quién fue.
+  if d_limpio = 'reporte' and quien is not null and fila is not null then
+    insert into public.reportes_de (tropiezo_id, user_id)
+    values (fila, quien)
+    on conflict (tropiezo_id, user_id) do nothing;
+  end if;
 end;
 $fn$;
 
@@ -511,7 +556,10 @@ begin
     'tropiezos', coalesce((
       select jsonb_agg(x order by x.dia desc, x.cuantos desc)
         from (select id, dia, version, donde, mensaje, cuantos, visto,
-                     estado, nota, arreglado
+                     estado, nota, arreglado, respuesta, respondido,
+                     -- Cuántas cuentas hay detrás, sin decir cuáles.
+                     (select count(*) from public.reportes_de d
+                       where d.tropiezo_id = tropiezos.id) as con_cuenta
                 from public.tropiezos
                where dia >= current_date - 30
                order by dia desc, cuantos desc
@@ -611,11 +659,17 @@ grant execute on function public.tropiezo_visto(bigint, boolean) to authenticate
 -- Devuelve la fila como quedó, por lo mismo que `tropiezo_visto`: la pantalla
 -- pinta con lo que contesta el servidor y no con lo que suponía. `null` es
 -- «esa fila ya no está».
+-- La de cuatro argumentos se quita ANTES de crear la de cinco: con las dos
+-- puestas, una llamada con cuatro nombres casa con ambas y el servidor contesta
+-- que no sabe cuál elegir. La de cinco atiende igual a quien manda cuatro.
+drop function if exists public.tropiezo_estado(bigint, text, text, text);
+
 create or replace function public.tropiezo_estado(
   p_id bigint,
   p_estado text default null,
   p_nota text default null,
-  p_arreglado text default null
+  p_arreglado text default null,
+  p_respuesta text default null
 )
 returns jsonb
 language plpgsql
@@ -634,21 +688,74 @@ begin
   end if;
 
   update public.tropiezos
-     set estado    = coalesce(p_estado, estado),
-         visto     = (coalesce(p_estado, estado) in ('hecho', 'no')),
-         nota      = coalesce(left(p_nota, 500), nota),
-         arreglado = coalesce(left(p_arreglado, 20), arreglado)
+     set estado     = coalesce(p_estado, estado),
+         visto      = (coalesce(p_estado, estado) in ('hecho', 'no')),
+         nota       = coalesce(left(p_nota, 500), nota),
+         arreglado  = coalesce(left(p_arreglado, 20), arreglado),
+         respuesta  = coalesce(left(p_respuesta, 600), respuesta),
+         respondido = case when p_respuesta is not null then now() else respondido end
    where id = p_id
   returning jsonb_build_object(
               'id', id, 'estado', estado, 'visto', visto,
-              'nota', nota, 'arreglado', arreglado) into quedo;
+              'nota', nota, 'arreglado', arreglado,
+              'respuesta', respuesta, 'respondido', respondido) into quedo;
+
+  -- Una respuesta nueva (o cambiada) vuelve a estar sin leer para todos.
+  if p_respuesta is not null then
+    update public.reportes_de set leido = null where tropiezo_id = p_id;
+  end if;
 
   return quedo;
 end;
 $fn$;
 
-revoke all on function public.tropiezo_estado(bigint, text, text, text) from public, anon;
-grant execute on function public.tropiezo_estado(bigint, text, text, text) to authenticated;
+revoke all on function public.tropiezo_estado(bigint, text, text, text, text) from public, anon;
+grant execute on function public.tropiezo_estado(bigint, text, text, text, text) to authenticated;
+
+
+-- Lo que YO reporté, con lo que me contestaron. Solo lo de quien pregunta: la
+-- función no acepta ningún argumento a propósito, así que no hay forma de
+-- pedir lo de otra cuenta. La nota privada no sale de aquí.
+create or replace function public.mis_reportes()
+returns jsonb
+language sql
+security definer
+stable
+set search_path = public
+as $fn$
+  select coalesce(jsonb_agg(x order by x.id desc), '[]'::jsonb)
+    from (select t.id, t.dia, t.mensaje, t.estado, t.arreglado,
+                 t.respuesta, t.respondido,
+                 (t.respuesta <> '' and d.leido is null) as nueva
+            from public.reportes_de d
+            join public.tropiezos t on t.id = d.tropiezo_id
+           where d.user_id = auth.uid()
+           order by t.id desc
+           limit 30) x;
+$fn$;
+
+revoke all on function public.mis_reportes() from public, anon;
+grant execute on function public.mis_reportes() to authenticated;
+
+
+-- Dar por leídas mis respuestas.
+create or replace function public.mis_reportes_leidos()
+returns void
+language sql
+security definer
+set search_path = public
+as $fn$
+  update public.reportes_de d
+     set leido = now()
+    from public.tropiezos t
+   where t.id = d.tropiezo_id
+     and d.user_id = auth.uid()
+     and d.leido is null
+     and t.respuesta <> '';
+$fn$;
+
+revoke all on function public.mis_reportes_leidos() from public, anon;
+grant execute on function public.mis_reportes_leidos() to authenticated;
 
 
 -- ============================================================

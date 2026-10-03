@@ -318,6 +318,43 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.190 · 3 oct 2026
+
+**El buzón ya puede contestar.** Un reporte era un buzón de ida: se mandaba y no
+volvía nada. Ahora Eduardo escribe una respuesta en el Puesto de mando y quien
+lo mandó la lee en la app, en «Lo que me contaste».
+
+**Los reportes dejan de ser anónimos del todo, y lo decidió Eduardo.** Para
+contestarle a alguien hay que saber de quién fue: lo que escribe una persona
+con su sesión iniciada se manda ahora CON esa sesión, y el servidor apunta de
+quién es en una tabla aparte (`reportes_de`). Tres límites, a propósito:
+
+- **El panel no enseña quién fue.** Solo cuántas cuentas hay detrás, para saber
+  si la respuesta le va a llegar a alguien.
+- **Los avisos automáticos y lo que se manda sin sesión siguen anónimos.** Si
+  la sesión falla al mandar, el reporte sale igual sin ella.
+- **Cada quien lee solo lo suyo**: `mis_reportes()` no acepta argumentos. Al
+  borrar una cuenta, sus ligas se van con ella.
+
+**En el panel**, en el detalle de un reporte: el campo de la respuesta con su
+botón de enviar —no se guarda al salir del campo, como la nota: esto le llega a
+otra persona—, y cuándo se envió. Si no hay cuenta detrás, lo dice en vez de
+dejar escribir una respuesta que nadie va a leer.
+
+**En la app, apagado para todos** (`?contaste=1`): un enlace en el cuadro de
+reportar que abre la lista de lo contado, con su estado y la respuesta, y un
+aviso al abrir cuando hay una sin leer. **Va detrás del parámetro porque sus
+textos no los ha revisado Eduardo.** Para sacarlo: `contasteOn()` devuelve
+`true` a secas, se borra la fila `contaste` de `DN_PRUEBAS`, y se le escribe su
+novedad.
+
+**Trae SQL** (`supabase/administracion.sql`, en «Pendiente de pegar»). Todo
+funciona sin él: el panel no enseña el campo y la app no enseña nada.
+
+**Cómo se probó.** El panel y la ventana, con el servidor imitado: enviar,
+cambiar una respuesta, el reporte sin cuenta, la lista con y sin respuesta, y
+que se den por leídas al abrir. **El SQL no se probó contra una base de
+verdad**: aquí no hay Postgres.
 ### 0.7.189.1 · 3 oct 2026
 
 **Con un dispositivo rezagado se queda la cuenta, entera y sin preguntar.**

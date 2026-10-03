@@ -397,6 +397,7 @@ showView("summary");
      esperarlo y también en silencio: un fallo al reportar un fallo no puede
      acabar molestando a quien ya tuvo el primero. */
   sbVaciarTropiezos();
+  if (typeof avisarSiMeContestaron === "function") avisarSiMeContestaron();
 
   /* Y por último, si esta cuenta puede ver el panel de números. Lo contesta
      el servidor, nunca el navegador; esto solo decide si Ajustes dibuja la
