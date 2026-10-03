@@ -637,7 +637,7 @@
     {
       "version": "1.0",
       "fecha": "",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "hito",
       "hito": "1.0",
       "titulo": "Norata 1.0",
@@ -659,7 +659,7 @@
     {
       "version": "0.8",
       "fecha": "",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "hito",
       "hito": "beta",
       "titulo": "Norata entra en beta",
@@ -696,7 +696,7 @@
     {
       "version": "0.7.191",
       "fecha": "2026-10-03",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "mejora",
       "titulo": "Las imágenes de Novedades, de dos en dos",
       "resumen": "Las imágenes de cada novedad van juntas, de dos en dos, y cada una se explica con su pie: ya nada se dice dos veces.",
@@ -725,7 +725,7 @@
     {
       "version": "0.7.189",
       "fecha": "2026-10-03",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "arreglo",
       "titulo": "Un dispositivo que llevaba tiempo sin abrirse ya no pisa tu cuenta",
       "resumen": "Si abres Norata en un navegador o un teléfono que tenías olvidado, lo viejo de ahí ya no se pone encima de lo que llevas hoy: se queda lo de tu cuenta.",
@@ -740,7 +740,7 @@
     {
       "version": "0.7.188",
       "fecha": "2026-10-03",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "mejora",
       "titulo": "Novedades, más fácil de leer en la computadora",
       "resumen": "La ventana de novedades es el doble de ancha en la computadora, su letrero va en el verde de Norata en todos los temas y las destacadas llevan su etiqueta.",
@@ -754,7 +754,7 @@
     {
       "version": "0.7.186",
       "fecha": "2026-10-03",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "arreglo",
       "titulo": "Novedades enseña solo lo publicado",
       "resumen": "La lista de Novedades ya no enseña nada que esté pendiente de aprobar, en ningún caso.",
@@ -768,7 +768,7 @@
     {
       "version": "0.7.185",
       "fecha": "2026-10-03",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "mejora",
       "titulo": "Cada imagen de Novedades, con su pie",
       "resumen": "Debajo de cada imagen de Novedades va una línea que dice qué enseña, y las que comparan el modo claro con el oscuro dicen cuál es cuál. En inglés, rotuladas en inglés.",
@@ -782,7 +782,7 @@
     {
       "version": "0.7.181",
       "fecha": "2026-10-02",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "arreglo",
       "titulo": "Abre aunque el servidor tarde",
       "resumen": "Si la sincronización tarda, Norata ya no se queda en la pantalla de carga: abre con lo que tienes y trae lo demás por detrás. Y tu plan se reconoce desde el primer instante.",
@@ -797,7 +797,7 @@
     {
       "version": "0.7.177",
       "fecha": "2026-10-02",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "mejora",
       "titulo": "De noche a día, sin fogonazo",
       "resumen": "Al cambiar entre modo claro y oscuro, la pantalla se funde de uno a otro en lugar de cambiar de golpe. En cualquier mundo.",
@@ -812,7 +812,7 @@
     {
       "version": "0.7.176",
       "fecha": "2026-10-02",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "arreglo",
       "titulo": "Sin parpadeo al actualizar ni al cambiar de cuenta",
       "resumen": "El logo se queda quieto en su sitio de principio a fin: ya no desaparece un instante a media carga.",
@@ -827,7 +827,7 @@
     {
       "version": "0.7.175",
       "fecha": "2026-10-02",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "mejora",
       "titulo": "Las novedades se explican mejor",
       "resumen": "Los gráficos de una novedad ahora dicen qué cuenta cada número y cuándo se tiene cada paleta.",
@@ -848,7 +848,7 @@
     {
       "version": "0.7.174",
       "fecha": "2026-10-02",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "mejora",
       "titulo": "Cambiar de cuenta, de un solo movimiento",
       "resumen": "Al pasar de una cuenta a otra, el color se funde al tema de la que entra mientras se llena el aro, y ves de cuál vienes y a cuál llegas.",
@@ -869,7 +869,7 @@
     {
       "version": "0.7.172",
       "fecha": "2026-10-02",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "mejora",
       "titulo": "Al actualizar ves de qué versión vienes",
       "resumen": "El número de versión da un tic hacia arriba: sale la que tenías y entra la nueva justo cuando el aro se cierra.",
@@ -888,7 +888,7 @@
     {
       "version": "0.7.170",
       "fecha": "2026-10-02",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "mejora",
       "titulo": "Ya puedes mandar ideas, dudas y lo que te gustó",
       "resumen": "El botón de reportar ahora sirve para cuatro cosas: algo que falló, una idea, una duda o algo que te gustó.",
@@ -909,7 +909,7 @@
     {
       "version": "0.7.169",
       "fecha": "2026-10-02",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "mejora",
       "titulo": "Mi perfil, con menos palabras",
       "resumen": "Las preferencias de tu perfil dicen lo justo y sus opciones van lado a lado.",
@@ -930,7 +930,7 @@
     {
       "version": "0.7.168",
       "fecha": "2026-10-02",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "mejora",
       "titulo": "El sonido, más ordenado en Ajustes",
       "resumen": "El sonido se enciende y se apaga con un solo interruptor, y su bloque ocupa menos.",
@@ -951,7 +951,7 @@
     {
       "version": "0.7.166",
       "fecha": "2026-10-02",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "mejora",
       "titulo": "La app de Android abre en tu tema",
       "resumen": "Al abrir la app, la pantalla ya sale en el color de tu mundo, sin pasar antes por otro.",
@@ -1200,7 +1200,7 @@
     {
       "version": "0.7.157",
       "fecha": "2026-10-01",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "arreglo",
       "titulo": "Novedades, legible en cualquier mundo",
       "resumen": "El número de versión de cada novedad ya se lee bien en todos los mundos.",
