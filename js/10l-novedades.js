@@ -78,13 +78,32 @@ function versionMasNueva(a, b) {
   return false;
 }
 
+/* ---- De la red primero, y la copia si no hay (0.7.183) ----
+   Una aprobación del Puesto de mando cambia el JSON publicado, pero la app lo
+   leía de su copia —está en `ASSETS`, y en el APK viaja en el paquete—, así
+   que no le llegaba hasta la siguiente versión. Eduardo lo quiere al revés:
+   que su visto bueno sea la orden y todo salga a la vez. Ahora se pide al
+   sitio al abrir, con un plazo corto, y sin red o si tarda se usa la copia
+   como siempre. `?red=` es lo que el service worker deja pasar sin guardarlo
+   (ver `sw.js`): con otro parámetro guardaría una copia por cada apertura. */
+const NOVEDADES_RED = "https://mi.norata.app/novedades/novedades.json";
+function novedadesDeLaRed() {
+  const nativa = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+  const url = (nativa ? NOVEDADES_RED : NOVEDADES_URL) + "?red=" + Date.now();
+  const corta = typeof AbortController === "function" ? new AbortController() : null;
+  const plazo = setTimeout(() => { if (corta) corta.abort(); }, 4000);
+  return fetch(url, { cache: "no-store", signal: corta ? corta.signal : undefined })
+    .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+    .then((d) => (d && Array.isArray(d.entradas) ? d : Promise.reject(new Error("vacío"))))
+    .finally(() => clearTimeout(plazo));
+}
+
 let novedadesPedidas = null;
 function cargarDocNovedades() {
-  /* Una sola vez por carga. Viene de la copia de la app (está en `ASSETS`, y en
-     el APK viaja en el paquete), así que abre sin red. */
+  /* Una sola vez por carga: de la red, y si no, de la copia de la app. */
   if (!novedadesPedidas) {
-    novedadesPedidas = fetch(NOVEDADES_URL)
-      .then((r) => (r.ok ? r.json() : null))
+    novedadesPedidas = novedadesDeLaRed()
+      .catch(() => fetch(NOVEDADES_URL).then((r) => (r.ok ? r.json() : null)))
       .then((d) => {
         d = d || {};
         const vs = new Set((d.camino || []).map((c) => c.version));

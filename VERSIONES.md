@@ -315,6 +315,37 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.183 · 2 oct 2026
+
+**Aprobar una novedad es un clic en el Puesto de mando, y desde ahí sale
+sola.** Eduardo: «quiero que esté todo full automatizado, la orden se da a
+partir de que doy el visto bueno en el Puesto de mando». Hasta aquí aprobar
+era pedírselo a una sesión, y la aprobación no llegaba a los dispositivos
+hasta la siguiente versión.
+
+- **El botón.** En Subidas, cada novedad por aprobar tiene «Aprobar y
+  publicar», con una ventana que dice antes dónde se anunciará y si hay algo
+  en la cola por delante.
+- **La cadena.** El panel → la función `barrera` (acción `aprobar`, comprueba
+  que es administrador) → `.github/workflows/novedades-aprobar.yml`, que cambia
+  el estado con `herramientas/aprobar-novedad.py`, rehace el CSV y lo sube a
+  `main`. Si nada espera delante en la cola, o el grifo está abierto, dispara
+  la barrera y sale al vivo; si hay cambios sin aprobar delante, espera con
+  ellos: una novedad no puede adelantar a su propio código.
+- **Sin esperar versión.** La app pide las novedades al sitio al abrir
+  (`novedadesDeLaRed`), con cuatro segundos de plazo, y si no hay red usa su
+  copia. El service worker deja pasar esa petición sin guardarla (`?red=`), y
+  la CSP admite `connect-src https://mi.norata.app` para la app de Android.
+
+**Lo que no es automático todavía:** el último paso del sitio. La hoja de
+Google baja el CSV cada hora, pero Framer necesita un clic en Sync y publicar.
+Quitarlo pide la llave de la API de Framer.
+
+**Medido:** la app lee de la red y, cortando la red, cae a su copia;
+`aprobar-novedad.py` cambia solo el estado y rehace el CSV. **Sin probar de
+punta a punta:** el trabajo de GitHub y la función solo corren de verdad
+cuando Eduardo apruebe la primera.
+
 ### 0.7.182 · 2 oct 2026
 
 **Las imágenes de Novedades salen también en la app de Android.** Eduardo

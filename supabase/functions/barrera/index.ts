@@ -11,12 +11,15 @@
    deja hablar con Supabase (`connect-src` en `index.html`), y está bien que
    sea así.
 
-   Tres cosas hace, y nada más:
+   Cuatro cosas hace, y nada más:
 
      estado   qué hay en la cola (lo que `main` tiene y `vivo` no), cómo está
               el grifo, qué hay publicado y cómo fueron las últimas subidas
      subir    aprueba: dispara el trabajo hasta el commit que se diga
      grifo    lo abre o lo cierra; al abrirlo, sube lo que estuviera esperando
+     aprobar  aprueba el ANUNCIO de una novedad (0.7.183): dispara
+              `novedades-aprobar.yml`, que la publica y la lleva al vivo si
+              nada espera delante
 
    ---- Cómo se pone en marcha ----
 
@@ -36,6 +39,7 @@
 const GH = "https://api.github.com";
 const REPO = "Lalo1241/norata";
 const TRABAJO = "barrera.yml";
+const APROBAR = "novedades-aprobar.yml";
 
 /* De dónde se acepta la llamada. La app de Android sirve sus archivos desde
    `https://localhost`. */
@@ -122,6 +126,19 @@ Deno.serve(async (req: Request) => {
       const hasta = String(cuerpo.hasta || "");
       if (hasta && !/^[0-9a-f]{7,40}$/.test(hasta)) return responder({ error: "Ese commit no es válido." }, 400, origen);
       await disparar(LLAVE, hasta, cuerpo.sql_pegado === true);
+      return responder({ ok: true }, 200, origen);
+    }
+
+    if (accion === "aprobar") {
+      /* La llave de una ficha es su `id` o su versión: letras, números, puntos
+         y guiones. Cualquier otra cosa no se le pasa a GitHub. */
+      const llave = String(cuerpo.llave || "");
+      if (!/^[A-Za-z0-9._-]{1,60}$/.test(llave)) return responder({ error: "Esa novedad no es válida." }, 400, origen);
+      const r = await gh(`/repos/${REPO}/actions/workflows/${APROBAR}/dispatches`, LLAVE, {
+        method: "POST",
+        body: JSON.stringify({ ref: "main", inputs: { llave } }),
+      });
+      if (!r.ok) throw new Error("GitHub no aceptó la aprobación (" + r.status + "): " + (await r.text()).slice(0, 200));
       return responder({ ok: true }, 200, origen);
     }
 

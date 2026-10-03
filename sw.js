@@ -9,7 +9,7 @@
    sirviendo. Ahora, si el número de la esquina es el nuevo, la caché también.
    Un service worker no puede leer los archivos de la app, así que la copia se
    hace a mano: al subir la versión hay que cambiar los dos. */
-const CACHE = "norata-0.7.182";
+const CACHE = "norata-0.7.183";
 
 const ASSETS = [
   "./", "./index.html", "./manifest.webmanifest",
@@ -302,6 +302,14 @@ function renovarPorDetras(req) {
 self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
   if (!esNuestro(e.request)) return;
+  /* Las novedades frescas (0.7.183): la app las pide con `?red=` para leer lo
+     que se aprobó sin esperar una versión. Van directas a la red y no se
+     guardan: cada una lleva un número distinto, y guardarlas llenaría el
+     almacén con una copia por apertura. Si fallan, la app cae a la copia. */
+  try {
+    const u = new URL(e.request.url);
+    if (u.searchParams.has("red") && u.pathname.endsWith("/novedades/novedades.json")) return;
+  } catch (x) {}
 
   /* Una navegación puede traer parámetros —`?informes=demo`, las pruebas con
      enlace— y con ellos la dirección no coincide con la que se guardó. Sin

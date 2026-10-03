@@ -1,0 +1,106 @@
+# Aprobar una novedad desde el Puesto de mando (0.7.183)
+#
+# Eduardo: «quiero que esté todo full automatizado, la orden se da a partir de
+# que doy el visto bueno en el Puesto de mando». Hasta aquí, aprobar era pedirle
+# a una sesión que cambiara el estado en `novedades/novedades.json`.
+#
+# Lo dispara la función `barrera` de Supabase (acción `aprobar`), que comprueba
+# antes que quien lo pide es administrador. Hace tres cosas:
+#
+#   1. Cambia el estado de la ficha a «publicado» y rehace el CSV del sitio
+#      (`herramientas/aprobar-novedad.py`), y lo sube a `main`.
+#   2. Lo lleva al vivo, pero SOLO si no hay nada esperando delante en la cola
+#      —o si el grifo está abierto—. Una novedad no puede adelantar a código que
+#      él todavía no aprobó: `vivo` solo avanza en orden. Si hay algo delante,
+#      la aprobación espera en la cola con lo demás y sale cuando lo suba.
+#   3. Desde ahí todo es lo de siempre: el vivo publica el JSON, la app lo lee
+#      de la red al abrir (`cargarDocNovedades`) sin esperar una versión nueva,
+#      y la hoja de Google baja el CSV en menos de una hora.
+#
+# Un commit de un robot en `main` choca con las sesiones que suben a la vez:
+# por eso, si el push se rechaza, se vuelve a partir de `main` y se reintenta.
+
+name: Aprobar una novedad
+
+on:
+  workflow_dispatch:
+    inputs:
+      llave:
+        description: "La ficha: su id, o su versión si no lleva id"
+        required: true
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: novedades-aprobar
+  cancel-in-progress: false
+
+env:
+  SB_URL: https://wifffghnyrqfuwqlatci.supabase.co
+  # La llave PÚBLICA de Supabase, la misma que viaja en `js/10b-supabase.js`.
+  SB_KEY: sb_publishable_aFW_LWvcSENT2XOQ0PVXyA_UsFvraIU
+
+jobs:
+  aprobar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Aprobar y subir a main
+        id: aprobar
+        env:
+          LLAVE: ${{ inputs.llave }}
+        run: |
+          case "$LLAVE" in *[!A-Za-z0-9._-]*|"") echo "::error::Esa ficha no es válida: $LLAVE"; exit 1;; esac
+          git config user.name "Puesto de mando"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for intento in 1 2 3 4; do
+            git fetch -q origin main
+            git reset -q --hard origin/main
+            TITULO=$(python3 herramientas/aprobar-novedad.py "$LLAVE" | head -1) || { echo "::error::No se pudo aprobar «$LLAVE»."; exit 1; }
+            git add novedades/
+            if git diff --cached --quiet; then
+              echo "«$TITULO» ya estaba publicada: nada que hacer."
+              echo "### Ya estaba publicada" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            git commit -q -m "Aprobada la novedad $LLAVE: $TITULO" -m "Desde el Puesto de mando."
+            if git push -q origin HEAD:main; then
+              echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+              echo "### Aprobada: $TITULO" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            echo "main se movió mientras tanto; intento otra vez."
+            sleep $((intento * 5))
+          done
+          echo "::error::No pude subir la aprobación a main después de cuatro intentos."
+          exit 1
+
+      - name: Al vivo, si nada espera delante
+        if: steps.aprobar.outputs.sha != ''
+        env:
+          SHA: ${{ steps.aprobar.outputs.sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git fetch -q origin '+refs/heads/vivo:refs/remotes/origin/vivo' 2>/dev/null || true
+          PADRE=$(git rev-parse "$SHA~1")
+          VIVO=$(git rev-parse -q --verify origin/vivo || true)
+          G=cerrado
+          if curl -s -o r.json --max-time 20 -X POST "$SB_URL/rest/v1/rpc/barrera_estado" \
+               -H "apikey: $SB_KEY" -H "Content-Type: application/json" -d '{}'; then
+            G=$(python3 -c "import json; print(json.load(open('r.json')).get('grifo', 'cerrado'))" 2>/dev/null || echo cerrado)
+          fi
+          if [ -z "$VIVO" ] || [ "$VIVO" = "$PADRE" ] || [ "$G" = "abierto" ]; then
+            gh workflow run barrera.yml --ref main -f hasta="$SHA"
+            echo "Sube al vivo por la barrera."
+            echo "Sube al vivo por la barrera: en uno o dos minutos está publicada." >> "$GITHUB_STEP_SUMMARY"
+          else
+            N=$(git rev-list --count "$VIVO..$PADRE")
+            echo "Se queda en la cola detrás de $N cambios sin aprobar."
+            echo "Se queda en la cola detrás de $N cambios: sale cuando subas esos desde el Puesto de mando." >> "$GITHUB_STEP_SUMMARY"
+          fi

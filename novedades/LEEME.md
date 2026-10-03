@@ -325,10 +325,13 @@ enseña las `"publicado"`.
    aprobar» —la palabra «Borrador» se leía como que el parche era de mentira
    (0.7.179)—, y un botón enseña la ventana tal
    como se verá. `?novedades=` lo apaga. Solo vale para esa pestaña.
-3. **Al aprobarla** se cambia a `"publicado"` —a mano en GitHub o pidiéndoselo
-   a una sesión—. Como este archivo está en `ASSETS`, el cambio llega a los
-   dispositivos con la siguiente versión que se publique. Si corre prisa, se
-   publica solo eso como un 4º de la versión vigente.
+3. **Al aprobarla** se cambia a `"publicado"`. Desde la 0.7.183 lo hace
+   Eduardo con «Aprobar y publicar» en el Puesto de mando → Subidas: la
+   función `barrera` dispara `novedades-aprobar.yml`, que cambia el estado
+   (`herramientas/aprobar-novedad.py`), rehace el CSV, lo sube y lo lleva al
+   vivo si nada espera delante en la cola. La app lo lee de la red al abrir,
+   sin esperar versión. Una sesión puede aprobar igual corriendo ese mismo
+   guion.
 
 **Una ficha ya publicada también pasa por él cuando se le cambia un texto.**
 El paso de borrador solo protege a las fichas nuevas: el 2 oct 2026 se le

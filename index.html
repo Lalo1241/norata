@@ -20,14 +20,15 @@
      `object-src` y `base-uri` cierran dos vías clásicas de secuestro.
      `img-src` admite además mi.norata.app (0.7.182): la app de Android no
      lleva dentro las imágenes de las novedades y las pide ahí. Es nuestro
-     propio sitio, así que no abre una salida hacia nadie más. -->
+     propio sitio, así que no abre una salida hacia nadie más. Y `connect-src`
+     también (0.7.183): ahí lee las novedades aprobadas sin esperar versión. -->
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
   script-src 'self' 'unsafe-inline';
   style-src 'self' 'unsafe-inline';
   img-src 'self' data: blob: https://mi.norata.app;
   font-src 'self' data:;
-  connect-src 'self' https://wifffghnyrqfuwqlatci.supabase.co;
+  connect-src 'self' https://wifffghnyrqfuwqlatci.supabase.co https://mi.norata.app;
   form-action 'self';
   base-uri 'none';
   object-src 'none'">
