@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- El icono de Luciérnagas: una chispa. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+    <path android:fillColor="#FFF5D76E"
+        android:pathData="M12,2.5c0.7,5.2 2.8,7.3 8,8c-5.2,0.7 -7.3,2.8 -8,8c-0.7,-5.2 -2.8,-7.3 -8,-8c5.2,-0.7 7.3,-2.8 8,-8z" />
+</vector>

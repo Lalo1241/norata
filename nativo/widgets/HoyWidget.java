@@ -4,37 +4,39 @@ package app.norata;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
-import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.RemoteViews;
 
 import org.json.JSONObject;
 
-/* El widget «Hoy»: la actividad que toca, las misiones del día con su casilla
+/* El widget «Hoy», y de paso el receptor de TODOS: los toques que marcan una
+   misión (desde este o desde cualquier otro widget) y el latido que los
+   repinta llegan aquí, esté puesto o no.
+
+   El widget «Hoy»: la actividad que toca, las misiones del día con su casilla
    y las actividades que vienen. Qué se enseña y en qué orden lo decide
    `Widgets.plan`; aquí se pinta la cabecera y la tira de arriba, y la lista la
    llena `HoyLista`.
-
-   La lista no se desliza: va por páginas, con un pie que pasa a la siguiente
-   (ver «Las páginas» en `Widgets.java`, y por qué).
 
    Se repinta en cuatro momentos: cuando la página manda una foto nueva,
    cuando se toca una fila, cada media hora (`updatePeriodMillis`, que es lo
    que cambia de día a medianoche y mueve la tira de «Ahora») y al reiniciar
    el teléfono. Media hora es el mínimo que deja Android sin una alarma
    propia, así que la tira puede ir hasta media hora atrasada. */
-public class HoyWidget extends AppWidgetProvider {
+public class HoyWidget extends WidgetNorata {
 
     @Override
-    public void onUpdate(Context c, AppWidgetManager m, int[] ids) {
-        for (int id : ids) pintar(c, m, id);
+    RemoteViews vista(Context c, AppWidgetManager m, int widget) { return armar(c, m, widget); }
+
+    @Override
+    void despues(Context c, AppWidgetManager m, int[] ids) {
         m.notifyAppWidgetViewDataChanged(ids, Widgets.id(c, "wh_lista"));
     }
+
 
     @Override
     public void onReceive(Context c, Intent i) {
@@ -47,28 +49,20 @@ public class HoyWidget extends AppWidgetProvider {
             }
             return;
         }
-        if (i != null && Widgets.PAGINA.equals(i.getAction())) {
-            Widgets.pasarPagina(c, i.getIntExtra(Widgets.EXTRA_WIDGET, 0));
+        if (i != null && Widgets.TIC.equals(i.getAction())) {
             Widgets.refrescar(c);
             return;
         }
         super.onReceive(c, i);
     }
 
-    /* Al estirarlo o encogerlo caben otras filas: se vuelve a contar. */
-    @Override
-    public void onAppWidgetOptionsChanged(Context c, AppWidgetManager m, int id, Bundle opciones) {
-        pintar(c, m, id);
-        m.notifyAppWidgetViewDataChanged(id, Widgets.id(c, "wh_lista"));
-    }
-
     private static void tenir(RemoteViews v, int vista, int color) {
         if (vista != 0) v.setInt(vista, "setColorFilter", color);
     }
 
-    static void pintar(Context c, AppWidgetManager m, int widget) {
+    static RemoteViews armar(Context c, AppWidgetManager m, int widget) {
         int molde = Widgets.recurso(c, "layout", "widget_hoy");
-        if (molde == 0) return;
+        if (molde == 0) return null;
         RemoteViews v = new RemoteViews(c.getPackageName(), molde);
         JSONObject f = Widgets.foto(c);
         Widgets.Plan p = Widgets.plan(f);
@@ -115,33 +109,6 @@ public class HoyWidget extends AppWidgetProvider {
             v.setTextColor(Widgets.id(c, "wh_tira_de"), suave);
         }
 
-        // Cuántas filas caben (ver «Las páginas» en Widgets.java). Las medidas son
-        // las del molde, en dp: 12 de arriba, 24 de cabecera, 36 de la tira con su
-        // margen, 4 sobre la lista y 6 de abajo; 37 por fila y 26 del pie.
-        Bundle op = m.getAppWidgetOptions(widget);
-        int alto = op == null ? 0 : op.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 0);
-        if (alto <= 0) alto = 180;
-        int libre = alto - 12 - 24 - (p.tira != null ? 36 : 0) - 4 - 6;
-        int n = p.filas.size();
-        int caben = n * 37 <= libre ? 0 : Math.max(1, (libre - 26) / 37);
-        Widgets.prefs(c).edit().putInt("caben_" + widget, caben).apply();
-        int[] t = Widgets.tramo(c, widget, n);
-        boolean conPie = caben > 0 && n > caben;
-        v.setViewVisibility(Widgets.id(c, "wh_pie"), conPie ? View.VISIBLE : View.GONE);
-        if (conPie) {
-            v.setTextViewText(Widgets.id(c, "wh_pie_tx"), t[2] > 0
-                    ? Widgets.tx(f, "mas", "{n} más").replace("{n}", String.valueOf(t[2]))
-                    : Widgets.tx(f, "arriba", "Volver arriba"));
-            v.setTextColor(Widgets.id(c, "wh_pie_tx"), suave);
-            tenir(v, Widgets.id(c, "wh_pie_ic"), suave);
-            v.setFloat(Widgets.id(c, "wh_pie_ic"), "setRotation", t[2] > 0 ? 0f : 180f);
-            // La dirección distingue el pie de un widget del de otro puesto al lado.
-            Intent pag = new Intent(c, HoyWidget.class).setAction(Widgets.PAGINA)
-                    .setData(Uri.parse("norata-widgets://pagina/" + widget)).putExtra(Widgets.EXTRA_WIDGET, widget);
-            v.setOnClickPendingIntent(Widgets.id(c, "wh_pie"),
-                    PendingIntent.getBroadcast(c, 7200, pag, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
-        }
-
         // La lista. La dirección lleva el id del widget: sin ella Android reutiliza
         // el mismo servicio para dos widgets puestos a la vez.
         Intent lista = new Intent(c, HoyLista.class);
@@ -167,6 +134,6 @@ public class HoyWidget extends AppWidgetProvider {
         v.setOnClickPendingIntent(Widgets.id(c, "wh_vacio_b"), Widgets.abrir(c, p.hayDia ? "nueva" : "missions", p.hayDia ? 7102 : 7103));
 
         v.setOnClickPendingIntent(Widgets.id(c, "wh_cab"), Widgets.abrir(c, "missions", 7101));
-        m.updateAppWidget(widget, v);
+        return v;
     }
 }

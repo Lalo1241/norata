@@ -93,14 +93,18 @@ que abre sin red y sin pasar por Chrome. Lo que eso cambia aquí:
   menta de Norata (Pausa en amarillo) y con un acento rojo ningún texto es
   rojo. La referencia es la lámina «Avisos de Norata»; las reglas, en el
   `LEEME.md` de `nativo/avisos/`.
-- **Los widgets de la pantalla de inicio son nativos, y el primero es Hoy.**
-  El complemento `WidgetsNorata` vive en `nativo/widgets/` (con su instalador
-  y su `LEEME.md`) y la página le habla desde `js/13c-widgets.js`. **El widget
-  apunta y la app aplica**: lo que se marca fuera queda en una cola con su día
-  y su hora, y entra al abrir por `logMission` (`dia`, `hora`, `mudo`), la
-  misma puerta que un toque dentro. La página le manda una «foto» de siete
-  días, con textos y colores ya resueltos, cada vez que pasa por `save()`. Un
-  widget nuevo sigue esas dos reglas y lleva su propio icono, nunca el logo.
+- **Los widgets de la pantalla de inicio son nativos, y son nueve.** El
+  complemento `WidgetsNorata` vive en `nativo/widgets/` (con su instalador y
+  su `LEEME.md`, que trae la tabla de los nueve) y la página le habla desde
+  `js/13c-widgets.js`. **El widget apunta y la app aplica**: lo que se marca
+  fuera queda en una cola con su día y su hora, y entra al abrir por
+  `logMission` (`dia`, `hora`, `mudo`), la misma puerta que un toque dentro.
+  La página le manda una «foto» cada vez que pasa por `save()`: siete días de
+  misiones y actividades, más la racha, el nivel, la habilidad por cuidar, el
+  nodo que toca y el tramo del Pomodoro, con textos y colores ya resueltos.
+  **Lo que arma la foto no escribe**: nada de `jDatos()`, `applyDecay()` ni
+  `ramasDe()`, que siembran o guardan al llamarlas. Un widget nuevo sigue esas
+  reglas y lleva su propio icono, nunca el logo.
 - **El icono de la pantalla de inicio sigue al mundo (0.7.145), y solo en el
   APK.** **Elegir un mundo es una sola pieza (0.7.194)**: el logo llega, se
   recarga, el aro se llena con el color fundiéndose al mundo nuevo, la ruleta

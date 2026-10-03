@@ -1,19 +1,24 @@
 # Los widgets de Norata en el APK
 
 Un widget es una pieza de la app que vive en la pantalla de inicio del
-teléfono. El primero es **Hoy**:
+teléfono. Son nueve, y todos salen del boceto «Widgets de Norata» que aprobó
+Eduardo:
 
-- **Arriba**, la actividad de la rueda del Pomodoro que toca ahora («Ahora ·
-  Trabajo profundo · hasta 11:30 AM») o, si no hay ninguna en curso, la que
-  sigue.
-- **En la lista**, las misiones pendientes del día con su casilla, luego las
-  actividades que vienen con su hora, y al final las misiones ya cumplidas,
-  tachadas. Si no caben todas, abajo sale un pie —«3 más»— que pasa a las
-  siguientes con un toque, y al final «Volver arriba».
-- **Tocar una misión la marca**, sin abrir la app. Tocar otra vez una ya
-  cumplida la deshace, igual que su botón dentro. Una misión de varias veces
-  suma una por toque y dice por dónde va («1 de 3»).
-- **Tocar el título** abre la app en Misiones.
+| Widget | Tamaño | Qué enseña | Qué hace al tocarlo |
+| --- | --- | --- | --- |
+| **Hoy** | 4×2, se estira | La actividad que toca, las misiones del día y las actividades que vienen. La lista se desliza | La fila marca la misión; el título abre Misiones |
+| **Lo que sigue** | 4×1 | Una sola misión: la que toca, con el avance del día alrededor | El círculo la marca y sale la siguiente |
+| **Pomodoro** | 2×2, 4×2 o 4×4 | Crece: el reloj; con la rueda chica y lo que toca; o la rueda entera del día | El botón abre la app y arranca, pausa o apunta el sueño |
+| **Luciérnagas** | 2×2 | Una luciérnaga por misión de hoy; se enciende la cumplida | Abre el Resumen |
+| **Racha** | 2×2 | Las semanas encendidas y los días de esta semana | Abre «Tu racha» |
+| **Por cuidar** | 2×2 | La habilidad con más días sin práctica y cuándo empieza a bajar | El botón marca la misión que la mantiene |
+| **Expedición** | 2×2 | El aro de nivel y el próximo módulo que se abre | Abre Mi expedición |
+| **Apuntar** | 2×2 | Tres atajos: Misión, Habilidad y Reloj | Cada uno abre la app en su formulario o en el Pomodoro |
+| **Siguiente nodo** | 4×1 | El nodo que toca de una rama, con su figura y el avance de la rama | Abre Ramas |
+
+En Hoy, tocar otra vez una misión ya cumplida la deshace, igual que su botón
+dentro. Una misión de varias veces suma una por toque y dice por dónde va
+(«1 de 3»).
 
 ## La regla que lo ordena todo: el widget apunta, la app aplica
 
@@ -67,27 +72,33 @@ estaba antes de ESE instalador.
 
 ## Cómo se comprueba
 
-1. Abre la app una vez, para que mande el día al widget.
+1. Abre la app una vez, para que mande el día a los widgets.
 2. En la pantalla de inicio, mantén el dedo en un hueco, toca **Widgets**,
-   busca **Norata** y arrastra **Hoy**.
-3. Toca una misión: se tacha y baja al final. Abre la app: sale «Se aplicó 1
-   marca del widget» y la misión está cumplida, con su XP.
-4. Con la app cerrada desde recientes, marca otra y ábrela: lo mismo.
-5. Cambia de mundo o de modo claro en la app y vuelve al inicio: el widget
-   tiene los tonos nuevos.
+   busca **Norata** y arrastra el que quieras.
+3. En **Hoy** o **Lo que sigue**, toca una misión: se marca. Mira que
+   **Luciérnagas** encienda una más y que **Expedición** diga «+1 por cobrar».
+4. Abre la app: sale «Se aplicó 1 marca del widget», la misión está cumplida
+   con su XP, y al volver al inicio «por cobrar» ya no está.
+5. Estira el **Pomodoro** hacia abajo y a lo ancho: pasa del reloj a la rueda
+   chica y a la rueda entera. Toca su botón: abre la app y arranca el tramo.
+6. Cambia de mundo o de modo claro en la app y vuelve al inicio: todos tienen
+   los tonos nuevos.
 
 ## Qué hay aquí
 
 | Archivo | Qué es |
 | --- | --- |
-| `instalar-widgets.js` | lo de arriba: lo hace todo |
-| `Widgets.java` | las piezas compartidas: la foto, la cola, el plan del día y los dibujos |
+| `instalar-widgets.js` | lo de arriba: lo hace todo, y añade solo lo que falte |
+| `Widgets.java` | las piezas compartidas: la foto, la cola, el plan del día, el repintado de todos y el latido |
 | `WidgetsPlugin.java` | lo que habla con la página (`WidgetsNorata`) |
-| `HoyWidget.java` | el widget Hoy: la cabecera, la tira de arriba y el toque en una fila |
-| `HoyLista.java` | el servicio que llena la lista, fila por fila |
-| `res/layout/widget_hoy.xml`, `widget_hoy_fila.xml` | los dos moldes: el widget y una fila |
-| `res/drawable/widget_*.xml` | el marco, la tira, el botón, el punto, la raya y el icono |
-| `res/xml/widget_hoy_info.xml` | la ficha del widget: su tamaño y cada cuánto se repinta |
+| `WidgetNorata.java` | lo común a los nueve: cuándo se pintan |
+| `Pinta.java` | cómo se llena cada widget que no es Hoy |
+| `Dibujos.java` | lo que viaja como imagen: aros, barras, la semana, la figura de un nodo, las luciérnagas, el reloj de arena y la rueda |
+| `HoyWidget.java`, `HoyLista.java` | Hoy y su lista; `HoyWidget` recibe además los toques y el latido de todos |
+| `SigueWidget.java`, `PomodoroWidget.java`… | una clase por widget, de seis líneas: Android pide una por cada entrada de su selector |
+| `res/layout/widget_*.xml` | los moldes; el Pomodoro tiene tres (`chico`, `ancho`, `grande`) con los mismos nombres dentro |
+| `res/drawable/widget_*.xml` | el marco, las cajas, los botones y los iconos |
+| `res/xml/widget_*_info.xml` | la ficha de cada widget: su tamaño y cada cuánto se repinta |
 | `res/font/outfit_*.ttf` | Outfit en tres pesos; las mismas de los avisos |
 | `archivos.json` | la lista de `res/`, para que el instalador sepa qué bajar |
 
@@ -116,13 +127,32 @@ estaba antes de ESE instalador.
   el selector de widgets, que enseña el molde antes de que nadie lo pinte.
 - **Las esquinas van a 20 dp**, no a los 28 del boceto: en el teléfono de Eduardo se veían de más, y
   al lado de otros widgets desentonaban. Lo pidió al verlo puesto por primera vez (3 oct 2026).
-- **La lista va por páginas y no se desliza** (0.7.197.1). En el teléfono de
-  Eduardo el lanzador inclina y deforma el widget entero mientras hay un dedo
-  arrastrando encima, que es justo el gesto de deslizar: se veía tosco, y esa
-  animación es del lanzador, no se apaga desde aquí. Cuántas filas caben sale
-  del alto que Android dice que mide el widget (`OPTION_APPWIDGET_MAX_HEIGHT`)
-  y de las medidas del molde; **si se cambia un alto en el molde, se cambia
-  también en `HoyWidget.pintar`**. Al estirar el widget caben más.
+- **Un widget nuevo son cuatro sitios**: su función en `Pinta.java`, su clase
+  de seis líneas, su fila en `Widgets.TODOS` y en `WIDGETS` del instalador, y
+  su molde con su ficha. Los datos que necesite los añade la página a la foto.
+- **El Pomodoro no arranca el reloj desde el widget.** Su botón abre la app y
+  es la página la que inicia, pausa o apunta el sueño (`ir`, en
+  `js/13c-widgets.js`). Un tramo que corre con la app cerrada necesita una
+  alarma que avise al acabar, y esa es la de los avisos; ponerla aquí también
+  serían dos relojes que pueden no coincidir. La cuenta sí corre sola, con el
+  cronómetro del sistema.
+- **El Pomodoro elige su molde por tamaño** (`Pinta.pomodoro`): a partir de
+  230 dp de ancho, la rueda chica; con 300 dp de alto además, la entera. Las
+  medidas son las que el lanzador le dice a Android, y cada marca las cuenta a
+  su manera: si en un teléfono no cambia al estirarlo, es ahí.
+- **Hay un latido cada cinco minutos** (`Widgets.armarTic`) para que la aguja
+  de la rueda, la tira de «Ahora» y la cuenta del sueño no se queden atrás. No
+  despierta el teléfono: con la pantalla apagada no corre. Sin ningún widget
+  puesto, no se arma.
+- **Dos cosas se ajustan aquí y no en la página**, porque pasan con la app
+  cerrada: una misión marcada en un widget enciende el día de hoy en Racha y
+  pone «Al día» en Por cuidar; y a partir del domingo, Racha empieza una
+  semana nueva. Todo lo demás espera a la foto siguiente.
+- **Las luciérnagas no flotan**: Android no anima dentro de una imagen. Se
+  quedan de noche en los dos modos, porque son un dibujo y no interfaz.
+- **La lista de Hoy se desliza**, aunque en el Honor de Eduardo (MagicOS) el
+  lanzador deforma el widget mientras hay un dedo arrastrando: se probó
+  cambiarla a páginas (0.7.197.1) y la prefirió así.
 - **En dp y no en sp.** El alto lo pone la cuadrícula del teléfono, y con la
   letra del sistema agrandada las filas se saldrían.
 - **Marcar y desmarcar seguido se anula aquí** y no llega a la app: aplicar
@@ -133,7 +163,7 @@ estaba antes de ESE instalador.
 - **Un APK sin esto** no trae `WidgetsNorata`, y la página lo sabe con
   `isPluginAvailable`: no manda nada y no cambia nada.
 
-Compila contra Android 16 y Capacitor 8 (`javac`, sin errores), y la parte de
-la página se probó con un complemento de mentira: las marcas entran con su día
-y su hora, y la foto sale con siete días. **Lo que no se ha visto todavía es
-el widget en un teléfono de verdad**: eso es el paso «Cómo se comprueba».
+El APK entero se arma con Gradle sin errores (Android 16, Capacitor 8), y la
+parte de la página se probó con un complemento de mentira. **Hoy ya se vio en
+el teléfono de Eduardo; los otros ocho todavía no se han visto pintados en un
+teléfono**: eso es el paso «Cómo se comprueba».
