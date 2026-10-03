@@ -601,7 +601,7 @@ function dnGrifoHTML() {
   DN.grifoVisto = ahora;
   return `<div class="dn-grifo ${abierto ? "abierto" : DN.seguro ? "" : "suelto"} ${ahora !== antes ? "cambia" : ""} ${(ahora === "abierto") !== (antes === "abierto") ? "gira" : ""}">
     <button class="dn-interruptor" role="switch" aria-checked="${abierto}" aria-label="Grifo de subidas" data-a="grifo:${abierto ? "cerrar" : "abrir"}"><i>${dnIc(abierto ? "subidas" : DN.seguro ? "candado" : "flecha")}</i></button>
-    <div><h3>${abierto ? "Grifo abierto" : "Grifo cerrado"}</h3><p>${abierto ? "Lo que se sube a main llega solo al vivo, como hasta hoy. Lo que traiga SQL se queda en la cola." : "Nada llega al vivo sin tu aprobación: lo que se sube a main espera aquí."}</p></div>
+    <div><h3>${abierto ? "Grifo abierto" : "Grifo cerrado"}</h3><p>${abierto ? "Lo que se sube a main llega solo al vivo. Lo que traiga SQL se queda en la cola, y lo que llegue detrás espera con él." : "Nada llega al vivo sin tu aprobación: lo que se sube a main espera aquí."}</p></div>
     <div class="acc">${acc}</div>${dnGrifoVeloHTML()}</div>`;
 }
 /* Mientras el servidor contesta, la tarjeta ENTERA lo dice. Abrir o cerrar
@@ -630,14 +630,22 @@ function dnBarreraFaltaHTML() {
 function dnColaHTML() {
   const b = DN.bar, cola = b.cola || [], abierto = dnGrifoAbierto();
   const conSql = cola.filter(c => (c.sql || []).length).length;
+  /* Con el grifo abierto, lo que hay en la cola está ahí por UNO: el primero,
+     que trae SQL (o que no pasó una comprobación), y como se aprueba en orden
+     los de detrás esperan aunque no traigan nada. Eduardo lo preguntó al ver
+     seis cambios detenidos con el grifo abierto: la sala no decía cuál la
+     tenía parada ni por qué. */
+  const tapon = abierto && cola.length ? cola[0] : null, taponSql = tapon && (tapon.sql || []).length;
+  const nombre = c => c.version ? "la " + dnE(c.version) : "«" + dnE(c.titulo || "un cambio") + "»";
   const clase = v => { const e = (DN.nov || []).find(x => String(x.version) === String(v)); return e ? (typeof novedadClase === "function" ? novedadClase(e) : e.clase) : ""; };
   return `<div class="dn-panel"><div class="dn-pcab"><h3>${abierto ? "Detenido en la cola" : "En la cola"}</h3><span class="dn-chip">${cola.length}</span>
         ${cola.length ? `<div class="dn-der"><button class="dn-btn b-primary mini" data-a="subir:">${dnIc("subidas")}Subir todo al vivo</button></div>` : ""}</div>
+      ${tapon ? `<div class="dn-aviso dn-ojo"><b>Detenida por ${nombre(tapon)}${taponSql ? ", que trae SQL" : ""}.</b> ${taponSql ? "Un SQL no llega solo a Supabase, así que no sube hasta que digas que ya lo pegaste." : "No pasó las comprobaciones de la barrera: el motivo está en «Las últimas veces»."}${cola.length > 1 ? (cola.length === 2 ? " El cambio de detrás espera" : " Los " + (cola.length - 1) + " de detrás esperan") + " aunque el grifo esté abierto, porque se aprueba en orden." : ""}</div>` : ""}
       ${cola.length ? `<p class="dn-nota">Se aprueba en orden: «Subir hasta aquí» lleva al vivo ese cambio y todos los de arriba.${conSql ? " Lo que trae SQL pide que lo hayas pegado antes." : ""}</p>` : ""}
-      ${!cola.length ? `<div class="dn-vacio">${abierto ? "Nada detenido. Lo que se sube a main está llegando solo." : "No hay nada esperando. Lo que se suba a main aparecerá aquí."}</div>` : cola.map(c => {
-        const h = dnHace(dnLocal(c.fecha)), sql = (c.sql || []).length;
+      ${!cola.length ? `<div class="dn-vacio">${abierto ? "Nada detenido. Lo que se sube a main está llegando solo." : "No hay nada esperando. Lo que se suba a main aparecerá aquí."}</div>` : cola.map((c, i) => {
+        const h = dnHace(dnLocal(c.fecha)), sql = (c.sql || []).length, detras = tapon && i > 0;
         return `<div class="dn-prueba"><div>
-            <div class="dn-sobre-t">${dnEtq(clase(c.version))}<span class="dn-estado ${h !== null && h >= 5 ? "e-espera" : "e-no"}">${dnIc("reloj")}${h !== null && h >= 5 ? "Lleva " + h + " días sin subir" : "En cola, " + dnHaceTx(h)}</span>${sql ? `<span class="dn-estado e-sql">${dnIc("db")}Trae SQL</span>` : ""}</div>
+            <div class="dn-sobre-t">${dnEtq(clase(c.version))}<span class="dn-estado ${h !== null && h >= 5 ? "e-espera" : "e-no"}">${dnIc("reloj")}${h !== null && h >= 5 ? "Lleva " + h + " días sin subir" : detras ? "Espera al de arriba" : tapon ? "Detiene la cola, " + dnHaceTx(h) : "En cola, " + dnHaceTx(h)}</span>${sql ? `<span class="dn-estado e-sql">${dnIc("db")}Trae SQL</span>` : ""}</div>
             <h4>${dnE(c.titulo || "Sin título")}${c.version ? `<span class="dn-chip">${dnE(c.version)}</span>` : ""}</h4>
             ${sql ? `<p class="dn-interno">Interno · ${dnE((c.sql || []).join(", "))} · no sale en el changelog</p>` : ""}</div>
           <div class="dn-acciones"><button class="dn-btn b-soft mini" data-a="subir:${dnE(c.sha)}">Subir hasta aquí</button></div></div>`;

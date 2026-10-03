@@ -318,6 +318,16 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.192.1 · 3 oct 2026
+
+**La cola dice qué la detiene.** Eduardo vio seis cambios parados con el grifo
+abierto y preguntó por qué: era el primero, que traía SQL, y los de detrás
+esperaban por el orden. La sala no lo decía. Ahora, con el grifo abierto, un
+aviso arriba de la cola nombra el cambio que la tiene parada y el motivo, ese
+cambio dice «Detiene la cola» y los demás «Espera al de arriba». La tarjeta del
+grifo avisa de lo mismo de antemano. Con el grifo cerrado no sale nada de esto:
+ahí todo espera, y no hay un culpable.
+
 ### 0.7.192 · 3 oct 2026
 
 **«Aprobar todas», en Novedades por aprobar.** Lo pidió Eduardo: aprobarlas una
