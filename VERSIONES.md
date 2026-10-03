@@ -318,6 +318,22 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.192 · 3 oct 2026
+
+**«Aprobar todas», en Novedades por aprobar.** Lo pidió Eduardo: aprobarlas una
+por una eran tantas ventanas como novedades. El botón sale cuando hay más de
+una, y su ventana enseña la lista entera antes de darle —cuáles se anuncian,
+cuáles no, y cuáles se anunciarían sin imágenes—, porque aprobar es anunciar y
+aquí no se abre la ficha de cada una.
+
+**Viajan juntas, en una corrida y un solo commit** (`novedades-aprobar.yml`
+acepta varias, separadas por comas). Mandarlas como corridas sueltas no sirve:
+de las que esperan turno en la misma fila, GitHub solo conserva la última, y
+las de en medio se perderían sin avisar.
+
+**Cómo se probó.** La ventana y lo que manda, con el servidor imitado. El
+trabajo de GitHub con varias no se ha corrido: la primera vez que se use.
+
 ### 0.7.191.2 · 3 oct 2026
 
 **Un punto sin imagen que va antes de la primera imagen se queda encima de la

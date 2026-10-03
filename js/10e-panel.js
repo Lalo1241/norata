@@ -708,6 +708,22 @@ function dnHistorialHTML() {
 function dnVentanaHTML() {
   const v = DN.ventana;
   if (!v) return "";
+  if (v.tipo === "aprobartodas") {
+    /* Todas de un jalón (0.7.192): la lista entera a la vista antes de darle,
+       que aprobar es anunciar y aquí no se abre la ficha de cada una. */
+    const bor = dnBorradores();
+    if (!bor.length) return "";
+    const anuncia = e => typeof novedadDestacada === "function" ? novedadDestacada(e) : true;
+    const sinImg = bor.filter(e => anuncia(e) && !((e.banner && e.banner.src) || (e.imagen && e.imagen.src)));
+    const cola = (DN.bar && DN.bar.cola) || [], delante = cola.length && !dnGrifoAbierto();
+    return `<div class="dn-velo" data-a="ventana:cerrar"><div class="dn-modal" role="dialog" aria-label="Aprobar todas las novedades" data-quieto="1">
+      <h3>¿Aprobar las ${bor.length} novedades?</h3>
+      <ul class="dn-lista-m">${bor.map(e => `<li>${dnIc("check")}${dnE(e.titulo || "Sin título")} <span class="dn-chip">${dnE(e.version || "")}</span>${anuncia(e) ? "" : ` <span class="dn-chip">no se anuncia</span>`}</li>`).join("")}</ul>
+      <p>Las que se anuncian salen en la ventana de la app, en Ajustes → Novedades y en el changelog del sitio, con el texto y las imágenes de su ficha.</p>
+      ${sinImg.length ? `<div class="dn-aviso"><b>${sinImg.length === 1 ? "Una se anuncia sin imágenes" : sinImg.length + " se anuncian sin imágenes"}:</b> ${sinImg.map(e => dnE(e.titulo || e.version)).join(", ")}. En el sitio ${sinImg.length === 1 ? "saldría" : "saldrían"} sin banner.</div>` : ""}
+      ${delante ? `<div class="dn-aviso"><b>${cola.length === 1 ? "Hay 1 cambio esperando en la cola" : "Hay " + cola.length + " cambios esperando en la cola"}.</b> Las novedades no pueden adelantarlos: salen cuando los subas.</div>` : ""}
+      <div class="dn-macc"><button class="dn-btn b-ghost" data-a="ventana:cerrar!">Cancelar</button><button class="dn-btn b-primary" data-a="aprobartodasya">Aprobar y publicar todas</button></div></div></div>`;
+  }
   if (v.tipo === "aprobar") {
     /* Aprobar una novedad: qué se va a anunciar y dónde, antes de darle. */
     const e = (DN.nov || []).find(x => (typeof novedadLlave === "function" ? novedadLlave(x) : String(x.id || x.version)) === v.llave);
@@ -886,7 +902,7 @@ function dnSalaSubidas() {
     ${b && b.pagina && b.pagina !== "vivo" ? `<div class="dn-aviso dn-ojo"><b>La barrera todavía no frena nada.</b> El sitio se sigue publicando desde <code>${dnE(b.pagina)}</code>: lo que se sube ahí llega al vivo sin pasar por aquí. Falta cambiar la rama en GitHub → Settings → Pages → <code>vivo</code>.</div>` : ""}
     ${!b ? (DN.barError ? dnBarreraFaltaHTML() : `<div class="dn-panel"><div class="dn-vacio">Preguntando por la barrera…</div></div>`)
       : (b.grifo ? dnGrifoHTML() : `<div class="dn-panel"><h3>Falta el grifo</h3><p class="dn-nota">Pega <code>supabase/barrera.sql</code> en Supabase y vuelve a preguntar.</p><div class="dn-acciones"><button class="dn-btn b-linea mini" data-a="barrera">Volver a preguntar</button></div></div>`) + dnColaHTML() + dnHistorialHTML() + dnCorridasHTML()}
-    <div class="dn-panel"><div class="dn-pcab"><h3>Novedades por aprobar</h3><span class="dn-chip">${DN.nov ? bor.length : "…"}</span><div class="dn-der"><button class="dn-btn b-linea mini" data-a="novedades">Leerlas en Novedades</button></div></div>
+    <div class="dn-panel"><div class="dn-pcab"><h3>Novedades por aprobar</h3><span class="dn-chip">${DN.nov ? bor.length : "…"}</span><div class="dn-der">${bor.length > 1 ? `<button class="dn-btn b-primary mini" data-a="aprobartodas">${dnIc("check")}Aprobar todas</button>` : ""}<button class="dn-btn b-linea mini" data-a="novedades">Leerlas en Novedades</button></div></div>
       <p class="dn-nota">El cambio de cada una ya está en la app. Lo que espera es su anuncio: no sale en la ventana, en Ajustes → Novedades ni en el sitio hasta que su estado pase a «publicado» en <code>novedades/novedades.json</code>. «Aprobar y publicar» la sube solo; para cambiarle un texto, pídeselo a una sesión.</p>
       ${!DN.nov ? `<div class="dn-vacio">Leyendo las novedades…</div>` : !bor.length ? `<div class="dn-vacio">No hay ninguna por aprobar.</div>` : bor.map(e => {
         const h = dnHace(e.fecha), clase = typeof novedadClase === "function" ? novedadClase(e) : (e.clase || "mejora");
@@ -1280,6 +1296,12 @@ function dnClic(ev) {
     case "novedades": cerrarDentro(); if (typeof mostrarAjuste === "function") mostrarAjuste("novedades"); return;
     /* La llave de una ficha es su `id` o su versión: se toma entera del
        atributo, que una versión no lleva dos puntos pero un `id` podría. */
+    case "aprobartodas": DN.ventana = { tipo: "aprobartodas" }; break;
+    case "aprobartodasya": {
+      const ks = dnBorradores().map(e => typeof novedadLlave === "function" ? novedadLlave(e) : String(e.id || e.version));
+      DN.ventana = null; dnPinta();
+      if (ks.length) dnMandaBarrera("aprobar", { llaves: ks }, "Aprobadas: se publican en uno o dos minutos");
+      return; }
     case "aprobarnov": DN.ventana = { tipo: "aprobar", llave: el.dataset.a.slice(11) }; break;
     case "aprobarnovya": {
       const k = el.dataset.a.slice(13);
