@@ -1699,6 +1699,10 @@ const TEXTOS_EN = {
     "Your message goes to the Norata team. No technical knowledge needed: describe what you remember.",
   "No incluyas datos personales, contraseñas ni información de pago. No son necesarios para atender tu mensaje.":
     "Don't include personal data, passwords or payment details. They aren't needed to handle your message.",
+  "Reportar un fallo": "Report a bug",
+  "Enviar una sugerencia": "Send a suggestion",
+  "Hacer una pregunta": "Ask a question",
+  "Dejar un comentario": "Leave a comment",
   "Fallo": "Bug",
   "Sugerencia": "Suggestion",
   "Pregunta": "Question",

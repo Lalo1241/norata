@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.205";
+const VERSION = "0.7.205.1";
 const VERSION_FECHA = "3 oct 2026";
 
 /* ---- La web de fuera, en UN solo sitio ----
@@ -286,6 +286,9 @@ const ICONS = {
   figGasto: '<circle cx="12" cy="12" r="6.5"/>',
   play: '<path d="M8 5.5l11 6.5-11 6.5z" stroke-linejoin="round"/>',
   alert: '<path d="M12 7v7M12 17.4v.2"/>',
+  /* La pregunta, para el cuadro de reportar: el gancho y su punto, a trazo
+     como el aviso de arriba. */
+  duda: '<path d="M9 9.2a3 3 0 1 1 4.3 2.7c-.9.5-1.3 1.1-1.3 2.1M12 17.4v.2"/>',
   /* El bicho de reportar fallos. Un escarabajo visto desde arriba: cuerpo,
      cabeza, la raya de la espalda y tres patas por lado. Dibujado a trazo como
      todos los demás —nada de relleno— para que herede el color de quien lo

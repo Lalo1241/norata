@@ -7744,7 +7744,7 @@
   .modal-card.reporte .rep-privado {
     margin: 4px 0 0; padding: 9px 12px; border-radius: var(--r-chico);
     background: var(--rep-soft); color: var(--muted);
-    font-size: 12.5px; line-height: 1.45; text-align: left;
+    font-size: 12.5px; line-height: 1.45; text-align: center;
   }
   /* «Lo que me contaste»: la lista de lo reportado con su respuesta. Mismo
      cuadro en oro y con el título en tinta normal, por lo mismo que el de

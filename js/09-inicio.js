@@ -2395,21 +2395,27 @@ let repTipo = "fallo";
    El color de cada tipo es el que ya tiene en el buzón del Puesto de mando
    (`DN_TIPOS`): quien reporta y quien lee ven el mismo código. */
 const REP_FORMAL = {
-  fallo: { rotulo: "Fallo", donde: "¿Dónde ocurrió?", pregunta: "Describe el fallo",
+  fallo: { titulo: "Reportar un fallo", icono: "bicho", rotulo: "Fallo", donde: "¿Dónde ocurrió?", pregunta: "Describe el fallo",
     ejemplo: "La pantalla se quedó en blanco y no respondió.", falta: "No se envió: falta describir el fallo." },
-  idea: { rotulo: "Sugerencia", donde: "¿Sobre qué sección?", pregunta: "Describe tu sugerencia",
+  idea: { titulo: "Enviar una sugerencia", icono: "bulb", rotulo: "Sugerencia", donde: "¿Sobre qué sección?", pregunta: "Describe tu sugerencia",
     ejemplo: "Poder repetir una misión cada quince días.", falta: "No se envió: falta describir la sugerencia." },
-  duda: { rotulo: "Pregunta", donde: "¿Sobre qué sección?", pregunta: "Escribe tu pregunta",
+  duda: { titulo: "Hacer una pregunta", icono: "duda", rotulo: "Pregunta", donde: "¿Sobre qué sección?", pregunta: "Escribe tu pregunta",
     ejemplo: "¿Por qué bajó el nivel de una habilidad?", falta: "No se envió: falta escribir la pregunta." },
-  gusto: { rotulo: "Comentario", donde: "¿Sobre qué sección?", pregunta: "Escribe tu comentario",
+  gusto: { titulo: "Dejar un comentario", icono: "heart", rotulo: "Comentario", donde: "¿Sobre qué sección?", pregunta: "Escribe tu comentario",
     ejemplo: "El sonido al subir de nivel.", falta: "No se envió: falta escribir el comentario." }
 };
 /* El texto de un tipo, en el tono que toque. */
 const repTx = (t, campo) => tx((contasteOn() && REP_FORMAL[t.id] ? REP_FORMAL[t.id] : t)[campo]);
-/* El color del cuadro sigue al tipo elegido. */
+/* El color, el título y el icono del cuadro siguen al tipo elegido: lo de
+   arriba dice lo mismo que la opción marcada (Eduardo, al verlo). */
 function repTono(id) {
   const c = document.querySelector("#modal .modal-card.reporte");
-  if (c && contasteOn()) c.dataset.rep = id; else if (c) delete c.dataset.rep;
+  if (!c) return;
+  if (!contasteOn() || !REP_FORMAL[id]) { delete c.dataset.rep; return; }
+  c.dataset.rep = id;
+  const tit = document.getElementById("modal-titulo"), ic = document.getElementById("modal-ic");
+  if (tit) tit.textContent = tx(REP_FORMAL[id].titulo);
+  if (ic) ic.innerHTML = icon(REP_FORMAL[id].icono, 26);
 }
 
 /* Cambiar de tipo sin redibujar la ventana: lo ya escrito se queda donde está.
@@ -2494,7 +2500,7 @@ async function reportarFallo() {
      venido a esto. Mandar un reporte es un favor, no la acción de la
      pantalla. */
   const p = askBase(cuerpo, true, tx("Enviar"), false, false, tx("Cancelar"),
-                    { icono: "bicho", titulo: formal ? tx("Reportar o sugerir") : tx("Cuéntame"), tono: "oro",
+                    { icono: "bicho", titulo: formal ? tx(REP_FORMAL.fallo.titulo) : tx("Cuéntame"), tono: "oro",
                       clase: "reporte", okClase: "btn-linea" });
   repTono("fallo");
 
@@ -2586,7 +2592,11 @@ function contasteOn() {
     const q = new URLSearchParams(location.search).get("contaste");
     if (q === "1" || q === "0" || q === "demo") sessionStorage.setItem("norata-prueba-contaste", q);
     const v = sessionStorage.getItem("norata-prueba-contaste");
-    return v === "1" || v === "demo";
+    /* Quien administra lo ve sin enlace: el parámetro vive en la pestaña, y
+       Eduardo abría la app instalada —otra pestaña— y se encontraba el cuadro
+       de siempre. `?contaste=0` se lo apaga también a él. */
+    if (v === "0") return false;
+    return v === "1" || v === "demo" || (typeof esAdmin !== "undefined" && esAdmin === true);
   } catch (e) { return false; }
 }
 /* `?contaste=demo`: la ventana y el aviso de verdad, con reportes de EJEMPLO.

@@ -318,6 +318,20 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.205.1 · 3 oct 2026
+
+**En el cuadro de reportar (en pruebas), el título y el icono siguen a la
+opción elegida.** Lo pidió Eduardo: «Reportar un fallo» con el bicho, «Enviar
+una sugerencia» con la bombilla, «Hacer una pregunta» con su signo —icono
+nuevo, `duda`— y «Dejar un comentario» con el corazón. El aviso de privacidad
+va centrado, como la frase de entrada.
+
+**Y quien administra lo ve sin enlace.** El parámetro vive en la pestaña, y
+Eduardo abría la app instalada —otra pestaña— y se encontraba el cuadro de
+siempre: mandó la captura del viejo pidiendo que se actualizara. Ahora
+`contasteOn()` vale también con sesión de administrador; `?contaste=0` se lo
+apaga. Para todos los demás sigue apagado.
+
 ### 0.7.205 · 3 oct 2026
 
 **El cuadro de reportar, en tono de soporte, con color por tipo y aviso de
