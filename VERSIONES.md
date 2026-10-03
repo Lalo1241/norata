@@ -318,6 +318,20 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.203 · 3 oct 2026
+
+**«Mis reportes» habla como un área de soporte, y se puede ver con ejemplos.**
+Eduardo leyó los textos de «Lo que me contaste» (0.7.190) y los devolvió:
+«demasiado informal, no deja de ser más como área de soporte». Se reescribieron
+sin la primera persona —«Mis reportes», «Respuesta de Norata», «En revisión»,
+«Atendido», «Cerrado sin cambios», «Tienes una respuesta a tu reporte»—. El
+cuadro de REPORTAR no se tocó.
+
+Y pidió verlo en la app, no en una lámina: `?contaste=demo` enseña la ventana y
+el aviso de verdad con cuatro reportes de ejemplo, sin tocar el servidor.
+
+**Sigue apagado para todos.** Falta su visto bueno.
+
 ### 0.7.202 · 3 oct 2026
 
 **Una tarjeta ya vista no vuelve a salir por culpa de la sincronía.** Eduardo

@@ -1694,16 +1694,17 @@ const TEXTOS_EN = {
   "¿Qué salió mal?": "What went wrong?",
   "La pantalla se quedó en blanco y no volvió.": "The screen went blank and never came back.",
   "Enviar": "Send",
-  "Ver lo que me contaste": "See what you've told me",
-  "Lo que me contaste": "What you've told me",
-  "Aquí va a salir lo que me cuentes con tu sesión iniciada, y lo que te conteste.":
-    "What you tell me while signed in will show up here, along with my replies.",
-  "Mi respuesta": "My reply",
+  "Ver mis reportes": "View my reports",
+  "Mis reportes": "My reports",
+  "Aquí aparecerán los reportes que envíes con tu sesión iniciada y la respuesta de cada uno.":
+    "Reports you send while signed in will appear here, along with the reply to each one.",
+  "Respuesta de Norata": "Reply from Norata",
   "Recibido": "Received",
-  "salió en la {0}": "shipped in {0}",
-  "No pude traer lo que me contaste. Inténtalo en un momento.": "I couldn't load what you've told me. Try again in a moment.",
-  "Te contesté algo que me contaste.": "I replied to something you told me.",
-  "Leer": "Read",
+  "En revisión": "Under review",
+  "Cerrado sin cambios": "Closed without changes",
+  "resuelto en la versión {0}": "resolved in version {0}",
+  "No se pudieron cargar tus reportes. Inténtalo de nuevo en un momento.": "Your reports couldn't be loaded. Try again in a moment.",
+  "Tienes una respuesta a tu reporte.": "You have a reply to your report.",
   "No mandé nada: falta contar qué salió mal.":
     "I didn't send anything: you still need to say what went wrong.",
   "Ya me llegó y lo voy a revisar. Cosas como ésta son las que hacen que Norata deje de fallar donde falla.":
