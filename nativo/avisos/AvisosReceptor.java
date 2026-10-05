@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -71,6 +72,7 @@ public class AvisosReceptor extends BroadcastReceiver {
         JSONObject fin = r.optJSONObject("alFinal");
         String titulo = fin != null ? fin.optString("titulo") : r.optString("titulo");
         String texto = fin != null ? fin.optString("texto") : "";
+        if (!Avisos.enPrimerPlano && siguienteDeLaCadena(c, r, clave, titulo, texto, fin)) return;
         /* El aviso fijo deja de contar: se queda dicho lo que acaba de pasar
            hasta que la página, al despertar, ponga la fase que sigue. */
         try {
@@ -92,6 +94,58 @@ public class AvisosReceptor extends BroadcastReceiver {
         if (Avisos.enPrimerPlano) return;
         if (Avisos.primeraVez(c, clave)) Avisos.avisar(c, titulo, texto, r.optString("icono"), "jornada",
                 fin == null ? null : fin.optJSONObject("vista"));
+    }
+
+    /* Una Travesía trae escrito lo que sigue (`cadena`, de `jCadenaLite` en
+       js/09d-jornada.js): al acabar una ronda se dice, y se pone sola su
+       descanso; al acabar el descanso, la ronda siguiente. Antes se quedaba
+       parada hasta abrir la app. Lo que pasó se apunta en la cola (`fase`)
+       para que la página lo repita con su hora. Con la app a la vista no se
+       toca: ahí la página lo hace ella, y dos manos sobre el mismo reloj lo
+       adelantarían dos veces. */
+    private boolean siguienteDeLaCadena(Context c, JSONObject r, String clave, String titulo, String texto, JSONObject fin) {
+        JSONArray cad = r.optJSONArray("cadena");
+        if (cad == null || cad.length() == 0) return false;
+        try {
+            JSONObject sig = cad.getJSONObject(0);
+            long t = System.currentTimeMillis(), dur = sig.optLong("dur", 0);
+            if (dur <= 0) return false;
+            String fid = "n" + Long.toString(t, 36), fase = sig.optString("fase", "foco");
+            JSONObject iconos = r.optJSONObject("iconos");
+            JSONObject ic = iconos == null ? null : iconos.optJSONObject(fase);
+            JSONObject nuevo = new JSONObject();
+            nuevo.put("titulo", sig.optString("titulo"));
+            nuevo.put("texto", sig.optString("texto"));
+            nuevo.put("icono", ic != null ? ic.optString("icono") : r.optString("icono"));
+            nuevo.put("pausable", sig.optBoolean("pausable", true));
+            nuevo.put("clave", fid + "|" + fase);
+            nuevo.put("fase", fase);
+            nuevo.put("lite", sig.optString("lite", r.optString("lite")));
+            nuevo.put("tramo", sig.optInt("tramo", 1));
+            nuevo.put("total", sig.optInt("total", 1));
+            nuevo.put("dur", dur);
+            nuevo.put("fin", t + dur);
+            if (sig.has("alFinal")) nuevo.put("alFinal", sig.getJSONObject("alFinal"));
+            if (sig.has("vistas")) nuevo.put("vistas", sig.getJSONObject("vistas"));
+            JSONArray resto = new JSONArray();
+            for (int k = 1; k < cad.length(); k++) resto.put(cad.get(k));
+            if (resto.length() > 0) nuevo.put("cadena", resto);
+            if (iconos != null) nuevo.put("iconos", iconos);
+            if (Avisos.primeraVez(c, clave)) Avisos.avisar(c, titulo, texto, r.optString("icono"), "jornada",
+                    fin == null ? null : fin.optJSONObject("vista"));
+            Avisos.ponerReloj(c, nuevo);
+            JSONObject ev = new JSONObject();
+            ev.put("accion", "fase");
+            ev.put("t", t);
+            ev.put("clave", clave);
+            ev.put("fid", fid);
+            ev.put("fase", fase);
+            ev.put("dur", dur);
+            Avisos.encolar(c, ev);
+            return true;
+        } catch (JSONException e) {
+            return false;
+        }
     }
 
     private void agenda(Context c, String id, boolean unaVez) {
@@ -165,6 +219,9 @@ public class AvisosReceptor extends BroadcastReceiver {
                     if (ini.has("alFinal")) nuevo.put("alFinal", ini.getJSONObject("alFinal"));
                     // Las dos caras del tramo que empieza (corriendo y en pausa), ya escritas por la página.
                     if (ini.has("vistas")) nuevo.put("vistas", ini.getJSONObject("vistas"));
+                    // Una Travesía trae lo que sigue (ver `siguienteDeLaCadena`).
+                    if (ini.has("cadena")) nuevo.put("cadena", ini.getJSONArray("cadena"));
+                    if (ini.has("iconos")) nuevo.put("iconos", ini.getJSONObject("iconos"));
                     Avisos.ponerReloj(c, nuevo);
                     Avisos.quitar(c, Avisos.ID_AGENDA);
                     ev.put("fid", fid);

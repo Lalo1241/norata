@@ -154,10 +154,14 @@ estaba antes de ESE instalador.
   **en un APK sin los avisos cada botón abre la app y lo hace ella**, como
   antes. Lo que queda dentro de la app: apuntar el sueño y cerrar un tramo
   («¿cómo te fue?»).
-- **Con la app cerrada, una Travesía no pasa sola a su descanso.** Al acabar
-  la ronda suena su aviso y el widget dice «Ronda 1 de 4 lista»; la ronda
-  siguiente la pone la página al abrirse. Es lo mismo que ya pasaba con el
-  aviso de la cortina.
+- **Con la app cerrada, una Travesía pasa sola de la ronda a su descanso y
+  del descanso a la ronda siguiente** (0.7.210.2). La página deja escrito lo
+  que sigue (`cadena`, de `jCadenaLite`) y el receptor de los avisos lo va
+  poniendo al sonar cada final (`siguienteDeLaCadena`); lo apunta en la cola
+  (`fase`) y la página lo repite al abrir, con su hora. Con la app a la vista
+  no lo hace: ahí la lleva la página. **Sin el permiso de alarmas exactas el
+  paso puede llegar tarde**: en el emulador, hasta medio minuto con la
+  pantalla encendida; con el teléfono dormido puede ser más.
 - **Los minutos se cuentan como en la app: seguidos, sin horas.** Dos horas
   son «120:00», no «2:00:00». El cronómetro del sistema no sabe escribirlo
   así, de modo que con una hora o más por delante se dice en minutos

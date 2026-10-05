@@ -143,6 +143,12 @@ suenan igual, pero el sistema puede retrasarlas con el teléfono dormido.
   pausar): lo escribe la página en `jIniciosDeFuera`. Cada vez que el reloj
   cambia se avisa a los widgets (`Avisos.avisarWidgets`), por nombre, para que
   un APK sin ellos compile igual.
+- **Una Travesía sigue sola con la app cerrada** (0.7.210.2). El reloj trae
+  escrito lo que viene después (`cadena`, más `iconos`, uno por clase de
+  fase): al sonar el final de una fase, `siguienteDeLaCadena` dice lo que
+  acabó, pone la siguiente con su alarma y lo apunta en la cola (`fase`). Con
+  la app a la vista no se toca, que ahí lo hace la página. La cadena la
+  escribe `jCadenaLite` (js/09d-jornada.js): una fase nueva se añade allí.
 - **No hay servicio en primer plano.** La cuenta atrás la dibuja el sistema
   (`setUsesChronometer`), y el final lo dice una alarma. Un servicio pediría
   otro permiso, una declaración en la Play Store y batería.

@@ -691,7 +691,15 @@
       "titulo": "El Pomodoro, desde tu pantalla de inicio",
       "resumen": "El widget del Pomodoro ya tiene sus dos pestañas, Rutina diaria e Hiperfoco, y funciona sin abrir Norata: inicias, pausas, sigues y paras desde ahí, y la cortina te avisa al terminar.",
       "puntos": [],
-      "retoques": [],
+      "retoques": [
+        {
+          "version": "0.7.210.2",
+          "texto": "Con Norata cerrada, una Travesía pasa sola de cada ronda a su descanso y a la ronda siguiente.",
+          "en": {
+            "texto": "With Norata closed, a Journey moves on its own from each round to its break and on to the next round."
+          }
+        }
+      ],
       "en": {
         "titulo": "The Pomodoro, from your home screen",
         "resumen": "The Pomodoro widget now has its two tabs, Daily routine and Hyperfocus, and works without opening Norata: you start, pause, resume and stop from there, and a notification tells you when it ends.",

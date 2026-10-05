@@ -2426,6 +2426,8 @@ function jEstadoAviso(run) {
     e.texto = ronda;
     e.vistas = { corre: jVistaCorre(run, false), pausa: jVistaCorre(run, true) };
     e.alFinal.vista = jVistaFin(run);
+    const cad = jCadenaLite(run);
+    if (cad) { e.cadena = cad; e.iconos = jIconosCadena(); }
     const dur = run.dur || 0;
     if (run.seg) {
       if (dur) e.fin = run.seg + dur - (run.acum || 0);
@@ -2508,6 +2510,36 @@ function jEntradasAgenda() {
    cada uno con lo que el aviso tiene que decir mientras corre y al acabar.
    Es lo mismo que ya viaja en una alarma de la agenda (`iniciar`), escrito
    antes de que haga falta: con la app cerrada no hay quien lo escriba. */
+/* Lo que le sigue a la fase que corre en una Travesía, ya escrito: descanso,
+   ronda, descanso… hasta la última ronda. Con la app cerrada no hay quien
+   ponga la fase siguiente, y la Travesía se quedaba parada en «Ronda 1 lista»
+   hasta abrir la app (Eduardo, 0.7.211). Con esto el receptor de los avisos
+   la va poniendo solo (`AvisosReceptor.finDeFase`) y se lo apunta a la página
+   (`fase`, en `jAplicarAvisos`). Los iconos van aparte y una sola vez
+   (`jIconosCadena`): son dos, y repetidos en cada eslabón pesaban de más. */
+function jCadenaLite(run) {
+  if (!run || !run.lite || (run.modo || "travesia") !== "travesia" || (run.rondas || 1) < 2) return null;
+  if (run.fase !== "foco" && run.fase !== "descanso") return null;
+  const h = jHfCfg().hf.travesia, rondas = run.rondas, lista = [];
+  let fase = run.fase, tramo = run.tramo || 1;
+  for (let i = 0; i < 40; i++) {
+    if (fase === "foco") { if (tramo >= rondas) break; fase = "descanso"; }
+    else { fase = "foco"; tramo++; }
+    const lr = { lite: true, modo: "travesia", fase, tramo, dur: (fase === "foco" ? (h.foco || 25) : (h.desc || 5)) * J_MS,
+      rondas, acum: 0, pausas: 0, ref: null };
+    const [ft, fx] = jMensajeFin(lr);
+    lista.push({
+      fase, tramo, total: rondas, dur: lr.dur, lite: "travesia", pausable: fase === "foco",
+      titulo: fase === "foco" ? jHfNombre("travesia") : tx("Descanso"), texto: T`Ronda ${tramo} de ${rondas}`,
+      vistas: { corre: jVistaCorre(lr, false), pausa: jVistaCorre(lr, true) },
+      alFinal: { titulo: tx("Pomodoro") + " · " + ft, texto: fx, vista: jVistaFin(lr) }
+    });
+  }
+  return lista.length ? lista : null;
+}
+const jIconosCadena = () => ({ foco: { icono: jIconoAviso(null, null) },
+  descanso: { icono: { dibujo: J_ARENA, color: "var(--jor-brasa)", forma: "disco" } } });
+
 function jIniciosDeFuera() {
   if (!jornadaEncendida()) return null;
   const j = jDatos(), c = jHfCfg(), dur = c.preset === "libre" ? 0 : c.foco * J_MS;
@@ -2534,6 +2566,8 @@ function jIniciosDeFuera() {
       vistas: { corre: jVistaCorre(lr, false), pausa: jVistaCorre(lr, true) },
       alFinal: { titulo: tx("Pomodoro") + " · " + ft, texto: fx, vista: jVistaFin(lr) }
     };
+    const cad = jCadenaLite(lr);
+    if (cad) { hf[k].cadena = cad; hf[k].iconos = jIconosCadena(); }
   });
   return { rutina, hf };
 }
@@ -2583,6 +2617,20 @@ function jAplicarAvisos(lista) {
     } else if (ev.accion === "seguir" && deEste && run.fase === "foco" && !run.seg) {
       run.seg = t;
       cambio = true;
+    } else if (ev.accion === "fase" && deEste && run.lite && (run.modo || "travesia") === "travesia" && run.seg) {
+      /* La Travesía pasó sola de fase con la app cerrada: se repite aquí el
+         mismo paso de `jFinFase`, en la hora en que pasó y con el id que ya
+         lleva su alarma. Sin sonar: eso ya lo dijo el aviso del sistema. */
+      const h = jHfCfg().hf.travesia;
+      if (run.fase === "foco" && run.tramo < (run.rondas || 1)) {
+        jApuntarLite(Math.round(run.dur / J_MS), run.pausas, "travesia");
+        Object.assign(run, { fase: "descanso", dur: Number(ev.dur) || (h.desc || 5) * J_MS, acum: 0, seg: t, fid: ev.fid || uid() });
+        cambio = true;
+      } else if (run.fase === "descanso") {
+        Object.assign(run, { fase: "foco", tramo: run.tramo + 1, dur: Number(ev.dur) || (h.foco || 25) * J_MS, acum: 0, seg: t, pausas: 0, fid: ev.fid || uid() });
+        cambio = true;
+      }
+      if (ev.clave) jSonados.add(ev.clave);
     } else if (ev.accion === "iniciar" && ev.lite) {
       // El Hiperfoco que se encendió desde el widget. Con algo en marcha, no.
       if (run) return;

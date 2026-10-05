@@ -318,6 +318,33 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.210.2 · 5 oct 2026
+
+**Con la app cerrada, una Travesía ya pasa sola de la ronda al descanso y a la
+ronda siguiente.** Era lo que la 0.7.210 dejó apuntado como «lo que no hace»:
+al acabar la primera ronda sonaba su aviso y ahí se quedaba hasta abrir la app.
+
+- **La página deja escrito lo que sigue** (`jCadenaLite`): cada fase que
+  falta, con sus textos, sus dos caras y lo que se dice al acabar. Va en el
+  reloj que se manda a los avisos y en el arranque del widget
+  (`jIniciosDeFuera`). Los iconos van una vez, no en cada eslabón.
+- **El receptor la va poniendo** (`siguienteDeLaCadena`,
+  `nativo/avisos/AvisosReceptor.java`): dice lo que acabó, pone la fase
+  siguiente con su alarma y lo apunta en la cola como `fase`. Con la app a la
+  vista no lo hace, para que no haya dos manos sobre el mismo reloj.
+- **La página lo repite al abrir** (`jAplicarAvisos`): el mismo paso de
+  `jFinFase`, en la hora en que pasó y con el id de fase de la alarma, sin
+  sonar. La ronda hecha queda apuntada.
+- **La imagen de muestra del Pomodoro** en el selector de widgets ya trae las
+  dos pestañas.
+
+**Cómo se probó**, en el emulador: una Travesía de dos rondas de un minuto,
+encendida y con la app matada. Sola pasó a descanso, a la ronda 2 y a «Listo»,
+con su aviso en cada paso; al abrir la app, las dos rondas estaban apuntadas y
+el reloj en «listo». **Sin probar:** en el teléfono de Eduardo, y con el
+teléfono dormido mucho rato. **Ojo:** sin el permiso de alarmas exactas el paso
+llegó hasta medio minuto tarde.
+
 ### 0.7.210.1 · 5 oct 2026
 
 **La ficha del widget del Pomodoro, en su sitio.** Al escribir la novedad de la
@@ -369,7 +396,7 @@ tramo de la Rutina desde el widget (va por el mismo camino que el de una alarma
 de la agenda), los tamaños 4×2 y 4×4 con las pestañas, y todo ello en el
 teléfono de Eduardo.
 
-**Lo que no hace:** con la app cerrada, una Travesía no pasa sola a su
+**Lo que no hacía (lo cierra la 0.7.210.2):** con la app cerrada, una Travesía no pasa sola a su
 descanso (igual que con el aviso de la cortina); y apuntar el sueño y cerrar un
 tramo siguen pidiendo abrir la app.
 
