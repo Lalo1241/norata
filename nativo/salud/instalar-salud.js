@@ -56,8 +56,24 @@ function buscarRaiz() {
 
 // Cada archivo conserva sus saltos de línea: el proyecto está en Windows.
 const salto = (txt) => (txt.includes("\r\n") ? "\r\n" : "\n");
+// La copia de un archivo de `res/` NO se queda a su lado: Gradle junta todo lo
+// que hay en `res/values` y se niega a armar si algo no acaba en `.xml`
+// («The file name must end with .xml»). La primera versión la dejaba ahí y el
+// APK no armaba hasta sacarla a mano. Va dos carpetas arriba, junto al
+// manifiesto. Y una que quedó dentro de una corrida de antes se muda sola.
+function copiaDe(ruta) {
+  const dir = path.dirname(ruta);
+  if (path.basename(path.dirname(dir)) !== "res") return ruta + COPIA;
+  const fuera = path.join(dir, "..", "..", path.basename(ruta) + COPIA);
+  if (fs.existsSync(ruta + COPIA)) {
+    if (fs.existsSync(fuera)) fs.unlinkSync(ruta + COPIA);
+    else fs.renameSync(ruta + COPIA, fuera);
+  }
+  return fuera;
+}
 function respaldar(ruta) {
-  if (!fs.existsSync(ruta + COPIA)) fs.copyFileSync(ruta, ruta + COPIA);
+  const copia = copiaDe(ruta);
+  if (!fs.existsSync(copia)) fs.copyFileSync(ruta, copia);
 }
 function correr(cmd, donde) {
   console.log("  → " + cmd);
@@ -71,9 +87,10 @@ function deshacer(raiz) {
     path.join(raiz, "android", "variables.gradle"),
   ];
   for (const a of archivos) {
-    if (fs.existsSync(a + COPIA)) {
-      fs.copyFileSync(a + COPIA, a);
-      fs.unlinkSync(a + COPIA);
+    const copia = copiaDe(a);
+    if (fs.existsSync(copia)) {
+      fs.copyFileSync(copia, a);
+      fs.unlinkSync(copia);
       ok("Devuelto: " + path.relative(raiz, a));
     }
   }
@@ -126,6 +143,7 @@ function main() {
   // 4. El aviso de privacidad
   const sx = path.join(raiz, "android", "app", "src", "main", "res", "values", "strings.xml");
   if (fs.existsSync(sx)) {
+    copiaDe(sx); // saca de res/ la copia que dejó una corrida de antes, aunque ya no haya nada que apuntar
     const t = fs.readFileSync(sx, "utf8");
     if (t.includes("health_connect_privacy_policy_url")) nada("La dirección de privacidad ya estaba");
     else {
