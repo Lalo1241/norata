@@ -318,6 +318,16 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.210.1 · 5 oct 2026
+
+**La ficha del widget del Pomodoro, en su sitio.** Al escribir la novedad de la
+0.7.210 cayó dentro de `camino` —la lista de versiones antiguas que recorre el
+anuncio de la beta— en vez de en `entradas`: el guion buscaba «la primera ficha
+de la 0.7» y la primera del archivo está ahí. No se veía en ningún sitio (iba en
+borrador), pero el anuncio de un hito la habría contado como una versión más. Se
+cazó al imprimir la lista después de subir. Ya está en `entradas`, y `camino`
+tiene las mismas de antes.
+
 ### 0.7.210 · 5 oct 2026
 
 **El widget del Pomodoro tiene sus dos modos y funciona sin abrir la app.** Lo
