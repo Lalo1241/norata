@@ -162,11 +162,19 @@ estaba antes de ESE instalador.
   no lo hace: ahí la lleva la página. **Sin el permiso de alarmas exactas el
   paso puede llegar tarde**: en el emulador, hasta medio minuto con la
   pantalla encendida; con el teléfono dormido puede ser más.
-- **Los minutos se cuentan como en la app: seguidos, sin horas.** Dos horas
-  son «120:00», no «2:00:00». El cronómetro del sistema no sabe escribirlo
-  así, de modo que con una hora o más por delante se dice en minutos
-  («118 min», al minuto) y por debajo de la hora corre por segundos. El sueño
-  va en horas y minutos («07:05»), también como en la app.
+- **El tiempo se escribe igual que en la app y en el aviso (0.7.214):** con
+  una hora o más, en minutos («118 min», al minuto); por debajo corre por
+  segundos («26:23»). Es `Widgets.cuenta`, gemela de `jCuenta`
+  (`js/09d-jornada.js`, donde está contada la regla) y de `Avisos.cuenta`: al
+  tocar una, las tres. El sueño va en horas y minutos («07:05»), como en la app.
+- **El reloj de arena se mueve como el de la app (0.7.214).** Da la vuelta al
+  empezar y al pasar del foco al descanso: vive en un `ViewFlipper` de dos
+  caras iguales, y la que entra llega girando (`anim/widget_voltear`). El
+  chorro cae mientras corre: es una barra de progreso sin fin cuyo dibujo son
+  cuatro cuadros (`drawable/widget_chorro`). Son las dos únicas animaciones que
+  Android deja correr solas en un widget. **No poner
+  `animateFirstView="false"`**: se come el primer giro de cada vez que el
+  lanzador vuelve a armar el widget.
 - **El Pomodoro elige su molde por tamaño** (`Pinta.pomodoro`): a partir de
   230 dp de ancho, la rueda chica; con 300 dp de alto además, la entera. Las
   medidas son las que el lanzador le dice a Android, y cada marca las cuenta a

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- La vuelta del reloj de arena del widget (0.7.214): la misma de la app
+     (`@keyframes jor-voltear`, css/jornada.css): media vuelta en 0,9 s,
+     encogiéndose a mitad de camino. La cara que entra ya trae la arena arriba,
+     así que empieza de cabeza —la arena abajo, como estaba— y acaba derecha. -->
+<set xmlns:android="http://schemas.android.com/apk/res/android" android:shareInterpolator="false">
+    <rotate android:fromDegrees="-180" android:toDegrees="0" android:pivotX="50%" android:pivotY="50%"
+        android:duration="900" android:interpolator="@android:interpolator/decelerate_cubic" />
+    <scale android:fromXScale="1" android:toXScale="0.86" android:fromYScale="1" android:toYScale="0.86"
+        android:pivotX="50%" android:pivotY="50%" android:duration="450" android:repeatCount="1" android:repeatMode="reverse"
+        android:interpolator="@android:interpolator/linear" />
+</set>

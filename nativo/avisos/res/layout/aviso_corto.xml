@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- El aviso PLEGADO (0.7.163): como llega. Icono, dos renglones y UNA cosa a la
-     derecha (la cifra o un botón). Todo en dp y no en sp: el alto lo pone Android
+<!-- El aviso PLEGADO (0.7.163): como llega. Dos renglones y UNA cosa a la
+     derecha (la cifra o un botón). Sin icono desde la 0.7.214: ver AvisosVista. Todo en dp y no en sp: el alto lo pone Android
      (64 dp, o menos en algunos teléfonos) y con letra del sistema agrandada esto
      se saldría por abajo. Lo de dentro va centrado, así cabe aunque le den 48.
      Los colores los pone el código: ver AvisosVista.java. -->
@@ -17,13 +17,10 @@
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
         android:orientation="horizontal" android:gravity="center_vertical"
-        android:paddingStart="11dp" android:paddingEnd="10dp">
-
-        <ImageView android:id="@+id/av_icono" android:layout_width="40dp" android:layout_height="40dp"
-            android:scaleType="fitCenter" android:importantForAccessibility="no" />
+        android:paddingStart="14dp" android:paddingEnd="10dp">
 
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
-            android:layout_marginStart="12dp" android:orientation="vertical">
+            android:orientation="vertical">
 
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:orientation="horizontal" android:baselineAligned="true">

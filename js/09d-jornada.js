@@ -312,8 +312,30 @@ function jFmtDur(d) {
   if (!h) return T`${m} min`;
   return m ? T`${h} h ${m} min` : T`${h} h`;
 }
-function jMmss(ms) {
-  const s = Math.max(0, Math.ceil(ms / 1000));
+/* ---------- La cuenta: UNA forma de escribir el tiempo (0.7.214) ----------
+   Eduardo vio la misma Inmersión de 90 minutos escrita de tres maneras:
+   «86:23» aquí, «1:26:23» en el aviso de Android y «87 min» en el widget. Cada
+   sitio tenía su regla. Ahora hay una, y la eligió él:
+
+     - con UNA HORA O MÁS se dice en minutos, sin segundos: «87 min»;
+     - por debajo de la hora corre al segundo, con dos cifras: «26:23».
+
+   No es «86:23» en los tres porque fuera de la app la cuenta la lleva el
+   cronómetro de Android —así sigue sola con la app cerrada, sin un proceso
+   nuestro despierto—, y ese cronómetro pasa de «59:59» a «1:00:00» sin que
+   se le pueda decir otra cosa. Y no es «1:26:23» porque la regla de Eduardo es
+   «minutos seguidos, sin horas».
+
+   Lo que FALTA se redondea hacia arriba (mientras quede un segundo no dice
+   cero) y lo que LLEVAS hacia abajo (`sube`: el tramo libre). La misma cuenta,
+   con los mismos cortes, está en `Avisos.cuenta` (nativo/avisos/Avisos.java) y
+   en `Widgets.cuenta` (nativo/widgets/Widgets.java): al tocar una, las tres.
+   El sueño y las comidas van aparte, en horas y minutos (`jHm`). */
+const J_HORA = 3600000;
+function jCuenta(ms, sube) {
+  ms = Math.max(0, Number(ms) || 0);
+  if (ms >= J_HORA) return T`${sube ? Math.floor(ms / 60000) : Math.ceil(ms / 60000)} min`;
+  const s = sube ? Math.floor(ms / 1000) : Math.ceil(ms / 1000);
   return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
 }
 /* Horas y minutos para lo que dura más que un tramo: la noche, la comida.
@@ -1779,7 +1801,7 @@ function jEstadoCentro() {
          al tocar «Enfocar» el reloj DÉ LA VUELTA solo —`jPintarCentro` voltea
          cuando la arena sube de golpe—, que es el gesto de ponerlo en marcha.
          Lo pidió Eduardo: «lo correcto es que esté con la arena abajo». */
-      return { arriba: 0, t: jMmss((k === "respiro" ? h.desc : h.foco) * J_MS), f: jHfNombre(k), fc: k === "respiro" ? "brasa" : "",
+      return { arriba: 0, t: jCuenta((k === "respiro" ? h.desc : h.foco) * J_MS), f: jHfNombre(k), fc: k === "respiro" ? "brasa" : "",
         sub: jHfResumen(k), cae: false, prog: 0 };
     }
     /* Mirando otro día, el centro habla de ESE día: el tiempo de foco que
@@ -1818,7 +1840,7 @@ function jEstadoCentro() {
         sub: d.descanso === "dormir" ? T`Te levantas a las ${jH12(d.fin)}` : T`Hasta las ${jH12(d.fin)}`, cae: true, prog: 0 };
     }
     const b = jBloqueEn(m), r = jRef(jObjetivo());
-    return { arriba: 1, t: cfg.preset === "libre" ? "00:00" : jMmss(cfg.foco * J_MS), f: r ? r.nombre : tx("Sin vincular"), fc: "",
+    return { arriba: 1, t: cfg.preset === "libre" ? "00:00" : jCuenta(cfg.foco * J_MS), f: r ? r.nombre : tx("Sin vincular"), fc: "",
       sub: b ? jRango(b) : tx("Nada a esta hora"), cae: false, prog: 0 };
   }
   const el = jTrans(run), r = jRef(run.ref);
@@ -1831,23 +1853,23 @@ function jEstadoCentro() {
       : nom;
     if (run.libre) {
       const v = (el % (25 * J_MS)) / (25 * J_MS);
-      return { arriba: 1 - v, t: jMmss(el), f: enPausa ? tx("En pausa") : (run.lite ? hfNom : tx("Enfoque libre")), fc: enPausa ? "pausa" : "foco", sub, cae: !enPausa, prog: v };
+      return { arriba: 1 - v, t: jCuenta(el, true), f: enPausa ? tx("En pausa") : (run.lite ? hfNom : tx("Enfoque libre")), fc: enPausa ? "pausa" : "foco", sub, cae: !enPausa, prog: v };
     }
     const p = Math.min(1, el / run.dur);
-    return { arriba: 1 - p, t: jMmss(run.dur - el), f: enPausa ? tx("En pausa") : (run.lite ? hfNom : T`Foco · ${run.tramo} de ${cfg.ciclos}`), fc: enPausa ? "pausa" : "foco", sub, cae: !enPausa, prog: p, resta: run.dur - el };
+    return { arriba: 1 - p, t: jCuenta(run.dur - el), f: enPausa ? tx("En pausa") : (run.lite ? hfNom : T`Foco · ${run.tramo} de ${cfg.ciclos}`), fc: enPausa ? "pausa" : "foco", sub, cae: !enPausa, prog: p, resta: run.dur - el };
   }
   if (run.fase === "descanso") {
     const p = Math.min(1, el / run.dur);
     const respiro = run.lite && run.modo === "respiro";
-    return { arriba: 1 - p, t: jMmss(run.dur - el), f: respiro ? hfNom : tx("Descanso"), fc: "brasa",
+    return { arriba: 1 - p, t: jCuenta(run.dur - el), f: respiro ? hfNom : tx("Descanso"), fc: "brasa",
       sub: respiro ? tx("Nada que hacer: solo respirar") : run.lite ? T`Luego, ronda ${run.tramo + 1} de ${run.rondas || 1}` : T`Luego, tramo ${run.tramo + 1}`, cae: true, prog: p, resta: run.dur - el };
   }
   if (run.fase === "listo" && run.lite) {
-    return { arriba: 0, t: jMmss((run.min || 0) * J_MS), f: tx("Listo"), fc: "foco",
+    return { arriba: 0, t: jCuenta((run.min || 0) * J_MS), f: tx("Listo"), fc: "foco",
       sub: (run.rondas || 1) > 1 ? T`Terminaste tus ${run.rondas} rondas.` : T`${run.min || 0} min de hiperfoco`, cae: false, prog: 1 };
   }
-  if (run.fase === "listo") return { arriba: 1, t: jMmss(cfg.foco * J_MS), f: T`Tramo ${run.tramo} de ${cfg.ciclos}`, fc: "", sub: nom, cae: false, prog: 0 };
-  return { arriba: 0, t: jMmss(run.libre ? run.acum : 0), f: tx("Tramo listo"), fc: "foco", sub: nom, cae: false, prog: 1 };
+  if (run.fase === "listo") return { arriba: 1, t: jCuenta(cfg.foco * J_MS), f: T`Tramo ${run.tramo} de ${cfg.ciclos}`, fc: "", sub: nom, cae: false, prog: 0 };
+  return { arriba: 0, t: jCuenta(run.libre ? run.acum : 0, true), f: tx("Tramo listo"), fc: "foco", sub: nom, cae: false, prog: 1 };
 }
 function jPintarCentro() {
   jAsegurarReloj();
@@ -2290,13 +2312,22 @@ function jIconoAviso(ref, b, disco) {
      - Los botones dicen su NIVEL y no su color: `primario` (lo que viniste a
        hacer, uno como mucho), `pausa` (amarillo), `suave` (Seguir), `linea`
        (mirar) y `neutro` (posponer). Ninguno es coral.
-     - La cifra lleva su rótulo ENCIMA («Quedan», «Llevas»…). Si corre, la
-       lleva el cronómetro del sistema; con horas baja de tamaño sola.
+     - La cifra lleva su rótulo ENCIMA («Quedan», «Llevas»…) y se escribe
+       como en toda la app (`jCuenta`): «87 min» con una hora o más, «26:23»
+       por debajo. Si corre por debajo de la hora la lleva el cronómetro del
+       sistema; por encima, el APK la repinta al minuto.
+     - Sin icono (0.7.214): el de la actividad se comía un tercio del ancho y
+       partía «Inmersión» en dos renglones. Lo quitó Eduardo, y con él el de
+       la derecha. `icono` se sigue mandando para los APK de antes.
+     - No se dice a qué hora acaba (0.7.214): con «Quedan» al lado era el mismo
+       dato dos veces, y era el renglón que salía cortado.
+     - El rótulo de arriba no repite el título: en un Hiperfoco sin rondas los
+       dos decían «Inmersión», y arriba va «Hiperfoco».
      - Los puntos de los tramos van SIEMPRE con su texto al lado: solos no se
        entendían.
-     - Las horas que dependen de cuándo corre la cuenta van como hueco —{fin},
-       {inicio}, {resto}— y las llena el APK al pintar: si se pausa con la app
-       cerrada, «Acaba a las…» tiene que moverse con la pausa. */
+     - Lo que depende de cuándo corre la cuenta va como hueco —{inicio},
+       {resto}— y lo llena el APK al pintar: si se pausa con la app cerrada,
+       lo que queda es lo que quedaba en ese momento. */
 const jBoton = (nivel, texto, icono, accion) => ({ nivel, texto, icono: icono || "", accion, nombre: texto || tx(accion === "pausa" ? "Pausa" : "Seguir") });
 const jParte = (texto, rol) => [texto, rol || "suave"];
 function jRitmoTexto(c) { return T`${c.foco} min de foco · ${c.desc} de descanso`; }
@@ -2320,12 +2351,14 @@ function jVistaCorre(run, pausado) {
       corto: { crono: !pausado, r1: pausado ? "{resto}" : null, r1Quieto: pausado, r1b: tx("de descanso"),
         r2: [respiro ? jParte(nombre, "marca") : jParte(T`Sigue el tramo ${n + 1} de ${total}`)] },
       largo: { ceja: [respiro ? nombre : tx("Descanso"), "marca"], tit: tx("Respira un poco"),
-        sub: T`Vuelves a las ${"{fin}"}`, rot: tx("Quedan"), crono: !pausado, num: pausado ? "{resto}" : null,
+        rot: tx("Quedan"), crono: !pausado, num: pausado ? "{resto}" : null,
         puntos: respiro || !conPuntos ? null : [n, -1, total],
         tramo: respiro || !conPuntos ? null : T`${n} de ${total} hechos · sigue el ${n + 1}` }
     };
   }
-  const ceja = run.lite ? jHfNombre(modo) : sube ? tx("Tramo libre") : tx("En foco");
+  const tit = run.lite ? (conPuntos ? t(n) : nombre) : nombre;
+  const cejaLite = jHfNombre(modo) === tit ? tx("Hiperfoco") : jHfNombre(modo);
+  const ceja = run.lite ? cejaLite : sube ? tx("Tramo libre") : tx("En foco");
   const corto = {
     crono: !pausado, r1: pausado ? "{resto}" : null, r1Quieto: pausado, r1b: sube ? tx("llevas") : tx("quedan"),
     r2: pausado ? [jParte(tx("En pausa"), "curso"), jParte(" · " + nombre)]
@@ -2335,8 +2368,8 @@ function jVistaCorre(run, pausado) {
   };
   const largo = {
     ceja: pausado ? null : [ceja, "marca"],
-    tit: run.lite ? (conPuntos ? t(n) : nombre) : nombre,
-    sub: pausado ? tx("Sigue cuando quieras") : sube ? T`Desde las ${"{inicio}"}` : T`Acaba a las ${"{fin}"}`,
+    tit,
+    sub: pausado ? tx("Sigue cuando quieras") : sube ? T`Desde las ${"{inicio}"}` : null,
     rot: sube ? tx("Llevas") : tx("Quedan"),
     crono: !pausado, num: pausado ? "{resto}" : null, numQuieto: pausado,
     chip: pausado ? { tipo: "curso", texto: tx("En pausa"), icono: "pausa" } : null,
@@ -2359,7 +2392,7 @@ function jVistaListo(run) {
   return {
     corto: { r1: T`Tramo ${n} de ${total}`, r2: [jParte(nombre + " · "), jParte(tx("listo"), "marca")], boton: iniciar },
     largo: { ceja: [tx("Listo para empezar"), "marca"], tit: nombre, sub: tx("Cuando quieras"),
-      rot: tx("Dura"), num: c.preset === "libre" ? tx("Libre") : `${c.foco}:00`, numQuieto: true,
+      rot: tx("Dura"), num: c.preset === "libre" ? tx("Libre") : jCuenta(c.foco * J_MS), numQuieto: true,
       puntos: total <= 4 ? [n - 1, n - 1, total] : null, tramo: T`Tramo ${n} de ${total}`, botones: [iniciar] }
   };
 }

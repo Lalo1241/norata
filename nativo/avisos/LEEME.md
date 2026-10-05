@@ -33,6 +33,15 @@ dos renglones y la cifra o un botón) y **abierto** (al deslizarlo: el rótulo, 
 nombre, la cifra con su rótulo encima, los tramos y los botones). Un solo
 marco y la letra Outfit en todos los mundos; del mundo vienen los tonos.
 
+**Sin iconos, y con el tiempo escrito como en la app (0.7.214).** Los moldes ya
+no llevan el icono de la actividad ni el que Android repetía a la derecha:
+entre los dos partían el nombre en dos renglones. Y la cuenta sigue la regla de
+toda la app (`jCuenta`, `js/09d-jornada.js`; aquí, `Avisos.cuenta`): con una
+hora o más, «87 min», que se repinta al minuto sin despertar el teléfono
+(`programarRepinta`); por debajo, «26:23» con el cronómetro del sistema. Ya no
+se dice a qué hora acaba: con «Quedan» al lado era el mismo dato dos veces.
+**Para verlo hay que volver a correr `instalar-avisos.js` y reinstalar el APK.**
+
 **Por qué hizo falta.** El Pomodoro avisaba con la API `Notification` del
 navegador, y el WebView de Android no la trae: en el APK no salía ningún aviso
 con la app de fondo. Y aunque la trajera, una página dormida no puede sonar a

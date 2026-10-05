@@ -51,6 +51,8 @@
         iniciar: t("Iniciar"),
         posponer: t("En 5 min"),
         enPausa: t("En pausa"),
+        /* La cuenta de una hora o más: «87 min» (`jCuenta`, js/09d-jornada.js). */
+        min: t("{n} min"),
       },
       color: colorDeMarca(),
       colores: coloresDeAviso(),
@@ -189,9 +191,12 @@
      el aviso guarda para después (`siguiente`, `iniciar`). */
   async function conIconos(o) {
     if (!o || typeof o !== "object") return o;
-    const r = Array.isArray(o) ? [] : {};
+    const lista = Array.isArray(o), r = lista ? [] : {};
     for (const k of Object.keys(o)) {
       const v = o[k];
+      /* Un campo vacío no viaja (0.7.214): Android lee un `null` de JSON como
+         la palabra «null», y salió escrita en el pie del aviso de Eduardo. */
+      if (v == null && !lista) continue;
       if (k === "icono" && v && typeof v === "object") r[k] = await iconoPNG(v);
       else r[k] = v && typeof v === "object" ? await conIconos(v) : v;
     }

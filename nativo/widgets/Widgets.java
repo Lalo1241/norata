@@ -156,6 +156,22 @@ final class Widgets {
     /* ---------- Los textos y los colores ----------
        Los de aquí son solo el suelo, para un widget puesto antes de abrir la
        app por primera vez después de instalar. */
+    /* ---------- La cuenta: UNA forma de escribir el tiempo (0.7.214) ----------
+       La regla es de la app y está contada en `jCuenta` (js/09d-jornada.js):
+       con una hora o más, en minutos y sin segundos («87 min»); por debajo,
+       «26:23» con dos cifras. Lo que falta se redondea hacia arriba y lo que
+       se lleva (`sube`) hacia abajo. Es la misma de `Avisos.cuenta`
+       (nativo/avisos/): al tocar una, las tres. Va repetida y no compartida
+       porque un APK puede llevar los widgets sin los avisos. */
+    static final long HORA = 3600000L;
+
+    static String cuenta(JSONObject f, long ms, boolean sube) {
+        ms = Math.max(0, ms);
+        if (ms >= HORA) return tx(f, "min_n", "{n} min").replace("{n}", String.valueOf(sube ? ms / 60000L : (ms + 59999L) / 60000L));
+        long s = sube ? ms / 1000L : (ms + 999L) / 1000L;
+        return String.format(Locale.US, "%02d:%02d", s / 60, s % 60);
+    }
+
     static String tx(JSONObject f, String llave, String suelo) {
         JSONObject t = f.optJSONObject("textos");
         String v = t == null ? "" : t.optString(llave, "");
@@ -323,6 +339,8 @@ final class Widgets {
         long fin = r != null ? (r.optBoolean("pausado") ? 0 : r.optLong("fin", 0)) : p != null && p.optBoolean("corre") ? p.optLong("fin") : 0;
         boolean sube = r != null && !r.optBoolean("pausado") && r.optLong("inicio", 0) > 0;
         if (fin > ya) en = Math.min(Math.min(en, 20000L), fin - ya + 800);
+        // Con una hora o más la cuenta va en minutos: se repinta justo al cambiar de minuto.
+        if (fin - ya >= HORA) en = Math.min(en, (fin - ya) % 60000L + 300);
         else if (sube) en = Math.min(en, 20000L);
         Intent i = new Intent(c, HoyWidget.class).setAction(TIC);
         PendingIntent pi = PendingIntent.getBroadcast(c, 7900, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);

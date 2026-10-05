@@ -34,9 +34,9 @@ public class AvisosReceptor extends BroadcastReceiver {
                 finDeFase(c, i.getStringExtra("clave"));
                 break;
             case Avisos.REPINTA: {
-                // Un tramo libre que acaba de cruzar la hora: la cifra baja a 28.
+                // La cuenta en minutos cambió de minuto, o cruzó la hora.
                 JSONObject r = Avisos.reloj(c);
-                if (r != null) Avisos.pintarReloj(c, r);
+                if (r != null) { Avisos.pintarReloj(c, r); Avisos.programarRepinta(c, r); Avisos.avisarWidgets(c); }
                 break;
             }
             case Avisos.AGENDA:

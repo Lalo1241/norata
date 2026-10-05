@@ -318,6 +318,47 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.214 · 5 oct 2026
+
+**El tiempo del Pomodoro se escribe de UNA forma en la app, en el aviso y en
+el widget.** Eduardo mandó tres capturas de la misma Inmersión de 90 minutos:
+«86:23» en la app, «1:26:23» en el aviso y «87 min» en el widget. Cada sitio
+tenía su regla. Eligió la del widget para los tres: **con una hora o más, en
+minutos y sin segundos («87 min»); por debajo, al segundo («26:23»)**. No es
+«86:23» en todos porque fuera de la app la cuenta la lleva el cronómetro de
+Android, que no sabe escribir más de 59 minutos sin pasar a horas; hacerlo a
+mano pedía un servicio nuestro repintando cada segundo (permiso nuevo, batería,
+y MagicOS lo cierra y la cuenta se congela).
+
+- **La regla vive en tres funciones gemelas**: `jCuenta` (`js/09d-jornada.js`,
+  donde está contada), `Avisos.cuenta` y `Widgets.cuenta`. Lo que falta redondea
+  hacia arriba; lo que llevas, hacia abajo. `jMmss` ya no existe.
+- **El aviso, por encima de la hora, se repinta al minuto**
+  (`Avisos.programarRepinta`) con una alarma que no despierta el teléfono, y al
+  cruzar la hora entra el cronómetro. Antes el cronómetro corría siempre.
+- **Los avisos ya no llevan icono**: el de la actividad a la izquierda y el que
+  Android repetía a la derecha dejaban el texto en un tercio del ancho. Con eso
+  y con los dos rótulos en su propio renglón, «Inmersión» ya no se parte.
+- **Fuera «Acaba a las…» y «Vuelves a las…»** del aviso: con «Quedan» al lado
+  era el mismo dato dos veces. En la app sigue («Acabas a las…»).
+- **El «null» del pie** era un campo vacío: Android lee un `null` de JSON como
+  la palabra. La página ya no manda campos vacíos (`conIconos`) y el APK los
+  lee con `AvisosVista.cad`.
+- **El rótulo de arriba no repite el título**: un Hiperfoco sin rondas decía
+  «Inmersión» dos veces; arriba va «Hiperfoco».
+- **El reloj de arena del widget se mueve**: da la vuelta al empezar (un
+  `ViewFlipper` de dos caras iguales, `anim/widget_voltear`) y el chorro cae
+  mientras corre (una barra de progreso sin fin con cuatro cuadros,
+  `drawable/widget_chorro`). Parado, el Hiperfoco tiene la arena abajo, como en
+  la app. **`animateFirstView="false"` se come el primer giro**: se probó y no
+  va.
+- Probado en el emulador, con el aviso y el widget puestos: minutos por encima
+  de la hora, pausa, el cruce a «59:47», el giro y el chorro, cuadro a cuadro.
+
+**Pide reinstalar el APK** (avisos y widgets cambiaron en lo nativo):
+`armar-apk.ps1`. Con el APK de antes la app ya escribe la cifra nueva y el
+aviso sigue como estaba.
+
 ### 0.7.213 · 5 oct 2026
 
 **El formulario de misión nuevo, la misión mensual con recordatorios y «Se

@@ -333,12 +333,26 @@ final class Pinta {
        mismo. En un APK sin los avisos, o sin el arranque que manda la página,
        cada botón abre la app y lo hace ella, como antes.
 
-       **Los minutos se cuentan como en la app: seguidos, sin horas.** Dos
-       horas son «120:00», no «2:00:00». El cronómetro del sistema no sabe
-       escribirlo así, de modo que con una hora o más por delante se dice en
-       minutos («118 min», al minuto) y por debajo de la hora corre por
-       segundos, que es cuando se mira. El sueño va en horas y minutos
-       («07:05»), también como en la app. */
+       **El tiempo se escribe igual que en la app y en el aviso (0.7.214):**
+       con una hora o más, en minutos («118 min», al minuto); por debajo corre
+       por segundos («26:23»). Es `Widgets.cuenta`, y la regla está contada en
+       `jCuenta` (js/09d-jornada.js). El sueño va en horas y minutos («07:05»),
+       también como en la app.
+
+       **El reloj de arena se mueve como el de la app (0.7.214).** Un widget
+       es una imagen que se repinta cada veinte segundos, así que lo que tiene
+       que moverse entre medias lo mueve Android por su cuenta:
+         - **da la vuelta al empezar**, y al pasar del foco al descanso: cuando
+           la arena sube de golpe, igual que `jPintarCentro`. El reloj vive en
+           un `ViewFlipper` de dos caras iguales, y pasar de una a la otra es
+           lo único que deja animar un widget: la que entra llega girando
+           (`anim/widget_voltear`). Lo último que se vio se guarda por widget
+           (`pm_arr_`), para no girar en cada repintado;
+         - **el chorro cae** mientras corre: es una barra de progreso sin fin
+           cuyo dibujo son cuatro cuadros (`drawable/widget_chorro`), que es
+           la única animación que arranca sola en un widget. En pausa no cae.
+       Parado, el Hiperfoco tiene la arena ABAJO, como en la app: por eso da
+       la vuelta al tocar Iniciar. */
     private static JSONObject deLista(JSONObject hf, String k) {
         JSONArray l = hf == null ? null : hf.optJSONArray("lista");
         for (int i = 0; l != null && i < l.length(); i++) {
@@ -415,11 +429,6 @@ final class Pinta {
         }
     }
 
-    private static String mmss(long ms) {
-        long s = Math.max(0, (ms + 999) / 1000);
-        return String.format(Locale.US, "%02d:%02d", s / 60, s % 60);
-    }
-
     static RemoteViews pomodoro(Context c, AppWidgetManager m, int widget) {
         int[] md = medida(m, widget, 150, 200);
         boolean grande = md[0] >= 230 && md[1] >= 300, ancho = !grande && md[0] >= 230;
@@ -493,7 +502,7 @@ final class Pinta {
         } else if (sueno) {
             int a = blo.optInt("a"), z = blo.optInt("b"), largoB = ((z - a + 1440) % 1440) == 0 ? 1440 : (z - a + 1440) % 1440, falta = (z - minuto + 1440) % 1440;
             boolean dormido = pm.optBoolean("dormido");
-            t = String.format(Locale.US, "%02d:%02d", falta / 60, falta % 60);
+            t = String.format(Locale.US, "%02d:%02d", falta / 60, falta % 60);   // horas y minutos: el sueño va aparte
             rot = dormido ? Widgets.tx(f, "durmiendo", "Durmiendo") : Widgets.tx(f, "dormir_rot", "Hora de dormir");
             sub = con(Widgets.tx(f, "levantas", "Te levantas a las {h}"), "{h}", Widgets.hora(z));
             prog = 1 - falta / (float) largoB;
@@ -502,7 +511,7 @@ final class Pinta {
             que = null; ir = dormido ? "jornada:despertar" : "jornada:dormir"; icono = "widget_ic_luna"; tonal = true;
         } else {
             long lleno = pLite && !activo ? manera.optLong("dur", dur) : termino && sig != null && sig.optLong("dur", 0) > 0 ? sig.optLong("dur") : dur;
-            t = corre || pausa ? mmss(resto) : termino && sig == null ? "00:00" : mmss(lleno);
+            t = corre || pausa ? Widgets.cuenta(f, resto, sube) : termino && sig == null ? "00:00" : Widgets.cuenta(f, lleno, false);
             prog = corre || pausa ? (sube ? 0 : (dur - resto) / (float) dur) : termino && sig == null ? 1 : 0;
             String pausar = Widgets.tx(f, "pausar", "Pausar"), seguir = Widgets.tx(f, "seguir", "Seguir"), abrir = Widgets.tx(f, "abrir", "Abrir"),
                     parar = Widgets.tx(f, "parar", "Parar");
@@ -565,9 +574,9 @@ final class Pinta {
 
         // ---- La cuenta ----
         // Corre sola, por segundos, cuando hay menos de una hora que contar; con
-        // más, se dice en minutos, como en la app (ver el comentario de arriba).
+        // más va escrita en minutos (`Widgets.cuenta`, ver el comentario de arriba).
         int crono = Widgets.id(c, "wp_crono");
-        boolean cuenta = cerrado.isEmpty() && !sueno && corre && resto < 3600000L;
+        boolean cuenta = cerrado.isEmpty() && !sueno && corre && resto < Widgets.HORA;
         ver(c, v, "wp_crono", cuenta);
         ver(c, v, "wp_t", !cuenta);
         if (cuenta) {
@@ -576,10 +585,9 @@ final class Pinta {
             v.setTextColor(crono, texto);
         } else {
             v.setChronometer(crono, SystemClock.elapsedRealtime(), null, false);
-            if (corre) t = con(Widgets.tx(f, "min_n", "{n} min"), "{n}", sube ? resto / 60000 : (resto + 59999) / 60000);
             texto(c, v, "wp_t", t, texto);
             // «120 min» es más ancho que «25:00» y dentro del aro chico no cabía a su tamaño (visto en el emulador).
-            if (!grande && !ancho) v.setTextViewTextSize(Widgets.id(c, "wp_t"), TypedValue.COMPLEX_UNIT_DIP, corre ? 16.5f : 21.5f);
+            if (!grande && !ancho) v.setTextViewTextSize(Widgets.id(c, "wp_t"), TypedValue.COMPLEX_UNIT_DIP, t.indexOf(':') < 0 ? 16.5f : 21.5f);
         }
         texto(c, v, "wp_rot", rot, sueno ? cursoTinta : texto);
         texto(c, v, "wp_sub", sub, suave);
@@ -605,7 +613,34 @@ final class Pinta {
                 for (int i = 0; bs != null && i < bs.length(); i++) if (bs.optJSONObject(i) != null) bloques.add(bs.optJSONObject(i));
                 v.setImageViewBitmap(Widgets.id(c, "wp_rueda"), Dibujos.rueda(c, Math.min(lado, 340), grande, bloques, blo, minuto / 60f, carril, suave, texto, sobre));
             }
-            v.setImageViewBitmap(Widgets.id(c, "wp_arena"), Dibujos.arena(c, grande ? 46 : 22, prog, suave, curso));
+            // ---- El reloj de arena: se voltea cuando la arena sube de golpe, y el chorro cae mientras corre ----
+            boolean parado = cerrado.isEmpty() && !sueno && !activo;
+            float pArena = parado && pLite ? 1 : prog;   // parado, el Hiperfoco tiene la arena abajo
+            android.graphics.Bitmap arena = Dibujos.arena(c, grande ? 46 : 22, pArena, suave, curso);
+            // Las dos caras llevan siempre el mismo dibujo: da igual cuál esté a la vista.
+            v.setImageViewBitmap(Widgets.id(c, "wp_arena"), arena);
+            v.setImageViewBitmap(Widgets.id(c, "wp_arena_b"), arena);
+            float arriba = 1 - pArena, antes = Widgets.prefs(c).getFloat("pm_arr_" + widget, -1f);
+            boolean voltea = antes >= 0 && arriba - antes > 0.5f;
+            /* Mientras da la vuelta no cae nada, como en la app: el chorro giraría
+               con el reloj y se vería subir. Vuelve un segundo después, con un
+               repintado que se pide aquí mismo; si Android cierra el proceso antes,
+               lo trae el latido de siempre. */
+            boolean cae = !voltea && cerrado.isEmpty() && !sueno && corre && pArena > 0 && pArena < 1;
+            if (voltea) {
+                final Context app = c.getApplicationContext();
+                new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> Widgets.refrescar(app), 1100);
+            }
+            ver(c, v, "wp_chorro", cae);
+            ver(c, v, "wp_chorro_b", cae);
+            if (cae && Build.VERSION.SDK_INT >= 31) {
+                android.content.res.ColorStateList tinte = android.content.res.ColorStateList.valueOf(curso);
+                v.setColorStateList(Widgets.id(c, "wp_chorro"), "setIndeterminateTintList", tinte);
+                v.setColorStateList(Widgets.id(c, "wp_chorro_b"), "setIndeterminateTintList", tinte);
+            }
+            int giro = Widgets.id(c, "wp_giro");
+            if (giro != 0 && voltea) v.showNext(giro);
+            if (antes != arriba) Widgets.prefs(c).edit().putFloat("pm_arr_" + widget, arriba).apply();
         }
         ver(c, v, "wp_tramos", conPuntos);
         if (conPuntos) v.setImageViewBitmap(Widgets.id(c, "wp_tramos"), Dibujos.tramos(c, tramo, total, Widgets.color(f, "hecho", "#5fe0b0"), acento, carril));

@@ -1,4 +1,5 @@
 [
+ "anim/widget_voltear.xml",
  "drawable-nodpi/widget_prev_apuntar.png",
  "drawable-nodpi/widget_prev_exp.png",
  "drawable-nodpi/widget_prev_hab.png",
@@ -11,6 +12,11 @@
  "drawable/widget_boton.xml",
  "drawable/widget_caja.xml",
  "drawable/widget_caja12.xml",
+ "drawable/widget_chorro.xml",
+ "drawable/widget_chorro_1.xml",
+ "drawable/widget_chorro_2.xml",
+ "drawable/widget_chorro_3.xml",
+ "drawable/widget_chorro_4.xml",
  "drawable/widget_ic_alto.xml",
  "drawable/widget_ic_arena.xml",
  "drawable/widget_ic_bandera.xml",

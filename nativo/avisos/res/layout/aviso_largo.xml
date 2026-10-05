@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- El aviso ABIERTO (0.7.163): al deslizarlo. Arriba el icono, el rótulo, el
-     nombre (dos renglones como mucho) y la cifra con su rótulo ENCIMA; debajo
-     los tramos con su texto; y los botones a lo ancho. Android deja 256 dp como
-     mucho; el más alto mide unos 232 con textos larguísimos. -->
+<!-- El aviso ABIERTO (0.7.163): al deslizarlo. Arriba, en un renglón, el rótulo
+     y el de la cifra («Quedan»); debajo el nombre (dos renglones como mucho) con
+     la cifra al lado; luego los tramos con su texto; y los botones a lo ancho.
+     Sin icono desde la 0.7.214, y con los dos rótulos en su propio renglón: así
+     el nombre tiene todo el ancho que no ocupa la cifra y «Inmersión» ya no se
+     parte. Android deja 256 dp como mucho. -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -16,19 +18,23 @@
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
         android:orientation="vertical" android:padding="16dp">
 
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:orientation="horizontal" android:gravity="center_vertical">
+        <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+            <TextView android:id="@+id/av_ceja" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:paddingEnd="92dp" android:textSize="11sp" android:fontFamily="@font/outfit_bold"
+                android:letterSpacing="0.12" android:textAllCaps="true" android:maxLines="1" android:ellipsize="end"
+                android:visibility="gone" />
+            <TextView android:id="@+id/av_rot" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_gravity="end" android:textSize="10.5sp" android:fontFamily="@font/outfit_bold"
+                android:letterSpacing="0.1" android:textAllCaps="true" android:maxLines="1" android:visibility="gone" />
+        </FrameLayout>
 
-            <ImageView android:id="@+id/av_icono" android:layout_width="48dp" android:layout_height="48dp"
-                android:scaleType="fitCenter" android:importantForAccessibility="no" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="4dp" android:orientation="horizontal" android:gravity="center_vertical">
 
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
-                android:layout_marginStart="14dp" android:orientation="vertical">
-                <TextView android:id="@+id/av_ceja" android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:textSize="11sp" android:fontFamily="@font/outfit_bold" android:letterSpacing="0.12"
-                    android:textAllCaps="true" android:maxLines="1" android:ellipsize="end" android:visibility="gone" />
+                android:orientation="vertical">
                 <TextView android:id="@+id/av_tit" android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp" android:textSize="18sp" android:fontFamily="@font/outfit_semibold"
+                    android:textSize="18sp" android:fontFamily="@font/outfit_semibold"
                     android:maxLines="2" android:ellipsize="end" />
                 <TextView android:id="@+id/av_sub" android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:layout_marginTop="3dp" android:textSize="14sp" android:fontFamily="@font/outfit_medium"
@@ -37,15 +43,12 @@
 
             <LinearLayout android:id="@+id/av_der" android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:layout_marginStart="14dp" android:orientation="vertical" android:gravity="end">
-                <TextView android:id="@+id/av_rot" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_gravity="end" android:textSize="10.5sp" android:fontFamily="@font/outfit_bold"
-                    android:letterSpacing="0.1" android:textAllCaps="true" android:maxLines="1" android:visibility="gone" />
                 <Chronometer android:id="@+id/av_crono" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_gravity="end" android:layout_marginTop="5dp" android:textSize="36sp"
+                    android:layout_gravity="end" android:textSize="36sp"
                     android:fontFamily="@font/outfit_medium" android:fontFeatureSettings="tnum"
                     android:includeFontPadding="false" android:visibility="gone" />
                 <TextView android:id="@+id/av_num" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_gravity="end" android:layout_marginTop="5dp" android:textSize="36sp"
+                    android:layout_gravity="end" android:textSize="36sp"
                     android:fontFamily="@font/outfit_medium" android:fontFeatureSettings="tnum"
                     android:includeFontPadding="false" android:maxLines="1" android:visibility="gone" />
                 <FrameLayout android:id="@+id/av_dchip" android:layout_width="wrap_content" android:layout_height="wrap_content"

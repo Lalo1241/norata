@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Cuadro 1 de 4 del chorro del reloj de arena: ver widget_chorro.xml. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="4dp" android:height="16dp"
+    android:viewportWidth="4" android:viewportHeight="16">
+    <path android:pathData="M2,0 V4 M2,8 V12" android:strokeColor="#FFF5D76E" android:strokeWidth="2" />
+</vector>

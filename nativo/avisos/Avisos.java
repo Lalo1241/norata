@@ -78,8 +78,8 @@ final class Avisos {
     static final String ACCION = "app.norata.avisos.ACCION";
     static final String FIN = "app.norata.avisos.FIN";
     static final String AGENDA = "app.norata.avisos.AGENDA";
-    /* Vuelve a pintar el reloj: un tramo libre que cruza la hora pasa su cifra
-       de 36 a 28 (AvisosVista.conHoras), y eso solo se decide al pintar. */
+    /* Vuelve a pintar el reloj: con una hora o más la cuenta va escrita en
+       minutos y cambia al minuto (`programarRepinta`). */
     static final String REPINTA = "app.norata.avisos.REPINTA";
 
     /* Quién está vivo. Los pone el complemento: con la app a la vista, el
@@ -119,6 +119,7 @@ final class Avisos {
         String v = t == null ? null : t.optString(llave, null);
         if (v != null && !v.isEmpty()) return v;
         switch (llave) {
+            case "min": return "{n} min";
             case "canalReloj": return "Pomodoro en curso";
             case "canalAvisos": return "Avisos del Pomodoro";
             case "canalAgenda": return "Inicio de actividad";
@@ -344,17 +345,45 @@ final class Avisos {
         guardar(c, "reloj", e);
         pintarReloj(c, e);
         avisarWidgets(c);
-        PendingIntent repinta = pendiente(c, alReceptor(c, REPINTA, "reloj"), 2);
-        long inicio = e.optLong("inicio", 0);
-        if (inicio > 0 && !e.optBoolean("pausado") && System.currentTimeMillis() - inicio < 3600000L) {
-            programar(c, inicio + 3600000L, repinta);
-        } else {
-            desprogramar(c, repinta);
-        }
+        programarRepinta(c, e);
         long cuando = e.optLong("fin", 0);
         if (cuando > 0 && !e.optBoolean("pausado")) {
             Intent i = alReceptor(c, FIN, "reloj").putExtra("clave", e.optString("clave"));
             programar(c, cuando, pendiente(c, i, 1));
+        }
+    }
+
+    /* ---------- Cuándo hay que volver a pintar la cuenta (0.7.214) ----------
+       Por debajo de la hora la cuenta la lleva el cronómetro del sistema y no
+       hay que tocar nada. Con una hora o más se escribe en minutos («87 min»,
+       ver `cuenta`), y eso no se mueve solo: se repinta cada vez que cambia el
+       minuto, y una vez más al cruzar la hora, que es cuando entra o sale el
+       cronómetro.
+
+       Con una alarma que NO despierta el teléfono: con la pantalla apagada
+       nadie lo está leyendo, y al encenderla Android la entrega en el acto.
+       Despertarlo cada minuto durante una Inmersión de tres horas, para pintar
+       un número que nadie mira, sería gastar batería por nada. */
+    static void programarRepinta(Context c, JSONObject e) {
+        PendingIntent repinta = pendiente(c, alReceptor(c, REPINTA, "reloj"), 2);
+        AlarmManager am = c.getSystemService(AlarmManager.class);
+        if (am != null) am.cancel(repinta);
+        if (am == null || e == null || e.optBoolean("pausado")) return;
+        long ya = System.currentTimeMillis(), fin = e.optLong("fin", 0), inicio = e.optLong("inicio", 0), en;
+        if (fin > 0) {
+            long resto = fin - ya;
+            if (resto < HORA) return;                       // ya corre el cronómetro
+            en = resto % 60000L == 0 ? (resto == HORA ? 1 : 60000L) : resto % 60000L;
+        } else if (inicio > 0) {
+            long lleva = ya - inicio;
+            en = lleva < HORA ? HORA - lleva : 60000L - lleva % 60000L;
+        } else return;
+        long cuando = ya + en + 150;
+        try {
+            if (exactas(c)) am.setExact(AlarmManager.RTC, cuando, repinta);
+            else am.set(AlarmManager.RTC, cuando, repinta);
+        } catch (SecurityException x) {
+            am.set(AlarmManager.RTC, cuando, repinta);
         }
     }
 
@@ -398,7 +427,7 @@ final class Avisos {
         long fin = e.optLong("fin", 0), inicio = e.optLong("inicio", 0);
         boolean pausado = e.optBoolean("pausado");
         if (pausado) {
-            String resto = e.optLong("restante", 0) > 0 ? " · " + mmss(e.optLong("restante")) : "";
+            String resto = e.optLong("restante", 0) > 0 ? " · " + cuenta(c, e.optLong("restante"), false) : "";
             texto = tx(c, "enPausa") + resto + (texto.isEmpty() ? "" : " · " + texto);
         } else if (fin > 0 || inicio > 0) {
             b.setUsesChronometer(true);
@@ -407,8 +436,6 @@ final class Avisos {
             if (fin > 0 && Build.VERSION.SDK_INT >= 24) b.setChronometerCountDown(true);
         }
         b.setContentText(texto);
-        Bitmap ic = iconoGrande(e.optString("icono"));
-        if (ic != null) b.setLargeIcon(ic);
 
         // Los botones salen del estado, no de la página: así se cambian solos
         // al pausar con la app cerrada.
@@ -421,6 +448,11 @@ final class Avisos {
             b.setUsesChronometer(false);
             b.setShowWhen(false);
         } else {
+            /* El icono de la actividad solo en la plantilla de Android (un APK
+               sin moldes). Con molde no va ninguno (0.7.214): Android lo ponía
+               además a la derecha, y entre los dos se comían el ancho. */
+            Bitmap ic = iconoGrande(e.optString("icono"));
+            if (ic != null) b.setLargeIcon(ic);
             for (Notification.Action a : botones) b.addAction(a);
         }
         notificar(c, ID_RELOJ, b.build());
@@ -470,11 +502,23 @@ final class Avisos {
         }
     }
 
-    static String mmss(long ms) {
-        long s = Math.max(0, ms / 1000);
-        long h = s / 3600, m = (s % 3600) / 60, ss = s % 60;
-        return h > 0 ? String.format(java.util.Locale.ROOT, "%d:%02d:%02d", h, m, ss)
-                : String.format(java.util.Locale.ROOT, "%d:%02d", m, ss);
+    /* ---------- La cuenta: UNA forma de escribir el tiempo (0.7.214) ----------
+       La regla es de la app y está contada en `jCuenta` (js/09d-jornada.js):
+       con una hora o más, en minutos y sin segundos («87 min»); por debajo,
+       «26:23» con dos cifras. Lo que falta se redondea hacia arriba y lo que
+       se lleva (`sube`) hacia abajo. Es la misma de `Widgets.cuenta`
+       (nativo/widgets/): al tocar una, las tres.
+
+       Antes aquí salía «1:26:23», que es como escribe el cronómetro del
+       sistema, mientras la app decía «86:23» y el widget «87 min». Por eso el
+       cronómetro ya solo se usa por debajo de la hora (`AvisosVista`). */
+    static final long HORA = 3600000L;
+
+    static String cuenta(Context c, long ms, boolean sube) {
+        ms = Math.max(0, ms);
+        if (ms >= HORA) return tx(c, "min").replace("{n}", String.valueOf(sube ? ms / 60000L : (ms + 59999L) / 60000L));
+        long s = sube ? ms / 1000L : (ms + 999L) / 1000L;
+        return String.format(java.util.Locale.ROOT, "%02d:%02d", s / 60, s % 60);
     }
 
     /* ---------- Un aviso suelto ---------- */

@@ -679,6 +679,32 @@
       }
     },
     {
+      "id": "tiempo-una-forma",
+      "version": "0.7.214",
+      "fecha": "2026-10-05",
+      "estado": "borrador",
+      "clase": "mejora",
+      "toca": [
+        "Pomodoro",
+        "App de Android"
+      ],
+      "titulo": "El tiempo se lee igual en la app, en el aviso y en el widget",
+      "resumen": "La misma cuenta se escribía de tres maneras según dónde la miraras. Ahora es una: con una hora o más por delante, en minutos; por debajo de la hora, al segundo.",
+      "puntos": [
+        "Los avisos del Pomodoro ya no llevan iconos: el nombre de lo que haces se lee completo.",
+        "En el widget, el reloj de arena da la vuelta al empezar y la arena cae mientras corre."
+      ],
+      "retoques": [],
+      "en": {
+        "titulo": "Time reads the same in the app, the notification and the widget",
+        "resumen": "The same countdown was written three different ways depending on where you looked. Now it's one: with an hour or more to go, in minutes; under an hour, to the second.",
+        "puntos": [
+          "Pomodoro notifications no longer carry icons: the name of what you're doing reads in full.",
+          "On the widget, the hourglass flips when you start and the sand falls while it runs."
+        ]
+      }
+    },
+    {
       "id": "mision-nueva",
       "version": "0.7.213",
       "fecha": "2026-10-05",

@@ -257,11 +257,9 @@ final class Dibujos {
         Path abajo = new Path();
         abajo.moveTo((20 - 10 * q) * u, 44 * u); abajo.lineTo((20 + 10 * q) * u, 44 * u); abajo.lineTo(20 * u, (44 - 12 * q) * u); abajo.close();
         k.drawPath(abajo, pincel(arena, false, 0));
-        if (p > 0 && p < 1) {
-            Paint hilo = pincel(arena, true, 1.2f * u);
-            hilo.setPathEffect(new DashPathEffect(new float[] { 2 * u, 2 * u }, 0));
-            k.drawLine(20 * u, 25 * u, 20 * u, 43 * u, hilo);
-        }
+        /* El chorro no va aquí (0.7.214): dibujado en la imagen se quedaba
+           quieto, también en pausa. Es una pieza animada encima, que solo se
+           enseña mientras cae (`widget_chorro`, ver Pinta.pomodoro). */
         Paint tapa = pincel(suave, false, 0);
         k.drawRoundRect(new RectF(4 * u, 2 * u, 36 * u, 6.5f * u), 1.5f * u, 1.5f * u, tapa);
         k.drawRoundRect(new RectF(4 * u, 45.5f * u, 36 * u, 50 * u), 1.5f * u, 1.5f * u, tapa);

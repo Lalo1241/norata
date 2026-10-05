@@ -93,6 +93,13 @@ que abre sin red y sin pasar por Chrome. Lo que eso cambia aquí:
   menta de Norata (Pausa en amarillo) y con un acento rojo ningún texto es
   rojo. La referencia es la lámina «Avisos de Norata»; las reglas, en el
   `LEEME.md` de `nativo/avisos/`.
+- **El tiempo del Pomodoro se escribe de UNA forma en la app, el aviso y el
+  widget (0.7.214)**: con una hora o más, «87 min»; por debajo, «26:23». La
+  eligió Eduardo al ver la misma cuenta escrita de tres maneras. Son tres
+  funciones gemelas —`jCuenta` (`js/09d-jornada.js`, donde está contada),
+  `Avisos.cuenta` y `Widgets.cuenta`— y al tocar una se tocan las tres. No es
+  «86:23» fuera de la app porque el cronómetro de Android no sabe escribirlo.
+  Los avisos no llevan icono ni dicen a qué hora acaba.
 - **Una misión puede cumplirse sola con Health Connect (0.7.213, Alpha).** El
   puente es `js/13e-salud.js` (`window.norataSalud`) sobre el complemento
   `@capgo/capacitor-health`, que se instala con `nativo/salud/instalar-salud.js`.

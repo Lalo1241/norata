@@ -4,13 +4,13 @@ package app.norata;
 
 import android.app.PendingIntent;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.SystemClock;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -42,6 +42,11 @@ import java.util.Map;
    blanca y se tiñe con `setColorFilter`, y un marco con borde son DOS formas
    apiladas: la de fuera, del color del borde, y la de dentro, 1,5 dp más
    chica, del color del fondo.
+
+   **Sin icono (0.7.214).** Cada molde llevaba el de la actividad a la
+   izquierda y Android repetía otro a la derecha: entre los dos dejaban el
+   texto en un tercio del ancho, y «Inmersión» salía partida en dos renglones.
+   Los quitó Eduardo. La página lo sigue mandando para un APK de antes.
 
    **La vista llega de la página** (`jVista…`, js/09d-jornada.js), ya en el idioma
    de la app. Si el aviso cambia con la app cerrada —se pausa desde la
@@ -91,6 +96,38 @@ final class AvisosVista {
         tenir(v, id(c, "av_fondo"), color(col, "fondo", "#1d2530"));
     }
 
+    /* Un texto de la vista, o nada. Con `optString` a secas un `null` de JSON
+       vuelve como la palabra «null», y así salió escrita en el pie de un aviso
+       (0.7.214). La página ya no manda campos vacíos; esto es por las vistas
+       guardadas de antes. */
+    static String cad(JSONObject o, String llave) {
+        if (o == null || o.isNull(llave)) return null;
+        String v = o.optString(llave, "");
+        return v.isEmpty() ? null : v;
+    }
+
+    /* Lo que marca una cuenta EN MARCHA, escrito (`Avisos.cuenta`). Es lo que
+       se pone cuando no cabe el cronómetro: con una hora o más. */
+    static String viva(Context c, JSONObject estado) {
+        if (estado == null) return null;
+        long ahora = System.currentTimeMillis(), fin = estado.optLong("fin", 0), inicio = estado.optLong("inicio", 0);
+        if (fin > 0) return Avisos.cuenta(c, fin - ahora, false);
+        if (inicio > 0) return Avisos.cuenta(c, ahora - inicio, true);
+        return null;
+    }
+
+    /* La cifra grande: en «87 min» el número manda y «min» va a la mitad, para
+       que ocupe lo mismo que «26:23» y no empuje el título a dos renglones. */
+    static CharSequence cifra(String t) {
+        if (t == null) return null;
+        int i = 0;
+        while (i < t.length() && (Character.isDigit(t.charAt(i)) || t.charAt(i) == ':')) i++;
+        if (i == 0 || i == t.length()) return t;
+        SpannableStringBuilder sb = new SpannableStringBuilder(t);
+        sb.setSpan(new RelativeSizeSpan(0.5f), i, t.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return sb;
+    }
+
     /* «{resto}» lo cambia por lo que queda de una cuenta en pausa: lo único que
        la página no puede saber de antemano si se pausó con la app cerrada. */
     private static String llenar(Context c, String t, JSONObject estado) {
@@ -106,8 +143,9 @@ final class AvisosVista {
             if (estado.optLong("inicio", 0) > 0) t = t.replace("{inicio}", f.format(new java.util.Date(estado.optLong("inicio"))));
         }
         if (t.contains("{resto}")) {
-            long ms = estado == null ? 0 : (estado.optLong("restante", 0) > 0 ? estado.optLong("restante") : estado.optLong("transcurrido", 0));
-            t = t.replace("{resto}", Avisos.mmss(ms));
+            boolean sube = estado != null && estado.optLong("restante", 0) <= 0;
+            long ms = estado == null ? 0 : (sube ? estado.optLong("transcurrido", 0) : estado.optLong("restante"));
+            t = t.replace("{resto}", Avisos.cuenta(c, ms, sube));
         }
         return t;
     }
@@ -129,38 +167,35 @@ final class AvisosVista {
         return sb;
     }
 
-    private static void texto(Context c, RemoteViews v, String nombre, String t, int color) {
+    private static void texto(Context c, RemoteViews v, String nombre, CharSequence t, int color) {
         int vid = id(c, nombre);
         if (vid == 0) return;
-        if (t == null || t.isEmpty()) { v.setViewVisibility(vid, View.GONE); return; }
+        if (t == null || t.length() == 0) { v.setViewVisibility(vid, View.GONE); return; }
         v.setViewVisibility(vid, View.VISIBLE);
         v.setTextViewText(vid, t);
         v.setTextColor(vid, color);
     }
 
     /* La cuenta la lleva el SISTEMA: el cronómetro se mide con el reloj de
-       arranque, no con la hora, así que se traduce `fin`/`inicio`. */
+       arranque, no con la hora, así que se traduce `fin`/`inicio`.
+
+       **Solo por debajo de la hora (0.7.214).** Con una hora o más el
+       cronómetro escribe «1:26:23», y la regla de Norata es «87 min»
+       (`Avisos.cuenta`): ahí devuelve false y el que llama pone la cifra
+       escrita, que `Avisos.programarRepinta` vuelve a pintar al minuto. */
     private static boolean cronometro(Context c, RemoteViews v, String nombre, JSONObject estado, int color) {
         int vid = id(c, nombre);
         if (vid == 0 || estado == null || estado.optBoolean("pausado")) return false;
         long fin = estado.optLong("fin", 0), inicio = estado.optLong("inicio", 0);
         if (fin <= 0 && inicio <= 0) return false;
         long ahora = System.currentTimeMillis();
+        if ((fin > 0 ? fin - ahora : ahora - inicio) >= Avisos.HORA) return false;
         long base = SystemClock.elapsedRealtime() + ((fin > 0 ? fin : inicio) - ahora);
         v.setViewVisibility(vid, View.VISIBLE);
         v.setChronometer(vid, base, null, true);
         if (android.os.Build.VERSION.SDK_INT >= 24) v.setChronometerCountDown(vid, fin > 0);
         v.setTextColor(vid, color);
         return true;
-    }
-
-    /** Con horas (H:MM:SS) la cifra baja de 36 a 28 y ocupa casi lo mismo. */
-    static boolean conHoras(JSONObject estado) {
-        if (estado == null) return false;
-        long ahora = System.currentTimeMillis();
-        if (estado.optLong("fin", 0) > 0) return estado.optLong("fin") - ahora >= 3600000L;
-        if (estado.optLong("inicio", 0) > 0) return ahora - estado.optLong("inicio") >= 3600000L;
-        return false;
     }
 
     /* ---------- Los botones ---------- */
@@ -210,18 +245,6 @@ final class AvisosVista {
         }
     }
 
-    /* El icono va UNA vez, en el estado o en la entrada, y no repetido en cada
-       vista: pesa unos 6 KB y una alarma lleva dos vistas dentro. */
-    private static void icono(Context c, RemoteViews v, JSONObject vista, JSONObject estado) {
-        int vid = id(c, "av_icono");
-        String png = vista.optString("icono", "");
-        if (png.isEmpty() && estado != null) png = estado.optString("icono", "");
-        Bitmap b = Avisos.iconoGrande(png);
-        if (vid == 0) return;
-        if (b == null) { v.setViewVisibility(vid, View.GONE); return; }
-        v.setImageViewBitmap(vid, b);
-    }
-
     /* ---------- El plegado ---------- */
     static RemoteViews corto(Context c, JSONObject vista, JSONObject estado, Map<String, PendingIntent> acciones) {
         JSONObject col = colores(c);
@@ -229,16 +252,17 @@ final class AvisosVista {
         JSONObject k = vista.optJSONObject("corto");
         if (k == null) k = new JSONObject();
         marco(c, v, col);
-        icono(c, v, vista, estado);
         int texto = color(col, "texto", "#eaf1ef"), suave = color(col, "suave", "#9aa7b3");
-        boolean crono = k.optBoolean("crono") && cronometro(c, v, "av_c_crono", estado, texto);
+        boolean corre = k.optBoolean("crono");
+        boolean crono = corre && cronometro(c, v, "av_c_crono", estado, texto);
         if (!crono) v.setViewVisibility(id(c, "av_c_crono"), View.GONE);
-        texto(c, v, "av_c_r1", crono ? null : llenar(c, k.optString("r1", null), estado),
-                k.optBoolean("r1Quieto") ? suave : texto);
-        texto(c, v, "av_c_r1b", k.optString("r1b", null), suave);
+        // Corre pero no cabe en el cronómetro (una hora o más): la cifra escrita.
+        String r1 = crono ? null : corre ? viva(c, estado) : llenar(c, cad(k, "r1"), estado);
+        texto(c, v, "av_c_r1", r1, k.optBoolean("r1Quieto") ? suave : texto);
+        texto(c, v, "av_c_r1b", cad(k, "r1b"), suave);
         v.setTextViewText(id(c, "av_c_r2"), partes(c, k.optJSONArray("r2"), col, estado));
         v.setTextColor(id(c, "av_c_r2"), suave);
-        texto(c, v, "av_c_num", llenar(c, k.optString("num", null), estado), texto);
+        texto(c, v, "av_c_num", llenar(c, cad(k, "num"), estado), texto);
         boton(c, v, "av_c_b", k.optJSONObject("boton"), col, acciones);
         return v;
     }
@@ -250,29 +274,31 @@ final class AvisosVista {
         JSONObject l = vista.optJSONObject("largo");
         if (l == null) l = new JSONObject();
         marco(c, v, col);
-        icono(c, v, vista, estado);
         int texto = color(col, "texto", "#eaf1ef"), suave = color(col, "suave", "#9aa7b3");
 
         JSONArray ceja = l.optJSONArray("ceja");
         texto(c, v, "av_ceja", ceja == null ? null : ceja.optString(0), rol(col, ceja == null ? "marca" : ceja.optString(1, "marca")));
-        texto(c, v, "av_tit", l.optString("tit", ""), texto);
-        texto(c, v, "av_sub", llenar(c, l.optString("sub", null), estado), suave);
+        texto(c, v, "av_tit", cad(l, "tit"), texto);
+        texto(c, v, "av_sub", llenar(c, cad(l, "sub"), estado), suave);
 
         // La cifra, con su rótulo ENCIMA.
-        texto(c, v, "av_rot", l.optString("rot", null), suave);
-        boolean crono = l.optBoolean("crono") && cronometro(c, v, "av_crono", estado, texto);
+        texto(c, v, "av_rot", cad(l, "rot"), suave);
+        boolean corre = l.optBoolean("crono");
+        boolean crono = corre && cronometro(c, v, "av_crono", estado, texto);
         if (!crono) v.setViewVisibility(id(c, "av_crono"), View.GONE);
-        String num = crono ? null : llenar(c, l.optString("num", null), estado);
-        texto(c, v, "av_num", num, l.optBoolean("numQuieto") ? suave : texto);
-        float tam = (crono ? conHoras(estado) : (num != null && num.length() > 5)) ? 28f : 36f;
-        v.setTextViewTextSize(id(c, crono ? "av_crono" : "av_num"), TypedValue.COMPLEX_UNIT_SP, tam);
+        String num = crono ? null : corre ? viva(c, estado) : llenar(c, cad(l, "num"), estado);
+        CharSequence cifra = cifra(num);
+        texto(c, v, "av_num", cifra, l.optBoolean("numQuieto") ? suave : texto);
+        // Una palabra larga baja de 36 a 28; una cifra, nunca.
+        boolean palabra = num != null && cifra instanceof String && num.length() > 5;
+        v.setTextViewTextSize(id(c, crono ? "av_crono" : "av_num"), TypedValue.COMPLEX_UNIT_SP, palabra ? 28f : 36f);
         chip(c, v, "av_dchip", l.optJSONObject("dchip"), col);
 
         // El pie: etiqueta, tramos con su texto y un dato. Con solo el dato, centrado.
         JSONObject chipPie = l.optJSONObject("chip");
         JSONArray puntos = l.optJSONArray("puntos");
-        String tramo = l.optString("tramo", null), dato = l.optString("dato", null);
-        boolean hayPie = chipPie != null || puntos != null || (tramo != null && !tramo.isEmpty()) || (dato != null && !dato.isEmpty());
+        String tramo = cad(l, "tramo"), dato = cad(l, "dato");
+        boolean hayPie = chipPie != null || puntos != null || tramo != null || dato != null;
         v.setViewVisibility(id(c, "av_pie"), hayPie ? View.VISIBLE : View.GONE);
         chip(c, v, "av_chip", chipPie, col);
         int caja = id(c, "av_puntos");
@@ -291,7 +317,7 @@ final class AvisosVista {
         }
         texto(c, v, "av_tramo", tramo, texto);
         texto(c, v, "av_dato", dato, suave);
-        boolean solo = chipPie == null && puntos == null && (tramo == null || tramo.isEmpty());
+        boolean solo = chipPie == null && puntos == null && tramo == null;
         v.setInt(id(c, "av_dato"), "setGravity", solo ? Gravity.CENTER : (Gravity.END | Gravity.CENTER_VERTICAL));
         if (solo) v.setViewPadding(id(c, "av_dato"), 0, 0, 0, 0);
 
