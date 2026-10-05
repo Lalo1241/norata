@@ -682,7 +682,7 @@
       "id": "widget-pomodoro",
       "version": "0.7.210",
       "fecha": "2026-10-05",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "mejora",
       "toca": [
         "App de Android",
@@ -701,7 +701,7 @@
     {
       "version": "0.7.209",
       "fecha": "2026-10-04",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "mejora",
       "titulo": "Cambiar de mundo ya no cierra la app",
       "resumen": "En la app de Android, el icono de tu mundo ahora cambia cuando sales de Norata. Ya no hay aviso ni cuenta atrás: eliges el mundo y sigues donde estabas. Pide la versión nueva de la app de Android.",
@@ -717,7 +717,7 @@
       "id": "mis-reportes",
       "version": "0.7.208",
       "fecha": "2026-10-04",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "mejora",
       "toca": [
         "Reportar o sugerir"
@@ -743,7 +743,7 @@
     {
       "version": "0.7.207",
       "fecha": "2026-10-03",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "expansion",
       "titulo": "Norata te acompaña en la computadora",
       "resumen": "Con «Flotar», tu Pomodoro y lo de hoy se quedan en una ventanita encima de lo que estés haciendo.",
@@ -766,7 +766,7 @@
     {
       "version": "0.7.206",
       "fecha": "2026-10-03",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "arreglo",
       "titulo": "Cargas sin parpadeos en el teléfono",
       "resumen": "Cambiar de mundo ya sale completo aunque haya una versión esperando, el zoom de entrada no deja ver la app un instante antes, y la cuenta atrás empieza en 4 cuando de verdad empieza a contar.",
@@ -781,7 +781,7 @@
     {
       "version": "0.7.204",
       "fecha": "2026-10-03",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "arreglo",
       "titulo": "Cada cosa a su turno al abrir",
       "resumen": "Las celebraciones y los avisos ya no salen encima de la pantalla de carga ni unos sobre otros: esperan a que la app esté a la vista y pasan de uno en uno.",
@@ -797,7 +797,7 @@
       "id": "widget-hoy",
       "version": "0.7.201",
       "fecha": "2026-10-03",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "mejora",
       "toca": [
         "App de Android",
@@ -832,7 +832,7 @@
     {
       "version": "0.7.200",
       "fecha": "2026-10-03",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "mejora",
       "titulo": "Las novedades, contadas con más calma",
       "resumen": "Las novedades destacadas ya se cuentan en más de un párrafo, para explicarte con calma qué cambia para ti.",
@@ -854,7 +854,7 @@
     {
       "version": "0.7.194",
       "fecha": "2026-10-03",
-      "estado": "borrador",
+      "estado": "publicado",
       "clase": "mejora",
       "titulo": "Cambiar de mundo, de una sola pieza",
       "resumen": "Al elegir un mundo, el color se funde al nuevo mientras carga y su nombre entra con un tic. En la app de Android ya no sale una ventana aparte para reiniciar: la misma pantalla te avisa, cuenta 4, 3, 2, 1 y se cierra; al abrirla ya estás en tu mundo. Arcade ahora vive con los demás mundos, bajo «Secretos».",
