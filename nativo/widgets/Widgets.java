@@ -57,6 +57,10 @@ final class Widgets {
     /* La acción del toque en una fila. Es un texto cualquiera, único en la app. */
     static final String MARCA = "norata.widgets.MARCA";
     static final String EXTRA_ID = "norataMision";
+    /* Un toque en un widget del Pomodoro: cambiar de pestaña, de manera, o mover el reloj. */
+    static final String POMO = "norata.widgets.POMO";
+    static final String EXTRA_QUE = "norataQue";
+    static final String EXTRA_WIDGET = "norataWidgetId";
     /* El latido que los repinta. Cada cuánto, en `armarTic`. */
     static final String TIC = "norata.widgets.TIC";
 
@@ -314,14 +318,63 @@ final class Widgets {
         if (am == null || m == null) return;
         long ya = System.currentTimeMillis(), en = 5 * 60000L;
         if (m.getAppWidgetIds(new ComponentName(c, PomodoroWidget.class)).length > 0) en = 60000L - ya % 60000L + 500;
-        JSONObject p = foto(c).optJSONObject("pomo");
-        if (p != null && p.optBoolean("corre")) {
-            long falta = p.optLong("fin") - ya;
-            if (falta > 0) en = Math.min(Math.min(en, 20000L), falta + 800);
-        }
+        // Lo que corre: el reloj de los avisos si lo hay; si no, lo que dijo la página.
+        JSONObject r = relojAvisos(c), p = foto(c).optJSONObject("pomo");
+        long fin = r != null ? (r.optBoolean("pausado") ? 0 : r.optLong("fin", 0)) : p != null && p.optBoolean("corre") ? p.optLong("fin") : 0;
+        boolean sube = r != null && !r.optBoolean("pausado") && r.optLong("inicio", 0) > 0;
+        if (fin > ya) en = Math.min(Math.min(en, 20000L), fin - ya + 800);
+        else if (sube) en = Math.min(en, 20000L);
         Intent i = new Intent(c, HoyWidget.class).setAction(TIC);
         PendingIntent pi = PendingIntent.getBroadcast(c, 7900, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         am.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + Math.max(5000L, en), pi);
+    }
+
+    /* ---------- El puente con los avisos ----------
+       El Pomodoro se mueve sin abrir la app gracias a los avisos
+       (`nativo/avisos/`): su receptor ya sabe iniciar, pausar, seguir y parar
+       con la app cerrada, poner la alarma del final y apuntárselo a la página.
+       Aquí no se repite nada de eso: se le manda el mismo toque que manda un
+       botón de la cortina, y se lee su reloj.
+
+       Todo va POR NOMBRE y no por clase, para que un APK con los widgets y sin
+       los avisos siga compilando y funcionando: sin ellos, `hayAvisos` dice
+       que no y cada botón del Pomodoro abre la app, como antes. Los dos
+       nombres de abajo son los de `Avisos.java`; si allí cambian, aquí también. */
+    private static final String AVISOS_PREFS = "norata-avisos";
+    private static final String AVISOS_ACCION = "app.norata.avisos.ACCION";
+
+    private static String paquete() {
+        String n = Widgets.class.getName();
+        return n.substring(0, n.lastIndexOf('.'));
+    }
+
+    static boolean hayAvisos(Context c) {
+        try { Class.forName(paquete() + ".AvisosReceptor"); return true; } catch (Throwable e) { return false; }
+    }
+
+    /* El reloj en curso tal como lo guardan los avisos, o null si no corre nada
+       (o si la persona apagó «Avisarme fuera de la app»: entonces la página no
+       lo manda, y el widget se queda con lo que diga la foto). */
+    static JSONObject relojAvisos(Context c) {
+        String s = c.getSharedPreferences(AVISOS_PREFS, Context.MODE_PRIVATE).getString("reloj", null);
+        if (s == null) return null;
+        try { return new JSONObject(s); } catch (JSONException e) { return null; }
+    }
+
+    static void aAvisos(Context c, String accion, JSONObject inicio) {
+        try {
+            Intent i = new Intent(AVISOS_ACCION);
+            i.setClassName(c, paquete() + ".AvisosReceptor");
+            i.putExtra("accion", accion);
+            if (inicio != null) i.putExtra("inicio", inicio.toString());
+            c.sendBroadcast(i);
+        } catch (Exception e) { /* sin avisos: no pasa nada */ }
+    }
+
+    static PendingIntent alPomo(Context c, String que, int widget) {
+        Intent i = new Intent(c, HoyWidget.class).setAction(POMO)
+                .setData(Uri.parse("norata-widgets://pomo/" + que + "/" + widget)).putExtra(EXTRA_QUE, que).putExtra(EXTRA_WIDGET, widget);
+        return PendingIntent.getBroadcast(c, 7400, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
     /* El toque que marca una misión, desde cualquier widget. Va siempre a

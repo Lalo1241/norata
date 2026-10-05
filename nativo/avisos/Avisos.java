@@ -322,10 +322,12 @@ final class Avisos {
             desprogramar(c, pendiente(c, alReceptor(c, REPINTA, "reloj"), 2));
             guardar(c, "reloj", null);
             quitar(c, ID_RELOJ);
+            avisarWidgets(c);
             return;
         }
         guardar(c, "reloj", e);
         pintarReloj(c, e);
+        avisarWidgets(c);
         PendingIntent repinta = pendiente(c, alReceptor(c, REPINTA, "reloj"), 2);
         long inicio = e.optLong("inicio", 0);
         if (inicio > 0 && !e.optBoolean("pausado") && System.currentTimeMillis() - inicio < 3600000L) {
@@ -338,6 +340,19 @@ final class Avisos {
             Intent i = alReceptor(c, FIN, "reloj").putExtra("clave", e.optString("clave"));
             programar(c, cuando, pendiente(c, i, 1));
         }
+    }
+
+    /* Los widgets del Pomodoro (`nativo/widgets/`) enseñan este mismo reloj: cada
+       vez que cambia, se les dice que se repinten. Por nombre y no por clase,
+       para que un APK con los avisos y sin los widgets compile igual; sin
+       ellos, este aviso no le llega a nadie. */
+    static void avisarWidgets(Context c) {
+        try {
+            String n = Avisos.class.getName();
+            Intent i = new Intent("norata.widgets.TIC");
+            i.setClassName(c, n.substring(0, n.lastIndexOf('.')) + ".HoyWidget");
+            c.sendBroadcast(i);
+        } catch (Exception e) { /* sin widgets: no pasa nada */ }
     }
 
     static void pintarReloj(Context c, JSONObject e) {

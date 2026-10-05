@@ -136,6 +136,13 @@ suenan igual, pero el sistema puede retrasarlas con el teléfono dormido.
 - **El tono y las esquinas siguen al mundo.** El color de cada aviso lo manda
   la página (`colorDeMarca`, js/13b-avisos.js): el acento macizo del mundo, o
   la menta con la casa, un ambiente o Arcade. Aquí solo se guarda y se usa.
+- **El widget del Pomodoro usa este mismo receptor** (`nativo/widgets/`): sus
+  botones mandan los toques de la cortina (`pausa`, `seguir`, `iniciar`) y uno
+  más, `parar`, que quita el reloj y le deja a la página apuntar los minutos.
+  Un `iniciar` puede ser de un Hiperfoco (`lite`, con su `fase` y si se puede
+  pausar): lo escribe la página en `jIniciosDeFuera`. Cada vez que el reloj
+  cambia se avisa a los widgets (`Avisos.avisarWidgets`), por nombre, para que
+  un APK sin ellos compile igual.
 - **No hay servicio en primer plano.** La cuenta atrás la dibuja el sistema
   (`setUsesChronometer`), y el final lo dice una alarma. Un servicio pediría
   otro permiso, una declaración en la Play Store y batería.

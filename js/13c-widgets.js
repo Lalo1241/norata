@@ -237,7 +237,18 @@
     }
     const j = state.jornada || {}, cfg = j.cfg || {}, run = j.run;
     const o = { dur: (Number(cfg.foco) || 25) * 60000, tramo: 1, total: Number(cfg.ciclos) || 4, corre: false, pausa: false, dormido: !!j.dormido };
-    if (run && run.fase === "foco" && run.dur && !run.libre) {
+    /* El Hiperfoco: cuál está puesto y las tres maneras, con su nombre (el que
+       la persona le haya dado), su resumen, lo que dura y el verbo de su botón.
+       Y `modo`, si lo que corre ahora es un Hiperfoco: el widget enseña ESA
+       página y no la de la rutina, que son dos cosas distintas. */
+    o.modo = run && run.lite ? run.modo || "travesia" : "";
+    if (typeof jHfCfg === "function" && typeof J_HF === "object") {
+      const hc = jHfCfg();
+      o.hf = { modo: hc.hfModo, lista: Object.keys(J_HF).map((k) => ({
+        k, n: jHfNombre(k), r: jHfResumen(k), dur: (k === "respiro" ? hc.hf[k].desc : hc.hf[k].foco) * 60000, v: tx(J_HF[k].verbo) })) };
+    }
+    if (run && run.lite) { o.tramo = run.tramo || 1; o.total = run.rondas || 1; }
+    if (run && (run.fase === "foco" || (run.lite && run.fase === "descanso")) && run.dur && !run.libre) {
       o.dur = run.dur; o.tramo = run.tramo || 1;
       if (run.lite && run.rondas) o.total = run.rondas;
       if (run.seg) { o.corre = true; o.fin = run.seg + run.dur - (run.acum || 0); }
@@ -287,6 +298,7 @@
         noches: tx("Buenas noches, a dormir"), noches_c: tx("A dormir"), dias_b: tx("Buenos días, ya desperté"), dias_c: tx("Ya desperté"),
         enfocar: tx("Enfocar de todos modos"), tramo: tx("Tramo {a} de {b}"), hasta_m: tx("Hasta las {h}"), sigue_b: tx("Sigue {n}, {h}"),
         ramas: tx("Ramas"),
+        descanso: tx("Descanso"), tab_dia: tx("Rutina diaria"), tab_lite: tx("Hiperfoco"), parar: tx("Parar"), min_n: tx("{n} min"),
       },
       dias,
     };
@@ -302,10 +314,18 @@
     if (!hayDatos()) return;
     let f;
     try { f = foto(); } catch (e) { return; }
-    const s = JSON.stringify(f);
-    if (s === ultima) return;
-    ultima = s;
-    Promise.resolve(wn.foto({ foto: f })).catch(() => { ultima = ""; });
+    /* Los arranques del Pomodoro (`jIniciosDeFuera`, js/09d-jornada.js) solo
+       sirven si este APK trae los avisos, que son quienes llevan la alarma del
+       final; y sus iconos se hacen aparte, porque dibujarlos tarda. */
+    const av = window.norataAvisos;
+    const ini = f.pomo && av && typeof av.conIconos === "function" && typeof jIniciosDeFuera === "function" ? sinFallo(jIniciosDeFuera) : null;
+    Promise.resolve(ini ? av.conIconos(ini) : null).catch(() => null).then((inicios) => {
+      if (inicios) f.pomo.inicios = inicios;
+      const s = JSON.stringify(f);
+      if (s === ultima) return null;
+      ultima = s;
+      return wn.foto({ foto: f });
+    }).catch(() => { ultima = ""; });
   }
   window.widgetsFoto = function () {
     clearTimeout(espera);
@@ -362,6 +382,15 @@
     a(sitio);
     if (sitio !== "jornada" || !accion || typeof jornadaEncendida !== "function" || !jornadaEncendida()) return;
     const j = state.jornada || {}, run = j.run, enFoco = !!run && run.fase === "foco";
+    /* El Hiperfoco: enseñar su pestaña, y encenderlo o pararlo si eso decía el
+       botón (solo llega aquí en un APK sin los avisos: con ellos, el widget lo
+       hace sin abrir la app). */
+    if (accion === "lite" || accion === "lite-iniciar" || accion === "lite-parar") {
+      if (typeof jModo === "function" && jModo() !== "lite" && typeof jPonerModo === "function") jPonerModo("lite");
+      if (accion === "lite-iniciar" && !run && typeof jIniciarLite === "function") jIniciarLite();
+      else if (accion === "lite-parar" && run && run.lite && typeof jPararLite === "function") jPararLite();
+      return;
+    }
     if (accion === "iniciar" && !run && typeof jIniciar === "function") jIniciar();
     else if (accion === "pausar" && enFoco && run.seg && typeof jPausa === "function") jPausa();
     else if (accion === "seguir" && enFoco && !run.seg && typeof jPausa === "function") jPausa();

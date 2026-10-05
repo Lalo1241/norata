@@ -103,7 +103,10 @@ que abre sin red y sin pasar por Chrome. Lo que eso cambia aquí:
   misiones y actividades, más la racha, el nivel, la habilidad por cuidar, el
   nodo que toca y el tramo del Pomodoro, con textos y colores ya resueltos.
   **Lo que arma la foto no escribe**: nada de `jDatos()`, `applyDecay()` ni
-  `ramasDe()`, que siembran o guardan al llamarlas. Un widget nuevo sigue esas
+  `ramasDe()`, que siembran o guardan al llamarlas. **El del Pomodoro se
+  mueve sin abrir la app a través de los avisos**: manda los mismos toques
+  que la cortina y lee su reloj, así que necesita los dos complementos en el
+  APK (0.7.210). Un widget nuevo sigue esas
   reglas y lleva su propio icono, nunca el logo.
 - **El icono de la pantalla de inicio sigue al mundo (0.7.145), y solo en el
   APK.** **Elegir un mundo es una sola pieza (0.7.194)**: el logo llega, se

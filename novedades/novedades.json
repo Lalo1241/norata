@@ -19,6 +19,26 @@
       "fecha": "2026-08-25"
     },
     {
+      "id": "widget-pomodoro",
+      "version": "0.7.210",
+      "fecha": "2026-10-05",
+      "estado": "borrador",
+      "clase": "mejora",
+      "toca": [
+        "App de Android",
+        "Pomodoro"
+      ],
+      "titulo": "El Pomodoro, desde tu pantalla de inicio",
+      "resumen": "El widget del Pomodoro ya tiene sus dos pestañas, Rutina diaria e Hiperfoco, y funciona sin abrir Norata: inicias, pausas, sigues y paras desde ahí, y la cortina te avisa al terminar.",
+      "puntos": [],
+      "retoques": [],
+      "en": {
+        "titulo": "The Pomodoro, from your home screen",
+        "resumen": "The Pomodoro widget now has its two tabs, Daily routine and Hyperfocus, and works without opening Norata: you start, pause, resume and stop from there, and a notification tells you when it ends.",
+        "puntos": []
+      }
+    },
+    {
       "version": "0.7.1",
       "fecha": "2026-08-25"
     },

@@ -656,11 +656,18 @@ function jHfResumen(k) {
   return T`${h.desc} min de calma`;
 }
 
-function jIniciarLite() {
-  jAudio(); jPedirPermiso();
-  const c = jHfCfg(), k = c.hfModo, h = c.hf[k], j = jDatos();
-  const base = { lite: true, modo: k, tramo: 1, acum: 0, seg: Date.now(), pausas: 0, ref: null, bloque: null,
-    origen: jEsteDispositivo(), fid: uid(), reloj: jTipoReloj(k === "respiro" ? h.desc : h.foco) };
+/* `op` solo lo pasa `jAplicarAvisos`, igual que en `jIniciar`: el Hiperfoco
+   que se encendió desde el widget del Pomodoro empezó CUANDO se tocó (`seg`),
+   con el id de fase que ya lleva su alarma (`fid`) y en la manera que se
+   eligió allí (`modo`), que pasa a ser la de la app. */
+function jIniciarLite(op) {
+  op = op || {};
+  if (!op.seg) { jAudio(); jPedirPermiso(); }
+  const c = jHfCfg(), j = jDatos();
+  if (op.modo && J_HF[op.modo]) c.hfModo = op.modo;
+  const k = c.hfModo, h = c.hf[k];
+  const base = { lite: true, modo: k, tramo: 1, acum: 0, seg: op.seg || Date.now(), pausas: 0, ref: null, bloque: null,
+    origen: jEsteDispositivo(), fid: op.fid || uid(), reloj: jTipoReloj(k === "respiro" ? h.desc : h.foco) };
   j.run = k === "respiro"
     ? Object.assign(base, { fase: "descanso", dur: h.desc * J_MS })
     : Object.assign(base, { fase: "foco", dur: h.foco * J_MS, rondas: k === "travesia" ? h.rondas : 1 });
@@ -2406,6 +2413,14 @@ function jEstadoAviso(run) {
     pausable: run.fase === "foco",
     icono: descanso ? { dibujo: J_ARENA, color: "var(--jor-brasa)", forma: "disco" } : jIconoAviso(run.ref, null)
   };
+  /* Lo que el widget del Pomodoro necesita y el aviso no pinta: si es Hiperfoco
+     (y cuál), por dónde va y cuánto dura la fase. Lo nativo de los avisos lo
+     guarda sin mirarlo. */
+  e.lite = run.lite ? (run.modo || "travesia") : "";
+  e.fase = run.fase;
+  e.tramo = run.tramo || 1;
+  e.total = run.lite ? (run.rondas || 1) : c.ciclos;
+  e.dur = run.dur || 0;
   if (run.fase === "foco" || descanso) {
     e.titulo = run.fase === "foco" ? nombre : run.lite && run.modo === "respiro" ? nombre : tx("Descanso");
     e.texto = ronda;
@@ -2488,6 +2503,41 @@ function jEntradasAgenda() {
   return out;
 }
 
+/* Lo que el widget del Pomodoro necesita para ARRANCAR con la app cerrada: el
+   tramo de la rutina que empezaría ahora y las tres maneras del Hiperfoco,
+   cada uno con lo que el aviso tiene que decir mientras corre y al acabar.
+   Es lo mismo que ya viaja en una alarma de la agenda (`iniciar`), escrito
+   antes de que haga falta: con la app cerrada no hay quien lo escriba. */
+function jIniciosDeFuera() {
+  if (!jornadaEncendida()) return null;
+  const j = jDatos(), c = jHfCfg(), dur = c.preset === "libre" ? 0 : c.foco * J_MS;
+  const b = jBloqueEn(jAhora()), bloque = b && !b.descanso ? b : null;
+  const run = { fase: "foco", tramo: 1, dur: dur || null, libre: !dur, ref: bloque && jRef(bloque.ref) ? bloque.ref : null, acum: 0, pausas: 0 };
+  const r = jRef(run.ref);
+  const rutina = {
+    titulo: r ? r.nombre : tx("Sin vincular"), texto: c.preset === "libre" ? tx("Tramo libre") : T`Tramo ${1} de ${c.ciclos}`,
+    dur, bloque: bloque ? bloque.id : "", icono: jIconoAviso(run.ref, null), fase: "foco", pausable: true, tramo: 1, total: c.ciclos,
+    vistas: { corre: jVistaCorre(run, false), pausa: jVistaCorre(run, true) },
+    alFinal: { titulo: tx("Pomodoro") + " · " + T`Tramo ${1} de ${c.ciclos} listo`, texto: T`${c.foco} min de foco. Toca descansar.`,
+      vista: jVistaFin(Object.assign({}, run, { dur: dur || J_MS })) }
+  };
+  const hf = {};
+  Object.keys(J_HF).forEach(k => {
+    const h = c.hf[k], respiro = k === "respiro";
+    const lr = { lite: true, modo: k, fase: respiro ? "descanso" : "foco", tramo: 1, dur: (respiro ? h.desc : h.foco) * J_MS,
+      rondas: k === "travesia" ? h.rondas : 1, acum: 0, pausas: 0, ref: null };
+    const [ft, fx] = jMensajeFin(lr);
+    hf[k] = {
+      titulo: jHfNombre(k), texto: k === "travesia" && lr.rondas > 1 ? T`Ronda ${1} de ${lr.rondas}` : jHfResumen(k),
+      dur: lr.dur, bloque: "", lite: k, fase: lr.fase, pausable: !respiro, tramo: 1, total: lr.rondas,
+      icono: respiro ? { dibujo: J_ARENA, color: "var(--jor-brasa)", forma: "disco" } : jIconoAviso(null, null),
+      vistas: { corre: jVistaCorre(lr, false), pausa: jVistaCorre(lr, true) },
+      alFinal: { titulo: tx("Pomodoro") + " · " + ft, texto: fx, vista: jVistaFin(lr) }
+    };
+  });
+  return { rutina, hf };
+}
+
 /* Corre en cada `jPaso` (cuatro veces por segundo) y solo manda cuando algo
    cambió: la firma es lo que se ve en el aviso, no la hora. La agenda se mira
    cada pocos segundos, que la rueda no cambia sola. */
@@ -2514,6 +2564,12 @@ function jSincronizarAvisos() {
 /* Lo que se tocó en la cortina, con su hora. Una pausa o un «seguir» solo
    valen para la fase de la que hablaba el aviso (`clave`): si la página ya
    pasó a otra, ese toque llegó tarde y no se aplica. */
+/* Un «parar» solo vale para el Hiperfoco del que hablaba el widget: mismo id
+   de fase, sea cual sea la fase por la que vaya (una Travesía pudo pasar de
+   foco a descanso desde entonces). */
+function deEsteModo(run, ev) {
+  return !!run && !!run.lite && !!ev.clave && String(ev.clave).split("|")[0] === String(run.fid || run.seg || "");
+}
 function jAplicarAvisos(lista) {
   if (!Array.isArray(lista) || !lista.length) return;
   const j = jDatos();
@@ -2526,6 +2582,17 @@ function jAplicarAvisos(lista) {
       cambio = true;
     } else if (ev.accion === "seguir" && deEste && run.fase === "foco" && !run.seg) {
       run.seg = t;
+      cambio = true;
+    } else if (ev.accion === "iniciar" && ev.lite) {
+      // El Hiperfoco que se encendió desde el widget. Con algo en marcha, no.
+      if (run) return;
+      jIniciarLite({ seg: t, fid: ev.fid, modo: ev.lite });
+      cambio = true;
+    } else if (ev.accion === "parar" && deEsteModo(run, ev)) {
+      /* Parar apunta los minutos que iban HASTA el toque, no hasta que la app
+         se abrió: se cierra la cuenta en esa hora y después se para. */
+      if (run.seg) { run.acum = (run.acum || 0) + Math.max(0, t - run.seg); run.seg = null; }
+      jPararLite();
       cambio = true;
     } else if (ev.accion === "iniciar") {
       // Con un tramo ya en marcha no se empieza otro encima.

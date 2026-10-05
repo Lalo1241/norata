@@ -3854,6 +3854,7 @@ const TEXTOS_EN = {
   "Enfocar": "Focus",
   "Sin elegir nada: solo tú y el reloj.": "Nothing to choose: just you and the timer.",
   "Parar": "Stop",
+  "{n} min": "{n} min",
   "Otro tramo": "Another session",
   "Ver el informe del Pomodoro": "See the Pomodoro report",
   "{0} de {1} con foco": "{0} of {1} with focus",

@@ -8,7 +8,7 @@ Eduardo:
 | --- | --- | --- | --- |
 | **Hoy** | 4×2, se estira | La actividad que toca, las misiones del día y las actividades que vienen. La lista se desliza | La fila marca la misión; el título abre Misiones |
 | **Lo que sigue** | 4×1 | Una sola misión: la que toca, con el avance del día alrededor | El círculo la marca y sale la siguiente |
-| **Pomodoro** | 2×2, 4×2 o 4×4 | Crece: el reloj; con la rueda chica y lo que toca; o la rueda entera del día | El botón abre la app y arranca, pausa o apunta el sueño |
+| **Pomodoro** | 2×2, 4×2 o 4×4 | Crece: el reloj; con la rueda chica y lo que toca; o la rueda entera del día. Dos pestañas: Rutina diaria e Hiperfoco | Inicia, pausa, sigue y para sin abrir la app (con los avisos puestos) |
 | **Luciérnagas** | 2×2 | Una luciérnaga por misión de hoy; se enciende la cumplida | Abre el Resumen |
 | **Racha** | 2×2 | Las semanas encendidas y los días de esta semana | Abre «Tu racha» |
 | **Por cuidar** | 2×2 | La habilidad con más días sin práctica y cuándo empieza a bajar | El botón marca la misión que la mantiene |
@@ -80,7 +80,10 @@ estaba antes de ESE instalador.
 4. Abre la app: sale «Se aplicó 1 marca del widget», la misión está cumplida
    con su XP, y al volver al inicio «por cobrar» ya no está.
 5. Estira el **Pomodoro** hacia abajo y a lo ancho: pasa del reloj a la rueda
-   chica y a la rueda entera. Toca su botón: abre la app y arranca el tramo.
+   chica y a la rueda entera. Toca **Hiperfoco**, elige la manera tocando su
+   nombre y dale a iniciar: la cuenta corre y en la cortina sale su aviso, sin
+   que la app se abra. Pausa, sigue y para desde ahí; al abrir la app, lo
+   hecho está apuntado.
 6. Cambia de mundo o de modo claro en la app y vuelve al inicio: todos tienen
    los tonos nuevos.
 
@@ -133,12 +136,33 @@ estaba antes de ESE instalador.
 - **Un widget nuevo son cuatro sitios**: su función en `Pinta.java`, su clase
   de seis líneas, su fila en `Widgets.TODOS` y en `WIDGETS` del instalador, y
   su molde con su ficha. Los datos que necesite los añade la página a la foto.
-- **El Pomodoro no arranca el reloj desde el widget.** Su botón abre la app y
-  es la página la que inicia, pausa o apunta el sueño (`ir`, en
-  `js/13c-widgets.js`). Un tramo que corre con la app cerrada necesita una
-  alarma que avise al acabar, y esa es la de los avisos; ponerla aquí también
-  serían dos relojes que pueden no coincidir. La cuenta sí corre sola, con el
-  cronómetro del sistema.
+- **El Pomodoro tiene dos pestañas, como en la app: Rutina diaria e Hiperfoco.**
+  Son dos cosas distintas y no se mezclan: con un Hiperfoco en marcha el widget
+  enseña SU pestaña y no la rueda de la rutina (salía la rueda, y Eduardo lo
+  vio como un fallo). Se cambia tocando la pestaña. **Deslizar de lado dentro
+  de un widget no existe en Android**: ese gesto es del lanzador, que pasa de
+  una pantalla de inicio a otra. En Hiperfoco, tocar el nombre de la manera
+  («Travesía ›») pasa a la siguiente.
+- **El Pomodoro funciona sin abrir la app, apoyado en los avisos**
+  (`nativo/avisos/`). Iniciar, pausar, seguir y parar son los mismos toques
+  que ya se hacían desde la cortina, y los lleva el mismo receptor, con su
+  alarma del final y su cola para la página. El reloj de verdad es el de los
+  avisos (`Widgets.relojAvisos`): lo escribe la página mientras vive y el
+  receptor cuando no, así que el widget y la cortina dicen siempre lo mismo.
+  Para ARRANCAR hace falta además el arranque que la página deja escrito
+  (`jIniciosDeFuera`, js/09d-jornada.js). Va todo por nombre y no por clase:
+  **en un APK sin los avisos cada botón abre la app y lo hace ella**, como
+  antes. Lo que queda dentro de la app: apuntar el sueño y cerrar un tramo
+  («¿cómo te fue?»).
+- **Con la app cerrada, una Travesía no pasa sola a su descanso.** Al acabar
+  la ronda suena su aviso y el widget dice «Ronda 1 de 4 lista»; la ronda
+  siguiente la pone la página al abrirse. Es lo mismo que ya pasaba con el
+  aviso de la cortina.
+- **Los minutos se cuentan como en la app: seguidos, sin horas.** Dos horas
+  son «120:00», no «2:00:00». El cronómetro del sistema no sabe escribirlo
+  así, de modo que con una hora o más por delante se dice en minutos
+  («118 min», al minuto) y por debajo de la hora corre por segundos. El sueño
+  va en horas y minutos («07:05»), también como en la app.
 - **El Pomodoro elige su molde por tamaño** (`Pinta.pomodoro`): a partir de
   230 dp de ancho, la rueda chica; con 300 dp de alto además, la entera. Las
   medidas son las que el lanzador le dice a Android, y cada marca las cuenta a
@@ -181,7 +205,9 @@ estaba antes de ESE instalador.
 - **Un APK sin esto** no trae `WidgetsNorata`, y la página lo sabe con
   `isPluginAvailable`: no manda nada y no cambia nada.
 
-El APK entero se arma con Gradle sin errores (Android 16, Capacitor 8), y la
-parte de la página se probó con un complemento de mentira. **Hoy ya se vio en
+El APK entero se arma con Gradle sin errores (Android 16, Capacitor 8). El
+Pomodoro se probó en el emulador (`norata-prueba`), puesto en la pantalla de
+inicio y tocándolo: encender, pausar, seguir y parar un Hiperfoco con la app
+cerrada, y que la app lo recoja al abrir. **Hoy ya se vio en
 el teléfono de Eduardo; los otros ocho todavía no se han visto pintados en un
 teléfono**: eso es el paso «Cómo se comprueba».

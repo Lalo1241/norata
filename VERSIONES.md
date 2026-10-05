@@ -318,6 +318,51 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.210 · 5 oct 2026
+
+**El widget del Pomodoro tiene sus dos modos y funciona sin abrir la app.** Lo
+pidió Eduardo al usarlo: tenía que abrir la app para todo, y con un Hiperfoco
+en marcha el widget enseñaba la rueda de la Rutina diaria, que es otra cosa.
+
+- **Dos pestañas, Rutina diaria e Hiperfoco**, como en la app. Con un Hiperfoco
+  corriendo se enseña la suya. Pidió deslizar de lado, y eso en un widget de
+  Android no existe: el gesto es del lanzador. Se cambia tocando la pestaña, y
+  la manera (Travesía, Inmersión, Respiro) tocando su nombre.
+- **Iniciar, pausar, seguir y parar sin abrir la app**, por el receptor de los
+  avisos: el widget manda los mismos toques que la cortina y lee su reloj
+  (`Widgets.relojAvisos`), así los dos dicen siempre lo mismo. No se duplicó
+  ni la alarma del final ni la cola. Va por nombre y no por clase, para que un
+  APK con un complemento y sin el otro siga compilando.
+- **`parar` es nuevo en el receptor**, y un `iniciar` puede ser de un
+  Hiperfoco: `jIniciarLite(op)` acepta la hora, el id de fase y la manera, y
+  `jAplicarAvisos` cierra la cuenta de un «parar» en la hora del toque, no en
+  la de abrir la app.
+- **`jIniciosDeFuera`** deja escrito, con cada foto, el tramo de la rutina que
+  empezaría ahora y las tres maneras del Hiperfoco, con lo que el aviso tiene
+  que decir mientras corre y al acabar. Con la app cerrada no hay quien lo
+  escriba.
+- **Los minutos, como en la app: seguidos.** Dos horas son 120 minutos. El
+  cronómetro del sistema escribe «2:00:00» y no hay forma de cambiárselo, así
+  que con una hora o más se dice «118 min» (al minuto) y por debajo corre por
+  segundos. El sueño vuelve a «07:05», como lo escribe la app (`jHm`).
+- **Por qué no había ninguna notificación en el APK:** el complemento de los
+  avisos (0.7.163) nunca se había instalado en el proyecto de Android; solo
+  estaban los iconos y los widgets. Ya está instalado.
+
+**Cómo se probó**, en el emulador (`norata-prueba`, versión de depuración con
+los dos complementos): el aviso fijo sale al encender un Hiperfoco; con la app
+cerrada, desde el widget, se enciende una Inmersión, se pausa y se sigue, y al
+abrir la app el tramo está ahí con su hora de inicio y su pausa; parar quita el
+aviso y la app apunta los minutos. El widget se puso en la pantalla de inicio y
+se tocó: pestañas, cambio de manera, iniciar y parar. **Sin probar:** iniciar un
+tramo de la Rutina desde el widget (va por el mismo camino que el de una alarma
+de la agenda), los tamaños 4×2 y 4×4 con las pestañas, y todo ello en el
+teléfono de Eduardo.
+
+**Lo que no hace:** con la app cerrada, una Travesía no pasa sola a su
+descanso (igual que con el aviso de la cortina); y apuntar el sueño y cerrar un
+tramo siguen pidiendo abrir la app.
+
 ### 0.7.209 · 4 oct 2026
 
 **Con el APK nuevo, cambiar de mundo ya no cierra la app: el icono cambia

@@ -49,6 +49,12 @@ public class HoyWidget extends WidgetNorata {
             }
             return;
         }
+        if (i != null && Widgets.POMO.equals(i.getAction())) {
+            Pinta.alTocarPomo(c, i.getStringExtra(Widgets.EXTRA_QUE), i.getIntExtra(Widgets.EXTRA_WIDGET, 0));
+            // Se repinta ya (la pestaña, la manera); lo del reloj llega enseguida, cuando los avisos avisen.
+            Widgets.refrescar(c);
+            return;
+        }
         if (i != null && Widgets.TIC.equals(i.getAction())) {
             Widgets.refrescar(c);
             return;

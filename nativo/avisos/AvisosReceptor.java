@@ -86,6 +86,7 @@ public class AvisosReceptor extends BroadcastReceiver {
             if (fin != null && fin.optJSONObject("vista") != null) quieto.put("vista", fin.optJSONObject("vista"));
             Avisos.guardar(c, "reloj", quieto);
             Avisos.pintarReloj(c, quieto);
+            Avisos.avisarWidgets(c);
         } catch (JSONException e) { /* se queda el que había */ }
         /* Con la app a la vista lo dice ella: campana y aviso dentro. */
         if (Avisos.enPrimerPlano) return;
@@ -149,8 +150,17 @@ public class AvisosReceptor extends BroadcastReceiver {
                     nuevo.put("titulo", ini.optString("titulo"));
                     nuevo.put("texto", ini.optString("texto"));
                     nuevo.put("icono", ini.optString("icono"));
-                    nuevo.put("pausable", true);
-                    nuevo.put("clave", fid + "|foco");
+                    /* Un Respiro no es foco: es un descanso que no se pausa. La
+                       fase y el resto (0.7.210) los escribe la página, para el
+                       widget del Pomodoro; lo de antes no los traía, y vale. */
+                    String fase = ini.optString("fase", "foco");
+                    nuevo.put("pausable", ini.optBoolean("pausable", true));
+                    nuevo.put("clave", fid + "|" + fase);
+                    nuevo.put("fase", fase);
+                    nuevo.put("lite", ini.optString("lite", ""));
+                    nuevo.put("tramo", ini.optInt("tramo", 1));
+                    nuevo.put("total", ini.optInt("total", 1));
+                    nuevo.put("dur", dur);
                     if (dur > 0) nuevo.put("fin", t + dur); else nuevo.put("inicio", t);
                     if (ini.has("alFinal")) nuevo.put("alFinal", ini.getJSONObject("alFinal"));
                     // Las dos caras del tramo que empieza (corriendo y en pausa), ya escritas por la página.
@@ -160,6 +170,16 @@ public class AvisosReceptor extends BroadcastReceiver {
                     ev.put("fid", fid);
                     ev.put("bloque", ini.optString("bloque"));
                     ev.put("dur", dur);
+                    // Si es un Hiperfoco, cuál: la página lo enciende con `jIniciarLite`.
+                    if (!ini.optString("lite", "").isEmpty()) ev.put("lite", ini.optString("lite"));
+                    break;
+                }
+                case "parar": {
+                    /* Parar un Hiperfoco desde el widget del Pomodoro: el reloj
+                       se quita ya, y la página apunta los minutos al abrir, con
+                       la hora de este toque. */
+                    if (r == null) return;
+                    Avisos.ponerReloj(c, null);
                     break;
                 }
                 case "posponer": {

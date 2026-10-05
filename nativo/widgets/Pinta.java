@@ -317,17 +317,109 @@ final class Pinta {
        toca, y grande es la rueda entera del día. Los tres moldes usan los
        mismos nombres, así que se llenan igual y cada uno enseña lo que tiene.
 
-       El botón NO arranca el reloj aquí: abre la app y es la página la que lo
-       inicia, lo pausa o apunta el sueño (`ir`, js/13c-widgets.js). Un tramo
-       que corre con la app cerrada necesita una alarma que avise al acabar, y
-       esa es la de los avisos (`nativo/avisos/`); duplicarla aquí serían dos
-       relojes que pueden no coincidir.
+       **Dos pestañas, como en la app: Rutina diaria e Hiperfoco.** Son dos
+       cosas distintas y no se mezclan: con un Hiperfoco en marcha el widget
+       enseña SU pestaña, y no la rueda de la rutina (que era lo que salía, y
+       Eduardo lo vio como un fallo). Se cambia tocando la pestaña: deslizar de
+       lado dentro de un widget no existe en Android, porque ese gesto es del
+       lanzador (pasa de una pantalla de inicio a otra).
 
-       Lo que cuenta va en tiempo real: la cuenta del tramo y la del sueño, por
-       segundos, con el cronómetro del sistema, y la hora de la cabecera con su
-       reloj. La aguja, la arena y el aro son una imagen y avanzan cuando el
-       widget se repinta: cada minuto con un Pomodoro puesto, y cada veinte
-       segundos con un tramo en marcha (`Widgets.armarTic`). */
+       **Funciona sin abrir la app**, apoyado en los avisos (`nativo/avisos/`):
+       iniciar, pausar, seguir y parar son los mismos toques que ya se hacían
+       desde la cortina, y los lleva el mismo receptor, con su alarma del final
+       y su cola para la página. El reloj de verdad es el de los avisos
+       (`Widgets.relojAvisos`): lo escribe la página mientras está viva y el
+       receptor cuando no, así que el widget y la cortina dicen siempre lo
+       mismo. En un APK sin los avisos, o sin el arranque que manda la página,
+       cada botón abre la app y lo hace ella, como antes.
+
+       **Los minutos se cuentan como en la app: seguidos, sin horas.** Dos
+       horas son «120:00», no «2:00:00». El cronómetro del sistema no sabe
+       escribirlo así, de modo que con una hora o más por delante se dice en
+       minutos («118 min», al minuto) y por debajo de la hora corre por
+       segundos, que es cuando se mira. El sueño va en horas y minutos
+       («07:05»), también como en la app. */
+    private static JSONObject deLista(JSONObject hf, String k) {
+        JSONArray l = hf == null ? null : hf.optJSONArray("lista");
+        for (int i = 0; l != null && i < l.length(); i++) {
+            JSONObject o = l.optJSONObject(i);
+            if (o != null && k.equals(o.optString("k"))) return o;
+        }
+        return null;
+    }
+
+    /* La manera del Hiperfoco que se enseña: la que se eligió en el widget, o la de la app. */
+    private static String modoHf(Context c, JSONObject pm) {
+        JSONObject hf = pm.optJSONObject("hf");
+        String m = Widgets.prefs(c).getString("hf_modo", "");
+        if (!m.isEmpty() && deLista(hf, m) != null) return m;
+        return hf == null ? "travesia" : hf.optString("modo", "travesia");
+    }
+
+    private static JSONObject arranque(JSONObject pm, String cual, String modo) {
+        JSONObject ini = pm.optJSONObject("inicios");
+        if (ini == null) return null;
+        if ("rutina".equals(cual)) return ini.optJSONObject("rutina");
+        JSONObject hf = ini.optJSONObject("hf");
+        return hf == null ? null : hf.optJSONObject(modo);
+    }
+
+    /* El reloj quieto: ni corre ni está en pausa. Es lo que deja el final de una
+       fase («Tramo 1 de 4 listo») o la espera entre dos tramos. */
+    private static boolean quieto(JSONObject r) {
+        return r != null && !r.optBoolean("pausado") && r.optLong("fin", 0) <= System.currentTimeMillis() && r.optLong("inicio", 0) <= 0;
+    }
+
+    /* Lo que se tocó en un widget del Pomodoro. Cambiar de pestaña o de manera
+       es cosa del widget; lo demás se le pasa al receptor de los avisos, que es
+       quien mueve el reloj, pone la alarma del final y se lo apunta a la página. */
+    static void alTocarPomo(Context c, String que, int widget) {
+        if (que == null) return;
+        JSONObject pm = Widgets.foto(c).optJSONObject("pomo");
+        if (pm == null) pm = new JSONObject();
+        JSONObject r = Widgets.relojAvisos(c);
+        switch (que) {
+            case "tab-dia":
+            case "tab-lite":
+                Widgets.prefs(c).edit().putString("pm_pag_" + widget, "tab-lite".equals(que) ? "lite" : "dia").apply();
+                break;
+            case "modo": {
+                JSONObject hf = pm.optJSONObject("hf");
+                JSONArray l = hf == null ? null : hf.optJSONArray("lista");
+                if (l == null || l.length() == 0) break;
+                String ya = modoHf(c, pm);
+                int i = 0;
+                for (int k = 0; k < l.length(); k++) if (ya.equals(l.optJSONObject(k).optString("k"))) i = k;
+                Widgets.prefs(c).edit().putString("hf_modo", l.optJSONObject((i + 1) % l.length()).optString("k")).apply();
+                break;
+            }
+            case "pausa":
+            case "seguir":
+            case "parar":
+                if (r != null) Widgets.aAvisos(c, que, null);
+                break;
+            case "iniciar-dia": {
+                if (r != null && !quieto(r)) break;
+                JSONObject ini = r != null && r.optJSONObject("siguiente") != null ? r.optJSONObject("siguiente") : arranque(pm, "rutina", "");
+                if (ini != null) Widgets.aAvisos(c, "iniciar", ini);
+                break;
+            }
+            case "iniciar-lite": {
+                if (r != null && !quieto(r)) break;
+                JSONObject ini = arranque(pm, "hf", modoHf(c, pm));
+                if (ini != null) Widgets.aAvisos(c, "iniciar", ini);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    private static String mmss(long ms) {
+        long s = Math.max(0, (ms + 999) / 1000);
+        return String.format(Locale.US, "%02d:%02d", s / 60, s % 60);
+    }
+
     static RemoteViews pomodoro(Context c, AppWidgetManager m, int widget) {
         int[] md = medida(m, widget, 150, 200);
         boolean grande = md[0] >= 230 && md[1] >= 300, ancho = !grande && md[0] >= 230;
@@ -345,49 +437,125 @@ final class Pinta {
                 curso = Widgets.color(f, "curso", "#f5d76e"), cursoTinta = Widgets.color(f, "cursoTinta", "#f5d76e"),
                 tono = Widgets.color(f, "tono", "#263a38"), tonoTinta = Widgets.color(f, "tonoTinta", "#5fe0b0");
 
-        boolean corre = pm.optBoolean("corre") && pm.optLong("fin") > ya, termino = pm.optBoolean("corre") && !corre, pausa = pm.optBoolean("pausa");
-        long dur = Math.max(60000L, pm.optLong("dur", 25 * 60000L));
-        long resto = corre ? pm.optLong("fin") - ya : pausa ? Math.max(0, pm.optLong("resto", dur)) : termino ? 0 : dur;
+        // ---- En qué está el reloj: el de los avisos si lo hay; si no, lo que dijo la página. ----
+        JSONObject r = Widgets.relojAvisos(c);
+        boolean avisos = Widgets.hayAvisos(c);
+        boolean corre, pausa, termino, sube = false, pausable = true;
+        long dur = Math.max(60000L, pm.optLong("dur", 25 * 60000L)), resto;
+        String lite, rTit = "", rTxt = "", fase = "foco";
+        int tramo = pm.optInt("tramo", 1), total = pm.optInt("total", 4);
+        JSONObject sig = null;
+        if (r != null) {
+            long fin = r.optLong("fin", 0), ini = r.optLong("inicio", 0);
+            pausa = r.optBoolean("pausado");
+            corre = !pausa && (fin > ya || ini > 0);
+            termino = !pausa && !corre;
+            sube = ini > 0 || (pausa && r.optLong("transcurrido", 0) > 0);
+            resto = corre ? (fin > 0 ? fin - ya : ya - ini) : pausa ? (sube ? r.optLong("transcurrido") : r.optLong("restante")) : 0;
+            if (r.optLong("dur", 0) > 0) dur = r.optLong("dur");
+            lite = r.optString("lite", "");
+            fase = r.optString("fase", "foco");
+            tramo = r.optInt("tramo", tramo);
+            total = r.optInt("total", total);
+            pausable = r.optBoolean("pausable", true);
+            rTit = r.optString("titulo", "").replace(Widgets.tx(f, "pomo", "Pomodoro") + " · ", "");
+            rTxt = r.optString("texto", "");
+            sig = r.optJSONObject("siguiente");
+        } else {
+            corre = pm.optBoolean("corre") && pm.optLong("fin") > ya;
+            termino = pm.optBoolean("corre") && !corre;
+            pausa = pm.optBoolean("pausa");
+            resto = corre ? pm.optLong("fin") - ya : pausa ? Math.max(0, pm.optLong("resto", dur)) : termino ? 0 : dur;
+            lite = pm.optString("modo", "");
+        }
         boolean activo = corre || pausa || termino;
-        JSONObject blo = p.enCurso ? p.tira : null;
-        boolean sueno = blo != null && blo.optBoolean("luna") && !activo;
         String cerrado = pm.optString("cerrado", "");
+        JSONObject hf = pm.optJSONObject("hf");
 
-        String t, rot, sub, largo, corto, ir;
+        // ---- La pestaña: la que toque lo que corre; si no corre nada, la que eligió la persona. ----
+        boolean pLite = hf != null && cerrado.isEmpty()
+                && (activo ? !lite.isEmpty() : "lite".equals(Widgets.prefs(c).getString("pm_pag_" + widget, "dia")));
+        String modo = activo && !lite.isEmpty() ? lite : modoHf(c, pm);
+        JSONObject manera = deLista(hf, modo);
+        if (pLite && manera == null) pLite = false;
+
+        JSONObject blo = p.enCurso ? p.tira : null;
+        boolean sueno = !pLite && blo != null && blo.optBoolean("luna") && !activo && cerrado.isEmpty();
+
+        // ---- Qué se dice y qué hace el botón ----
+        String t, rot, sub, largo, corto, que, ir;   // `que`: el toque que se resuelve aquí; `ir`: adónde abrir la app si no se puede.
+        String icono = "widget_ic_play";
         float prog;
-        long hastaDespertar = 0;
+        boolean tonal = false, amarillo = false, segundo = false;
         if (!cerrado.isEmpty()) {
             t = "--:--"; rot = cerrado; sub = ""; prog = 0;
-            largo = corto = Widgets.tx(f, "abrir", "Abrir"); ir = "jornada";
+            largo = corto = Widgets.tx(f, "abrir", "Abrir"); que = null; ir = "jornada"; tonal = true;
         } else if (sueno) {
-            int a = blo.optInt("a"), z = blo.optInt("b"), total = ((z - a + 1440) % 1440) == 0 ? 1440 : (z - a + 1440) % 1440, falta = (z - minuto + 1440) % 1440;
+            int a = blo.optInt("a"), z = blo.optInt("b"), largoB = ((z - a + 1440) % 1440) == 0 ? 1440 : (z - a + 1440) % 1440, falta = (z - minuto + 1440) % 1440;
             boolean dormido = pm.optBoolean("dormido");
-            t = String.format(Locale.US, "%d:%02d", falta / 60, falta % 60);
-            hastaDespertar = Math.max(0, falta * 60000L - Widgets.ahora(f).get(Calendar.SECOND) * 1000L);
+            t = String.format(Locale.US, "%02d:%02d", falta / 60, falta % 60);
             rot = dormido ? Widgets.tx(f, "durmiendo", "Durmiendo") : Widgets.tx(f, "dormir_rot", "Hora de dormir");
             sub = con(Widgets.tx(f, "levantas", "Te levantas a las {h}"), "{h}", Widgets.hora(z));
-            prog = 1 - falta / (float) total;
+            prog = 1 - falta / (float) largoB;
             largo = dormido ? Widgets.tx(f, "dias_b", "Buenos días, ya desperté") : Widgets.tx(f, "noches", "Buenas noches, a dormir");
             corto = dormido ? Widgets.tx(f, "dias_c", "Ya desperté") : Widgets.tx(f, "noches_c", "A dormir");
-            ir = dormido ? "jornada:despertar" : "jornada:dormir";
+            que = null; ir = dormido ? "jornada:despertar" : "jornada:dormir"; icono = "widget_ic_luna"; tonal = true;
         } else {
-            long s = resto / 1000;
-            t = String.format(Locale.US, "%02d:%02d", s / 60, s % 60);
-            rot = termino ? Widgets.tx(f, "listo", "Tramo listo") : corre ? Widgets.tx(f, "enfoque", "Enfoque") : pausa ? Widgets.tx(f, "en_pausa", "En pausa")
-                    : blo != null ? blo.optString("n", "") : Widgets.tx(f, "libre", "Tiempo libre");
-            sub = activo ? con(con(Widgets.tx(f, "tramo", "Tramo {a} de {b}"), "{a}", pm.optInt("tramo", 1)), "{b}", pm.optInt("total", 4))
-                    : blo != null ? con(Widgets.tx(f, "hasta_m", "Hasta las {h}"), "{h}", Widgets.hora(blo.optInt("b")))
-                    : p.tira != null ? con(con(Widgets.tx(f, "sigue_b", "Sigue {n}, {h}"), "{n}", p.tira.optString("n", "")), "{h}", Widgets.hora(p.tira.optInt("a"))) : "";
-            prog = (dur - resto) / (float) dur;
-            largo = corre ? Widgets.tx(f, "pausar", "Pausar") : pausa ? Widgets.tx(f, "seguir", "Seguir") : Widgets.tx(f, "iniciar_l", "Iniciar enfoque");
-            corto = corre ? largo : pausa ? largo : Widgets.tx(f, "iniciar", "Iniciar");
-            ir = corre ? "jornada:pausar" : pausa ? "jornada:seguir" : "jornada:iniciar";
+            long lleno = pLite && !activo ? manera.optLong("dur", dur) : termino && sig != null && sig.optLong("dur", 0) > 0 ? sig.optLong("dur") : dur;
+            t = corre || pausa ? mmss(resto) : termino && sig == null ? "00:00" : mmss(lleno);
+            prog = corre || pausa ? (sube ? 0 : (dur - resto) / (float) dur) : termino && sig == null ? 1 : 0;
+            String pausar = Widgets.tx(f, "pausar", "Pausar"), seguir = Widgets.tx(f, "seguir", "Seguir"), abrir = Widgets.tx(f, "abrir", "Abrir"),
+                    parar = Widgets.tx(f, "parar", "Parar");
+            if (pLite) {
+                String nombre = manera.optString("n", "");
+                rot = termino ? rTit : !activo ? nombre + "  ›" : pausa ? Widgets.tx(f, "en_pausa", "En pausa") : nombre;
+                sub = activo ? (rTxt.isEmpty() ? manera.optString("r", "") : rTxt) : manera.optString("r", "");
+                if (corre && pausable) { largo = corto = pausar; que = "pausa"; ir = "jornada:pausar"; icono = "widget_ic_pausa"; amarillo = true; segundo = true; }
+                else if (corre) { largo = corto = parar; que = "parar"; ir = "jornada:lite-parar"; icono = "widget_ic_alto"; tonal = true; }
+                else if (pausa) { largo = corto = seguir; que = "seguir"; ir = "jornada:seguir"; segundo = true; }
+                else if (termino) { largo = corto = abrir; que = null; ir = "jornada:lite"; tonal = true; }
+                else { largo = corto = manera.optString("v", Widgets.tx(f, "iniciar", "Iniciar")); que = "iniciar-lite"; ir = "jornada:lite-iniciar"; }
+            } else {
+                boolean descanso = "descanso".equals(fase) && activo;
+                rot = termino ? (rTit.isEmpty() ? Widgets.tx(f, "listo", "Tramo listo") : rTit)
+                        : corre ? (descanso ? Widgets.tx(f, "descanso", "Descanso") : Widgets.tx(f, "enfoque", "Enfoque"))
+                        : pausa ? Widgets.tx(f, "en_pausa", "En pausa")
+                        : blo != null ? blo.optString("n", "") : Widgets.tx(f, "libre", "Tiempo libre");
+                sub = termino ? rTxt
+                        : activo ? con(con(Widgets.tx(f, "tramo", "Tramo {a} de {b}"), "{a}", tramo), "{b}", total)
+                        : blo != null ? con(Widgets.tx(f, "hasta_m", "Hasta las {h}"), "{h}", Widgets.hora(blo.optInt("b")))
+                        : p.tira != null ? con(con(Widgets.tx(f, "sigue_b", "Sigue {n}, {h}"), "{n}", p.tira.optString("n", "")), "{h}", Widgets.hora(p.tira.optInt("a"))) : "";
+                if (corre && pausable) { largo = corto = pausar; que = "pausa"; ir = "jornada:pausar"; icono = "widget_ic_pausa"; amarillo = true; }
+                else if (corre) { largo = corto = abrir; que = null; ir = "jornada"; tonal = true; }
+                else if (pausa) { largo = corto = seguir; que = "seguir"; ir = "jornada:seguir"; }
+                else if (termino && sig == null) { largo = corto = abrir; que = null; ir = "jornada"; tonal = true; }
+                else { largo = Widgets.tx(f, "iniciar_l", "Iniciar enfoque"); corto = Widgets.tx(f, "iniciar", "Iniciar"); que = "iniciar-dia"; ir = "jornada:iniciar"; }
+            }
+        }
+        /* ¿Se puede hacer aquí, sin abrir la app? Hace falta el receptor de los
+           avisos y, para arrancar, el arranque que escribió la página. */
+        boolean aqui = que != null && avisos && (
+                "iniciar-dia".equals(que) ? (sig != null || arranque(pm, "rutina", "") != null)
+                : "iniciar-lite".equals(que) ? arranque(pm, "hf", modo) != null
+                : r != null);
+
+        // ---- Las pestañas ----
+        ver(c, v, "wp_tabs", cerrado.isEmpty() && hf != null);
+        if (cerrado.isEmpty() && hf != null) {
+            ver(c, v, "wp_tab_dia_fondo", !pLite);
+            ver(c, v, "wp_tab_lite_fondo", pLite);
+            tenir(c, v, "wp_tab_dia_fondo", tono);
+            tenir(c, v, "wp_tab_lite_fondo", tono);
+            texto(c, v, "wp_tab_dia_tx", Widgets.tx(f, "tab_dia", "Rutina diaria"), pLite ? suave : tonoTinta);
+            texto(c, v, "wp_tab_lite_tx", Widgets.tx(f, "tab_lite", "Hiperfoco"), pLite ? tonoTinta : suave);
+            v.setOnClickPendingIntent(Widgets.id(c, "wp_tab_dia"), Widgets.alPomo(c, "tab-dia", widget));
+            v.setOnClickPendingIntent(Widgets.id(c, "wp_tab_lite"), Widgets.alPomo(c, "tab-lite", widget));
         }
 
         // La cabecera: en el chico, por dónde va; en los otros, la hora, que la
-        // lleva un reloj del sistema (`TextClock`) en la zona del perfil: cambia
-        // sola al minuto, sin esperar a que el widget se repinte.
-        texto(c, v, "w_meta", sueno || !cerrado.isEmpty() ? "" : pm.optInt("tramo", 1) + "/" + pm.optInt("total", 4), suave);
+        // lleva un reloj del sistema (`TextClock`) en la zona del perfil.
+        boolean conPuntos = !sueno && cerrado.isEmpty() && total > 1 && (!pLite || activo || "travesia".equals(modo));
+        texto(c, v, "w_meta", conPuntos && activo ? tramo + "/" + total : "", suave);
         int ahora = Widgets.id(c, "wp_ahora");
         if (ahora != 0 && (grande || ancho)) {
             v.setTextColor(ahora, suave);
@@ -395,55 +563,75 @@ final class Pinta {
             if (!zona.isEmpty()) v.setString(ahora, "setTimeZone", zona);
         }
 
-        // La cuenta corre SOLA, por segundos, con el cronómetro del sistema: lo que
-        // falta del tramo si corre, y lo que falta para despertar en el bloque de
-        // sueño. Solo queda quieta cuando no hay nada contando (en pausa, o antes
-        // de iniciar), que es cuando un número quieto dice la verdad.
+        // ---- La cuenta ----
+        // Corre sola, por segundos, cuando hay menos de una hora que contar; con
+        // más, se dice en minutos, como en la app (ver el comentario de arriba).
         int crono = Widgets.id(c, "wp_crono");
-        boolean cuenta = cerrado.isEmpty() && (corre || (sueno && hastaDespertar > 0));
+        boolean cuenta = cerrado.isEmpty() && !sueno && corre && resto < 3600000L;
         ver(c, v, "wp_crono", cuenta);
         ver(c, v, "wp_t", !cuenta);
         if (cuenta) {
-            v.setChronometer(crono, SystemClock.elapsedRealtime() + (corre ? resto : hastaDespertar), null, true);
-            if (Build.VERSION.SDK_INT >= 24) v.setChronometerCountDown(crono, true);
+            v.setChronometer(crono, sube ? SystemClock.elapsedRealtime() - resto : SystemClock.elapsedRealtime() + resto, null, true);
+            if (Build.VERSION.SDK_INT >= 24) v.setChronometerCountDown(crono, !sube);
             v.setTextColor(crono, texto);
-            // Con horas («5:04:12») no cabe dentro del aro chico a su tamaño de siempre.
-            if (!grande && !ancho) v.setTextViewTextSize(crono, TypedValue.COMPLEX_UNIT_DIP, sueno ? 16.5f : 22);
         } else {
             v.setChronometer(crono, SystemClock.elapsedRealtime(), null, false);
+            if (corre) t = con(Widgets.tx(f, "min_n", "{n} min"), "{n}", sube ? resto / 60000 : (resto + 59999) / 60000);
             texto(c, v, "wp_t", t, texto);
+            // «120 min» es más ancho que «25:00» y dentro del aro chico no cabía a su tamaño (visto en el emulador).
+            if (!grande && !ancho) v.setTextViewTextSize(Widgets.id(c, "wp_t"), TypedValue.COMPLEX_UNIT_DIP, corre ? 16.5f : 21.5f);
         }
         texto(c, v, "wp_rot", rot, sueno ? cursoTinta : texto);
         texto(c, v, "wp_sub", sub, suave);
+        // En el Hiperfoco sin empezar, tocar el nombre pasa a la manera siguiente.
+        if (pLite && !activo) v.setOnClickPendingIntent(Widgets.id(c, "wp_rot"), Widgets.alPomo(c, "modo", widget));
 
+        // ---- El dibujo ----
         int tonoAro = sueno ? Widgets.tono(blo.optString("c", null), "#f0a5c0") : pausa ? curso : acento;
         if (!grande && !ancho) {
-            v.setImageViewBitmap(Widgets.id(c, "wp_aro"), Dibujos.aro(c, 94, 6, prog, carril, tonoAro));
+            v.setImageViewBitmap(Widgets.id(c, "wp_aro"), Dibujos.aro(c, 78, 6, prog, carril, tonoAro));
             ver(c, v, "wp_hora", sueno);
             if (sueno) texto(c, v, "wp_hora", Widgets.hora(blo.optInt("b")), suave);
         } else {
-            List<JSONObject> bloques = new ArrayList<>();
-            JSONObject dias = f.optJSONObject("dias"), d = dias == null ? null : dias.optJSONObject(Widgets.hoy(f));
-            JSONArray bs = d == null ? null : d.optJSONArray("bloques");
-            for (int i = 0; bs != null && i < bs.length(); i++) if (bs.optJSONObject(i) != null) bloques.add(bs.optJSONObject(i));
-            // La grande ocupa lo que deje el resto del molde: cabecera, rótulos, botones y el enlace.
-            float lado = grande ? Math.max(180, Math.min(md[0] - 28, md[1] - 24 - 24 - 36 - 54 - (sueno ? 26 : 0))) : 150;
-            v.setImageViewBitmap(Widgets.id(c, "wp_rueda"), Dibujos.rueda(c, Math.min(lado, 340), grande, bloques, blo, minuto / 60f, carril, suave, texto, sobre));
+            // La grande ocupa lo que deje el resto del molde: cabecera, pestañas, rótulos, botones y el enlace.
+            float lado = grande ? Math.max(170, Math.min(md[0] - 28, md[1] - 24 - 24 - 28 - 36 - 54 - (sueno ? 26 : 0))) : 140;
+            if (pLite) {
+                // El Hiperfoco no tiene rueda: no va por el día, va por lo que dura.
+                v.setImageViewBitmap(Widgets.id(c, "wp_rueda"), Dibujos.aro(c, Math.min(lado, 300) * .84f, grande ? 10 : 7, prog, carril, tonoAro));
+            } else {
+                List<JSONObject> bloques = new ArrayList<>();
+                JSONObject dias = f.optJSONObject("dias"), d = dias == null ? null : dias.optJSONObject(Widgets.hoy(f));
+                JSONArray bs = d == null ? null : d.optJSONArray("bloques");
+                for (int i = 0; bs != null && i < bs.length(); i++) if (bs.optJSONObject(i) != null) bloques.add(bs.optJSONObject(i));
+                v.setImageViewBitmap(Widgets.id(c, "wp_rueda"), Dibujos.rueda(c, Math.min(lado, 340), grande, bloques, blo, minuto / 60f, carril, suave, texto, sobre));
+            }
             v.setImageViewBitmap(Widgets.id(c, "wp_arena"), Dibujos.arena(c, grande ? 46 : 22, prog, suave, curso));
         }
-        ver(c, v, "wp_tramos", !sueno && cerrado.isEmpty());
-        if (!sueno) v.setImageViewBitmap(Widgets.id(c, "wp_tramos"), Dibujos.tramos(c, pm.optInt("tramo", 1), pm.optInt("total", 4), Widgets.color(f, "hecho", "#5fe0b0"), acento, carril));
+        ver(c, v, "wp_tramos", conPuntos);
+        if (conPuntos) v.setImageViewBitmap(Widgets.id(c, "wp_tramos"), Dibujos.tramos(c, tramo, total, Widgets.color(f, "hecho", "#5fe0b0"), acento, carril));
 
-        // El botón del momento: relleno para iniciar o seguir, amarillo para pausar, tenue para el sueño.
-        int tinta = sueno ? tonoTinta : sobre;
-        tenir(c, v, "wp_b_fondo", sueno ? tono : corre ? curso : Widgets.color(f, "boton", "#5fe0b0"));
-        int ic = Widgets.recurso(c, "drawable", sueno ? "widget_ic_luna" : corre ? "widget_ic_pausa" : "widget_ic_play");
+        // ---- Los botones ----
+        // El principal: relleno para iniciar o seguir, amarillo para pausar, tenue para lo demás.
+        int tinta = tonal ? tonoTinta : sobre;
+        tenir(c, v, "wp_b_fondo", tonal ? tono : amarillo ? curso : Widgets.color(f, "boton", "#5fe0b0"));
+        int ic = Widgets.recurso(c, "drawable", icono);
         if (ic != 0) v.setImageViewResource(Widgets.id(c, "wp_b_ic"), ic);
         tenir(c, v, "wp_b_ic", tinta);
         texto(c, v, "wp_b_tx", grande ? largo : corto, tinta);
-        tocar(c, v, "wp_b", ir);
+        if (aqui) v.setOnClickPendingIntent(Widgets.id(c, "wp_b"), Widgets.alPomo(c, que, widget));
+        else tocar(c, v, "wp_b", ir);
+
+        // El segundo, solo en un Hiperfoco en marcha: Parar.
+        ver(c, v, "wp_b2", segundo);
+        if (segundo) {
+            tenir(c, v, "wp_b2_fondo", tono);
+            tenir(c, v, "wp_b2_ic", tonoTinta);
+            if (avisos && r != null) v.setOnClickPendingIntent(Widgets.id(c, "wp_b2"), Widgets.alPomo(c, "parar", widget));
+            else tocar(c, v, "wp_b2", "jornada:lite-parar");
+        }
 
         if (grande) {
+            ver(c, v, "wp_mas", !pLite);
             tenir(c, v, "wp_mas_fondo", tono);
             tenir(c, v, "wp_mas_ic", tonoTinta);
             tocar(c, v, "wp_mas", "jornada:bloque");
@@ -451,10 +639,11 @@ final class Pinta {
             if (sueno) {
                 texto(c, v, "wp_enlace", Widgets.tx(f, "enfocar", "Enfocar de todos modos"), suave);
                 v.setInt(Widgets.id(c, "wp_enlace"), "setPaintFlags", Paint.ANTI_ALIAS_FLAG | Paint.UNDERLINE_TEXT_FLAG);
-                tocar(c, v, "wp_enlace", "jornada:iniciar");
+                if (avisos && arranque(pm, "rutina", "") != null) v.setOnClickPendingIntent(Widgets.id(c, "wp_enlace"), Widgets.alPomo(c, "iniciar-dia", widget));
+                else tocar(c, v, "wp_enlace", "jornada:iniciar");
             }
         }
-        tocar(c, v, "w_cab", "jornada");
+        tocar(c, v, "w_cab", pLite ? "jornada:lite" : "jornada");
         return v;
     }
 }

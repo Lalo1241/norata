@@ -239,6 +239,9 @@
     pedirExactas: () => Promise.resolve(av.pedirExactas()).catch(() => null),
     reloj: (estado) => enFila(async () => av.reloj({ estado: estado ? await conIconos(estado) : null })),
     agenda: (entradas) => enFila(async () => av.agenda({ entradas: await conIconos(entradas || []) })),
+    /* El widget del Pomodoro (js/13c-widgets.js) guarda arranques enteros para
+       usarlos con la app cerrada, y sus iconos tienen que ir ya hechos. */
+    conIconos: (o) => conIconos(o),
     avisar: (titulo, texto, clave, vista, icono) => enFila(async () => av.avisar({ titulo, texto, clave: clave || "",
       vista: vista || null, icono: icono ? await iconoPNG(icono) : "" })),
   };
