@@ -318,6 +318,31 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.211 · 5 oct 2026
+
+**«Mis reportes» y el acuse de envío, en verde y con contexto.** Eduardo lo
+probó de punta a punta —mandar, contestar desde el Puesto de mando, leer la
+respuesta: funciona— y pidió cuatro cosas. Lleva 3º propio porque su 0.7.208
+ya no era la última publicada.
+
+- **Verde, no oro.** Las dos ventanas heredaban el tono del cuadro de reportar,
+  y mandar un mensaje o leer una respuesta no son un aviso. Van en el verde de
+  «hecho», que ningún mundo cambia.
+- **Otro icono**: un sobre (`carta`, nuevo) en «Mis reportes» y la palomita en
+  «Mensaje enviado». El bicho se queda para reportar un error.
+- **Lo que mandaste, a la vista.** El acuse solo decía «recibimos tu mensaje»;
+  ahora enseña la ficha entera —tipo, sección, el texto y el «antes»—, la misma
+  que saldrá en «Mis reportes» (`repFichaHTML`), donde cada mensaje dice además
+  de qué tipo era, en su color, y sobre qué sección.
+- **«Respuesta del equipo de Norata»**, en lugar de «Respuesta de Norata».
+
+De paso, el texto de cada mensaje salía centrado dentro de su caja: la ventana
+centra lo suyo y la ficha no lo deshacía. Va a la izquierda.
+
+**Cómo se probó.** Con los reportes de ejemplo y un envío con el servidor
+imitado: el color leído en el marco, el icono y la respuesta; el tipo de cada
+mensaje en su tono; y que el acuse trae lo escrito.
+
 ### 0.7.210.2 · 5 oct 2026
 
 **Con la app cerrada, una Travesía ya pasa sola de la ronda al descanso y a la

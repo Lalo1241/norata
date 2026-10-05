@@ -7752,16 +7752,35 @@
   /* «Lo que me contaste»: la lista de lo reportado con su respuesta. Mismo
      cuadro en oro y con el título en tinta normal, por lo mismo que el de
      reportar. */
+  /* «Mis reportes» y el acuse de «Mensaje enviado»: VERDE, el de «hecho», que
+     ningún mundo cambia. Eran oro —el tono del cuadro de reportar— y Eduardo
+     lo paró: mandar un mensaje y leer una respuesta no son un aviso. */
+  .modal-card.contaste { border-color: var(--estado-hecho); }
+  .modal-card.contaste .modal-ic { background: var(--estado-hecho-soft); color: var(--estado-hecho-tinta); }
   .modal-card.contaste .modal-titulo { color: var(--text); }
-  .modal-card.contaste .rep-intro { display: block; text-align: left; font-size: 13.5px; line-height: 1.5; color: var(--muted); }
+  .modal-card.contaste .rep-intro { display: block; text-align: center; font-size: 13.5px; line-height: 1.5; color: var(--muted); margin-bottom: 12px; }
+  .modal-card.contaste .rep-ver {
+    display: block; margin: 12px auto 0; padding: 0; border: 0; background: none;
+    font: inherit; font-size: 13.5px; font-weight: 600; color: var(--estado-hecho-tinta);
+    text-decoration: underline; text-underline-offset: 3px; cursor: pointer;
+  }
   .modal-card.contaste .ct-lista { display: flex; flex-direction: column; gap: 10px; text-align: left; max-height: min(52vh, 420px); overflow-y: auto; }
-  .modal-card.contaste .ct-it { border: 1px solid var(--line); border-radius: var(--r-mediano, 12px); padding: 11px 13px; display: flex; flex-direction: column; gap: 6px; }
-  .modal-card.contaste .ct-it.nueva { border-color: var(--estado-curso); }
-  .modal-card.contaste .ct-meta { font-size: 12px; color: var(--muted); }
+  .modal-card.contaste .ct-it { border: 1px solid var(--line); border-radius: var(--r-mediano, 12px); padding: 11px 13px; display: flex; flex-direction: column; gap: 6px; text-align: left; }
+  .modal-card.contaste .ct-it.nueva { border-color: var(--estado-hecho); }
+  .modal-card.contaste .ct-meta { display: flex; justify-content: space-between; gap: 6px 12px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
   .modal-card.contaste .ct-meta b { color: var(--text); font-weight: 600; }
-  .modal-card.contaste .ct-que { margin: 0; font-size: 14px; line-height: 1.45; color: var(--text); overflow-wrap: anywhere; }
-  .modal-card.contaste .ct-resp { background: var(--estado-curso-soft); border-radius: var(--r-chico, 10px); padding: 9px 11px; font-size: 13.5px; line-height: 1.45; color: var(--text); overflow-wrap: anywhere; white-space: pre-line; }
-  .modal-card.contaste .ct-resp span { display: block; font-size: 11.5px; font-weight: 700; color: var(--estado-curso-tinta); margin-bottom: 3px; }
+  /* El tipo, en su color: el mismo código que el cuadro de reportar. */
+  .modal-card.contaste .ct-it { --rep-tono: var(--muted); }
+  .modal-card.contaste .ct-it[data-rep="fallo"] { --rep-tono: var(--estado-fallo-tinta); }
+  .modal-card.contaste .ct-it[data-rep="idea"]  { --rep-tono: var(--celeste); }
+  .modal-card.contaste .ct-it[data-rep="duda"]  { --rep-tono: var(--lila); }
+  .modal-card.contaste .ct-it[data-rep="gusto"] { --rep-tono: var(--estado-hecho-tinta); }
+  .modal-card.contaste .ct-meta b.ct-tipo { color: var(--rep-tono); font-weight: 700; }
+  .modal-card.contaste .ct-que { margin: 0; font-size: 14px; line-height: 1.45; color: var(--text); overflow-wrap: anywhere; text-align: left; }
+  .modal-card.contaste .ct-antes { margin: 0; font-size: 12.5px; line-height: 1.45; color: var(--muted); overflow-wrap: anywhere; text-align: left; }
+  .modal-card.contaste .ct-antes b { font-weight: 600; }
+  .modal-card.contaste .ct-resp { background: var(--estado-hecho-soft); border-radius: var(--r-chico, 10px); padding: 9px 11px; font-size: 13.5px; line-height: 1.45; color: var(--text); overflow-wrap: anywhere; white-space: pre-line; text-align: left; }
+  .modal-card.contaste .ct-resp span { display: block; font-size: 11.5px; font-weight: 700; color: var(--estado-hecho-tinta); margin-bottom: 3px; }
 
   .modal-card.reporte .rep-intro {
     display: block;

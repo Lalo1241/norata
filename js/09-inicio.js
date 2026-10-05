@@ -2546,8 +2546,14 @@ async function reportarFallo() {
        pantalla— y aquí no se advierte de nada. Un «gracias» que tiembla es un
        susto. Sin cancelar, porque no hay nada que cancelar, y sin `fijo`:
        quien ya leyó las dos líneas puede cerrar tocando fuera. */
-    await askBase(tx("Recibimos tu mensaje. Puedes consultar su estado y la respuesta en «Mis reportes»."),
-      false, tx("Aceptar"), false, false, null, { icono: "bicho", titulo: tx("Mensaje enviado"), tono: "oro", soloOk: true });
+    /* Verde y con palomita: llegó. Y debajo, lo que mandó, con la misma
+       ficha que verá en «Mis reportes». Comparte clase con esa ventana porque
+       son la misma familia. */
+    await askBase(
+      '<span class="rep-intro">' + tx("Recibimos tu mensaje. Puedes consultar su estado y la respuesta en «Mis reportes».") + '</span>' +
+      '<div class="ct-lista">' + repFichaHTML({ mensaje: mensaje }, escapeHtml(tx("Lo que enviaste"))) + '</div>' +
+      '<button type="button" class="rep-ver" onclick="modalDone(true); setTimeout(verLoQueMeContaste, 0)">' + tx("Ver mis reportes") + '</button>',
+      true, tx("Aceptar"), false, false, null, { icono: "check", titulo: tx("Mensaje enviado"), clase: "contaste", soloOk: true });
   } else {
     /* Ni «error» ni una disculpa larga: se dice qué pasó y qué se puede
        hacer. Lo escrito se ha perdido, y eso también se dice — dejar creer
@@ -2593,19 +2599,35 @@ function contasteEjemplo() {
    informal para lo que es. Después pidió lo mismo para el cuadro de reportar
    (ver `REP_TIPOS`): los dos hablan igual. */
 const CONTASTE_ESTADOS = { nuevo: "Recibido", curso: "En revisión", hecho: "Atendido", no: "Cerrado sin cambios" };
+/* Un mensaje viaja como «[Lugar|tipo] texto · antes: …» (ver `reportarFallo`).
+   Aquí se vuelve a partir, para devolverle a quien lo escribió lo que mandó
+   con su contexto: de qué tipo era, sobre qué sección y qué puso. */
+function repPartes(mensaje) {
+  const m = /^\[([^\]|]*)(?:\|([a-z]+))?\]\s*/.exec(String(mensaje || ""));
+  const resto = String(mensaje || "").slice(m ? m[0].length : 0), i = resto.indexOf(" · antes: ");
+  const tipo = REP_TIPOS.find(t => t.id === ((m && m[2]) || "fallo")) || REP_TIPOS[0];
+  return { lugar: m ? m[1] : "", tipo: tipo, que: i < 0 ? resto : resto.slice(0, i), antes: i < 0 ? "" : resto.slice(i + 10) };
+}
+/* La ficha de un mensaje: qué era, dónde, lo escrito y, si la hay, la
+   respuesta. La usan «Mis reportes» y el acuse de «Mensaje enviado»: quien
+   acaba de mandar algo ve lo MISMO que verá después en su lista. Eduardo, al
+   probarlo: «el usuario mandó algo y no le dice ni qué mandó». */
+function repFichaHTML(r, pie) {
+  const p = repPartes(r.mensaje);
+  return '<div class="ct-it' + (r.nueva ? " nueva" : "") + '" data-rep="' + p.tipo.id + '">' +
+    '<span class="ct-meta"><span><b class="ct-tipo">' + escapeHtml(tx(p.tipo.rotulo)) + '</b>' + (p.lugar ? ' · ' + escapeHtml(p.lugar) : "") + '</span>' +
+      (pie ? '<span>' + pie + '</span>' : "") + '</span>' +
+    '<p class="ct-que">' + escapeHtml(p.que) + '</p>' +
+    (p.antes ? '<p class="ct-antes"><b>' + tx("Antes:") + '</b> ' + escapeHtml(p.antes) + '</p>' : "") +
+    (r.respuesta ? '<div class="ct-resp"><span>' + tx("Respuesta del equipo de Norata") + '</span>' + escapeHtml(r.respuesta) + '</div>' : "") +
+    '</div>';
+}
 function contasteHTML(lista) {
   if (!lista.length) return '<span class="rep-intro">' + tx("Aquí aparecerán los reportes que envíes con tu sesión iniciada y la respuesta de cada uno.") + '</span>';
   const dia = iso => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || "")); return m ? new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString(document.documentElement.lang || "es", { day: "numeric", month: "short" }) : ""; };
-  return '<div class="ct-lista">' + lista.map(r => {
-    /* El mensaje viaja como «[Lugar|tipo] texto»: la cabecera es para el panel. */
-    const txt = String(r.mensaje || "").replace(/^\[[^\]]*\]\s*/, "");
-    return '<div class="ct-it' + (r.nueva ? " nueva" : "") + '">' +
-      '<span class="ct-meta">' + escapeHtml(dia(r.dia)) + ' · <b>' + escapeHtml(tx(CONTASTE_ESTADOS[r.estado] || CONTASTE_ESTADOS.nuevo)) + '</b>' +
-        (r.estado === "hecho" && r.arreglado ? ' · ' + escapeHtml(T`resuelto en la versión ${r.arreglado}`) : "") + '</span>' +
-      '<p class="ct-que">' + escapeHtml(txt) + '</p>' +
-      (r.respuesta ? '<div class="ct-resp"><span>' + tx("Respuesta de Norata") + '</span>' + escapeHtml(r.respuesta) + '</div>' : "") +
-      '</div>';
-  }).join("") + '</div>';
+  return '<div class="ct-lista">' + lista.map(r => repFichaHTML(r,
+    escapeHtml(dia(r.dia)) + ' · <b>' + escapeHtml(tx(CONTASTE_ESTADOS[r.estado] || CONTASTE_ESTADOS.nuevo)) + '</b>' +
+    (r.estado === "hecho" && r.arreglado ? ' · ' + escapeHtml(T`resuelto en la versión ${r.arreglado}`) : ""))).join("") + '</div>';
 }
 async function verLoQueMeContaste() {
   const lista = contasteDemo() ? contasteEjemplo() : await sbMisReportes();
@@ -2614,7 +2636,7 @@ async function verLoQueMeContaste() {
      también las vio. */
   if (lista.some(r => r.nueva) && !contasteDemo()) sbMisReportesLeidos();
   await askBase(contasteHTML(lista), true, tx("Cerrar"), false, false, null,
-    { icono: "bicho", titulo: tx("Mis reportes"), tono: "oro", clase: "contaste", soloOk: true });
+    { icono: "carta", titulo: tx("Mis reportes"), clase: "contaste", soloOk: true });
 }
 /* Al abrir la app: si hay una respuesta sin leer, se avisa una vez. Sin
    esperarlo y en silencio si falla, como todo lo que no pidió la persona. */

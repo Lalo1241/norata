@@ -1712,7 +1712,9 @@ const TEXTOS_EN = {
   "Mis reportes": "My reports",
   "Aquí aparecerán los reportes que envíes con tu sesión iniciada y la respuesta de cada uno.":
     "Reports you send while signed in will appear here, along with the reply to each one.",
-  "Respuesta de Norata": "Reply from Norata",
+  "Respuesta del equipo de Norata": "Reply from the Norata team",
+  "Lo que enviaste": "What you sent",
+  "Antes:": "Before:",
   "Recibido": "Received",
   "En revisión": "Under review",
   "Cerrado sin cambios": "Closed without changes",
