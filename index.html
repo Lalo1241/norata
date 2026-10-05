@@ -876,85 +876,47 @@
   </div>
 
   <!-- ============ VISTA: FORMULARIO MISIÓN ============ -->
+  <!-- Desde 0.7.213 a la vista solo hay UNA cosa por decidir, el nombre: lo
+       demás llega predicho en las pastillas y cada una abre su hoja
+       (js/08b-mision.js). Las pastillas, el bloque de «Se cumple
+       automáticamente» y las ideas se pintan desde ahí; los campos de «Más
+       opciones» viven aquí para no perder lo escrito al repintar. -->
   <div class="view form-view" id="view-mission-form">
     <div class="back-row">
       <button class="icon-btn" onclick="cancelMissionForm()" aria-label="Volver">←</button>
       <h2 id="mission-form-title">Nueva misión</h2>
     </div>
 
-    <div class="panel">
-      <label class="field">
-        <span>¿Qué vas a hacer?</span>
-        <input type="text" id="ms-name" placeholder="Ej. Caminar 20 minutos" maxlength="60">
-      </label>
-      <!-- El ancla: «después de qué» va a pasar esto.
-
-           No es un recordatorio y conviene que no se convierta en uno: no hay
-           hora, no hay aviso y la app no comprueba nada. Es una frase que
-           escribes para ti y que aparece justo donde vas a mirar.
-
-           Va aquí, pegado al nombre, y no al final del formulario: se decide en
-           el mismo momento que el qué, no como un ajuste que nadie baja a ver.
-
-           El «Después de» vive en la caja y no en lo que escribes, así que lo
-           guardado es «servirme el café» y la frase se arma sola en la tarjeta.
-           Sin eso, media app acabaría con «Después de después de comer». -->
-      <label class="field">
-        <span>Después de… (opcional)</span>
-        <div class="ancla-caja">
-          <span class="ancla-pre">Después de</span>
-          <input type="text" id="ms-ancla" placeholder="servirme el café" maxlength="40">
-        </div>
-      </label>
-      <div class="ancla-sug" id="ms-ancla-sug"></div>
-
-      <label class="field">
-        <span>Detalle (opcional)</span>
-        <textarea id="ms-desc" rows="2" placeholder="Algo que te ayude a recordar qué cuenta como cumplida." maxlength="200"></textarea>
-      </label>
-      <div class="field">
-        <span class="lbl">Icono</span>
-        <div class="icon-pick" id="ms-icon"></div>
+    <div class="msf">
+      <input class="msf-nombre" type="text" id="ms-name" placeholder="¿Qué vas a hacer?" maxlength="60" autocomplete="off" aria-label="¿Qué vas a hacer?">
+      <div class="msf-ideas" id="ms-ideas"></div>
+      <div class="msf-pills" id="ms-pills"></div>
+      <div id="ms-auto"></div>
+      <button type="button" class="msf-pill msf-mas" id="ms-mas" onclick="mfMas()" aria-expanded="false" hidden>Más opciones<span class="msf-chev" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M6 9l6 6 6-6"/></svg></span></button>
+      <div class="msf-mas-caja" id="ms-mas-caja" hidden>
+        <!-- El ancla: «después de qué» va a pasar esto. No es un recordatorio:
+             es una frase que escribes para ti y que aparece justo donde vas a
+             mirar. El «Después de» vive en la caja y no en lo que escribes, así
+             que lo guardado es «servirme el café» y la frase se arma sola en la
+             tarjeta. Sin eso, media app acabaría con «Después de después de
+             comer». -->
+        <label class="field">
+          <span>Después de… (opcional)</span>
+          <div class="ancla-caja">
+            <span class="ancla-pre">Después de</span>
+            <input type="text" id="ms-ancla" placeholder="servirme el café" maxlength="40">
+          </div>
+        </label>
+        <div class="ancla-sug" id="ms-ancla-sug"></div>
+        <label class="field">
+          <span>Detalle (opcional)</span>
+          <textarea id="ms-desc" rows="2" placeholder="Algo que te ayude a recordar qué cuenta como cumplida." maxlength="200"></textarea>
+        </label>
       </div>
-      <div class="field" style="margin-top:15px">
-        <span class="lbl">Color</span>
-        <div class="color-grid" id="ms-color"></div>
-      </div>
-    </div>
-
-    <div class="panel alt">
-      <h3>¿Cada cuándo?</h3>
-      <div class="seg" id="ms-cadence">
-        <button data-c="daily" onclick="pickCadence('daily')">Todos los días</button>
-        <button data-c="weekly" onclick="pickCadence('weekly')">Días sueltos</button>
-        <button data-c="once" onclick="pickCadence('once')">Una sola vez</button>
-      </div>
-      <div id="ms-days-wrap" style="display:none;margin-top:14px">
-        <span class="lbl">Días de la semana</span>
-        <div class="daypick" id="ms-days"></div>
-      </div>
-      <label class="field" id="ms-target-wrap" style="margin-top:16px;margin-bottom:0">
-        <span>Veces al día</span>
-        <input type="number" id="ms-target" value="1" min="1" max="20" inputmode="numeric">
-        <div class="field-hint">Para misiones que se repiten en el día, como beber agua o hacer pausas.</div>
-      </label>
-    </div>
-
-    <div class="panel">
-      <h3>Recompensa</h3>
-      <label class="field">
-        <span>Habilidad que entrena</span>
-        <select id="ms-skill"></select>
-      </label>
-      <label class="field">
-        <span>XP al cumplirla</span>
-        <input type="number" id="ms-xp" value="15" min="0" max="500" inputmode="numeric">
-        <div class="field-hint">Las misiones dan poco XP, pero todos los días. Ahí está su fuerza.</div>
-      </label>
     </div>
 
     <div class="stack">
-      <button class="btn btn-primary btn-block" onclick="saveMission()">Guardar misión</button>
+      <button class="btn btn-primary btn-block" id="ms-guardar" onclick="saveMission()">Crear misión</button>
       <button class="btn btn-danger-ghost btn-block" id="ms-delete" style="display:none" onclick="deleteMission()">Eliminar misión</button>
     </div>
   </div>
@@ -1470,6 +1432,12 @@
              administradora: lo que se dibuja aquí lo decide `renderPanelAdmin`
              y lo que se puede leer lo decide `metricas()` en el servidor. El
              marcado suelto no revela nada — es un div sin contenido. -->
+        <section class="ajuste-bloque" data-sec="telefono">
+          <div class="panel">
+            <div id="panel-telefono"></div>
+          </div>
+        </section>
+
         <section class="ajuste-bloque" data-sec="novedades">
           <div class="panel">
             <div id="panel-novedades"></div>
@@ -1800,6 +1768,7 @@
 <script defer src="js/02b-expedicion.js"></script>
 <script defer src="js/03-talentos.js"></script>
 <script defer src="js/04-misiones.js"></script>
+<script defer src="js/04b-avisos-mision.js"></script>
 <script defer src="js/05-resumen.js"></script>
 <script defer src="js/05b-aniversario.js"></script>
 <script defer src="js/05c-racha.js"></script>
@@ -1807,6 +1776,7 @@
 <script defer src="js/06-detalle.js"></script>
 <script defer src="js/07-lienzo.js"></script>
 <script defer src="js/08-formularios.js"></script>
+<script defer src="js/08b-mision.js"></script>
 <script defer src="js/09-inicio.js"></script>
 <script defer src="js/09c-region.js"></script>
 <script defer src="js/09d-jornada.js"></script>
@@ -1829,5 +1799,6 @@
 <script defer src="js/13b-avisos.js"></script>
 <script defer src="js/13c-widgets.js"></script>
 <script defer src="js/13d-flotante.js"></script>
+<script defer src="js/13e-salud.js"></script>
 </body>
 </html>

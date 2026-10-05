@@ -76,7 +76,10 @@ function renderMissions() {
             : `${skill ? `<span>${escapeHtml(skill.name)}</span>` : ""}
           ${m.xp ? `<span>+${m.xp} XP</span>` : ""}
           ${m.cadence === "weekly" ? `<span>${(m.days || []).map(d => letrasDeSemana()[d]).join(" ")}</span>` : ""}
-          ${m.cadence === "once" ? `<span>${tx("una vez")}</span>` : ""}`}
+          ${m.cadence === "once" ? `<span>${tx("una vez")}</span>` : ""}
+          ${m.cadence === "monthly" ? `<span>${m.diaMes === "ult" ? tx("cada mes, el último día") : T`cada mes, día ${m.diaMes || 1}`}</span>` : ""}
+          ${(m.avisos || []).length && !ok ? `<span class="ms-aviso">${icon("campana", 11)}${m.avisos.map(h => typeof jH12 === "function" ? jH12(amMin(h)) : h).join(", ")}</span>` : ""}`}
+          ${!guardada && m.auto && typeof autoDeMisionHTML === "function" ? autoDeMisionHTML(m, ok) : ""}
           ${espera > 0 ? `<span class="ms-espera">pospuesta ${espera} d</span>` : ""}
           ${costo > 0 ? `<span class="ms-espera">esperó ${costo} d</span>` : ""}
           ${/* Deshacer vive DENTRO de la misión, junto a sus datos. Estaba

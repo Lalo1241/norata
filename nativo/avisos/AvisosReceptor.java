@@ -241,9 +241,20 @@ public class AvisosReceptor extends BroadcastReceiver {
                 }
                 case "posponer": {
                     String id = i.getStringExtra("entrada");
-                    Avisos.quitar(c, Avisos.ID_AGENDA);
+                    Avisos.quitar(c, Avisos.idDe(id == null ? null : Avisos.entrada(c, id)));
                     if (id != null) Avisos.programar(c, t + 5 * 60 * 1000L, Avisos.alarmaDe(c, id, true));
                     return; // Nada que contarle a la página: la rueda no cambia.
+                }
+                case "cumplir": {
+                    /* «Ya la hice» en el recordatorio de una misión: el aviso se
+                       quita ya y la página la marca al abrir, con la hora de
+                       este toque (`jAplicarAvisos` → `logMission`). */
+                    String id = i.getStringExtra("entrada");
+                    JSONObject e = id == null ? null : Avisos.entrada(c, id);
+                    if (e != null) Avisos.quitar(c, Avisos.idDe(e));
+                    ev.remove("clave");
+                    ev.put("mision", i.getStringExtra("mision"));
+                    break;
                 }
                 default:
                     return;

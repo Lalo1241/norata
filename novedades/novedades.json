@@ -679,6 +679,34 @@
       }
     },
     {
+      "id": "mision-nueva",
+      "version": "0.7.213",
+      "fecha": "2026-10-05",
+      "estado": "borrador",
+      "clase": "expansion",
+      "toca": [
+        "Misiones",
+        "App de Android"
+      ],
+      "titulo": "Crear una misión: escribes el nombre y lo demás llega solo",
+      "resumen": "Al crear una misión ya solo hay que decidir una cosa: qué vas a hacer. El icono, el color, cada cuándo, la habilidad y el XP llegan predichos del nombre, y cada uno se cambia de un toque.",
+      "puntos": [
+        "Misiones de una vez al mes: eliges el día en un calendario, y se queda en tu lista hasta que la cumplas o termine el mes.",
+        "«Recordarme»: un aviso a la hora que elijas, uno por cada vez si se repite en el día. Nunca mientras duermes, y si ya la cumpliste, no suena.",
+        "En la app de Android, con permiso de Health Connect, tus pasos, tus entrenamientos o tu sueño pueden cumplir la misión por ti. Tus datos de salud se quedan en tu teléfono. Está en Alpha."
+      ],
+      "retoques": [],
+      "en": {
+        "titulo": "Creating a mission: type the name and the rest arrives on its own",
+        "resumen": "Creating a mission now asks for just one decision: what you're going to do. Icon, color, how often, skill and XP come predicted from the name, and each one changes with a tap.",
+        "puntos": [
+          "Once-a-month missions: pick the day on a calendar, and it stays on your list until you complete it or the month ends.",
+          "“Remind me”: a reminder at the time you choose, one for each time if it repeats during the day. Never while you sleep, and if you already did it, it stays quiet.",
+          "In the Android app, with Health Connect permission, your steps, workouts or sleep can complete the mission for you. Your health data stays on your phone. It's in Alpha."
+        ]
+      }
+    },
+    {
       "id": "widget-pomodoro",
       "version": "0.7.210",
       "fecha": "2026-10-05",

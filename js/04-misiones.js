@@ -11,7 +11,45 @@
 function missionScheduledOn(m, key) {
   if (m.cadence === "once") return !m.completedAt;
   if (m.cadence === "weekly") return (m.days || []).includes(weekdayOfKey(key));
+  if (m.cadence === "monthly") return tocaEnElMes(m, key);
   return true;
+}
+
+/* ---- Una vez al mes (0.7.213) ----
+   Sale en la lista el día que se eligió y se QUEDA hasta que se cumple o se
+   acaba el mes: una misión mensual que solo existiera ese día se perdería en
+   cuanto ese día fuera malo, y el sentido de ponerla al mes es justo que haya
+   margen. Cumplida, desaparece hasta el mes siguiente.
+
+   `diaMes` es un número (1-31) o "ult". Un 31 en un mes de 30 cae en el
+   último día: lo pidió quien la creó, y saltarse el mes sería castigarlo por
+   el calendario. */
+const mesDeClave = (key) => key.slice(0, 8);
+function diasDeEseMes(key) {
+  const [y, mo] = key.split("-").map(Number);
+  return new Date(Date.UTC(y, mo, 0)).getUTCDate();
+}
+function diaMesDe(m, key) {
+  const ult = diasDeEseMes(key);
+  return m.diaMes === "ult" ? ult : Math.min(ult, Math.max(1, Number(m.diaMes) || 1));
+}
+function tocaEnElMes(m, key) {
+  const hoy = Number(key.slice(8, 10)), desde = diaMesDe(m, key);
+  if (hoy < desde) return false;
+  for (let d = desde; d < hoy; d++) {
+    if (missionDone(m, mesDeClave(key) + String(d).padStart(2, "0"))) return false;
+  }
+  return true;
+}
+/* ¿Se cumplió algún día de ese mes, hasta `tope` incluido? */
+function cumplidaEnElMes(m, key, tope) {
+  const ult = diasDeEseMes(key), pre = mesDeClave(key);
+  for (let d = 1; d <= ult; d++) {
+    const k = pre + String(d).padStart(2, "0");
+    if (tope && k > tope) break;
+    if (missionDone(m, k)) return true;
+  }
+  return false;
 }
 
 function missionDueToday(m) {
@@ -246,6 +284,7 @@ function missionDone(m, key) { return missionCount(m, key) >= missionTarget(m); 
 
 /* Días seguidos cumpliéndola, saltando los días en que no tocaba. */
 function missionStreak(m) {
+  if (m.cadence === "monthly") return rachaMensual(m);
   let n = 0;
   let k = todayKey();
   if (!missionDone(m, k)) k = addDaysKey(k, -1);
@@ -256,6 +295,22 @@ function missionStreak(m) {
     if (!missionDone(m, k)) break;
     n++;
     k = addDaysKey(k, -1);
+  }
+  return n;
+}
+
+/* La de una mensual se cuenta en MESES: contada en días se rompía en los
+   días entre el elegido y el que se cumplió, que tocaban y no estaban
+   hechos. El mes en curso, sin cumplir todavía, no corta: aún tiene margen. */
+function rachaMensual(m) {
+  const hoy = todayKey();
+  let [y, mo] = hoy.split("-").map(Number), n = 0;
+  for (let g = 0; g < 240; g++) {
+    const pre = `${y}-${String(mo).padStart(2, "0")}-`;
+    if (m.createdAt && pre + "31" < m.createdAt.slice(0, 8) + "01") break;
+    if (cumplidaEnElMes(m, pre + "01", hoy)) n++;
+    else if (g > 0) break;
+    mo--; if (!mo) { mo = 12; y--; }
   }
   return n;
 }
@@ -348,6 +403,9 @@ function logMission(id, delta, opciones) {
       if (s) removeXp(s, m.xp, `Misión revertida: ${m.name}`, (dio && dio.fuente) || `Misión · ${m.name}`);
     }
     if (m.cadence === "once") { m.completedAt = null; m.archived = false; }
+    /* Una que marcó el teléfono y se desmarca a mano no vuelve a marcarse sola
+       ese día: si la quitaste, por algo fue (0.7.213, js/13e-salud.js). */
+    if (m.auto) m.autoNo = key;
     /* Deshacer el cumplido devuelve también la espera que se había saldado:
        si no, quitar y volver a poner la palomita borraría de la memoria los
        días que costó llegar hasta ahí. */
@@ -383,11 +441,11 @@ function logMission(id, delta, opciones) {
   if (delta > 0) destello(dondeCaja, pinta(m.color));
 
   if (nowDone && !wasDone) {
-    const st = missionStreak(m);
-    if (st > 0 && st % 7 === 0) {
+    const st = missionStreak(m), alMes = m.cadence === "monthly";
+    if (!alMes && st > 0 && st % 7 === 0) {
       celebrate(`${st} días seguidos`, m.name, m.color || "#5fe0b0", m.icon, "racha");
     } else {
-      toast(`${m.name} cumplida${m.xp ? ` · +${m.xp} XP` : ""}${st > 1 ? ` · racha ${st}` : ""}${
+      toast(`${m.name} cumplida${m.xp ? ` · +${m.xp} XP` : ""}${st > 1 ? (alMes ? ` · ${T`${st} meses seguidos`}` : ` · racha ${st}`) : ""}${
         esperaba > 0 ? ` · tras ${fraseDias(esperaba)} esperando` : ""}`, "logro");
     }
   } else if (delta > 0) {
@@ -2341,6 +2399,9 @@ function cerrarHojaCrear() {
   const el = document.getElementById("hoja-crear");
   if (el) el.classList.remove("show");
   revisarFondoQuieto();
+  /* Las hojas del formulario de misión viven aquí también, y al cerrarse por
+     cualquier camino sus pastillas tienen que decir lo que se eligió dentro. */
+  if (typeof mfHojaCerrada === "function") mfHojaCerrada();
 }
 document.addEventListener("keydown", e => {
   if (e.key === "Escape" && document.querySelector("#hoja-crear.show")) cerrarHojaCrear();

@@ -93,6 +93,19 @@ que abre sin red y sin pasar por Chrome. Lo que eso cambia aquí:
   menta de Norata (Pausa en amarillo) y con un acento rojo ningún texto es
   rojo. La referencia es la lámina «Avisos de Norata»; las reglas, en el
   `LEEME.md` de `nativo/avisos/`.
+- **Una misión puede cumplirse sola con Health Connect (0.7.213, Alpha).** El
+  puente es `js/13e-salud.js` (`window.norataSalud`) sobre el complemento
+  `@capgo/capacitor-health`, que se instala con `nativo/salud/instalar-salud.js`.
+  **Nada de salud sale del teléfono**: se lee y se decide ahí, y entra por
+  `logMission` como un toque (sin sonido). Se lee al abrir, al volver y cada
+  15 min; no hay lectura de fondo. Desmarcarla la deja quieta ese día
+  (`autoNo`). En la web no existe `norataSalud` y el formulario lo dice. El
+  aviso de privacidad tiene su sección `#salud`, que Google pide: **al leer
+  un dato nuevo de salud, se añade ahí antes de pedirlo**.
+- **Los recordatorios de misiones viajan en la agenda de los avisos (0.7.213)**
+  (`misionesAgenda`, `js/04b-avisos-mision.js`), con su canal y «Ya la hice».
+  Solo se le mandan a un APK que contesta `capacidades` con `misiones`: uno
+  de antes los pintaría como la alarma del Pomodoro, cada semana.
 - **Los widgets de la pantalla de inicio son nativos, y son nueve.** El
   complemento `WidgetsNorata` vive en `nativo/widgets/` (con su instalador y
   su `LEEME.md`, que trae la tabla de los nueve) y la página le habla desde

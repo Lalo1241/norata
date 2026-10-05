@@ -48,7 +48,7 @@
      3. `CACHE` en sw.js, que lleva el mismo número: es lo que obliga a los
         dispositivos ya instalados a soltar la copia vieja.
    Y la línea que lo cuenta, en VERSIONES.md. */
-const VERSION = "0.7.212";
+const VERSION = "0.7.213";
 const VERSION_FECHA = "5 oct 2026";
 
 /* ---- La web de fuera, en UN solo sitio ----
@@ -87,6 +87,13 @@ const ICONS = {
   pen: '<path d="M17 3a2.8 2.8 0 114 4L7.5 20.5 2 22l1.5-5.5z"/>',
   book: '<path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>',
   dumbbell: '<path d="M6.5 6.5v11M17.5 6.5v11M3 9v6M21 9v6M6.5 12h11"/>',
+  /* Los cinco de 0.7.213, para lo que el formulario de misión predice desde el
+     nombre: caminar, la bici, nadar, beber agua y llamar a alguien. */
+  pasos: '<path d="M7.2 16.2c-1.6 0-2.7-1.4-2.7-3.6C4.5 9.9 5.7 7.6 7.5 7.6c1.5 0 2.3 1.6 2.3 3.7 0 2.5-1 4.9-2.6 4.9z"/><path d="M5.3 19.4c.5 1 1.4 1.5 2.4 1.2s1.4-1.2 1.2-2.3"/><path d="M16.8 12.2c1.6 0 2.7-1.4 2.7-3.6 0-2.7-1.2-5-3-5-1.5 0-2.3 1.6-2.3 3.7 0 2.5 1 4.9 2.6 4.9z"/><path d="M18.7 15.4c-.5 1-1.4 1.5-2.4 1.2s-1.4-1.2-1.2-2.3"/>',
+  bici: '<circle cx="5.5" cy="16.5" r="3.5"/><circle cx="18.5" cy="16.5" r="3.5"/><path d="M5.5 16.5l3.6-7h5.6l3.8 7M9.1 9.5l3.1 7M13 6.5h3"/>',
+  ola: '<path d="M2 10c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2M2 16c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2"/>',
+  gota: '<path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/><path d="M9.2 14.6a2.9 2.9 0 002.4 2.6"/>',
+  tel: '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/>',
   code: '<path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/>',
   music: '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
   camera: '<path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/>',
@@ -270,6 +277,12 @@ const ICONS = {
      confunde con un vaso a tamaño pequeño. */
   papelera: '<path d="M4 7h16"/><path d="M10 4h4"/><path d="M6 7l1 13a1 1 0 001 1h8a1 1 0 001-1l1-13"/><path d="M10 11v6M14 11v6"/>',
   check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  /* De la interfaz y no de la rejilla (0.7.213): el recordatorio, escribir
+     una cifra a mano y el teléfono que cumple una misión solo. */
+  campana: '<path d="M6 16v-5a6 6 0 0112 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 004 0"/>',
+  lapiz: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
+  movil: '<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/>',
+  bajar: '<path d="M6 9l6 6 6-6"/>',
   /* ---- Las cuatro siluetas de encargo, como icono (0.7.99) ----
      Los botones del tipo llevaban paloma, bandera, brújula y moneda: iconos
      del CONCEPTO. Eduardo los paró — «no debe venir con un icono random,
@@ -350,10 +363,10 @@ const ICONS = {
    —salen de aquí por posición (`ICON_LIST[i % ICON_LIST.length]`)—, que no
    rompe nada: lo ya guardado se queda con el suyo. */
 const ICON_LIST = [
-  /* crear y contar */      "brush", "pen", "book", "camera", "music", "mic",
+  /* crear y contar */      "brush", "pen", "book", "camera", "music", "mic", "tel",
   /* estudiar y trabajar */ "cap", "bulb", "code", "chart", "wrench",
   /* cocina */              "chef", "cubiertos", "pollo", "carne", "paleta", "coffee",
-  /* cuerpo y descanso */   "dumbbell", "heart", "plant", "cama", "zzz", "luna", "sol",
+  /* cuerpo y descanso */   "dumbbell", "pasos", "bici", "ola", "gota", "heart", "plant", "cama", "zzz", "luna", "sol",
   /* fuera de casa */       "globe", "map", "compass", "rod", "goggles",
   /* meta y premio */       "target", "flag", "trophy", "crown", "gem", "coin", "key", "shield",
   /* chispa */              "star", "bolt", "flame", "smile", "gamepad",

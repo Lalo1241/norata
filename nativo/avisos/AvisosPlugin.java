@@ -105,6 +105,16 @@ public class AvisosPlugin extends Plugin {
         call.resolve(estadoPermisos());
     }
 
+    /* Lo que sabe hacer este APK, para que la página no le mande lo que un
+       complemento viejo pintaría mal: un recordatorio de misión, en uno de
+       antes, sonaría como la alarma del Pomodoro y cada semana. */
+    @PluginMethod
+    public void capacidades(PluginCall call) {
+        JSObject r = new JSObject();
+        r.put("misiones", true);
+        call.resolve(r);
+    }
+
     @PluginMethod
     public void permisos(PluginCall call) {
         call.resolve(estadoPermisos());

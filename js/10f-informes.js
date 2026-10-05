@@ -124,8 +124,10 @@ function metricasMisiones(r, D) {
          único número del panel que la estaba regañando por existir—. Las
          marcas del día sí cuentan, arriba: eso es lo que hiciste, no una nota.
 
-         La partida se cierra cuando el día termina, no mientras se juega. */
-      if (k !== todayKey() && m.cadence !== "once" && missionScheduledOn(m, k)) {
+         La partida se cierra cuando el día termina, no mientras se juega.
+         Una mensual tampoco entra: los días de margen entre el que se eligió
+         y el que se cumplió «tocan» sin ser un fallo (0.7.213). */
+      if (k !== todayKey() && m.cadence !== "once" && m.cadence !== "monthly" && missionScheduledOn(m, k)) {
         m0.tocaban++;
         if (missionDone(m, k)) m0.completas++;
       }

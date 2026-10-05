@@ -2270,7 +2270,11 @@ const SKILL_CATALOG = [
    Nunca decide solo: propone, y lo que el usuario corrige se aprende. */
 
 const LEXICO = {
-  "Ejercicio":     "!entrenar !entreno !ejercitar !moverme gimnasio gym pesas rutina cardio abdominales flexiones sentadillas",
+  /* «pasos» y «caminata» desde 0.7.213: «Caminar 8,000 pasos» es de las
+     misiones que más se escriben y caía en Senderismo, que es ir al monte.
+     «!caminar» empata con el de Senderismo y gana Ejercicio por ir antes;
+     «caminar por la montaña» sigue llevando a Senderismo por la montaña. */
+  "Ejercicio":     "!entrenar !entreno !ejercitar !moverme !caminar pasos caminata gimnasio gym pesas rutina cardio abdominales flexiones sentadillas",
   "Correr":        "!correr !corro !trotar carrera maraton running trote kilometros km 5k 10k zapatillas",
   "Natación":      "!nadar !nado natacion alberca piscina brazadas crol",
   "Yoga":          "!estirar yoga postura asana flexibilidad esterilla",
@@ -2366,6 +2370,28 @@ function lexAprendido() {
 function sugerirHabilidades(titulo, rama) {
   const palabras = normalizarTexto(titulo);
   if (!palabras.length && !rama) return [];
+  const puntos = puntosDelLexico(titulo);
+
+  const lista = state.skills.map(s => ({ s, p: puntos.get(s.name) || 0 })).filter(x => x.p > 0);
+  lista.sort((a, b) => b.p - a.p);
+
+  // Red de seguridad: si el título no dice nada, la rama al menos acota
+  if ((!lista.length || lista[0].p < 3) && rama) {
+    state.skills.forEach(s => {
+      if (s.category && normalizarTexto(s.category)[0] === normalizarTexto(rama)[0]) {
+        if (!lista.some(x => x.s.id === s.id)) lista.push({ s, p: 0.5, porRama: true });
+      }
+    });
+    lista.sort((a, b) => b.p - a.p);
+  }
+  return lista.slice(0, 4);
+}
+
+/* La puntuación de cada nombre del diccionario para un título, tengas o no
+   esa habilidad. Separada de `sugerirHabilidades` en 0.7.213 porque el
+   formulario de misión también propone las del catálogo que aún no tienes. */
+function puntosDelLexico(titulo) {
+  const palabras = normalizarTexto(titulo);
   const raices = palabras.map(raiz);
   const aprendido = lexAprendido();
   const puntos = new Map();
@@ -2404,20 +2430,7 @@ function sugerirHabilidades(titulo, rama) {
     const m = aprendido[w];
     if (m) Object.keys(m).forEach(nombre => suma(nombre, m[nombre]));
   });
-
-  const lista = state.skills.map(s => ({ s, p: puntos.get(s.name) || 0 })).filter(x => x.p > 0);
-  lista.sort((a, b) => b.p - a.p);
-
-  // Red de seguridad: si el título no dice nada, la rama al menos acota
-  if ((!lista.length || lista[0].p < 3) && rama) {
-    state.skills.forEach(s => {
-      if (s.category && normalizarTexto(s.category)[0] === normalizarTexto(rama)[0]) {
-        if (!lista.some(x => x.s.id === s.id)) lista.push({ s, p: 0.5, porRama: true });
-      }
-    });
-    lista.sort((a, b) => b.p - a.p);
-  }
-  return lista.slice(0, 4);
+  return puntos;
 }
 
 /* Guarda la corrección: si eliges una que no se proponía, sus palabras

@@ -66,6 +66,10 @@ final class Avisos {
     static final String CANAL_RELOJ = "norata-reloj-v1";
     static final String CANAL_AVISOS = "norata-avisos-v1";
     static final String CANAL_AGENDA = "norata-agenda-v1";
+    /* Los recordatorios de las misiones (0.7.213) van aparte de la alarma del
+       Pomodoro: un recordatorio no es un despertador, y quien quiera callarlos
+       tiene que poder hacerlo sin callar las actividades de su rueda. */
+    static final String CANAL_MISIONES = "norata-misiones-v1";
 
     static final int ID_RELOJ = 7101;
     static final int ID_AVISO = 7102;
@@ -118,6 +122,8 @@ final class Avisos {
             case "canalReloj": return "Pomodoro en curso";
             case "canalAvisos": return "Avisos del Pomodoro";
             case "canalAgenda": return "Inicio de actividad";
+            case "canalMisiones": return "Recordatorios de misiones";
+            case "cumplir": return "Ya la hice";
             case "pausar": return "Pausar";
             case "seguir": return "Seguir";
             case "iniciar": return "Iniciar";
@@ -185,6 +191,12 @@ final class Avisos {
         agenda.setVibrationPattern(new long[] { 0, 400, 200, 400, 200, 400 });
         agenda.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
         nm.createNotificationChannel(agenda);
+
+        NotificationChannel misiones = new NotificationChannel(CANAL_MISIONES, tx(c, "canalMisiones"), NotificationManager.IMPORTANCE_HIGH);
+        misiones.enableVibration(true);
+        misiones.setVibrationPattern(new long[] { 0, 180, 90, 180 });
+        misiones.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+        nm.createNotificationChannel(misiones);
     }
 
     @SuppressWarnings("deprecation")
@@ -223,7 +235,11 @@ final class Avisos {
         if (i == null) i = new Intent(Intent.ACTION_MAIN).setPackage(c.getPackageName());
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         i.putExtra("norataIr", ir == null ? "jornada" : ir);
-        return PendingIntent.getActivity(c, 7000, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        /* Un código por destino: con uno solo, el último aviso pisaba adónde
+           llevaba el anterior (los extras no distinguen un PendingIntent), y
+           tocar el del Pomodoro podía abrir Misiones (0.7.213). */
+        int codigo = ir == null || "jornada".equals(ir) ? 7000 : 7001 + (ir.hashCode() & 0xff);
+        return PendingIntent.getActivity(c, codigo, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
     /* Un botón o una alarma que llega al receptor. La dirección (`setData`) es
@@ -528,9 +544,76 @@ final class Avisos {
         return k.getTimeInMillis();
     }
 
+    /* Las misiones (0.7.213) traen dos cosas que la rueda no necesitaba:
+         - `desde`: no sonar antes de esta hora. Es el «si ya la cumpliste, no
+           suena»: cumplida hoy, la página la manda con `desde` en mañana.
+         - `fecha` (AAAA-MM-DD): una sola vez, ese día. Es la de cada mes; la
+           página manda la del mes siguiente en cuanto esta pasa o se cumple.
+       Devuelve -1 si ya no toca. */
+    static long cuandoToca(Context c, JSONObject e, long desde) {
+        long piso = Math.max(desde, e.optLong("desde", 0));
+        String f = e.optString("fecha", "");
+        int minuto = e.optInt("min");
+        if (f.length() == 10) {
+            try {
+                Calendar k = Calendar.getInstance(zona(c));
+                k.clear();
+                k.set(Integer.parseInt(f.substring(0, 4)), Integer.parseInt(f.substring(5, 7)) - 1,
+                        Integer.parseInt(f.substring(8, 10)), minuto / 60, minuto % 60, 0);
+                return k.getTimeInMillis() > piso ? k.getTimeInMillis() : -1;
+            } catch (NumberFormatException x) {
+                return -1;
+            }
+        }
+        return proxima(c, e.optInt("dia"), minuto, piso);
+    }
+
     static void programarEntrada(Context c, JSONObject e) {
-        long cuando = proxima(c, e.optInt("dia"), e.optInt("min"), System.currentTimeMillis() + 30000);
-        programar(c, cuando, alarmaDe(c, e.optString("id"), false));
+        long cuando = cuandoToca(c, e, System.currentTimeMillis() + 30000);
+        if (cuando > 0) programar(c, cuando, alarmaDe(c, e.optString("id"), false));
+    }
+
+    static boolean esMision(JSONObject e) { return e != null && "mision".equals(e.optString("tipo")); }
+
+    /* Cada misión con su propio aviso: con un solo número, el recordatorio de
+       beber agua tapaba el de llamar a mamá si coincidían. */
+    static int idDe(JSONObject e) {
+        return esMision(e) ? 7200 + (e.optString("mision").hashCode() & 0x3ff) : ID_AGENDA;
+    }
+
+    /* El recordatorio de una misión: su canal, abre Misiones, y dos botones —
+       «Ya la hice» (se apunta y la página la marca al abrir, con esta hora) y
+       «En 5 min»—. Su molde lo escribe la página como el de todos. */
+    static void avisarMision(Context c, JSONObject e) {
+        String id = e.optString("id");
+        String ir = e.optString("ir", "missions");
+        Notification.Builder b = constructor(c, CANAL_MISIONES)
+                .setContentTitle(e.optString("titulo"))
+                .setContentText(e.optString("texto"))
+                .setAutoCancel(true)
+                .setCategory(Notification.CATEGORY_REMINDER)
+                .setContentIntent(abrir(c, ir));
+        if (Build.VERSION.SDK_INT >= 26) b.setTimeoutAfter(3 * 60 * 60 * 1000L);
+        Map<String, PendingIntent> acc = new HashMap<>();
+        acc.put("abrir", abrir(c, ir));
+        List<Notification.Action> botones = new ArrayList<>();
+        Intent i = alReceptor(c, ACCION, "cumplir/" + id).putExtra("accion", "cumplir")
+                .putExtra("entrada", id).putExtra("mision", e.optString("mision"));
+        PendingIntent pi = pendiente(c, i, 22);
+        acc.put("cumplir", pi);
+        botones.add(boton(c, tx(c, "cumplir"), pi));
+        if (e.optBoolean("posponible", true)) {
+            Intent p = alReceptor(c, ACCION, "posponer/" + id).putExtra("accion", "posponer").putExtra("entrada", id);
+            PendingIntent pp = pendiente(c, p, 21);
+            acc.put("posponer", pp);
+            botones.add(boton(c, tx(c, "posponer"), pp));
+        }
+        if (!vestir(c, b, e.optJSONObject("vista"), e, acc, true, botones)) {
+            Bitmap ic = iconoGrande(e.optString("icono"));
+            if (ic != null) b.setLargeIcon(ic);
+            for (Notification.Action a : botones) b.addAction(a);
+        }
+        notificar(c, idDe(e), b.build());
     }
 
     static void ponerAgenda(Context c, JSONArray nueva) {
@@ -554,6 +637,7 @@ final class Avisos {
     }
 
     static void avisarEntrada(Context c, JSONObject e) {
+        if (esMision(e)) { avisarMision(c, e); return; }
         String id = e.optString("id");
         Notification.Builder b = constructor(c, CANAL_AGENDA)
                 .setContentTitle(e.optString("titulo"))

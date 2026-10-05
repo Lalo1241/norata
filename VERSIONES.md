@@ -318,6 +318,68 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.213 · 5 oct 2026
+
+**El formulario de misión nuevo, la misión mensual con recordatorios y «Se
+cumple automáticamente» con Health Connect.** Son las tres entregas de la
+maqueta «Nueva misión, lado a lado» que Eduardo aprobó pieza por pieza; las
+pidió «directo al live» porque hoy la única cuenta es la suya y va a reiniciar
+sus datos. Por eso van en un solo 3º y sin prueba con enlace.
+
+- **El formulario** (`js/08b-mision.js`, que sustituye al de
+  `js/08-formularios.js`). A la vista solo el nombre; debajo, cuatro pastillas
+  con lo predicho —icono y color, cada cuándo, la habilidad y el XP— y cada
+  una abre su hoja en `#hoja-crear`. Lo predicho nunca pisa lo tocado
+  (`tocado`); una cifra ajustada a mano se olvida si el nombre cambia de
+  fuente (8,000 pasos no son una hora de acostarse). Las ideas de debajo del
+  nombre cambian: prefieren una habilidad tuya sin misión, quitan las que ya
+  tienes y rotan por día. XP: número grande, deslizador 0–30 y el lápiz para
+  escribir hasta 500. Habilidad: las tuyas con la «propuesta» y «Habilidades
+  nuevas que podrías sumar» del catálogo, que se crean de verdad con el tope
+  del plan. El ancla y el detalle, en «Más opciones». La predicción entiende
+  también inglés.
+- **El diccionario**: `puntosDelLexico` sale de `sugerirHabilidades` para
+  puntuar también lo que aún no tienes, y Ejercicio gana «!caminar pasos
+  caminata» (caía en Senderismo).
+- **Una vez al mes** (`cadence: "monthly"`, `diaMes` 1–31 o `"ult"`). Sale el
+  día elegido y se queda hasta cumplirse o acabar el mes; un 31 en un mes de 30
+  cae en el último. Su racha se cuenta en meses (`rachaMensual`) y el informe
+  no la juzga por día. Ojo: `diasDelMes` ya existía en `js/10g-informe.js` con
+  otra firma y la pisaba; la nuestra es `diasDeEseMes`.
+- **Recordarme** (`m.avisos`, `js/04b-avisos-mision.js`). En el APK van en la
+  agenda de los avisos (`misionesAgenda`, junto a la del Pomodoro) con su canal
+  «Recordatorios de misiones», «Ya la hice» (`cumplir` → `jAplicarAvisos` →
+  `logMission` con su hora) y «En 5 min»; `desde` los calla si ya se cumplió y
+  `fecha` hace los mensuales. **Solo se mandan si el APK dice `capacidades`**:
+  uno de antes los pintaría como la alarma del Pomodoro. En la web avisan
+  mientras Norata esté abierta. Ninguno suena dentro del bloque de dormir.
+- **Se cumple automáticamente** (`m.auto`, `js/13e-salud.js`, Alpha). Pasos,
+  distancia, ejercicio (por tipo) y sueño desde Health Connect con
+  `@capgo/capacitor-health`; se lee al abrir, al volver y cada 15 min, y marca
+  por `logMission` sin sonido. Desmarcarla la deja quieta ese día (`autoNo`).
+  La tarjeta dice «del teléfono» y lo que lleva con su barra. Ajustes → Tu
+  teléfono (solo en el APK). El aviso de privacidad gana su sección `#salud`,
+  que Health Connect exige.
+- **Iconos nuevos**: `pasos`, `bici`, `ola`, `gota`, `tel` en la rejilla, y
+  `campana`, `lapiz`, `movil`, `bajar` para la interfaz.
+- **Lo nativo** pide reinstalar el APK: `nativo/salud/instalar-salud.js` (nuevo)
+  y volver a correr `nativo/avisos/instalar-avisos.js` (canal, «Ya la hice»,
+  `desde`, `fecha`, un aviso por misión y un código por destino en `abrir`, que
+  antes compartían todos y el último pisaba adónde llevaba el anterior).
+
+**Cómo se probó.** En Chromium midiendo el DOM: las cinco hojas, guardar y
+editar, la mensual día a día (14 no, 15 sí, cumplida el 17 → el 18 no; 31 en
+septiembre; «último» en febrero), la racha mensual, la agenda que sale de cada
+misión y el «Ya la hice» con su hora, con el puente de Health Connect imitado.
+Contraste ≥ 4,5 en el formulario y ≥ 3 en las hojas en la casa, Averno,
+Catedral, Cyberpunk, Plano y Reliquia, de noche y de día, sin desborde. Salió y
+se arregló: el `blur` del campo de XP repetía el repintado y rompía la hoja.
+**Lo nativo no se pudo compilar aquí** (no hay SDK de Android): falta probarlo
+en el teléfono.
+
+**Falta para la novedad**: la imagen de la expansión (las capturas no componen
+aquí). La ficha está en borrador sin imagen.
+
 ### 0.7.212 · 5 oct 2026
 
 **En el buzón, cada reporte dice de quién es: su apodo y una clave corta.** Lo

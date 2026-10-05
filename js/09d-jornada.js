@@ -2590,7 +2590,9 @@ function jSincronizarAvisos() {
   }
   if (Date.now() - jAgendaMirada < 5000) return;
   jAgendaMirada = Date.now();
-  const entradas = jEntradasAgenda();
+  /* Los recordatorios de las misiones van en la misma agenda (0.7.213), pero
+     solo si el complemento sabe de ellos (`amNativoListo`). */
+  const entradas = jEntradasAgenda().concat(typeof misionesAgenda === "function" && amNativoListo() ? misionesAgenda() : []);
   const fa = JSON.stringify([entradas, userTZ(), idiomaActual()]);
   if (fa !== jAgendaFirma) { jAgendaFirma = fa; av.agenda(entradas); }
 }
@@ -2631,6 +2633,9 @@ function jAplicarAvisos(lista) {
         cambio = true;
       }
       if (ev.clave) jSonados.add(ev.clave);
+    } else if (ev.accion === "cumplir" && ev.mision) {
+      // «Ya la hice» en el recordatorio de una misión (js/04b-avisos-mision.js).
+      if (typeof cumplirDesdeAviso === "function") cumplirDesdeAviso(ev);
     } else if (ev.accion === "iniciar" && ev.lite) {
       // El Hiperfoco que se encendió desde el widget. Con algo en marcha, no.
       if (run) return;

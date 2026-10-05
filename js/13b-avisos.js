@@ -44,6 +44,8 @@
         canalReloj: t("Pomodoro en curso"),
         canalAvisos: t("Avisos del Pomodoro"),
         canalAgenda: t("Inicio de actividad"),
+        canalMisiones: t("Recordatorios de misiones"),
+        cumplir: t("Ya la hice"),
         pausar: t("Pausar"),
         seguir: t("Seguir"),
         iniciar: t("Iniciar"),

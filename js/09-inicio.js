@@ -1807,6 +1807,8 @@ const AJUSTES_SECS = [
   { id: "aspecto", nombre: "Mi apariencia",    icon: "brush",   sub: "Con qué luz se ve Norata" },
   { id: "menu",   nombre: "Mis módulos",       icon: "gamepad", sub: "Qué módulos aparecen en el menú" },
   { id: "datos",  nombre: "Mi almacenamiento", icon: "book",    sub: "Zona horaria, respaldos, copias y borrado" },
+  /* Solo en el APK con Health Connect (0.7.213): ver `seccionesAjustes`. */
+  { id: "telefono", nombre: "Tu teléfono",     icon: "movil",   sub: "Lo que tu teléfono puede cumplir por ti" },
   /* Las novedades (0.7.149): lo que ha cambiado, contado para quien usa la app.
      Al final porque se lee y no se ajusta nada; la ventana que sale al llegar
      una versión lleva aquí con «Ver todas». */
@@ -1845,6 +1847,9 @@ function seccionesAjustes() {
      hay que volver a apagarla (ver `APARIENCIA_PUBLICA`). */
   if (typeof aparienciaVisibleEnAjustes === "function" && !aparienciaVisibleEnAjustes())
     secs = secs.filter(x => x.id !== "aspecto");
+  /* «Tu teléfono» solo donde hay teléfono que leer: en la web sería una
+     pantalla que promete algo que ahí no puede pasar. */
+  if (!window.norataSalud) secs = secs.filter(x => x.id !== "telefono");
 
   /* La fila del plan no puede decir lo mismo a todo el mundo: es la única de
      las cuatro cuyo contenido cambia de una cuenta a otra, y decía "Qué
@@ -1947,6 +1952,10 @@ function renderAjustes() {
   if (ajusteAbierto === "aspecto" && typeof renderPanelApariencia === "function") renderPanelApariencia();
   if (ajusteAbierto === "admin" && typeof renderPanelAdmin === "function") renderPanelAdmin();
   if (ajusteAbierto === "novedades" && typeof renderPanelNovedades === "function") renderPanelNovedades();
+  if (ajusteAbierto === "telefono" && typeof renderPanelTelefono === "function") {
+    renderPanelTelefono();
+    if (window.norataSalud) window.norataSalud.revisarPermisos();
+  }
 
   /* La exigencia se dibuja al abrir «Mi perfil», que es donde vive desde que
      dejó de ser sección propia: quien viene a cambiarla viene a cambiar algo

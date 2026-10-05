@@ -15,6 +15,18 @@ Desde la 0.7.163, en la app de Android el Pomodoro avisa con el sistema:
 
 Tocar cualquiera abre la app en el Pomodoro.
 
+**Y desde la 0.7.213, los recordatorios de las misiones.** «Recordarme» en la
+hoja de «¿Cada cuándo?» de una misión: a cada hora elegida sale un aviso con
+**Ya la hice** (se marca al abrir, con la hora del toque) y **En 5 min**. Van
+en su propio canal, «Recordatorios de misiones» —no son una alarma: suenan con
+el tono normal—, cada misión con su propio aviso, y abren Misiones. No suenan
+si ya la cumpliste (la página manda la entrada con `desde` en mañana) ni dentro
+de tu bloque de dormir. Las de una vez al mes van con `fecha`: una sola vez, y
+la página manda la del mes siguiente. La página solo los manda si el APK dice
+saber de ellos (`capacidades`): uno de antes los pintaría como la alarma del
+Pomodoro. **Para tenerlos hay que volver a correr `instalar-avisos.js` y
+reinstalar el APK.**
+
 **Con el diseño de Norata (0.7.163).** Cada aviso tiene dos caras, las que
 Eduardo aprobó en la lámina «Avisos de Norata»: **plegado** (como llega: icono,
 dos renglones y la cifra o un botón) y **abierto** (al deslizarlo: el rótulo, el
