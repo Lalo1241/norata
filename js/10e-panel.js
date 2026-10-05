@@ -293,8 +293,8 @@ const dnSesion = (k, v) => { try { return sessionStorage.getItem(k) === v; } cat
 const DN_PRUEBAS = [
   { id: "novedades", n: "Pruebas de Novedades", q: "En Ajustes → Novedades, botones para ver la ventana y los anuncios de hito. La lista sigue solo con lo publicado.", on: "?novedades=borrador", off: "?novedades=",
     esta: () => typeof novedadesEnBorrador === "function" && novedadesEnBorrador() },
-  { id: "contaste", n: "Mis reportes", tag: "mejora", q: "Quien reporta ve lo que mandó y tu respuesta: un enlace en el cuadro de reportar y un aviso al abrir si hay respuesta nueva. Este enlace lo enseña con reportes de ejemplo; con ?contaste=1 usa los de verdad.", on: "?contaste=demo", off: "?contaste=0",
-    esta: () => dnSesion("norata-prueba-contaste", "1") || dnSesion("norata-prueba-contaste", "demo") },
+  { id: "contaste", n: "Mis reportes, con ejemplos", q: "Abre la app con cuatro reportes de ejemplo y su respuesta, para ver la ventana y el aviso sin mandar nada. No toca el servidor.", on: "?contaste=demo", off: "?contaste=0",
+    esta: () => dnSesion("norata-prueba-contaste", "demo") },
   { id: "flotante", n: "La burbuja de la computadora", tag: "expansion", q: "Un botón «Flotar» en la barra lateral abre una ventanita encima de todo con el Pomodoro, lo que sigue en la rueda y las misiones de hoy. Sale sola en la cuenta de pruebas; aquí, con el enlace. Nadie más la ve. Solo en Chrome y Edge de escritorio.", on: "?flotante=si", off: "?flotante=no",
     esta: () => dnSesion("norata-prueba-flotante", "si") },
   { id: "informes", n: "Informes con datos de ejemplo", q: "Llena los informes con datos falsos para revisar las gráficas.", on: "?informes=demo", off: "?informes=no",

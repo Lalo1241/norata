@@ -318,6 +318,31 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.208 · 4 oct 2026
+
+**«Mis reportes» y el cuadro nuevo de reportar, para todos.** Estuvieron en
+pruebas detrás de `?contaste=` desde la 0.7.190, mientras Eduardo revisaba los
+textos; los aprobó y pidió encenderlo. Quien manda un reporte con su sesión
+iniciada ve ahora su estado y la respuesta que se le escriba desde el Puesto de
+mando, y el cuadro de reportar habla como un área de soporte: título, icono,
+color y frase de entrada por tipo, y el aviso de no poner datos personales.
+
+**Lo que se borró, por nombre:** `contasteOn()`, `REP_FORMAL` (sus textos son
+ahora los de `REP_TIPOS`), las ramas del cuadro de antes en `reportarFallo`, y
+25 claves del diccionario en inglés que ya no usa nadie —se comprobó una por
+una que no aparecen en ningún otro archivo—. La fila `contaste` de `DN_PRUEBAS`
+se queda como herramienta: `?contaste=demo` sigue enseñando la ventana con
+reportes de ejemplo.
+
+**El aviso de «Tienes una respuesta» sale en fila** (`enTurno`), como todo lo
+que se abre solo: no encima de la carga ni de otra escena.
+
+**Cómo se probó.** Como usuario sin permisos de administrador y sin ningún
+parámetro: los cuatro tipos con su título, color, frase y pregunta; enviar una
+sugerencia con el servidor imitado y el acuse; y «Mis reportes» vacío. Sin
+errores en consola. **Con un reporte y una respuesta de verdad, de punta a
+punta, no se ha probado**: lo hará Eduardo.
+
 ### 0.7.207 · 3 oct 2026
 
 **La burbuja de la computadora, en prueba.** Lo pidió Eduardo: algo que te siga

@@ -679,6 +679,33 @@
       }
     },
     {
+      "id": "mis-reportes",
+      "version": "0.7.208",
+      "fecha": "2026-10-04",
+      "estado": "borrador",
+      "clase": "mejora",
+      "toca": [
+        "Reportar o sugerir"
+      ],
+      "titulo": "Tus reportes ahora tienen respuesta",
+      "resumen": "Lo que envíes desde «Reportar o sugerir» ya no se queda sin contestar: en «Ver mis reportes» puedes consultar el estado de cada mensaje y la respuesta de Norata.",
+      "puntos": [
+        "Cuatro opciones, cada una con su color: Error/Bug, Sugerencia, Pregunta y Comentario.",
+        "Al abrir la app te avisamos cuando haya una respuesta nueva.",
+        "Solo aparecen los mensajes que envíes con tu sesión iniciada."
+      ],
+      "retoques": [],
+      "en": {
+        "titulo": "Your reports now get a reply",
+        "resumen": "What you send from “Report or suggest” no longer goes unanswered: in “View my reports” you can check the status of each message and the reply from Norata.",
+        "puntos": [
+          "Four options, each with its own color: Error/Bug, Suggestion, Question and Comment.",
+          "When you open the app we let you know if there's a new reply.",
+          "Only messages you send while signed in appear."
+        ]
+      }
+    },
+    {
       "version": "0.7.207",
       "fecha": "2026-10-03",
       "estado": "borrador",
@@ -702,7 +729,6 @@
       }
     },
     {
-      "version": "0.7.191",
       "version": "0.7.206",
       "fecha": "2026-10-03",
       "estado": "borrador",

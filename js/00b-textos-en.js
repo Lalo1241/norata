@@ -1667,32 +1667,10 @@ const TEXTOS_EN = {
   "Cuéntame qué pasó y lo reviso. No necesitas saber nada técnico: con lo que recuerdes me basta para encontrarlo.":
     "Tell me what happened and I'll look into it. You don't need to know anything technical: whatever you remember is enough for me to find it.",
   "Reportar o sugerir": "Report or suggest",
-  "Cuéntame": "Tell me",
   "De qué se trata": "What it's about",
-  "Lo leo yo. No necesitas saber nada técnico: con lo que recuerdes me basta.":
-    "I read it myself. You don't need to know anything technical: whatever you remember is enough.",
-  "Algo falló": "Something broke",
-  "Tengo una idea": "I have an idea",
-  "Tengo una duda": "I have a question",
-  "Me gustó algo": "I liked something",
-  "¿Sobre qué parte?": "Which part is it about?",
-  "¿Qué te gustaría que hiciera?": "What would you like it to do?",
-  "¿Qué no quedó claro?": "What wasn't clear?",
-  "¿Qué te gustó?": "What did you like?",
   "Poder repetir una misión cada quince días.": "Being able to repeat a mission every two weeks.",
-  "No entiendo por qué bajó el nivel de una habilidad.": "I don't get why a skill's level went down.",
   "El sonido al subir de nivel.": "The sound when I level up.",
-  "No mandé nada: falta contar tu idea.": "I didn't send anything: you still need to tell me your idea.",
-  "No mandé nada: falta escribir tu duda.": "I didn't send anything: you still need to write your question.",
-  "No mandé nada: falta contar qué te gustó.": "I didn't send anything: you still need to say what you liked.",
-  "Ya me llegó y lo voy a leer con calma.": "It reached me and I'll read it properly.",
-  "Gracias por contármelo": "Thanks for telling me",
-  "¿Dónde pasó?": "Where did it happen?",
-  "¿Qué hacías justo antes? <i>Opcional</i>":
-    "What were you doing just before? <i>Optional</i>",
   "Ej. Abrí un talento desde el mapa": "e.g. I opened a talent from the map",
-  "¿Qué salió mal?": "What went wrong?",
-  "La pantalla se quedó en blanco y no volvió.": "The screen went blank and never came back.",
   "Enviar": "Send",
   "Ver mis reportes": "View my reports",
   "Usa esta opción cuando algo no funcione como debería. No necesitas conocimientos técnicos: describe lo que recuerdes.":
@@ -1741,14 +1719,6 @@ const TEXTOS_EN = {
   "resuelto en la versión {0}": "resolved in version {0}",
   "No se pudieron cargar tus reportes. Inténtalo de nuevo en un momento.": "Your reports couldn't be loaded. Try again in a moment.",
   "Tienes una respuesta a tu reporte.": "You have a reply to your report.",
-  "No mandé nada: falta contar qué salió mal.":
-    "I didn't send anything: you still need to say what went wrong.",
-  "Ya me llegó y lo voy a revisar. Cosas como ésta son las que hacen que Norata deje de fallar donde falla.":
-    "It reached me and I'll look into it. Things like this are what make Norata stop failing where it fails.",
-  "De nada": "You're welcome",
-  "Gracias por avisarme": "Thanks for telling me",
-  "No pude enviarlo: revisa tu conexión y vuelve a intentarlo.":
-    "I couldn't send it: check your connection and try again.",
   "Tu progreso vive en este navegador. También puedes guardarlo en un archivo: es tuyo y funciona sin conexión.":
     "Your progress lives in this browser. You can also save it to a file: it's yours and it works offline.",
   "Tu progreso vive en este navegador y en {0}. También puedes guardarlo en un archivo: es tuyo y funciona sin conexión.":

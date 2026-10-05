@@ -2372,57 +2372,42 @@ function lugaresDeFallo() {
 
    «¿Qué hacías justo antes?» solo sale en un fallo: es lo que permite
    reproducirlo, y a quien trae una idea no le pregunta nada. */
+/* El tono es el de un área de soporte (0.7.208), y lo pidió Eduardo al ver el
+   cuadro de antes —«Cuéntame», «Lo leo yo…»—: «sé más formal». Cada tipo trae
+   su título, su icono y su frase de entrada, que dice para qué sirve ESA
+   opción; y su color es el que ya tiene en el buzón del Puesto de mando
+   (`DN_TIPOS`), para que quien reporta y quien lee vean el mismo código.
+
+   Al redactar aquí, nada que suene a promesa: no todo lo que se pide se
+   agrega. Por eso la frase del comentario dice «mejorar» y no «agregar». */
 const REP_TIPOS = [
-  { id: "fallo", rotulo: "Algo falló", donde: "¿Dónde pasó?", pregunta: "¿Qué salió mal?",
-    ejemplo: "La pantalla se quedó en blanco y no volvió.", falta: "No mandé nada: falta contar qué salió mal." },
-  { id: "idea", rotulo: "Tengo una idea", donde: "¿Sobre qué parte?", pregunta: "¿Qué te gustaría que hiciera?",
-    ejemplo: "Poder repetir una misión cada quince días.", falta: "No mandé nada: falta contar tu idea." },
-  { id: "duda", rotulo: "Tengo una duda", donde: "¿Sobre qué parte?", pregunta: "¿Qué no quedó claro?",
-    ejemplo: "No entiendo por qué bajó el nivel de una habilidad.", falta: "No mandé nada: falta escribir tu duda." },
-  { id: "gusto", rotulo: "Me gustó algo", donde: "¿Sobre qué parte?", pregunta: "¿Qué te gustó?",
-    ejemplo: "El sonido al subir de nivel.", falta: "No mandé nada: falta contar qué te gustó." }
+  { id: "fallo", titulo: "Reportar un error", icono: "bicho", rotulo: "Error/Bug", donde: "¿Dónde ocurrió?", pregunta: "Describe el error",
+    intro: "Usa esta opción cuando algo no funcione como debería. No necesitas conocimientos técnicos: describe lo que recuerdes.",
+    ejemplo: "La pantalla se quedó en blanco y no respondió.", falta: "No se envió: falta describir el error." },
+  { id: "idea", titulo: "Enviar una sugerencia", icono: "bulb", rotulo: "Sugerencia", donde: "¿Sobre qué sección?", pregunta: "Describe tu sugerencia",
+    intro: "Usa esta opción para proponer una mejora o una función nueva. Todas las sugerencias se revisan.",
+    ejemplo: "Poder repetir una misión cada quince días.", falta: "No se envió: falta describir la sugerencia." },
+  { id: "duda", titulo: "Hacer una pregunta", icono: "duda", rotulo: "Pregunta", donde: "¿Sobre qué sección?", pregunta: "Escribe tu pregunta",
+    intro: "Usa esta opción si algo de la app no te quedó claro. Recibirás la respuesta en «Mis reportes».",
+    ejemplo: "¿Por qué bajó el nivel de una habilidad?", falta: "No se envió: falta escribir la pregunta." },
+  { id: "gusto", titulo: "Dejar un comentario", icono: "heart", rotulo: "Comentario", donde: "¿Sobre qué sección?", pregunta: "Escribe tu comentario",
+    intro: "Usa esta opción para decirnos qué te gustó o qué opinas de la app. Nos ayuda a saber qué conservar y qué mejorar para ti.",
+    ejemplo: "El sonido al subir de nivel.", falta: "No se envió: falta escribir el comentario." }
 ];
 let repTipo = "fallo";
 
-/* ---- El cuadro en tono de soporte (en pruebas, con `?contaste=`) ----
-   Eduardo, al ver «Mis reportes» dentro de la app: «sé más formal, no un
-   Cuéntame», un aviso de no poner información personal, y que el cuadro cambie
-   de color según cuál de los cuatro se elige. Va detrás del mismo interruptor
-   que «Mis reportes» —son la misma función: mandar y recibir respuesta— hasta
-   que él apruebe los textos; al sacarlo, esto pasa a ser lo único y se borran
-   los rótulos de antes.
-
-   El color de cada tipo es el que ya tiene en el buzón del Puesto de mando
-   (`DN_TIPOS`): quien reporta y quien lee ven el mismo código. */
-const REP_FORMAL = {
-  fallo: { titulo: "Reportar un error", icono: "bicho", rotulo: "Error/Bug", donde: "¿Dónde ocurrió?", pregunta: "Describe el error",
-    intro: "Usa esta opción cuando algo no funcione como debería. No necesitas conocimientos técnicos: describe lo que recuerdes.",
-    ejemplo: "La pantalla se quedó en blanco y no respondió.", falta: "No se envió: falta describir el error." },
-  idea: { titulo: "Enviar una sugerencia", icono: "bulb", rotulo: "Sugerencia", donde: "¿Sobre qué sección?", pregunta: "Describe tu sugerencia",
-    intro: "Usa esta opción para proponer una mejora o una función nueva. Todas las sugerencias se revisan.",
-    ejemplo: "Poder repetir una misión cada quince días.", falta: "No se envió: falta describir la sugerencia." },
-  duda: { titulo: "Hacer una pregunta", icono: "duda", rotulo: "Pregunta", donde: "¿Sobre qué sección?", pregunta: "Escribe tu pregunta",
-    intro: "Usa esta opción si algo de la app no te quedó claro. Recibirás la respuesta en «Mis reportes».",
-    ejemplo: "¿Por qué bajó el nivel de una habilidad?", falta: "No se envió: falta escribir la pregunta." },
-  gusto: { titulo: "Dejar un comentario", icono: "heart", rotulo: "Comentario", donde: "¿Sobre qué sección?", pregunta: "Escribe tu comentario",
-    intro: "Usa esta opción para decirnos qué te gustó o qué opinas de la app. Nos ayuda a saber qué conservar y qué mejorar para ti.",
-    ejemplo: "El sonido al subir de nivel.", falta: "No se envió: falta escribir el comentario." }
-};
-/* El texto de un tipo, en el tono que toque. */
-const repTx = (t, campo) => tx((contasteOn() && REP_FORMAL[t.id] ? REP_FORMAL[t.id] : t)[campo]);
-/* El color, el título y el icono del cuadro siguen al tipo elegido: lo de
-   arriba dice lo mismo que la opción marcada (Eduardo, al verlo). */
+const repTx = (t, campo) => tx(t[campo]);
+/* El color, el título, el icono y la frase de entrada del cuadro siguen al
+   tipo elegido: lo de arriba dice lo mismo que la opción marcada. */
 function repTono(id) {
-  const c = document.querySelector("#modal .modal-card.reporte");
-  if (!c) return;
-  if (!contasteOn() || !REP_FORMAL[id]) { delete c.dataset.rep; return; }
+  const c = document.querySelector("#modal .modal-card.reporte"), t = REP_TIPOS.find(x => x.id === id);
+  if (!c || !t) return;
   c.dataset.rep = id;
   const tit = document.getElementById("modal-titulo"), ic = document.getElementById("modal-ic");
-  if (tit) tit.textContent = tx(REP_FORMAL[id].titulo);
-  if (ic) ic.innerHTML = icon(REP_FORMAL[id].icono, 26);
-  /* Y la frase de entrada: dice para qué sirve ESA opción, no el cuadro. */
+  if (tit) tit.textContent = tx(t.titulo);
+  if (ic) ic.innerHTML = icon(t.icono, 26);
   const intro = c.querySelector(".rep-intro");
-  if (intro) intro.textContent = tx(REP_FORMAL[id].intro);
+  if (intro) intro.textContent = tx(t.intro);
 }
 
 /* Cambiar de tipo sin redibujar la ventana: lo ya escrito se queda donde está.
@@ -2459,11 +2444,9 @@ async function reportarFallo() {
      y lo primero que lee no puede ser una casilla. Dice para qué sirve lo que
      va a escribir —que alguien lo lee y lo arregla— y que no hace falta saber
      nada técnico. Dos frases: la tercera ya no se lee. */
-  const formal = contasteOn(), f0 = REP_TIPOS[0];
+  const f0 = REP_TIPOS[0];
   const cuerpo =
-    '<span class="rep-intro' + (formal ? ' centro' : '') + '">' + (formal
-      ? tx(REP_FORMAL.fallo.intro)
-      : tx("Lo leo yo. No necesitas saber nada técnico: con lo que recuerdes me basta.")) + '</span>' +
+    '<span class="rep-intro centro">' + tx(f0.intro) + '</span>' +
     '<div class="rep-tipos" id="rep-tipos" role="radiogroup" aria-label="' + escapeAttr(tx("De qué se trata")) + '">' +
       REP_TIPOS.map(t =>
         '<button type="button" role="radio" data-tipo="' + t.id + '" aria-checked="' + (t.id === "fallo" ? "true" : "false") + '"' +
@@ -2478,7 +2461,7 @@ async function reportarFallo() {
       '</select>' +
     '</label>' +
     '<label class="rep-campo" id="rep-campo-antes">' +
-      '<span class="rep-rot">' + (formal ? tx("¿Qué estabas haciendo antes? <i>Opcional</i>") : tx("¿Qué hacías justo antes? <i>Opcional</i>")) + '</span>' +
+      '<span class="rep-rot">' + tx("¿Qué estabas haciendo antes? <i>Opcional</i>") + '</span>' +
       '<input type="text" id="rep-antes" maxlength="80" placeholder="' + escapeAttr(tx("Ej. Abrí un talento desde el mapa")) + '">' +
     '</label>' +
     '<label class="rep-campo">' +
@@ -2489,10 +2472,8 @@ async function reportarFallo() {
     /* El aviso de privacidad y el enlace a lo ya enviado, al pie: lo primero
        que se lee es para qué sirve el cuadro, y esto es lo último antes de
        enviar, que es cuando importa. */
-    (formal
-      ? '<p class="rep-privado">' + tx("No incluyas datos personales, contraseñas ni información de pago. No son necesarios para atender tu mensaje.") + '</p>' +
-        '<button type="button" class="rep-ver" onclick="modalDone(false); setTimeout(verLoQueMeContaste, 0)">' + tx("Ver mis reportes") + '</button>'
-      : "");
+    '<p class="rep-privado">' + tx("No incluyas datos personales, contraseñas ni información de pago. No son necesarios para atender tu mensaje.") + '</p>' +
+    '<button type="button" class="rep-ver" onclick="modalDone(false); setTimeout(verLoQueMeContaste, 0)">' + tx("Ver mis reportes") + '</button>';
 
   /* Oro y no menta, y lo eligió Eduardo: un fallo no es un logro ni una venta.
      El oro es el tono de «esto tiene un coste que quizá no ves» (ver la nota
@@ -2507,7 +2488,7 @@ async function reportarFallo() {
      venido a esto. Mandar un reporte es un favor, no la acción de la
      pantalla. */
   const p = askBase(cuerpo, true, tx("Enviar"), false, false, tx("Cancelar"),
-                    { icono: "bicho", titulo: formal ? tx(REP_FORMAL.fallo.titulo) : tx("Cuéntame"), tono: "oro",
+                    { icono: "bicho", titulo: tx(f0.titulo), tono: "oro",
                       clase: "reporte", okClase: "btn-linea" });
   repTono("fallo");
 
@@ -2565,52 +2546,38 @@ async function reportarFallo() {
        pantalla— y aquí no se advierte de nada. Un «gracias» que tiembla es un
        susto. Sin cancelar, porque no hay nada que cancelar, y sin `fijo`:
        quien ya leyó las dos líneas puede cerrar tocando fuera. */
-    if (contasteOn()) {
-      await askBase(tx("Recibimos tu mensaje. Puedes consultar su estado y la respuesta en «Mis reportes»."),
-        false, tx("Aceptar"), false, false, null, { icono: "bicho", titulo: tx("Mensaje enviado"), tono: "oro", soloOk: true });
-    } else await askBase(
-      tipo.id === "fallo"
-        ? tx("Ya me llegó y lo voy a revisar. Cosas como ésta son las que hacen que Norata deje de fallar donde falla.")
-        : tx("Ya me llegó y lo voy a leer con calma."),
-      false, tx("De nada"), false, false, null,
-      { icono: "bicho", titulo: tipo.id === "fallo" ? tx("Gracias por avisarme") : tx("Gracias por contármelo"), tono: "oro", soloOk: true });
+    await askBase(tx("Recibimos tu mensaje. Puedes consultar su estado y la respuesta en «Mis reportes»."),
+      false, tx("Aceptar"), false, false, null, { icono: "bicho", titulo: tx("Mensaje enviado"), tono: "oro", soloOk: true });
   } else {
     /* Ni «error» ni una disculpa larga: se dice qué pasó y qué se puede
        hacer. Lo escrito se ha perdido, y eso también se dice — dejar creer
        que quedó guardado en alguna parte es lo único imperdonable aquí. */
-    toast(contasteOn() ? tx("No se pudo enviar. Revisa tu conexión e inténtalo de nuevo.") : tx("No pude enviarlo: revisa tu conexión y vuelve a intentarlo."), "atencion");
+    toast(tx("No se pudo enviar. Revisa tu conexión e inténtalo de nuevo."), "atencion");
   }
 }
 
-/* ================= Lo que me contaste =================
+/* ================= Mis reportes =================
    Lo que esta cuenta reportó, con lo que se le contestó. Antes un reporte era
    un buzón de ida: se mandaba y no volvía nada, ni siquiera un «ya quedó». Las
    respuestas las escribe Eduardo en el Puesto de mando.
 
-   **Está en pruebas, apagado para todos** (`?contaste=1` lo enciende en la
-   pestaña): los textos de aquí no los ha revisado Eduardo. El día que salga,
-   `contasteOn` devuelve `true` a secas y se borra el parámetro.
+   Para todos desde la 0.7.208. Estuvo en pruebas detrás de `?contaste=` de la
+   0.7.190 a la 0.7.207, mientras Eduardo revisaba los textos; por eso los
+   nombres de dentro siguen diciendo «contaste».
 
    Solo sale lo que se mandó CON la sesión iniciada: lo de antes de la 0.7.190
    y lo que se manda sin cuenta es anónimo, y no hay forma de saber de quién
    fue. */
-function contasteOn() {
+/* `?contaste=demo`: la ventana y el aviso de verdad, con reportes de EJEMPLO.
+   Una herramienta para revisar cómo se ve sin tener que mandar un reporte,
+   contestarlo en el panel y volver. Vive en la pestaña y no toca el servidor;
+   `?contaste=0` la apaga. */
+function contasteDemo() {
   try {
     const q = new URLSearchParams(location.search).get("contaste");
-    if (q === "1" || q === "0" || q === "demo") sessionStorage.setItem("norata-prueba-contaste", q);
-    const v = sessionStorage.getItem("norata-prueba-contaste");
-    /* Quien administra lo ve sin enlace: el parámetro vive en la pestaña, y
-       Eduardo abría la app instalada —otra pestaña— y se encontraba el cuadro
-       de siempre. `?contaste=0` se lo apaga también a él. */
-    if (v === "0") return false;
-    return v === "1" || v === "demo" || (typeof esAdmin !== "undefined" && esAdmin === true);
+    if (q === "demo" || q === "0") sessionStorage.setItem("norata-prueba-contaste", q);
+    return sessionStorage.getItem("norata-prueba-contaste") === "demo";
   } catch (e) { return false; }
-}
-/* `?contaste=demo`: la ventana y el aviso de verdad, con reportes de EJEMPLO.
-   Para revisar cómo se ve y cómo se lee sin tener que mandar un reporte,
-   contestarlo en el panel y volver. No toca el servidor. */
-function contasteDemo() {
-  try { return sessionStorage.getItem("norata-prueba-contaste") === "demo"; } catch (e) { return false; }
 }
 function contasteEjemplo() {
   const d = n => { const f = new Date(); f.setDate(f.getDate() - n); return f.getFullYear() + "-" + String(f.getMonth() + 1).padStart(2, "0") + "-" + String(f.getDate()).padStart(2, "0"); };
@@ -2623,8 +2590,8 @@ function contasteEjemplo() {
 }
 /* El tono de aquí es el de un área de soporte, y lo pidió Eduardo al leer la
    primera versión («Lo que me contaste», «Te contesté…»): le pareció demasiado
-   informal para lo que es. El cuadro de REPORTAR se queda como estaba —ahí se
-   le habla a alguien que acaba de tropezar—; el seguimiento es otra cosa. */
+   informal para lo que es. Después pidió lo mismo para el cuadro de reportar
+   (ver `REP_TIPOS`): los dos hablan igual. */
 const CONTASTE_ESTADOS = { nuevo: "Recibido", curso: "En revisión", hecho: "Atendido", no: "Cerrado sin cambios" };
 function contasteHTML(lista) {
   if (!lista.length) return '<span class="rep-intro">' + tx("Aquí aparecerán los reportes que envíes con tu sesión iniciada y la respuesta de cada uno.") + '</span>';
@@ -2652,9 +2619,13 @@ async function verLoQueMeContaste() {
 /* Al abrir la app: si hay una respuesta sin leer, se avisa una vez. Sin
    esperarlo y en silencio si falla, como todo lo que no pidió la persona. */
 async function avisarSiMeContestaron() {
-  if (!contasteOn() || (!contasteDemo() && !(sync.cfg || {}).sesion)) return;
+  if (!contasteDemo() && !(sync.cfg || {}).sesion) return;
   const lista = contasteDemo() ? contasteEjemplo() : await sbMisReportes();
-  if (lista && lista.some(r => r.nueva)) toast(tx("Tienes una respuesta a tu reporte."), "hecho", { label: tx("Ver"), onclick: "verLoQueMeContaste()", ms: 12000 });
+  if (!lista || !lista.some(r => r.nueva)) return;
+  /* En fila, como todo lo que sale solo: no encima de la carga ni de otra
+     escena (`enTurno`, 0.7.204). */
+  const avisa = () => toast(tx("Tienes una respuesta a tu reporte."), "hecho", { label: tx("Ver"), onclick: "verLoQueMeContaste()", ms: 12000 });
+  if (typeof enTurno === "function") enTurno(avisa); else avisa();
 }
 
 function abrirAjustes(sec) {
