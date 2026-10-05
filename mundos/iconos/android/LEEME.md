@@ -26,6 +26,26 @@ antemano (`plugins.SystemBars.initialViewportFitValueHint` en
 `capacitor.config.json`), y el complemento repinta el fondo de la ventana un
 turno después del de Capacitor, que lo dejaba gris.
 
+**El icono cambia al salir de la app, sin cerrarla (4 oct 2026).** Hasta aquí
+cambiar de icono reiniciaba la app, y en la práctica solo la cerraba: Android
+le quita la ventana a una app cuando se apaga la entrada por la que se abrió.
+Se reprodujo en el emulador (`norata-prueba`) y se probaron tres órdenes
+distintos; ninguno deja la app abierta. Ahora la página apunta el icono que
+toca (`poner({ icono, alFondo: true })`) y el complemento lo cambia en
+`handleOnStop`, cuando la persona ya no la está mirando. `actual()` contesta
+`alFondo: true` para que la página sepa que no hay cierre que anunciar.
+
+**Y la app no se enseña hasta que la página pintó.** El complemento retiene el
+primer dibujo de la actividad (`sujetarPrimerCuadro`) hasta que la página llama
+a `pintado`, con un tope de 2,5 s: Android deja mientras tanto su pantalla de
+arranque, que ya va en el color del tema. Era un gris de 0,3 s al abrir en
+Averno.
+
+**Cómo se prueba sin el teléfono de Eduardo:** `gradlew assembleDebug`, se
+instala en el emulador y se habla con la página por el puerto de depuración
+del WebView (`adb forward tcp:9333 localabstract:webview_devtools_remote_<pid>`).
+La versión de depuración va con otra firma: nunca se instala en su teléfono.
+
 El instalador también deja **la pantalla de arranque de Android sin icono**
 (paso 6, en `res/values/styles.xml`): desde Android 12 el sistema pone el
 icono de la app en medio al abrir, antes de que la app pinte nada, y era el

@@ -21,6 +21,10 @@ import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
+import android.content.SharedPreferences;
+import android.os.SystemClock;
+import android.view.View;
+import android.view.ViewTreeObserver;
 import com.jakewharton.processphoenix.ProcessPhoenix;
 
 import java.util.LinkedHashMap;
@@ -107,6 +111,103 @@ public class IconoPlugin extends Plugin {
            arriba y abajo, durante medio segundo al abrir. Este turno va
            detrás del suyo. */
         new Handler(Looper.getMainLooper()).post(() -> pintarFondo(color));
+        sujetarPrimerCuadro();
+    }
+
+    /* ---- La app no se enseña hasta que la página pintó (APK del 4 oct 2026) ----
+       Entre que Android quita su pantalla de arranque y que el WebView pinta
+       su primer cuadro se veía otra cosa: en el video de Eduardo, abriendo en
+       Averno, un gris de 0,3 s entre el negro del arranque y la carga.
+       Aquí se retiene el primer dibujo de la actividad —Android deja su
+       pantalla de arranque puesta mientras tanto, que ya va en el color del
+       tema— hasta que la página avisa de que ya tiene algo que enseñar
+       (`pintado`, lo llama js/13-nativo.js). Con TOPE: una página que no
+       llegara a avisar no puede dejar la app detrás de un color para siempre. */
+    private volatile boolean yaPinto = false;
+    private static final long TOPE_PRIMER_CUADRO = 2500;
+
+    private void sujetarPrimerCuadro() {
+        final Activity act = getActivity();
+        if (act == null) return;
+        final View contenido = act.findViewById(android.R.id.content);
+        if (contenido == null) return;
+        final long tope = SystemClock.uptimeMillis() + TOPE_PRIMER_CUADRO;
+        final Handler h = new Handler(Looper.getMainLooper());
+        contenido.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                if (yaPinto || SystemClock.uptimeMillis() >= tope) {
+                    contenido.getViewTreeObserver().removeOnPreDrawListener(this);
+                    return true;
+                }
+                /* Sin dibujar este cuadro, y se vuelve a preguntar en el
+                   siguiente: nada más lo pediría. */
+                h.postDelayed(contenido::invalidate, 16);
+                return false;
+            }
+        });
+    }
+
+    /** La página ya tiene su primer cuadro listo. */
+    @PluginMethod
+    public void pintado(PluginCall call) {
+        yaPinto = true;
+        final Activity act = getActivity();
+        if (act != null) {
+            act.runOnUiThread(() -> {
+                View contenido = act.findViewById(android.R.id.content);
+                if (contenido != null) contenido.invalidate();
+            });
+        }
+        call.resolve();
+    }
+
+    /* ---- El icono cambia AL SALIR de la app, sin reiniciarla (APK del 4 oct 2026) ----
+       Cambiar de icono es apagar la entrada por la que la app está abierta, y
+       Android le cierra la ventana a una app cuando pasa eso. Por eso el
+       cambio pedía reiniciar, y por eso el reinicio nunca volvía: en el
+       teléfono de Eduardo «solo se cierra»; en el emulador se ve en el
+       registro que la app SÍ se reabre y un segundo después Android cierra su
+       tarea, se haga en el orden que se haga. Se probó apagar antes de
+       reabrir, después de reabrir y reabriendo en otra tarea: las tres acaban
+       igual.
+
+       Lo que no se cierra en la cara de nadie es lo que ya no se está
+       mirando. La página apunta qué icono toca (`poner` con `alFondo`) y aquí
+       se cambia cuando la app se va al fondo: la persona sale, y en la
+       pantalla de inicio ya está el icono nuevo. Android cierra la tarea
+       entonces, sin que nadie lo vea; la próxima apertura es una entrada
+       normal.
+
+       Lo apuntado vive en disco: si la app muere antes de irse al fondo, se
+       cambia la siguiente vez que salga. */
+    private SharedPreferences apuntes() {
+        return getContext().getSharedPreferences(ARRANQUE, Context.MODE_PRIVATE);
+    }
+
+    private void cambiarLoApuntado() {
+        try {
+            String id = apuntes().getString("icono_pendiente", null);
+            if (id == null) return;
+            Map<String, String> ids = iconos();
+            if (ids.containsKey(id) && !id.equals(encendido(ids))) {
+                PackageManager pm = getContext().getPackageManager();
+                pm.setComponentEnabledSetting(componente(ids, id),
+                        PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+                for (String otro : ids.keySet()) {
+                    if (otro.equals(id)) continue;
+                    pm.setComponentEnabledSetting(componente(ids, otro),
+                            PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+                }
+            }
+            apuntes().edit().remove("icono_pendiente").apply();
+        } catch (Exception e) { /* se intentará la próxima vez que salga */ }
+    }
+
+    @Override
+    protected void handleOnStop() {
+        super.handleOnStop();
+        cambiarLoApuntado();
     }
 
     /** El tema de arranque de ese color, o el más parecido de los que trae el
@@ -193,6 +294,11 @@ public class IconoPlugin extends Plugin {
     @PluginMethod
     public void actual(PluginCall call) {
         JSObject r = new JSObject();
+        /* `alFondo`: este APK sabe cambiar el icono al salir, sin reiniciar.
+           La página lo pregunta para no anunciar un cierre que ya no pasa. */
+        r.put("alFondo", true);
+        String pendiente = apuntes().getString("icono_pendiente", null);
+        if (pendiente != null) r.put("pendiente", pendiente);
         r.put("icono", encendido(iconos()));
         call.resolve(r);
     }
@@ -206,6 +312,17 @@ public class IconoPlugin extends Plugin {
         final boolean reiniciar = Boolean.TRUE.equals(call.getBoolean("reiniciar", false));
         final Map<String, String> ids = iconos();
         JSObject r = new JSObject();
+        /* { icono, alFondo: true }: se apunta y se cambia al salir de la app
+           (ver `cambiarLoApuntado`). No reinicia ni cierra nada. */
+        if (Boolean.TRUE.equals(call.getBoolean("alFondo", false))) {
+            if (!ids.containsKey(id)) { r.put("cambiado", false); call.resolve(r); return; }
+            if (id.equals(encendido(ids))) apuntes().edit().remove("icono_pendiente").commit();
+            else apuntes().edit().putString("icono_pendiente", id).commit();
+            r.put("cambiado", !id.equals(encendido(ids)));
+            r.put("alFondo", true);
+            call.resolve(r);
+            return;
+        }
         if (!ids.containsKey(id) || id.equals(encendido(ids))) {
             r.put("cambiado", false);
             call.resolve(r);

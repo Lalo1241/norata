@@ -64,6 +64,19 @@
      `recargarApp` recarga como siempre. */
   if (typeof cap.isPluginAvailable === "function" && cap.isPluginAvailable("IconoNorata")) {
     const iconoNativo = cap.Plugins.IconoNorata;
+    /* La página ya tiene su primer cuadro (0.7.209): el APK del 4 oct 2026 no
+       enseña la app hasta oír esto, y mientras tanto deja puesta la pantalla
+       de arranque de Android, que ya va en el color del tema. Sin ello, entre
+       esa pantalla y la carga asomaba otro tono —un gris de 0,3 s al abrir en
+       Averno—. Un APK de antes no trae `pintado`: la llamada se rechaza y no
+       pasa nada. */
+    try { Promise.resolve(iconoNativo.pintado()).catch(() => {}); } catch (e) {}
+    /* ¿Este APK sabe cambiar el icono AL SALIR de la app, sin reiniciarla?
+       (`alFondo`, APK del 4 oct 2026). Si sabe, no hay cierre que anunciar ni
+       ventana que enseñar: se le apunta el icono que toca y él lo cambia
+       cuando la app se va al fondo. Los de antes siguen como estaban. */
+    const sabeAlFondo = Promise.resolve().then(() => iconoNativo.actual())
+      .then((r) => !!(r && r.alFondo)).catch(() => false);
     /* Qué icono toca. Un mundo manda sobre Arcade (son excluyentes) y un
        ambiente no tiene icono propio: con un ambiente va el de la casa, como
        manda la regla de la marca. Arcade se lee de lo GUARDADO y no del
@@ -104,7 +117,20 @@
         else if (Date.now() < tope) setTimeout(mirar, 300);
       })();
     };
-    const revisarIconoPedido = () => {
+    /* Con un APK que cambia el icono al salir: apuntarle el que toca, y ya.
+       En cada carga de la app y con ella asentada —el mundo pedido puede no
+       quedarse—; todo lo que cambia el aspecto recarga, así que basta. */
+    const apuntarIcono = () => {
+      const id = iconoQueToca();
+      if (!id) return;
+      olvidarPedido();
+      Promise.resolve(iconoNativo.poner({ icono: id, alFondo: true })).catch(() => {});
+    };
+    const revisarIconoPedido = () => sabeAlFondo.then((si) => {
+      if (si) cuandoEsteLista(apuntarIcono);
+      else revisarPedidoDeAntes();
+    });
+    const revisarPedidoDeAntes = () => {
       let pedido = false;
       try { pedido = localStorage.getItem(ICONO_PEDIDO_LLAVE) === "1"; } catch (e) {}
       if (!pedido) return;
@@ -155,6 +181,11 @@
       olvidarPedido();
       return Promise.resolve(iconoNativo.poner({ icono: id, reiniciar: true }));
     };
+    /* Y con un APK que cambia el icono al salir, nunca hay nada pendiente que
+       pida cerrar: ni el cambio de mundo anuncia un cierre ni «Actualizar»
+       reinicia (0.7.209). */
+    const pendienteDeAntes = window.norataIconoPendiente;
+    window.norataIconoPendiente = () => sabeAlFondo.then((si) => (si ? null : pendienteDeAntes()));
 
     /* ---- El color con el que abre la app (0.7.166) ----
        La pantalla de arranque la pinta Android antes de que corra nada de

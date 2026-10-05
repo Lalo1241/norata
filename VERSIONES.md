@@ -318,6 +318,30 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.209 · 4 oct 2026
+
+**Con el APK nuevo, cambiar de mundo ya no cierra la app: el icono cambia
+cuando sales de ella.** Eduardo pidió el APK con lo nativo pendiente del video
+(el cierre que no reabría, el gris al abrir). Se reprodujo en el emulador, por
+primera vez con la app de verdad y no leyendo el código.
+
+- **Por qué la app no volvía**: Android cierra la tarea de una app cuando se
+  apaga la entrada (el icono) por la que se abrió. El reinicio SÍ arrancaba la
+  app otra vez, y un segundo después Android la cerraba. Apagar antes,
+  apagar después de reabrir y reabrir en otra tarea: las tres, igual.
+- **Lo que se hace ahora** (`IconoPlugin.java`): `poner({ icono, alFondo })`
+  apunta el icono y `handleOnStop` lo cambia al irse la app al fondo. La
+  página (`apuntarIcono`, `js/13-nativo.js`) le dice cuál toca en cada carga.
+  Con ese APK no hay aviso, ni cuenta atrás, ni ventana; `norataIconoPendiente`
+  contesta siempre que no hay nada que cerrar.
+- **El gris al abrir**: el complemento no enseña la app hasta que la página
+  llama a `pintado` (tope 2,5 s).
+- **Los APK de antes no cambian**: siguen con el aviso de cierre.
+
+**Probado en el emulador (Android 16)**: apuntar el icono no cierra nada, al
+pulsar Inicio cambia en menos de dos segundos y la app vuelve a abrir. **Sin
+probar en el teléfono de Eduardo**, que es otro Android y otro lanzador.
+
 ### 0.7.208 · 4 oct 2026
 
 **«Mis reportes» y el cuadro nuevo de reportar, para todos.** Estuvieron en

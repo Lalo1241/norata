@@ -679,6 +679,21 @@
       }
     },
     {
+      "version": "0.7.209",
+      "fecha": "2026-10-04",
+      "estado": "borrador",
+      "clase": "mejora",
+      "titulo": "Cambiar de mundo ya no cierra la app",
+      "resumen": "En la app de Android, el icono de tu mundo ahora cambia cuando sales de Norata. Ya no hay aviso ni cuenta atrás: eliges el mundo y sigues donde estabas. Pide la versión nueva de la app de Android.",
+      "puntos": [],
+      "retoques": [],
+      "en": {
+        "titulo": "Switching worlds no longer closes the app",
+        "resumen": "In the Android app, your world's icon now changes when you leave Norata. No notice and no countdown: you pick the world and carry on where you were. It needs the new version of the Android app.",
+        "puntos": []
+      }
+    },
+    {
       "id": "mis-reportes",
       "version": "0.7.208",
       "fecha": "2026-10-04",

@@ -116,7 +116,16 @@ que abre sin red y sin pasar por Chrome. Lo que eso cambia aquí:
   APK no hace es peor que el cierre. Al volver a abrirla sale con el logo
   quieto y entra con el zoom. **Arcade va por la misma pieza** (`arcadeAlternar`
   → `cambiarDeUnaPieza`) y en Mi apariencia es un renglón más de la lista de
-  mundos, bajo el rótulo «Secretos»: son la misma familia. La paleta y la
+  mundos, bajo el rótulo «Secretos»: son la misma familia. **Con el APK del
+  4 oct 2026 ya no se cierra nada (0.7.209)**: el complemento cambia el icono
+  cuando la app se va al FONDO (`poner` con `alFondo`, `cambiarLoApuntado`), y
+  la página solo le apunta cuál toca en cada carga (`apuntarIcono`,
+  `js/13-nativo.js`). Sin aviso, sin cuenta atrás y sin ventana: el aviso de
+  cierre es lo que ven los APK de antes. **No volver a intentar reabrir la
+  app después de cambiar el icono**: Android cierra la tarea de una app cuando
+  se apaga la entrada por la que se abrió; se probó en el emulador apagando
+  antes, después y reabriendo en otra tarea, y las tres acaban con la app
+  cerrada. La paleta y la
   conciliación del arranque siguen por el camino de antes (`recargarApp` →
   `revisarIconoPedido` → `avisarRenacer`, con su cuenta de 10 s). **Nunca se reinicia antes de unos segundos**: el WebView
   escribe `localStorage` al disco segundos después, y reiniciar pronto dejaba
