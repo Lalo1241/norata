@@ -134,8 +134,12 @@ update public.tropiezos set estado = 'hecho' where visto and estado = 'nuevo';
 -- respuesta. Y así los avisos automáticos y lo que se manda sin sesión siguen
 -- sin saber nada de nadie, que es como estaban.
 --
--- El panel NO enseña quién fue: `metricas()` solo cuenta cuántas cuentas hay
--- detrás (`con_cuenta`), para saber si la respuesta le va a llegar a alguien.
+-- El panel enseña el APODO de quien lo mandó y una clave corta, y nada más
+-- (`de_quien`, 5 oct 2026). Al principio solo contaba cuántas cuentas había
+-- detrás; Eduardo pidió el apodo para reconocer cuándo varios reportes vienen
+-- de la misma persona. Ni el correo ni el nombre salen de aquí: el apodo es lo
+-- que la persona eligió para que le llamen, y la clave —cuatro letras sacadas
+-- de su id— solo sirve para distinguir a dos con el mismo apodo.
 -- Al borrar una cuenta, sus ligas se van con ella.
 alter table public.tropiezos add column if not exists respuesta  text not null default '';
 alter table public.tropiezos add column if not exists respondido timestamptz;
@@ -577,7 +581,17 @@ begin
                      estado, nota, arreglado, respuesta, respondido,
                      -- Cuántas cuentas hay detrás, sin decir cuáles.
                      (select count(*) from public.reportes_de d
-                       where d.tropiezo_id = tropiezos.id) as con_cuenta
+                       where d.tropiezo_id = tropiezos.id) as con_cuenta,
+                     -- De quién: su apodo (o cómo se le saluda, si no puso
+                     -- apodo) y una clave corta. Sin correo y sin nombre.
+                     (select string_agg(
+                               left(coalesce(nullif(btrim(u.raw_user_meta_data->>'apodo'), ''),
+                                             nullif(btrim(u.raw_user_meta_data->>'saludo'), ''),
+                                             'Sin apodo'), 24)
+                               || ' #' || left(md5(u.id::text), 4), ', ')
+                        from public.reportes_de d
+                        join auth.users u on u.id = d.user_id
+                       where d.tropiezo_id = tropiezos.id) as de_quien
                 from public.tropiezos
                where dia >= current_date - 30
                order by dia desc, cuantos desc

@@ -318,6 +318,24 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.212 · 5 oct 2026
+
+**En el buzón, cada reporte dice de quién es: su apodo y una clave corta.** Lo
+pidió Eduardo para reconocer cuándo varios reportes vienen de la misma persona.
+Cambia lo que se decidió en la 0.7.190, donde el panel solo contaba cuántas
+cuentas había detrás: ahora enseña el apodo —o cómo se le saluda, si no puso
+uno— y cuatro letras sacadas de su id, que distinguen a dos personas con el
+mismo apodo. **Ni el correo ni el nombre salen del servidor.**
+
+Sale en la lista, en la ficha del reporte y en el buscador; «Ver sus reportes»
+filtra el buzón por esa persona. Lo mandado sin sesión sigue sin dueño.
+
+**Trae SQL** (`metricas()`, en «Pendiente de pegar»). Sin pegarlo el buzón
+sigue igual: el panel solo lo pinta si el dato viene.
+
+**Cómo se probó.** El panel con la respuesta imitada: dos personas, una con dos
+reportes, y uno sin sesión. **El SQL no se probó contra una base.**
+
 ### 0.7.211 · 5 oct 2026
 
 **«Mis reportes» y el acuse de envío, en verde y con contexto.** Eduardo lo

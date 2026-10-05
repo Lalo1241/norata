@@ -281,7 +281,7 @@ function dnFiltrados() {
   return dnTropiezos().filter(t =>
     (DN.tipo === "todo" || dnTipo(t) === DN.tipo) &&
     (DN.ver === "todos" || (DN.ver === "abiertos" ? dnAbierto(t) : !dnAbierto(t))) &&
-    (!q || (t.mensaje + " " + t.version + " " + dnLugar(t)).toLowerCase().includes(q)));
+    (!q || (t.mensaje + " " + t.version + " " + dnLugar(t) + " " + (t.de_quien || "")).toLowerCase().includes(q)));
 }
 
 /* ---- Lo que está en pruebas ----
@@ -514,7 +514,7 @@ function dnListaHTML() {
     return `<button class="dn-it ${dnEstado(t) === "nuevo" ? "nuevo" : ""} ${k === DN.sel ? "sel" : ""}" data-a="sel" data-k="${escapeAttr(k)}">
       <span class="dn-tic t-${DN_TIPOS[tipo].tono}">${dnIc(tipo)}</span>
       <span><span class="tx">${dnE(dnTexto(t).que)}</span>
-        <span class="meta">${dnPastilla(t)}<span>${dnE(dnLugar(t))}</span><span>· v${dnE(t.version || "?")}</span><span>· ${dnE(dnDia(t.dia))}</span>${(Number(t.cuantos) || 1) > 1 ? `<span class="dn-chip">${Number(t.cuantos)}×</span>` : ""}</span></span>
+        <span class="meta">${dnPastilla(t)}<span>${dnE(dnLugar(t))}</span><span>· v${dnE(t.version || "?")}</span><span>· ${dnE(dnDia(t.dia))}</span>${t.de_quien ? `<span>· ${dnE(t.de_quien)}</span>` : ""}${(Number(t.cuantos) || 1) > 1 ? `<span class="dn-chip">${Number(t.cuantos)}×</span>` : ""}</span></span>
     </button>`;
   }).join("");
 }
@@ -552,6 +552,7 @@ function dnDetalleHTML(t) {
     <dl class="dn-ficha">
       <dt>${maq ? "Origen" : "Dónde"}</dt><dd>${dnE(dnLugar(t))}</dd>
       ${tx2.antes ? `<dt>Justo antes</dt><dd>${dnE(tx2.antes)}</dd>` : ""}
+      ${t.de_quien ? `<dt>De</dt><dd>${dnE(t.de_quien)} <button class="dn-btn b-ghost mini" data-a="dequien" data-k="${escapeAttr(t.de_quien.split(",")[0].trim())}">Ver sus reportes</button></dd>` : ""}
       <dt>Versión</dt><dd>${dnE(t.version || "?")}${t.version === VERSION ? " · la publicada" : ""}</dd>
       <dt>Llegó</dt><dd>${dnE(dnDia(t.dia))}${hace ? " · " + dnHaceTx(hace) : ""}${n > 1 ? (maq ? ` · pasó ${n} veces ese día` : ` · lo escribieron ${n} veces`) : ""}</dd>
       ${t.arreglado && est === "hecho" ? `<dt>Salió en</dt><dd>${dnE(t.arreglado)}</dd>` : ""}
@@ -570,8 +571,8 @@ function dnDetalleHTML(t) {
    - Se MANDA con su botón, no al salir del campo como la nota: la nota es
      tuya y un borrador a medias no le hace daño a nadie; esto le llega a otra
      persona.
-   - El panel no sabe quién es. `con_cuenta` dice cuántas cuentas hay detrás y
-     nada más: si es cero —lo mandó sin sesión, o antes de que los reportes se
+   - El panel sabe el APODO y una clave corta (`de_quien`), no el correo ni el
+     nombre. `con_cuenta` dice cuántas cuentas hay detrás: si es cero —lo mandó sin sesión, o antes de que los reportes se
      ligaran a la cuenta— no hay a quién contestarle, y se dice en vez de
      dejar escribir una respuesta que no va a leer nadie.
    - Sin el SQL de las respuestas, `respuesta` no viene y este bloque no sale. */
@@ -1470,6 +1471,8 @@ function dnClic(ev) {
     case "ver": DN.ver = v; DN.sel = primero(); break;
     case "sel": DN.sel = el.dataset.k; break;
     case "volver": DN.sel = null; break;
+    /* Todos los reportes de esa persona: su apodo y su clave, al buscador. */
+    case "dequien": DN.q = el.dataset.k || ""; DN.tipo = "todo"; DN.ver = "todos"; DN.sel = primero(); break;
     case "atender": if (sel && sel.id != null) archivarReporte(sel.id, !sel.visto); return;
     case "estado": if (sel && sel.id != null && dnEstado(sel) !== v) dnGuardar(sel, { estado: v }); return;
     case "responder": {

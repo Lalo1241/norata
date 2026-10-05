@@ -27,7 +27,20 @@ cierra.
 
 Lo de abajo está escrito por orden: lo de más arriba es lo más antiguo.
 
-**Nada pendiente.** Lo último que se pegó fue el libro de pagos (0.7.193), el 3 oct 2026.
+### 1. El apodo en el buzón — 5 oct 2026
+
+**Qué**: `metricas()`, de `administracion.sql`, que ahora devuelve con cada
+reporte el apodo de quien lo mandó y una clave corta (`de_quien`). Es solo esa
+función: no crea tablas ni toca datos.
+
+**Se puede pegar dos veces sin consecuencias.** Sin pegarlo, el buzón sigue
+como estaba, sin el apodo.
+
+**Después de pegarlo**: en el Puesto de mando → Subidas, la versión que lo trae
+está detenida en la cola; se sube con «Ya lo pegué: subir».
+
+**No se probó contra una base de verdad.** Si el editor da un error, copiar el
+mensaje tal cual.
 
 Al volver a desplegar `cobro`, siempre con `--no-verify-jwt`:
 `supabase functions deploy cobro --no-verify-jwt --project-ref wifffghnyrqfuwqlatci`
