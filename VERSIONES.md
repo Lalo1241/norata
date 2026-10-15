@@ -318,6 +318,34 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.215 · 14 oct 2026
+
+**La tira de «Subiendo al vivo…» del Puesto de mando ya no se aplasta.** La
+sala es una columna de alto fijo con scroll, y la tira lleva `overflow:
+hidden` (por la raya que corre debajo): eso le quita el alto mínimo, y cuando
+la sala no cabía se encogía por debajo de su texto, con la rueda y las dos
+líneas cortadas por el borde. Eduardo lo mandó en una captura. Ahora ningún
+bloque de la sala se encoge (`#dentro .dn-sala > *`), no solo la tira.
+
+**Y por qué hacía falta subir el número para destrabar la cola.** Desde el
+7 oct 2026 la barrera rechazaba todo: las dos novedades que Eduardo aprobó ese
+día desde el Puesto de mando («mision-nueva» y «tiempo-una-forma») cambian
+`novedades/novedades.json`, que está en `ASSETS`, sin subir el número, y la
+comprobación 5 de la barrera («cambia la app sin subir el número») las
+paraba. Como el vivo solo avanza en orden, detrás se quedaron también las
+cabeceras de los correos. Esta versión pasa de la 0.7.214 y lleva las cuatro.
+
+**Lo que queda abierto:** el botón de aprobar (0.7.183) se diseñó para
+publicar sin versión nueva —la app lee las novedades de la red al abrir—, y la
+comprobación 5 llegó después sin esa excepción, así que **la próxima
+aprobación volverá a atorar la cola**. La salida propuesta es que la
+comprobación 5 no cuente `novedades.json`; espera el visto bueno de Eduardo,
+porque la barrera es su regla más dura. Y el aviso «el motivo está en "Las
+últimas veces"» no lleva a ningún motivo: esa sala solo dice «Falló» y enlaza
+a GitHub.
+
+Interno: no lleva novedad.
+
 ### 0.7.214 · 5 oct 2026
 
 **El tiempo del Pomodoro se escribe de UNA forma en la app, en el aviso y en

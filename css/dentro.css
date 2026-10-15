@@ -102,6 +102,11 @@ html.claro #dentro {
 #dentro .dn-marca small { font-size: 12px; color: var(--muted); font-weight: 500; }
 #dentro .dn-cerrar { margin-left: auto; }
 #dentro .dn-sala { overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 18px 16px 24px; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+/* Nada de la sala se encoge: es una columna de alto fijo que hace scroll, y un
+   bloque con `overflow: hidden` (la tira de «Subiendo al vivo…») pierde su
+   alto mínimo y se aplastaba por debajo de su texto cuando la sala no cabía
+   (lo vio Eduardo el 14 oct 2026: la rueda y el texto cortados por el borde). */
+#dentro .dn-sala > * { flex-shrink: 0; }
 #dentro .dn-tabs { display: grid; grid-template-columns: repeat(5, 1fr); border-top: 1px solid var(--line); background: var(--bg2); padding: 6px 4px 8px; }
 #dentro .dn-tabs button { border: 0; background: transparent; padding: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10.5px; font-weight: 700; color: var(--muted); position: relative; }
 #dentro .dn-tabs button .dn-ic { box-sizing: content-box; padding: 6px 14px; border-radius: 999px; }
