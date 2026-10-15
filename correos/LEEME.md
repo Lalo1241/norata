@@ -144,7 +144,7 @@ app.
 | 01 Confirmar cuenta | menta `#5fe0b0` | confirmar | la puerta de dos hojas, abriéndose |
 | 02 Recuperar contraseña | luciérnaga `#f5d76e` | recuperar | la llave |
 | 03 Cambio de correo | menta `#5fe0b0` | confirmar | del sobre viejo al nuevo |
-| 04 Bienvenida | noche `#10151d` | ya estás dentro | el isotipo, con su hueco encendido |
+| 04 Bienvenida | noche `#10151d` | ya estás dentro | el isotipo de noche, hueco vacío y resplandor con su silueta |
 | 05 Contraseña cambiada | celeste `#8ecdf5` | constancia de cuenta | el escudo con la palomita |
 | 06 Acceso vinculado | celeste `#8ecdf5` | constancia de cuenta | dos eslabones recién unidos |
 
