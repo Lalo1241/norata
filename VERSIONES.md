@@ -318,6 +318,32 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.215.1 · 14 oct 2026
+
+**Las dos cosas que la 0.7.215 dejó abiertas, cerradas con el visto bueno de
+Eduardo.**
+
+- **Aprobar una novedad ya no atora la cola.** La comprobación 5 de la barrera
+  (`.github/workflows/barrera.yml`) no cuenta `novedades/novedades.json` como
+  «cambio de la app»: la app lo pide a la red al abrir (`novedadesDeLaRed`),
+  así que llega sin versión nueva, que es como se diseñó el botón de aprobar
+  en la 0.7.183. Con eso deja de valer lo que decía la 0.7.200.1 («cambiar
+  una ficha YA publicada pide subir el número»). Cualquier otro archivo de
+  `ASSETS` sigue pidiéndolo.
+- **El panel dice POR QUÉ no pasó una subida.** La función `barrera` lee el
+  registro de las dos últimas corridas que fallaron y saca sus líneas
+  `::error::` (`motivo`); sale del registro y no de las anotaciones porque la
+  llave solo tiene permiso de Actions. El aviso de «Detenida por…», el aviso
+  al terminar y la lista de «Las últimas veces que pasó algo por la barrera»
+  lo enseñan, en coral. Sin motivo (función vieja, registro caído) el aviso
+  dice dónde buscarlo, en vez de mandar a una sala que no lo tenía.
+  **La función se desplegó a mano** (`supabase functions deploy barrera`,
+  versión 9): un cambio en `supabase/functions/` no llega solo.
+
+Se probó con la corrida real que falló (38684442355): el motivo que sale es
+«Cambia la app (novedades/novedades.json) sin subir el número 0.7.214: ningún
+dispositivo lo recibiría.»
+
 ### 0.7.215 · 14 oct 2026
 
 **La tira de «Subiendo al vivo…» del Puesto de mando ya no se aplasta.** La

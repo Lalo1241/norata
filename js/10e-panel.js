@@ -650,12 +650,22 @@ function dnTomaEstado(b) {
   const sigue = dnEnMarcha();
   if (estaba && !sigue) {
     const u = (b.corridas || [])[0], cola = (b.cola || []).length;
-    if (u && u.resultado && u.resultado !== "success") toast("La subida no terminó bien: mira «Las últimas veces».", "atencion");
+    if (u && u.resultado && u.resultado !== "success") toast(u.motivo ? "No pasó la barrera: " + u.motivo : "La subida no pasó la barrera. El motivo está abajo, en «Las últimas veces que pasó algo por la barrera».", "atencion");
     else if (cola < colaAntes || !cola) toast("Ya está en vivo.", "hecho");
     /* Lo que se aprobó pudo cambiar las novedades: se vuelven a leer. */
     if (typeof cargarNovedades === "function") cargarNovedades().then(es => { DN.nov = es || []; if (dnAbierta()) dnPinta(); }).catch(() => {});
   }
   return JSON.stringify(b) !== antes || estaba !== sigue;
+}
+/* Por qué la cola está detenida, en palabras. El motivo lo saca la función
+   `barrera` del registro de la última corrida que falló (las líneas
+   `::error::` del trabajo). Antes este aviso decía «el motivo está en "Las
+   últimas veces"», y esa sala solo decía «Falló»: Eduardo no lo encontró
+   (14 oct 2026). Si la función todavía no lo trae, se dice dónde buscarlo. */
+function dnMotivoTx() {
+  const u = ((DN.bar && DN.bar.corridas) || []).find(c => c.clase === "barrera" && c.estado === "completed");
+  if (u && u.resultado === "failure" && u.motivo) return "No pasó la barrera: " + dnE(u.motivo);
+  return "No pasó las comprobaciones de la barrera. Abajo, en «Las últimas veces que pasó algo por la barrera», toca «Ver en GitHub» en la que dice «Falló».";
 }
 /* La tira de «está subiendo», arriba de la cola. */
 function dnSubiendoHTML() {
@@ -750,7 +760,7 @@ function dnColaHTML() {
   return `<div class="dn-panel"><div class="dn-pcab"><h3>${abierto ? "Detenido en la cola" : "El paquete de la semana"}</h3><span class="dn-chip">${cola.length}</span>${abierto ? "" : `<span class="dn-chip">sale ${dnE(dnProximoPaquete().texto)}</span>`}
         ${cola.length ? `<div class="dn-der"><button class="dn-btn b-primary mini" data-a="subir:" ${dnEnMarcha() ? "disabled" : ""}>${dnIc("subidas")}${dnEnMarcha() ? "Subiendo…" : "Subir todo al vivo"}</button></div>` : ""}</div>
       ${abierto ? "" : dnPaqueteHTML(cola)}
-      ${tapon ? `<div class="dn-aviso dn-ojo"><b>Detenida por ${nombre(tapon)}${taponSql ? ", que trae SQL" : ""}.</b> ${taponSql ? "Un SQL no llega solo a Supabase, así que no sube hasta que digas que ya lo pegaste." : "No pasó las comprobaciones de la barrera: el motivo está en «Las últimas veces»."}${cola.length > 1 ? (cola.length === 2 ? " El cambio de detrás espera" : " Los " + (cola.length - 1) + " de detrás esperan") + " aunque el grifo esté abierto, porque se aprueba en orden." : ""}</div>` : ""}
+      ${tapon ? `<div class="dn-aviso dn-ojo"><b>Detenida por ${nombre(tapon)}${taponSql ? ", que trae SQL" : ""}.</b> ${taponSql ? "Un SQL no llega solo a Supabase, así que no sube hasta que digas que ya lo pegaste." : dnMotivoTx()}${cola.length > 1 ? (cola.length === 2 ? " El cambio de detrás espera" : " Los " + (cola.length - 1) + " de detrás esperan") + " aunque el grifo esté abierto, porque se aprueba en orden." : ""}</div>` : ""}
       ${cola.length ? `<p class="dn-nota">Se aprueba en orden: «Subir hasta aquí» lleva al vivo ese cambio y todos los de arriba.${conSql ? " Lo que trae SQL pide que lo hayas pegado antes." : ""}</p>` : ""}
       ${!cola.length ? `<div class="dn-vacio">${abierto ? "Nada detenido. Lo que se sube a main está llegando solo." : "El paquete está vacío. Lo que se suba a main aparecerá aquí."}</div>` : cola.map((c, i) => {
         const h = dnHace(dnLocal(c.fecha)), sql = (c.sql || []).length, detras = tapon && i > 0;
@@ -769,7 +779,7 @@ function dnCorridasHTML() {
   return `<div class="dn-panel"><h3>Las últimas veces que pasó algo por la barrera</h3>
       ${cs.map(c => { const q = que(c), h = dnHace(dnLocal(c.creado)); return `<div class="dn-prueba"><div>
           <div class="dn-sobre-t"><span class="dn-estado ${q[0]}">${dnIc(q[1])}${q[2]}</span><span class="dn-chip">${c.clase === "regreso" ? "regreso de emergencia" : c.evento === "push" ? "al subir a main" : "aprobada a mano"}</span><span class="dn-chip">${dnHaceTx(h)}</span></div>
-          <h4>${dnE(dnPartirTitulo(c.titulo))}</h4></div>
+          <h4>${dnE(dnPartirTitulo(c.titulo))}</h4>${c.motivo ? `<p class="dn-motivo">${dnE(c.motivo)}</p>` : ""}</div>
         <div class="dn-acciones"><a class="dn-btn b-ghost mini" href="${escapeAttr(c.url)}" target="_blank" rel="noopener">Ver en GitHub</a></div></div>`; }).join("")}</div>`;
 }
 const dnPartirTitulo = t => String(t || "").split("\n")[0];

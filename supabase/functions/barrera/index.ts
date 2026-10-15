@@ -89,6 +89,35 @@ function partir(mensaje: string) {
   return m ? { version: m[1], titulo: m[2] } : { version: "", titulo: primero };
 }
 
+/* El motivo de una corrida que falló, en palabras: las líneas `::error::` que
+   escribe el propio trabajo («Cambia la app … sin subir el número»). Antes el
+   panel decía «el motivo está en "Las últimas veces"», y esa sala solo decía
+   «Falló» y mandaba a GitHub: Eduardo no encontró el motivo (14 oct 2026).
+
+   Sale del REGISTRO del trabajo y no de las anotaciones de GitHub porque la
+   llave solo tiene permiso de Actions (que deja leer registros), no de Checks.
+   GitHub contesta con una redirección a un almacén firmado; `fetch` la sigue y
+   no le pasa la llave a otro dominio. Si algo falla, no hay motivo y el panel
+   cae en el texto de antes: nunca rompe el estado. */
+async function motivo(id: number, llave: string): Promise<string> {
+  try {
+    const j = await gh(`/repos/${REPO}/actions/runs/${id}/jobs`, llave);
+    if (!j.ok) return "";
+    const malo = ((await j.json()).jobs || []).find((x: Record<string, any>) => x.conclusion === "failure");
+    if (!malo) return "";
+    const r = await gh(`/repos/${REPO}/actions/jobs/${malo.id}/logs`, llave);
+    if (!r.ok) return "";
+    const errores = (await r.text()).split("\n")
+      .map(l => l.replace(/\x1b\[[0-9;]*m/g, ""))
+      .filter(l => l.includes("##[error]"))
+      .map(l => l.slice(l.indexOf("##[error]") + 9).trim())
+      .filter(l => l && !/^Process completed with exit code/.test(l));
+    return errores.slice(0, 2).join(" · ").slice(0, 400);
+  } catch {
+    return "";
+  }
+}
+
 async function disparar(llave: string, hasta: string, sqlPegado: boolean) {
   const r = await gh(`/repos/${REPO}/actions/workflows/${TRABAJO}/dispatches`, llave, {
     method: "POST",
@@ -231,6 +260,11 @@ Deno.serve(async (req: Request) => {
       })));
     }
     corridas.sort((x, y) => String(y.creado).localeCompare(String(x.creado)));
+    corridas = corridas.slice(0, 8);
+    /* El motivo, solo de las dos fallidas más recientes: leer un registro es
+       una petición más a GitHub, y las viejas ya no le importan a nadie. */
+    const fallidas = corridas.filter(c => c.resultado === "failure").slice(0, 2);
+    await Promise.all(fallidas.map(async c => { c.motivo = await motivo(c.id, LLAVE); }));
 
     /* Lo que estuvo en vivo: cada vez que algo llega a `vivo` sale un paquete
        de Android (`app-<versión>`), así que la lista de paquetes ES el
@@ -248,7 +282,7 @@ Deno.serve(async (req: Request) => {
     let pagina = "";
     if (paginaR.ok) pagina = String((await paginaR.json()).source?.branch || "");
 
-    return responder({ grifo, vivo, sinVivo: !vivoR.ok, cola, corridas: corridas.slice(0, 8), historial, pagina }, 200, origen);
+    return responder({ grifo, vivo, sinVivo: !vivoR.ok, cola, corridas, historial, pagina }, 200, origen);
   } catch (e) {
     return responder({ error: (e as Error).message || String(e) }, 502, origen);
   }
