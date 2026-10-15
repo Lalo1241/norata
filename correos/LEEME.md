@@ -54,9 +54,11 @@ no tienen forma de poner una mayúscula. Por eso en el `06` no va dentro de una
 frase, donde se leería como una errata, sino en una ficha de datos con su
 rótulo al lado, donde una minúscula es lo normal.
 
-**El logo depende de que el sitio esté publicado.** Apunta a
-`mi.norata.app/marca/logotipo-correo.png` — al SUBDOMINIO de la app, no al
-dominio raíz. `norata.app` y `www.norata.app` quedaron reservados para la
+**Las imágenes dependen de que el sitio esté publicado.** Apuntan a
+`mi.norata.app/marca/…` — al SUBDOMINIO de la app, no al dominio raíz. Desde
+el 14 oct 2026 el logo va DENTRO de la cabecera de cada correo (ver «El
+sistema visual»), y `logo-correo-v2.png` ya no lo usa ninguna plantilla, pero
+no se borra: lo enlazan los correos ya enviados. `norata.app` y `www.norata.app` quedaron reservados para la
 landing y hoy devuelven 404, así que apuntar ahí dejaría el logo roto y el
 enlace del pie en ninguna parte.
 
@@ -112,66 +114,98 @@ puede pulsar un botón y sin eso el correo queda inservible.
 
 Los seis correos son la misma pieza con otro color. De arriba abajo:
 
-1. **Franja blanca con el logo.**
-2. **La ilustración, a sangre** — pegada a los dos lados de la tarjeta.
-3. **El cuerpo**: saludo por nombre, título, párrafo, botón y una nota al pie.
+1. **La cabecera, en UNA imagen**: la franja blanca con el logo y, debajo, el
+   dibujo a sangre.
+2. **El cuerpo**: saludo por nombre, título, párrafo, botón y una nota al pie.
 
-La franja del logo va ENCIMA de la ilustración y no debajo. Es lo que permite
-que la ilustración llegue a los bordes: las esquinas redondeadas son las de
-arriba, y unos clientes las redondean y otros no. Con la franja blanca en
-medio, la ilustración solo tiene bordes rectos y ninguna esquina la recorta.
+**Por qué la cabecera es una sola imagen (14 oct 2026).** Gmail en el teléfono
+(Android y iPhone) y Outlook oscurecen el HTML a su criterio aunque el correo
+declare que es claro; lo que no tocan nunca es una imagen. Con el logo como
+imagen suelta sobre una celda blanca, en modo oscuro la tarjeta se volvía gris
+y el logo se quedaba como un recuadro blanco flotando. Dentro de la cabecera,
+el blanco es parte del dibujo y sale igual en cualquier bandeja.
 
-**Un color por motivo.** Es lo que hace que se lean como un sistema y no como
-seis correos sueltos. El botón lleva el mismo color que la ilustración, para
-que cada mensaje sea de una pieza — con una excepción: el de bienvenida, cuyo
-dibujo es oscuro y cuyo botón sigue siendo menta, porque menta es «adelante»
-en toda la app:
+**Todo el texto va en el cuerpo, título incluido.** Se probó un título sobre
+una banda de color, como hace Headspace, y se descartó: Gmail puede oscurecer
+la banda y aclarar el título por separado, y eso ya no se controla. El cuerpo,
+en cambio, Gmail lo oscurece parejo, fondo y texto a la vez.
 
-| Correo | Color | Qué dice |
-| --- | --- | --- |
-| Confirmar cuenta | menta `#5fe0b0` | empezar |
-| Recuperar contraseña | luciérnaga `#f5d76e` | la luz que te devuelve al camino |
-| **Avisos de seguridad** | coral `#ff8a70` | algo cambió en tu cuenta |
-| Bienvenida | noche `#10151d` | ya estás dentro |
+**El dibujo acaba en una orilla recta, sin nubes.** Hubo un borde de nubes
+blancas que se fundía con el cuerpo; en modo oscuro el cuerpo se oscurece y
+las nubes no, y quedaba una costura blanca.
 
-El coral no es de un correo sino de una **categoría**: lo comparten los tres que
-dicen lo mismo —cambio de correo, contraseña cambiada y acceso vinculado—, y por
-eso comparten también el dibujo. Tres imágenes distintas para el mismo tipo de
-aviso habrían sido tres dibujos más de trabajo y un sistema más débil: así, el
-coral acaba significando «mira esto» sin que haya que leer nada.
+**Un color por motivo, y el color dice qué clase de correo es.** El botón lleva
+el color de su dibujo, con una excepción: el de bienvenida, cuyo dibujo es
+oscuro y cuyo botón sigue siendo menta, porque menta es «adelante» en toda la
+app.
 
-Los tres de seguridad no llevan enlace de confirmación — no hay nada que
-confirmar. Su botón va a la app, y el pie no repite ninguna dirección larga.
+| Correo | Color | Qué dice | Dibujo |
+| --- | --- | --- | --- |
+| 01 Confirmar cuenta | menta `#5fe0b0` | confirmar | la puerta de dos hojas, abriéndose |
+| 02 Recuperar contraseña | luciérnaga `#f5d76e` | recuperar | la llave |
+| 03 Cambio de correo | menta `#5fe0b0` | confirmar | del sobre viejo al nuevo |
+| 04 Bienvenida | noche `#10151d` | ya estás dentro | el isotipo, con su hueco encendido |
+| 05 Contraseña cambiada | celeste `#8ecdf5` | constancia de cuenta | el escudo con la palomita |
+| 06 Acceso vinculado | celeste `#8ecdf5` | constancia de cuenta | dos eslabones recién unidos |
+
+**El coral es solo para la alerta, y hoy ningún correo lo usa** (Eduardo,
+14 oct 2026). Antes lo compartían los tres de seguridad, y se descartó porque
+ninguno es negativo: el cambio de correo lo pide la persona, y una contraseña
+cambiada o un acceso vinculado casi siempre los hizo ella misma (entrar con
+Google con el mismo correo vincula el acceso). Se cuentan como constancia,
+con su salida «si no fuiste tú». Lo único que sigue en coral oscuro es ese
+enlace de «Recupera tu contraseña ahora», que sí es la alerta.
+
+**La palomita del 05 va en el verde de «hecho» de la app**, no en celeste: en
+Norata los estados no cambian con el color del contexto.
+
+El 05 y el 06 no llevan enlace de confirmación: no hay nada que confirmar.
+Su botón va a la app, y el pie no repite ninguna dirección larga.
 
 ## Las ilustraciones
 
-**Todavía no existen.** En su sitio hay una banda del color que toca, de 130
-píxeles de alto. Cada plantilla lleva, en un comentario justo encima de esa
-banda, la línea exacta que hay que poner en su lugar. Sustituir la celda por
-esa línea es todo el trabajo: no hay nada más que tocar.
+Seis cabeceras, una por correo, en `marca/`:
 
-Lo que tienen que cumplir los archivos:
+| Correo | Archivo |
+| --- | --- |
+| 01 | `correo-confirmar-v1.png` |
+| 02 | `correo-recuperar-v1.png` |
+| 03 | `correo-cambio-de-correo-v1.png` |
+| 04 | `correo-bienvenida-v1.png` |
+| 05 | `correo-contrasena-cambiada-v1.png` |
+| 06 | `correo-acceso-vinculado-v1.png` |
 
-- Lienzo de **520 × 260**, exportado al doble: **1040 × 520**.
+**Si se retoca una, sube el número del nombre** — Gmail guarda las imágenes
+por nombre y no vuelve a pedirlas nunca. Y no se borra ninguna vieja: los
+correos ya enviados las siguen enlazando.
+
+Lo que cumplen, y lo que tiene que cumplir una nueva:
+
+- Lienzo de **520 × 346**: 86 de franja blanca con el logo (26 arriba, logo de
+  150 × 38, 22 abajo) y 260 de dibujo. Exportado al doble: **1040 × 692**.
 - **PNG con fondo opaco.** Nada de SVG — Gmail los borra — ni transparencias.
-- **Sin texto dentro.** Lo dibujado no se puede seleccionar, sale borroso al
-  escalar y desaparece para quien tenga las imágenes bloqueadas.
-- **Sin degradados que dependan del HTML**: si hay degradado, va dentro del PNG,
-  porque Outlook ignora los del código.
-- Menos de **150 KB** cada uno.
-- Son **cuatro archivos para seis correos**: `correo-confirmar-v1.png`,
-  `correo-recuperar-v1.png`, `correo-seguridad-v1.png` (compartido por los
-  tres avisos de seguridad) y `correo-bienvenida-v1.png`, en `marca/`. **Si se retoca una, sube el número** —
-  Gmail guarda las imágenes por nombre y no vuelve a pedirlas nunca.
+- **Sin texto dentro** aparte del logo. Lo dibujado no se puede seleccionar,
+  sale borroso al escalar y desaparece para quien tenga las imágenes
+  bloqueadas. Por eso el `alt` es «Norata»: es lo único que la imagen dice.
+- **Ilustración plana, sin caras ni contornos**: una figura grande por correo,
+  recortada o centrada, con tres o cuatro tonos de una sola familia de color y
+  unos aros de luz detrás. Se probaron caras y una luciérnaga como personaje, y
+  Eduardo las descartó: demasiado detalle, y Norata no tiene mascota (si algún
+  día la tiene, es un proyecto aparte, no una decisión de los correos).
+- **El isotipo no se redibuja**: sale de `marca/isotipo-menta.svg`, en su
+  menta, y su silueta no se toca.
+- Menos de **150 KB** cada uno (hoy pesan entre 25 y 42).
 
-El `alt` va vacío a propósito: el dibujo no dice nada que el texto no diga ya,
-y un lector de pantalla que lo lea solo estorba.
+Las fuentes de los dibujos (SVG y los scripts que los arman) se quedaron en el
+bloc de la sesión del 14 oct 2026; si hace falta retocar uno, lo más rápido es
+pedirlo describiéndolo con esta tabla delante.
 
-**El de bienvenida es el único oscuro.** Los tres de trámite son claros y de un
-color; ese abre con la noche de la app. Puede serlo sin peligro porque el fondo
-va incrustado en el PNG — lo que no puede ser oscuro es el correo, que vive en
+**El de bienvenida es el único oscuro.** Puede serlo sin peligro porque el
+fondo va dentro del PNG — lo que no puede ser oscuro es el correo, que vive en
 la bandeja de otro y ya se probó que ahí queda como un rectángulo flotando.
-Su botón sigue siendo menta, que es «adelante» en toda la app.
+
+**El modo oscuro no se puede probar aquí.** Lo único que dice la verdad es un
+correo real abierto en la app de Gmail del teléfono con el tema oscuro puesto.
 
 ## Quién manda la bienvenida
 

@@ -30,33 +30,20 @@
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
          style="max-width:520px;background:#ffffff;border:1px solid #e8ecf2;border-radius:20px;">
 
-    <!-- 1. Franja del logo. Va encima de la ilustracion y no debajo por un
-         motivo de maqueta: las esquinas de arriba son las unicas redondeadas,
-         y unos clientes las redondean y otros no. Con la franja blanca ahi,
-         la ilustracion queda entre dos bordes rectos y se puede pegar de lado
-         a lado sin que ninguna esquina la recorte. -->
-    <tr><td align="center" style="padding:26px 20px 22px;">
-      <img src="https://mi.norata.app/marca/logo-correo-v2.png" width="150" height="38" alt="Norata"
-           style="display:block;border:0;outline:none;text-decoration:none;width:150px;height:auto;">
+    <!-- 1. La cabecera: la franja blanca con el logo y el dibujo, en UNA
+         imagen. Gmail en el telefono oscurece el HTML a su criterio pero
+         nunca toca una imagen: asi la cabecera sale igual en cualquier
+         bandeja, y el logo no se queda como un recuadro blanco suelto sobre
+         una tarjeta oscurecida. Sin texto dentro (el titulo va abajo, en el
+         cuerpo); el `alt` dice "Norata" porque la imagen lleva el logo.
+         Si se retoca el dibujo, sube el numero del nombre: Gmail guarda las
+         imagenes por nombre y no las vuelve a pedir nunca. -->
+    <tr><td style="padding:0;font-size:0;line-height:0;">
+      <img src="https://mi.norata.app/marca/correo-confirmar-v1.png" width="520" height="346" alt="Norata"
+           style="display:block;border:0;outline:none;text-decoration:none;width:100%;max-width:520px;height:auto;border-radius:20px 20px 0 0;">
     </td></tr>
 
-    <!-- 2. La ilustracion, a sangre.
-
-         AHORA MISMO ES UNA BANDA DE COLOR: la ilustracion de verdad todavia
-         no existe. Cuando este dibujada se sustituye esta celda entera por la
-         linea comentada de abajo, y no hay que tocar nada mas.
-
-              <tr><td style="padding:0;font-size:0;line-height:0;">
-                <img src="https://mi.norata.app/marca/correo-confirmar-v1.png"
-                     width="520" height="260" alt=""
-                     style="display:block;border:0;width:100%;max-width:520px;height:auto;">
-              </td></tr>
-
-         El `alt` va vacio a proposito: el dibujo no dice nada que el texto no
-         diga ya, y un lector de pantalla que lo lea solo estorba. -->
-    <tr><td style="padding:0;font-size:0;line-height:0;background:#5fe0b0;height:130px;">&nbsp;</td></tr>
-
-    <!-- 3. El cuerpo -->
+    <!-- 2. El cuerpo -->
     <tr><td class="caja" style="padding:32px 36px 34px;">
 
       <!-- El saludo por nombre. La condicion no es un adorno: si la cuenta no
