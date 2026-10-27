@@ -9,6 +9,10 @@ se ve como mapa o como lista (ver «Ramas: una sola estructura»). **Ramas no
 está el primer día**, y la clase proyecto tampoco: los abre el nivel de
 expedición (ver «Lo que llega por el camino»).
 
+**Antes de escribir cualquier texto que alguien vaya a leer, `VOZ.md`.** Es la
+guía de voz de la marca (aprobada el 27 oct 2026): un registro por contexto,
+con «así sí / así no». Cada corrección de Eduardo sobre un texto se apunta ahí.
+
 ## No hay compilación
 
 Ni `npm install`, ni empaquetador, ni paso previo: archivos sueltos que el
@@ -1486,6 +1490,9 @@ y la firma se calcula sobre el texto **exacto** que llego —re-serializarlo la
 rompe para siempre—.
 
 ## El tono
+
+**La guía entera está en `VOZ.md` y manda sobre esto.** Aquí queda el porqué
+de las reglas más viejas.
 
 Decisiones ya cerradas. No volver a proponerlas.
 

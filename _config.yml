@@ -77,6 +77,7 @@ exclude:
   - CLAUDE.md
   - README.md
   - VERSIONES.md
+  - VOZ.md
 
   # El servidor: su código vive en Supabase, no aquí.
   - supabase/
