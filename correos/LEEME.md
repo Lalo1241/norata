@@ -10,7 +10,7 @@ una en su sitio. La de bienvenida es la excepción y va por otro camino — ver
 | `01-confirmar-cuenta.html` | Confirm signup | Confirma tu correo para entrar a Norata |
 | `02-recuperar-contrasena.html` | Reset password | Recupera el acceso a tu cuenta de Norata |
 | `03-cambio-de-correo.html` | Change email address | Confirma tu correo nuevo en Norata |
-| `04-bienvenida.html` | **ninguna** — ver abajo | Bienvenido a Norata |
+| `04-bienvenida.html` | **ninguna** — ver abajo | Te damos la bienvenida a Norata |
 | `05-contrasena-cambiada.html` | Password changed | Tu contraseña de Norata cambió |
 | `06-acceso-vinculado.html` | Sign-in method linked | Una forma nueva de entrar a Norata |
 

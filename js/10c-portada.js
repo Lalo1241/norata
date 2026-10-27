@@ -1296,7 +1296,7 @@ function portadaPintar(modo) {
        <div id="portada-error" class="portada-error" hidden></div>
        <div class="stack">
          <button class="btn btn-primary btn-block" onclick="portadaIrA('entrar')">${tx("Ya lo confirmé: entrar")}</button>
-         <button class="btn btn-soft btn-block" id="portada-ok" onclick="portadaReenviarVerificacion()">${tx("Mandarme otro")}</button>
+         <button class="btn btn-soft btn-block" id="portada-ok" onclick="portadaReenviarVerificacion()">${tx("Mandar otro")}</button>
        </div>
        <p class="portada-nota">${tx("Si no aparece en unos minutos, míralo en la carpeta de no deseado.")}</p>`;
 

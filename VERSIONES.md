@@ -318,6 +318,23 @@ en que conviene hacerlo:
 
 ## La lista
 
+### 0.7.216 · 27 oct 2026
+
+**Dos textos que no cumplían la guía de voz (`VOZ.md`), cambiados con el visto
+bueno de Eduardo.** Los encontró la guía al escribirse.
+
+- **«Mandarme otro» pasa a «Mandar otro»** (pantalla de confirmar el correo,
+  `js/10c-portada.js`). Un botón dice qué hace y no habla en primera persona:
+  la misma regla por la que «Ponérmelo» pasó a «Aplicar». En inglés, «Send
+  another one»; la clave vieja se quitó del diccionario.
+- **El asunto del correo de bienvenida pasa a «Te damos la bienvenida a
+  Norata».** «Bienvenido» le suponía género a todos, y la regla de la app es
+  que sin saberlo no se supone. Va en `supabase/functions/bienvenida/index.ts`
+  (y el `<title>` de `correos/04-bienvenida.html`, que no se ve pero se queda
+  parejo). **No llega solo: hay que desplegar la función** con
+  `supabase functions deploy bienvenida`. Hasta entonces sale el asunto viejo.
+- Sin novedad: no es algo que quien usa la app vaya a notar (`novedades/LEEME.md`).
+
 ### 0.7.215.1 · 14 oct 2026
 
 **Las dos cosas que la 0.7.215 dejó abiertas, cerradas con el visto bueno de

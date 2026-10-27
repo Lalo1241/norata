@@ -910,7 +910,7 @@ const TEXTOS_EN = {
     ". Open it and press the confirm button: that's what leaves your account ready, and then you can sign in.",
   "El enlace no dura para siempre, así que mejor ahora que mañana. Si se te pasa, desde aquí te mando otro.":
     "The link doesn't last forever, so better now than tomorrow. If it expires on you, I'll send another one from here.",
-  "Mandarme otro": "Send me another one",
+  "Mandar otro": "Send another one",
   "Ya lo confirmé: entrar": "I confirmed it: sign in",
   "Reenviar el correo": "Send the email again",
   "Si no aparece en unos minutos, míralo en la carpeta de no deseado.":

@@ -198,12 +198,8 @@ mirando una sola), y un banco se cuenta por ideas, no por frases.
 
 ## Lo que todavía no cumple esta guía
 
-Encontrado al escribirla. Se arregla en su propia tanda y se borra de aquí al hacerlo.
+Nada conocido. Lo que se encuentre se apunta aquí y se borra al arreglarlo.
 
-- **El asunto del correo de bienvenida dice «Bienvenido a Norata»**
-  (`supabase/functions/bienvenida/index.ts` y `correos/04-bienvenida.html`):
-  pasa a «Te damos la bienvenida a Norata». Es una función de Supabase, así
-  que no llega sola: hay que desplegarla.
-- **«Mandarme otro»** (`js/10c-portada.js`, pantalla de confirmar el correo)
-  habla en primera persona: pasa a «Mandar otro», con su clave del diccionario
-  inglés.
+- **El asunto del correo de bienvenida** ya dice «Te damos la bienvenida a
+  Norata» en el repositorio (0.7.216), pero no llega hasta desplegar la
+  función: `supabase functions deploy bienvenida`. Al desplegarla, se borra esto.

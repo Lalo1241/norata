@@ -45,7 +45,7 @@ const REMITENTE = "Norata <no-reply@norata.app>";
    el correo o lo mandaria a spam. Enviar y recibir son dos cosas distintas, y
    `reply_to` es justo la que las junta. */
 const CONTESTA_A = "norata@hopara.com.mx";
-const ASUNTO = "Bienvenido a Norata";
+const ASUNTO = "Te damos la bienvenida a Norata";
 
 /* De donde se acepta la llamada. Con `*` cualquier pagina del mundo podria
    pedirle al navegador de un usuario que dispare esto; no seria grave —hace
