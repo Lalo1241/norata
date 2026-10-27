@@ -198,7 +198,7 @@ mirando una sola), y un banco se cuenta por ideas, no por frases.
 
 ## Lo que todavía no cumple esta guía
 
-Nada conocido. Lo que se encuentre se apunta aquí y se borra al arreglarlo.
+Lo que se encuentre se apunta aquí y se borra al arreglarlo.
 
 - **El asunto del correo de bienvenida** ya dice «Te damos la bienvenida a
   Norata» en el repositorio (0.7.216), pero no llega hasta desplegar la
