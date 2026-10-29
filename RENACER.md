@@ -89,15 +89,32 @@ Revisar también si algo más compara versiones antes de bajar el número:
   cuando de verdad se apaguen.
 - **La etiqueta `clasica-0.7.216`** guarda todo lo demás. Nada se pierde.
 
-## Decisiones pendientes de Eduardo
+Las demás comparaciones (`versionMasNueva` en `js/10l-novedades.js`,
+`herramientas/aprobar-novedad.py`, `herramientas/novedades-futuras.py`) miden
+contra la `VERSION` de la propia app, así que se alinean solas al empezar el
+JSON de cero. Revisado el 28 oct 2026.
 
-- El número de reinicio (propuesta: `0.1.0`) y si la beta sigue siendo la `0.8`.
-- La frase de la app (propuesta: «Planea en grande. Avanza en días pequeños.»).
-- Si «Enfoque» sale en el renacer o después.
-- El proveedor de la IA dentro de la app y el tope de gasto mensual (meta
-  propuesta: que no pase de 20% del precio de Pro por persona).
-- Si los precios se quedan igual ($69 / $590 / $890 MXN) o cambian los
-  límites del plan gratuito para que se cuenten por proyectos.
+## Lo que decidió Eduardo (28 oct 2026)
+
+- **Número:** el renacer es la `0.1.0`; la beta con 10 personas sigue siendo
+  la `0.8`, con el anuncio de nueva etapa (`hito`) que ya existe.
+- **Frase:** «Planea en grande. Avanza en días pequeños.» (inglés por
+  aprobar: «Plan big. Move forward in small days.»).
+- **Enfoque sale en el renacer.**
+- **Precios iguales** ($69 / $590 / $890 MXN). El plan Gratuito se cuenta por
+  proyectos: 1 proyecto activo y sin IA. Pro: proyectos sin límite y la IA.
+- **IA: Claude.** Haiku para la bitácora y el informe; Sonnet solo para «Arma
+  mi plan». **Tope: 20% de Pro, unos $14 MXN por persona al mes**; al llegar,
+  la IA se pausa hasta el mes siguiente con un aviso que dice cuándo vuelve.
+- **El recorte vive en la rama `renacer`**, no en `main`: el grifo está
+  abierto y todo lo que llega a `main` se publica. `main` queda para arreglos
+  de la clásica. Se fusiona al pasar la Puerta 1.
+
+## El respaldo, hecho (28 oct 2026)
+
+La etiqueta `clasica-0.7.216` y la rama `clasica` apuntan a `3c3d1e0`, el
+`vivo` de ese día (0.7.216). Falta lo de Eduardo: exportar su JSON y el
+respaldo de Supabase.
 
 ## El orden de trabajo
 
